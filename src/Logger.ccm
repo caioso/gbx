@@ -1,0 +1,12 @@
+export module Logger;
+
+export namespace gbx
+{
+
+class Log 
+{
+public:
+    static void LogLn(const char* message);
+};
+
+}
