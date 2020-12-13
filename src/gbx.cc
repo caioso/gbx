@@ -1,15 +1,22 @@
 #include <iostream>
 #include <sstream>
 
-import Logger;
-
 #include "Version.h"
+#include "Logger.h"
+#include "ReadOnlyMemory.h"
 
 using namespace std;
+using namespace gbx;
 
-int main (const int argc, const char* argv[])
+int main ()
 {
     stringstream message;
     message << "GAMEBOY X Emulator " << SystemVersion();
-    gbx::Log::LogLn(message.str().c_str());
+    Log::LogLn(message.str().c_str());
+
+    MemoryBase _rom(100);
+    message.str(string());
+    message << "Creating ROM array " << _rom.Size() << " bytes";
+    Log::LogLn(message.str().c_str());
+
 }

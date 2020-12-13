@@ -1,16 +1,15 @@
-#pragma once
+#pragma once 
 
 #include <iostream>
 
+using namespace std;
+
 namespace gbx
 {
-
-class Logger
+class Log 
 {
 public:
-    static void Log(const char* message);
     static void LogLn(const char* message);
 };
 
-typedef Logger Log;
 }

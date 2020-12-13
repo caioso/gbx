@@ -1,9 +1,4 @@
-module;
-#include <iostream>
-
-module Logger; 
-
-using namespace std;
+#include "Logger.h"
 
 namespace gbx
 {
