@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "*.asm": "fsharp",
-        "*.ccm": "cpp",
-        "cstddef": "cpp",
-        "cstdint": "cpp"
-    }
-}
