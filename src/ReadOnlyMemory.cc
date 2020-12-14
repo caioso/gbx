@@ -1,5 +1,4 @@
 #include "ReadOnlyMemory.h"
-
 namespace gbx
 {
 

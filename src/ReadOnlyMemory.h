@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <stdlib.h>
+#include <array>
 
 #include "MemoryBase.h"
 

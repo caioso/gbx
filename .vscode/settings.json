@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "*.asm": "fsharp",
-        "*.ccm": "cpp"
+        "*.ccm": "cpp",
+        "cstddef": "cpp",
+        "cstdint": "cpp"
     }
 }

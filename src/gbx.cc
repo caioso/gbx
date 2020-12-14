@@ -3,7 +3,7 @@
 
 #include "Version.h"
 #include "Logger.h"
-#include "ReadOnlyMemory.h"
+#include "RegisterBank.h"
 
 using namespace std;
 using namespace gbx;
@@ -11,12 +11,12 @@ using namespace gbx;
 int main ()
 {
     stringstream message;
-    message << "GAMEBOY X Emulator " << SystemVersion();
+    message << "GAME BOY X Emulator " << SystemVersion();
     Log::LogLn(message.str().c_str());
 
-    MemoryBase _rom(100);
-    message.str(string());
-    message << "Creating ROM array " << _rom.Size() << " bytes";
+    RegisterBank registers;
+    registers.Write(Register::PC, 0x0100);
+    message.str(string(""));
+    message << "Program Counter: 0x" << hex << registers.ReadPair(Register::PC);
     Log::LogLn(message.str().c_str());
-
 }
