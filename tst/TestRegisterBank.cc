@@ -32,7 +32,7 @@ TEST(RegisterBankTests, WriteRegisterF)
 TEST(RegisterBankTests, WriteRegisterHL) 
 {
     RegisterBank bank;
-    bank.Write(Register::HL, 0xAABB);
+    bank.WritePair(Register::HL, 0xAABB);
     auto value = bank.ReadPair(Register::HL);
     EXPECT_EQ(0xAABB, value);
 }
@@ -40,7 +40,7 @@ TEST(RegisterBankTests, WriteRegisterHL)
 TEST(RegisterBankTests, WriteRegisterPC) 
 {
     RegisterBank bank;
-    bank.Write(Register::PC, 0xDDCC);
+    bank.WritePair(Register::PC, 0xDDCC);
     auto value = bank.ReadPair(Register::PC);
     EXPECT_EQ(0xDDCC, value);
 }
@@ -48,7 +48,7 @@ TEST(RegisterBankTests, WriteRegisterPC)
 TEST(RegisterBankTests, WriteRegisterSP) 
 {
     RegisterBank bank;
-    bank.Write(Register::SP, 0xABCD);
+    bank.WritePair(Register::SP, 0xABCD);
     auto value = bank.ReadPair(Register::SP);
     EXPECT_EQ(0xABCD, value);
 }
@@ -76,7 +76,7 @@ TEST(RegisterBankTests, WriteRegisterAll16BitRegisters)
     for (auto it = begin(registers); it != end(registers); ++it)
     {
         auto value = static_cast<uint8_t>(distance(registers.begin(), it)) + 1;
-        bank.Write(*it, ((value<<8) | value));
+        bank.WritePair(*it, ((value<<8) | value));
 
         ASSERT_EQ(((value<<8) | value), bank.ReadPair(*it));
     }    

@@ -27,14 +27,27 @@ std::uint16_t RegisterBank::ReadPair(Register reg)
     return static_cast<uint16_t>(_registers[highIndex] << 8 | _registers[lowIndex]);
 }
 
-void RegisterBank::Write(Register reg, uint16_t val)
+void RegisterBank::Write(Register reg, uint8_t val)
 {
+    assert(IsSingleRegister(reg));
+
     auto index = RegisterToIndex(reg);
 
     if(IsSingleRegister(reg))
         _registers[index] = val & 0xFF;
     else
         WritePair(reg, val);
+}
+
+void RegisterBank::WritePair(Register reg, uint16_t val)
+{
+    assert(!IsSingleRegister(reg));
+
+    auto highIndex = PairToHighIndex(reg);
+    auto lowIndex = PairToLowIndex(reg);
+
+    _registers[highIndex] = (val >> 8) & 0xFF;
+    _registers[lowIndex] = val & 0xFF;
 }
 
 constexpr uint8_t RegisterBank::RegisterToIndex(Register reg)
@@ -48,16 +61,6 @@ constexpr bool RegisterBank::IsSingleRegister(Register reg)
            reg != Register::AF && reg != Register::PC && reg != Register::SP;
 }
 
-void RegisterBank::WritePair(Register reg, uint16_t val)
-{
-    assert(!IsSingleRegister(reg));
-
-    auto highIndex = PairToHighIndex(reg);
-    auto lowIndex = PairToLowIndex(reg);
-
-    _registers[highIndex] = (val >> 8) & 0xFF;
-    _registers[lowIndex] = val & 0xFF;
-}
 
 uint8_t RegisterBank::PairToHighIndex(Register reg)
 {

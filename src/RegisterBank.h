@@ -39,14 +39,15 @@ class RegisterBank
 {
 public: 
     RegisterBank();
+    ~RegisterBank() = default;
     std::uint8_t Read(Register reg);
     std::uint16_t ReadPair(Register reg);
-    void Write(Register reg, std::uint16_t val);
+    void Write(Register reg, std::uint8_t val);
+    void WritePair(Register reg, std::uint16_t val);
 
 private:
     constexpr uint8_t RegisterToIndex(Register reg);
     constexpr bool IsSingleRegister(Register reg);
-    void WritePair(Register reg, uint16_t val);
     uint8_t PairToHighIndex(Register reg);
     uint8_t PairToLowIndex(Register reg);
 
