@@ -1,5 +1,9 @@
 #include <gtest/gtest.h>
+
+#include <array>
 #include <cstdlib>
+#include <memory>
+#include <optional>
 
 #include "../src/GBXExceptions.h"
 #include "../src/ROM.h"
@@ -154,4 +158,22 @@ TEST(ROMTests, WriteInvalidAddressesTest2)
 
     EXPECT_TRUE(invalidByteAddress);
     EXPECT_TRUE(invalidWordAddress);
+}
+
+TEST(ROMTests, LoadROM)
+{
+    ROM rom(static_cast<size_t>(0x10));
+    array<uint8_t, 0x10> romContent = {0x0F, 0x0E, 0x0D, 0x0C, 
+                                       0x0B, 0x0A, 0x09, 0x08, 
+                                       0x07, 0x06, 0x05, 0x04, 
+                                       0x03, 0x02, 0x01, 0x00};
+
+    rom.Load(romContent.data(), 0x10, std::nullopt);
+
+    uint16_t address = 0x00;
+    for(auto element : romContent)
+    {
+        auto value = rom.ReadByte(address++);
+        ASSERT_EQ(element, value);
+    }
 }

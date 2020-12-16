@@ -17,6 +17,18 @@ size_t ROM::Size()
     return _size;
 }
 
+void ROM::Load(const uint8_t* content, std::size_t size, std::optional<size_t> offset)
+{
+    if (size + offset.value_or(0) > _size)
+    {
+        stringstream ss;
+        ss << "load size + offset exceeds ROM size ( load size: " << size << " offset " << offset.value_or(0) << " ROM size: " << _size << ")";
+        throw MemoryAccessException(ss.str());
+    }
+
+    copy(&content[0], &content[_size], &_rom.get()[0]);
+}
+
 uint8_t ROM::ReadByte(uint16_t address)
 {
     if (address >= _size)
