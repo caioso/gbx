@@ -6,6 +6,7 @@
 #include <memory>
 #include <optional>
 #include <sstream>
+#include <variant>
 
 #include "GBXExceptions.h"
 #include "Memory.h"
@@ -19,14 +20,15 @@ public:
     ROM(std::size_t sizeInBytes);
     virtual ~ROM() = default;
 
+    virtual std::variant<uint8_t, uint16_t> Read(uint16_t address, MemoryAccessType accessType) override;
+    virtual void Write(std::variant<uint8_t, uint16_t> value, uint16_t address) override;
+
     virtual std::size_t Size() override;
     virtual void Load(const uint8_t* content, std::size_t size, std::optional<size_t> offset) override;
-    virtual uint8_t ReadByte(uint16_t address) override;
-    virtual uint16_t ReadWord(uint16_t address) override ;
-    virtual void WriteByte(uint8_t value, uint16_t address) override;
-    virtual void WriteWord(uint16_t value, uint16_t address) override;
 
 private:
+    void CheckReadConditions(uint16_t address, MemoryAccessType accessType);
+    void CheckWriteConditions(std::variant<uint8_t, uint16_t> value, uint16_t address);
     std::size_t _size;
     std::unique_ptr<uint8_t[]> _rom;
 };

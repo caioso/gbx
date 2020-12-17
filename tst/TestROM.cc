@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <memory>
 #include <optional>
+#include <variant>
 
 #include "../src/GBXExceptions.h"
 #include "../src/ROM.h"
@@ -25,27 +26,25 @@ TEST(ROMTests, CheckMemoryInitialization)
 
     for (uint16_t i = 0; i < static_cast<uint16_t>(rom.Size()); i++)
     {
-        auto value = rom.ReadByte(i);
-        EXPECT_EQ(0x00, value);
+        auto value = rom.Read(i, MemoryAccessType::Byte);
+        EXPECT_EQ(0x00, get<uint8_t>(value));
     }
 }
 
 TEST(ROMTests, WriteByte)
 {
     ROM rom(static_cast<size_t>(100));
-    rom.WriteByte(0xAA, 0x0020);
-    auto value = rom.ReadByte(0x0020);
-
-    EXPECT_EQ(0xAA, value);
+    rom.Write(static_cast<uint8_t>(0xAA), 0x0020);
+    auto value = rom.Read(0x0020, MemoryAccessType::Byte);
+    EXPECT_EQ(0xAA, get<uint8_t>(value));
 }
 
 TEST(ROMTests, WriteWord)
 {
     ROM rom(static_cast<size_t>(100));
-    rom.WriteWord(0xFFAA, 0x0030);
-    auto value = rom.ReadWord(0x0030);
-
-    EXPECT_EQ(0xFFAA, value);
+    rom.Write(static_cast<uint16_t>(0xFFEE), 0x0030);
+    auto value = rom.Read(0x0030, MemoryAccessType::Word);
+    EXPECT_EQ(0xFFEE, get<uint16_t>(value));
 }
 
 TEST(ROMTests, ReadInvalidAddresses)
@@ -56,7 +55,7 @@ TEST(ROMTests, ReadInvalidAddresses)
 
     try
     {
-        rom.ReadByte(0x0051);
+        rom.Read(0x0051, MemoryAccessType::Byte);
     }
     catch (const MemoryAccessException& e)
     {
@@ -65,7 +64,7 @@ TEST(ROMTests, ReadInvalidAddresses)
 
     try
     {
-        rom.ReadWord(0x0050);
+        rom.Read(0x0050,  MemoryAccessType::Word);
     }
     catch (const MemoryAccessException& e)
     {
@@ -84,7 +83,7 @@ TEST(ROMTests, ReadInvalidAddressesTest2)
 
     try
     {
-        rom.ReadByte(0x0100);
+        rom.Read(0x0100,  MemoryAccessType::Byte);
     }
     catch (const MemoryAccessException& e)
     {
@@ -93,7 +92,7 @@ TEST(ROMTests, ReadInvalidAddressesTest2)
 
     try
     {
-        rom.ReadWord(0x0101);
+        rom.Read(0x0101,  MemoryAccessType::Word);
     }
     catch (const MemoryAccessException& e)
     {
@@ -112,7 +111,7 @@ TEST(ROMTests, WriteInvalidAddresses)
 
     try
     {
-        rom.WriteByte(0x91, 0x0050);
+        rom.Write(static_cast<uint8_t>(0x91), 0x0050);
     }
     catch (const MemoryAccessException& e)
     {
@@ -121,7 +120,7 @@ TEST(ROMTests, WriteInvalidAddresses)
 
     try
     {
-        rom.WriteWord(0xFFFF, 0x0051);
+        rom.Write(static_cast<uint16_t>(0xFFFF), 0x0051);
     }
     catch (const MemoryAccessException& e)
     {
@@ -140,7 +139,7 @@ TEST(ROMTests, WriteInvalidAddressesTest2)
 
     try
     {
-        rom.WriteByte(0x10, 0x0100);
+        rom.Write(static_cast<uint8_t>(0x10), 0x0100);
     }
     catch (const MemoryAccessException& e)
     {
@@ -149,7 +148,7 @@ TEST(ROMTests, WriteInvalidAddressesTest2)
 
     try
     {
-        rom.WriteWord(0x01, 0x0100);
+        rom.Write(static_cast<uint16_t>(0x01), 0x0100);
     }
     catch (const MemoryAccessException& e)
     {
@@ -173,7 +172,7 @@ TEST(ROMTests, LoadROM)
     uint16_t address = 0x00;
     for(auto element : romContent)
     {
-        auto value = rom.ReadByte(address++);
-        ASSERT_EQ(element, value);
+        auto value = rom.Read(address++, MemoryAccessType::Byte);
+        ASSERT_EQ(element, get<uint8_t>(value));
     }
 }

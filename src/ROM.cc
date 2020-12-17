@@ -29,52 +29,65 @@ void ROM::Load(const uint8_t* content, std::size_t size, std::optional<size_t> o
     copy(&content[0], &content[_size], &_rom.get()[0]);
 }
 
-uint8_t ROM::ReadByte(uint16_t address)
+std::variant<uint8_t, uint16_t> ROM::Read(uint16_t address, MemoryAccessType accessType)
 {
-    if (address >= _size)
+    CheckReadConditions(address, accessType);
+
+    if (accessType == MemoryAccessType::Byte)
+        return variant<uint8_t, uint16_t>{in_place_index<0>, _rom[address]};
+    else
+        return variant<uint8_t, uint16_t>{in_place_index<1>, (_rom[address + 1] << 8 | _rom[address])};
+}
+
+void ROM::Write(std::variant<uint8_t, uint16_t> value, uint16_t address)
+{
+    CheckWriteConditions(value, address);
+
+    if (holds_alternative<uint8_t>(value))
+    {
+        auto byte = get<uint8_t>(value);
+        _rom[address] = byte & 0xFF;
+    }
+    else if (holds_alternative<uint16_t>(value))
+    {
+        auto word = get<uint16_t>(value);
+        _rom[address] = word & 0xFF;
+        _rom[address + 1] = (word >> 8) & 0xFF;
+    }
+    else
+        throw MemoryAccessException("variant has no value.");
+}
+
+void ROM::CheckReadConditions(uint16_t address, MemoryAccessType accessType)
+{
+    if (address >= _size && accessType == MemoryAccessType::Byte)
     {
         stringstream ss;
         ss << "bad memory address when reading byte from (" << address << " out of " << _size << ")";
         throw MemoryAccessException(ss.str());
     }
-
-    return _rom[address];
-}
-uint16_t ROM::ReadWord(uint16_t address)
-{
-    if (address >= _size || address + 1 >= _size)
+    else if ((address >= _size || address + 1 >= _size) && accessType == MemoryAccessType::Word)
     {
         stringstream ss;
         ss << "bad memory address when reading word from (" << address << " out of " << _size << ")";
         throw MemoryAccessException(ss.str());
     }
-
-    return _rom[address + 1] << 8 | _rom[address];
 }
 
-void ROM::WriteByte(uint8_t value, uint16_t address)
+void ROM::CheckWriteConditions(std::variant<uint8_t, uint16_t> value, uint16_t address)
 {
-    if (address >= _size || address + 1 >= _size)
+    if (holds_alternative<uint8_t>(value) && address >= _size)
     {
         stringstream ss;
         ss << "bad memory address when writing byte to (" << address << " out of " << _size << ")";
         throw MemoryAccessException(ss.str());
     }
-
-    _rom[address] = value;
-}
-
-void ROM::WriteWord(uint16_t value, uint16_t address)
-{
-    if (address >= _size || address + 1 >= _size)
+    else if (holds_alternative<uint16_t>(value) && (address >= _size || address + 1 >= _size))
     {
         stringstream ss;
         ss << "bad memory address when writing word to (" << address << " out of " << _size << ")";
         throw MemoryAccessException(ss.str());
     }
-
-    _rom[address] = value & 0xFF;
-    _rom[address + 1] = (value >> 8) & 0xFF;
 }
 
 }
