@@ -24,12 +24,12 @@ AddressRange::AddressRange(uint16_t begin, uint16_t end, std::optional<RangeType
     }
 }
 
-uint16_t AddressRange::Begin()
+uint16_t AddressRange::Begin() const
 {
     return _begin;
 }
 
-uint16_t AddressRange::End()
+uint16_t AddressRange::End() const
 {
     return _end;
 }

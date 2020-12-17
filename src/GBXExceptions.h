@@ -24,4 +24,12 @@ public:
     ~MemoryAccessException() = default;
 };
 
+class MemoryControllerException : public GBXException
+{
+public:
+    MemoryControllerException(const std::string message);
+    ~MemoryControllerException() = default;
+};
+
+
 }

@@ -18,8 +18,8 @@ class AddressRange
 {
 public:
     AddressRange(uint16_t begin, uint16_t end, std::optional<RangeType> range);
-    uint16_t Begin();
-    uint16_t End();
+    uint16_t Begin() const;
+    uint16_t End() const;
 
 private:
     void SetAllInclusive(uint16_t begin, uint16_t end);
