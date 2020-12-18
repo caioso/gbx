@@ -17,6 +17,10 @@ MemoryControllerException::MemoryControllerException(const std::string message)
     : GBXException(message)
 {}
 
+ClockSourceException::ClockSourceException(const std::string message)
+    : GBXException(message)
+{}
+
 const char* GBXException::what() const noexcept
 {
     return _message.c_str();

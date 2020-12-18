@@ -31,5 +31,11 @@ public:
     ~MemoryControllerException() = default;
 };
 
+class ClockSourceException : public GBXException
+{
+public:
+    ClockSourceException(const std::string message);
+    ~ClockSourceException() = default;
+};
 
 }
