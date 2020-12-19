@@ -7,6 +7,7 @@ namespace gbx
 
 RegisterBank::RegisterBank()
     : _registers({0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+    , _alternates({0, 0, 0, 0, 0, 0, 0, 0})
 {}
 
 uint8_t RegisterBank::Read(Register reg)
@@ -58,7 +59,8 @@ constexpr uint8_t RegisterBank::RegisterToIndex(Register reg)
 constexpr bool RegisterBank::IsSingleRegister(Register reg)
 {
     return reg != Register::BC && reg != Register::DE && reg != Register::HL && 
-           reg != Register::AF && reg != Register::PC && reg != Register::SP;
+           reg != Register::AF && reg != Register::PC && reg != Register::SP &&
+           reg != Register::IX && reg != Register::IY;
 }
 
 
@@ -78,6 +80,10 @@ uint8_t RegisterBank::PairToHighIndex(Register reg)
             return RegisterToIndex(Register::PC);
         case Register::SP:
             return RegisterToIndex(Register::SP);
+        case Register::IX:
+            return RegisterToIndex(Register::IX);
+        case Register::IY:
+            return RegisterToIndex(Register::IY);
         case Register::A:
         case Register::B:
         case Register::C:
@@ -86,6 +92,9 @@ uint8_t RegisterBank::PairToHighIndex(Register reg)
         case Register::H:
         case Register::L:
         case Register::F:
+        case Register::I:
+        case Register::R:
+        case Register::IR:
             throw invalid_argument("invalid pair register");
     }
 }
@@ -106,6 +115,10 @@ uint8_t RegisterBank::PairToLowIndex(Register reg)
             return RegisterToIndex(Register::PC) + 1;
         case Register::SP:
             return RegisterToIndex(Register::SP) + 1;
+        case Register::IX:
+            return RegisterToIndex(Register::IX) + 1;
+        case Register::IY:
+            return RegisterToIndex(Register::IY) + 1;
         case Register::A:
         case Register::B:
         case Register::C:
@@ -114,8 +127,19 @@ uint8_t RegisterBank::PairToLowIndex(Register reg)
         case Register::H:
         case Register::L:
         case Register::F:
+        case Register::I:
+        case Register::R:
+        case Register::IR:
             throw invalid_argument("invalid pair register");
     }
+}
+
+void RegisterBank::Swap()
+{
+    array<uint8_t, 8> tmp;
+    copy(begin(_registers), begin(_registers) + 8, begin(tmp));
+    copy(begin(_alternates), end(_alternates), begin(_registers));
+    copy(begin(tmp), end(tmp), begin(_alternates));
 }
 
 }

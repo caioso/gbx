@@ -1,18 +1,19 @@
 CC := clang++
 OBJ_DIR := $(CURDIR)/../obj
 SRC_FILES := $(wildcard ./*.cc)
-OBJ_FILES := $(patsubst ./%.cc,%.o,$(SRC_FILES))
+OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
 LDFLAGS := -lgtest -lgmock
 CPPFLAGS := -Wall -Wextra -std=c++2a -O3 -g -DDEBUG
 TARGET := gbxTest
+TARGET_DIR := $(CURDIR)/..
 DEPENDECIES := $(OBJ_DIR)/GBXExceptions.o $(OBJ_DIR)/RegisterBank.o $(OBJ_DIR)/ROM.o \
 			   $(OBJ_DIR)/MemoryController.o $(OBJ_DIR)/AddressRange.o $(OBJ_DIR)/CPU.o \
-			   $(OBJ_DIR)/ClockSource.o
+			   $(OBJ_DIR)/ClockSource.o $(OBJ_DIR)/ControlUnit.o
 
-$(TARGET): $(OBJ_FILES)
+$(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
 	$(CC) -o $@ $^ $(DEPENDECIES) $(LDFLAGS)
 
-%.o: %.cc
+$(OBJ_DIR)/%.o: %.cc
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
 clean:

@@ -15,10 +15,16 @@ clean:
 	$(call CleanTarget, src)
 	$(call CleanTarget, tst)
 	rm -f ./obj/*.o ./$(TARGET)
-	rm -f ./tst/*.o ./tst/$(TEST_TARGET)
+	rm -f ./tst/*.o ./$(TEST_TARGET)
 
 test:
-	./tst/$(TEST_TARGET)
+	./$(TEST_TARGET)
+
+debug-test:
+	lldb $(TEST_TARGET)
+
+debug:
+	lldb $(TARGET)
 
 run:
 	./$(TARGET)

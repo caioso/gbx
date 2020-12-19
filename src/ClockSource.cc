@@ -36,7 +36,7 @@ void ClockSource::Tick()
     _ticks++;
 
     for (auto i = static_cast<size_t>(0); i < _observersCounter; i++)
-        if (!_observers.at(i).expired()) _observers.at(i).lock()->Notify();
+        if (!_observers.at(i).expired()) _observers.at(i).lock()->OnTick();
 }
 
 uint64_t ClockSource::Ticks()

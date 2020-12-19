@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <assert.h>
 #include <cstdint>
@@ -24,15 +25,24 @@ enum class Register
     // Status Registers
     F = 7,
 
-    // Special Registers
-    PC = 8,
-    SP = 10,
+    // Instruction Register
+    IR = 8,
 
-    // Register Pairs
-    HL = 12,
-    BC = 13,
-    DE = 14,
-    AF = 15,
+    // Special Registers
+    I = 9,
+    R = 10,
+    PC = 11,
+    SP = 13,
+
+    // Index Registers
+    IX = 15, 
+    IY = 17,
+
+    // Register Pairs (only representations, they have no physical meaning)
+    HL = 19,
+    BC = 20,
+    DE = 21,
+    AF = 22,
 };
 
 class RegisterBank
@@ -48,10 +58,14 @@ public:
 private:
     constexpr uint8_t RegisterToIndex(Register reg);
     constexpr bool IsSingleRegister(Register reg);
+
+    void Swap();
+
     uint8_t PairToHighIndex(Register reg);
     uint8_t PairToLowIndex(Register reg);
 
-    std::array<std::uint8_t, 12> _registers;
+    std::array<std::uint8_t, 18> _registers;
+    std::array<std::uint8_t, 8> _alternates;
 };
 
 }

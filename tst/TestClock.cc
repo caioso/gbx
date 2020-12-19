@@ -18,7 +18,7 @@ class ClockObserverMock : public ClockObserver
 public:
     ClockObserverMock() = default;
     virtual ~ClockObserverMock() = default;
-    MOCK_METHOD0(Notify, void(void));
+    MOCK_METHOD0(OnTick, void(void));
 };
 
 TEST(ClockTests, Construction) 
@@ -52,7 +52,7 @@ TEST(ClockTests, Observers)
 
     clock.Subscribe(observer);
 
-    EXPECT_CALL(*dynamic_pointer_cast<ClockObserverMock>(mock), Notify());
+    EXPECT_CALL(*dynamic_pointer_cast<ClockObserverMock>(mock), OnTick());
     clock.Tick();
 }
 
@@ -67,8 +67,8 @@ TEST(ClockTests, MultipleObservers)
     clock.Subscribe(observer1);
     clock.Subscribe(observer2);
 
-    EXPECT_CALL(*dynamic_pointer_cast<ClockObserverMock>(mock1), Notify()).Times(100);
-    EXPECT_CALL(*dynamic_pointer_cast<ClockObserverMock>(mock2), Notify()).Times(100);
+    EXPECT_CALL(*dynamic_pointer_cast<ClockObserverMock>(mock1), OnTick()).Times(100);
+    EXPECT_CALL(*dynamic_pointer_cast<ClockObserverMock>(mock2), OnTick()).Times(100);
 
     for (auto i = 0; i < 100; i++)
         clock.Tick();

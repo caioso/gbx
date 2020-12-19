@@ -6,7 +6,7 @@ namespace gbx
 class ClockObserver
 {
 public:
-    virtual void Notify() = 0;
+    virtual void OnTick() = 0;
     virtual ~ClockObserver() = default;
 };
 
