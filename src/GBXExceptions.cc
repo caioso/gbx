@@ -21,6 +21,10 @@ ClockSourceException::ClockSourceException(const std::string message)
     : GBXException(message)
 {}
 
+ChannelException::ChannelException(const std::string message)
+    : GBXException(message)
+{}
+
 const char* GBXException::what() const noexcept
 {
     return _message.c_str();

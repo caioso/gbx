@@ -38,4 +38,11 @@ public:
     ~ClockSourceException() = default;
 };
 
+class ChannelException : public GBXException
+{
+public:
+    ChannelException(const std::string message);
+    ~ChannelException() = default;
+};
+
 }
