@@ -1,6 +1,9 @@
 #pragma once
 
-#include <iostream>
+#include <memory>
+
+#include "Channel.h"
+#include "ArithmeticLogicUnit.h"
 
 namespace gbx
 {
@@ -26,7 +29,11 @@ public:
 
     void Update();
 
+    // Channels
+    std::shared_ptr<Channel<ALUMessage>> ControlUnitALUChannel;
+
 protected:
+    void OnALUMessage(ALUMessage message);
     void DecideNextState();
     void UpdateFetch();
 

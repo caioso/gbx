@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 
+#include <memory>
+
+#include "../src/ArithmeticLogicUnit.h"
 #include "../src/ControlUnit.h"
 
 using namespace std;
@@ -12,7 +15,7 @@ public:
     FetchSubState CtrlFetchSubstate() { return _fetchSubstate; }
 };
 
-TEST(ControlUnitTest, Construction) 
+TEST(TestControlUnit, Construction) 
 {
     auto controlUnit = make_shared<ControlUnitWrapperForTests>();
 
@@ -20,9 +23,13 @@ TEST(ControlUnitTest, Construction)
     EXPECT_EQ(FetchSubState::FetchT1, controlUnit->CtrlFetchSubstate());
 }
 
-TEST(ControlUnitTest, UpdateFetchState) 
+TEST(TestControlUnit, UpdateFetchState) 
 {
     auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    auto dummyALUChannel = make_shared<Channel<ALUMessage>>(ChannelType::In);
+    dummyALUChannel->OnReceived([](ALUMessage){ return; });
+
+    controlUnit->ControlUnitALUChannel->Bind(dummyALUChannel);
     
     controlUnit->Update();
 
@@ -43,4 +50,21 @@ TEST(ControlUnitTest, UpdateFetchState)
 
     EXPECT_EQ(ControlUnitState::Fetch, controlUnit->CtrlUnitState());
     EXPECT_EQ(FetchSubState::FetchT1, controlUnit->CtrlFetchSubstate());
+}
+
+TEST(TestControlUnit, RequestPCFetch)
+{
+    auto testPassed = false;
+    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::In);
+
+    controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
+    dummyAluChannel->OnReceived([&testPassed](ALUMessage message) 
+    { 
+        if (message == ALUMessage::FetchPC)
+            testPassed = true;
+    });
+
+    controlUnit->Update();
+    EXPECT_TRUE(testPassed);
 }

@@ -10,7 +10,7 @@
 using namespace std;
 using namespace gbx;
 
-TEST(MemoryControllerTests, ResourceRegistration) 
+TEST(TestMemoryController, ResourceRegistration) 
 {
     MemoryController memController;
     shared_ptr<Memory> rom(new ROM(0x100));
@@ -26,7 +26,7 @@ TEST(MemoryControllerTests, ResourceRegistration)
     EXPECT_EQ(0xFF, get<uint8_t>(value));
 }
 
-TEST(MemoryControllerTests, ResourceRegistrationAddressDoesNoMatchSize) 
+TEST(TestMemoryController, ResourceRegistrationAddressDoesNoMatchSize) 
 {
     auto test1Succeeded = false;
     auto test2Succeeded = false;
@@ -64,7 +64,7 @@ TEST(MemoryControllerTests, ResourceRegistrationAddressDoesNoMatchSize)
     EXPECT_TRUE(test2Succeeded);
 }
 
-TEST(MemoryControllerTests, ResourceRegistrationWithOverlap) 
+TEST(TestMemoryController, ResourceRegistrationWithOverlap) 
 {
     auto overlapDetected = false;
     MemoryController memController;
@@ -93,7 +93,7 @@ TEST(MemoryControllerTests, ResourceRegistrationWithOverlap)
     EXPECT_TRUE(overlapDetected);
 }
 
-TEST(MemoryControllerTests, TwoResourcesOperation) 
+TEST(TestMemoryController, TwoResourcesOperation) 
 {
     MemoryController memController;
     shared_ptr<Memory> smallROM(new ROM(0x100));
@@ -121,7 +121,7 @@ TEST(MemoryControllerTests, TwoResourcesOperation)
     EXPECT_EQ(0x56D2, get<uint16_t>(largeROM.get()->Read(0x0111, MemoryAccessType::Word)));
 }
 
-TEST(MemoryControllerTests, NonConsecultiveResources) 
+TEST(TestMemoryController, NonConsecultiveResources) 
 {
     MemoryController memController;
     shared_ptr<Memory> smallROM(new ROM(0x100));
@@ -149,7 +149,7 @@ TEST(MemoryControllerTests, NonConsecultiveResources)
     EXPECT_EQ(0xCCAA, get<uint16_t>(largeROM.get()->Read(0x0100, MemoryAccessType::Word)));
 }
 
-TEST(MemoryControllerTests, AccessEmptyAddressRange) 
+TEST(TestMemoryController, AccessEmptyAddressRange) 
 {
     auto test1Passed = false;
     auto test2Passed = false;
@@ -190,7 +190,7 @@ TEST(MemoryControllerTests, AccessEmptyAddressRange)
     EXPECT_TRUE(test2Passed);
 }
 
-TEST(MemoryControllerTests, PerformOperationsInTheRangeBorders) 
+TEST(TestMemoryController, PerformOperationsInTheRangeBorders) 
 {
     auto test1Passed = false;
     auto test2Passed = false;
@@ -225,7 +225,7 @@ TEST(MemoryControllerTests, PerformOperationsInTheRangeBorders)
     EXPECT_TRUE(test2Passed);
 }
 
-TEST(MemoryControllerTests, UnregisterResource) 
+TEST(TestMemoryController, UnregisterResource) 
 {
     MemoryController memController;
     shared_ptr<Memory> rom(new ROM(0x100));
@@ -239,7 +239,7 @@ TEST(MemoryControllerTests, UnregisterResource)
 }
 
 
-TEST(MemoryControllerTests, UnregisterAFewResource) 
+TEST(TestMemoryController, UnregisterAFewResource) 
 {
     auto finalTestPassed = false;
     MemoryController memController;
@@ -296,7 +296,7 @@ TEST(MemoryControllerTests, UnregisterAFewResource)
     EXPECT_EQ(0xFF, get<uint8_t>(value));   
 }
 
-TEST(MemoryControllerTests, ReuseUnregisteredRange) 
+TEST(TestMemoryController, ReuseUnregisteredRange) 
 {
     MemoryController memController;
     shared_ptr<Memory> rom(new ROM(0x100));

@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "ArithmeticLogicUnit.h"
 #include "ClockSource.h"
 #include "ClockObserver.h"
 #include "ControlUnit.h"
@@ -34,6 +35,7 @@ protected:
     std::unique_ptr<RegisterBank> _registerBank;
     std::unique_ptr<ROM> _internalROM;
     std::unique_ptr<ControlUnit> _controlUnit;
+    std::unique_ptr<ArithmeticLogicUnit> _alu;
 };
 
 }

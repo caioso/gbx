@@ -16,5 +16,5 @@ int main ()
 
     auto cpu = make_shared<CPU>();
     cpu->Initialize();
-    cpu->Run();
+    cpu->Run(100);
 }

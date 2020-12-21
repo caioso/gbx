@@ -21,7 +21,7 @@ public:
     MOCK_METHOD0(OnTick, void(void));
 };
 
-TEST(ClockTests, Construction) 
+TEST(TestClock, Construction) 
 {
     constexpr double GBCPeriod = 1.0/8388608;
     ClockSource clock(EngineParameters::GBCFrequency);
@@ -29,7 +29,7 @@ TEST(ClockTests, Construction)
     EXPECT_DOUBLE_EQ(GBCPeriod, clock.Period());
 }
 
-TEST(ClockTests, Tick)
+TEST(TestClock, Tick)
 {
     ClockSource clock(EngineParameters::GBCFrequency);
     clock.Tick();
@@ -44,7 +44,7 @@ TEST(ClockTests, Tick)
     EXPECT_EQ(static_cast<uint32_t>(1001), clock.Ticks());
 }
 
-TEST(ClockTests, Observers)
+TEST(TestClock, Observers)
 {
     ClockSource clock(EngineParameters::GBCFrequency);
     shared_ptr<ClockObserver> mock = make_shared<ClockObserverMock>();
@@ -56,7 +56,7 @@ TEST(ClockTests, Observers)
     clock.Tick();
 }
 
-TEST(ClockTests, MultipleObservers)
+TEST(TestClock, MultipleObservers)
 {
     ClockSource clock(EngineParameters::GBCFrequency);
     shared_ptr<ClockObserver> mock1 = make_shared<ClockObserverMock>();
@@ -74,7 +74,7 @@ TEST(ClockTests, MultipleObservers)
         clock.Tick();
 }
 
-TEST(ClockTests, SameObserverRegistered)
+TEST(TestClock, SameObserverRegistered)
 {
     auto testPassed = false;
     ClockSource clock(EngineParameters::GBCFrequency);

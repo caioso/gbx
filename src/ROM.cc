@@ -6,10 +6,15 @@ namespace gbx
 {
 
 ROM::ROM(std::size_t sizeInBytes)
-    : _size(sizeInBytes)
+    : ROMALUChannel(make_shared<Channel<ROMMessage>>(ChannelType::InOut))
+    , _size(sizeInBytes)
     , _rom(new uint8_t[sizeInBytes])
 {
     fill(&_rom.get()[0], &_rom.get()[_size], 0x00);
+    ROMALUChannel->OnReceived([this](ROMMessage) -> void 
+    {
+        this->ROMALUChannel->Send({ROMRequestType::Result, static_cast<uint8_t>(0xAA)});
+    });
 }
 
 size_t ROM::Size()

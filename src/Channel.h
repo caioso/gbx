@@ -38,7 +38,7 @@ public:
 
     void OnReceived(const std::function<void(T)>& callback)
     {
-        if (_type == ChannelType::In)
+        if (_type == ChannelType::Out)
             throw ChannelException("input channel cannot receive messages");
 
         _callback = callback;
@@ -46,7 +46,7 @@ public:
 
     void Send(T message)
     {
-        if (_type == ChannelType::Out)
+        if (_type == ChannelType::In)
             throw ChannelException("output channel cannot send messages");
 
         if (_binding == nullptr)

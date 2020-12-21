@@ -6,14 +6,14 @@
 using namespace std;
 using namespace gbx;
 
-TEST(RegisterBankTests, ReadRegisterA) 
+TEST(TestRegisterBank, ReadRegisterA) 
 {
     RegisterBank bank;
     auto value = bank.Read(Register::A);
     EXPECT_EQ(0, value);
 }
 
-TEST(RegisterBankTests, WriteRegisterA) 
+TEST(TestRegisterBank, WriteRegisterA) 
 {
     RegisterBank bank;
     bank.Write(Register::A, 0x01);
@@ -21,7 +21,7 @@ TEST(RegisterBankTests, WriteRegisterA)
     EXPECT_EQ(1, value);
 }
 
-TEST(RegisterBankTests, WriteRegisterF) 
+TEST(TestRegisterBank, WriteRegisterF) 
 {
     RegisterBank bank;
     bank.Write(Register::F, 0x98);
@@ -29,7 +29,7 @@ TEST(RegisterBankTests, WriteRegisterF)
     EXPECT_EQ(0x98, value);
 }
 
-TEST(RegisterBankTests, WriteRegisterHL) 
+TEST(TestRegisterBank, WriteRegisterHL) 
 {
     RegisterBank bank;
     bank.WritePair(Register::HL, 0xAABB);
@@ -37,7 +37,7 @@ TEST(RegisterBankTests, WriteRegisterHL)
     EXPECT_EQ(0xAABB, value);
 }
 
-TEST(RegisterBankTests, WriteRegisterPC) 
+TEST(TestRegisterBank, WriteRegisterPC) 
 {
     RegisterBank bank;
     bank.WritePair(Register::PC, 0xDDCC);
@@ -45,7 +45,7 @@ TEST(RegisterBankTests, WriteRegisterPC)
     EXPECT_EQ(0xDDCC, value);
 }
 
-TEST(RegisterBankTests, WriteRegisterSP) 
+TEST(TestRegisterBank, WriteRegisterSP) 
 {
     RegisterBank bank;
     bank.WritePair(Register::SP, 0xABCD);
@@ -53,7 +53,7 @@ TEST(RegisterBankTests, WriteRegisterSP)
     EXPECT_EQ(0xABCD, value);
 }
 
-TEST(RegisterBankTests, WriteRegisterAll8BitRegisters) 
+TEST(TestRegisterBank, WriteRegisterAll8BitRegisters) 
 {
     RegisterBank bank;
     array<Register, 7> registers = { Register::B, Register::C, Register::D, Register::E,
@@ -68,7 +68,7 @@ TEST(RegisterBankTests, WriteRegisterAll8BitRegisters)
     }    
 }
 
-TEST(RegisterBankTests, WriteRegisterAll16BitRegisters) 
+TEST(TestRegisterBank, WriteRegisterAll16BitRegisters) 
 {
     RegisterBank bank;
     array<Register, 4> registers = { Register::HL, Register::BC, Register::DE, Register::AF };

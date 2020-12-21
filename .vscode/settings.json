@@ -73,6 +73,7 @@
         "utility": "cpp",
         "variant": "cpp",
         "vector": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "__functional_03": "cpp"
     }
 }

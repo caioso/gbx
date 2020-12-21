@@ -8,11 +8,26 @@
 #include <sstream>
 #include <variant>
 
+#include "Channel.h"
 #include "GBXExceptions.h"
 #include "Memory.h"
 
 namespace gbx
 {
+
+enum class ROMRequestType
+{
+    Read,
+    Write,
+    Result
+};
+
+typedef struct ROMMessage_t
+{
+    ROMRequestType Request;
+    std::variant<uint8_t, uint16_t> Data;
+}
+ROMMessage;
 
 class ROM : public Memory
 {
@@ -25,6 +40,9 @@ public:
 
     virtual std::size_t Size() override;
     virtual void Load(const uint8_t* content, std::size_t size, std::optional<size_t> offset) override;
+
+    // REMOVE LATER: THE MEMORY CONTROLLER MUST HAVE THIS
+    std::shared_ptr<Channel<ROMMessage>> ROMALUChannel;
 
 private:
     void CheckReadConditions(uint16_t address, MemoryAccessType accessType);

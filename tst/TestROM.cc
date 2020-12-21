@@ -12,7 +12,7 @@
 using namespace std;
 using namespace gbx;
 
-TEST(ROMTests, Construction) 
+TEST(TestROM, Construction) 
 {
     ROM rom(static_cast<size_t>(100));
     auto size = rom.Size();
@@ -20,7 +20,7 @@ TEST(ROMTests, Construction)
     EXPECT_EQ(static_cast<size_t>(100), size);
 }
 
-TEST(ROMTests, CheckMemoryInitialization) 
+TEST(TestROM, CheckMemoryInitialization) 
 {
     ROM rom(static_cast<size_t>(100));
 
@@ -31,7 +31,7 @@ TEST(ROMTests, CheckMemoryInitialization)
     }
 }
 
-TEST(ROMTests, WriteByte)
+TEST(TestROM, WriteByte)
 {
     ROM rom(static_cast<size_t>(100));
     rom.Write(static_cast<uint8_t>(0xAA), 0x0020);
@@ -39,7 +39,7 @@ TEST(ROMTests, WriteByte)
     EXPECT_EQ(0xAA, get<uint8_t>(value));
 }
 
-TEST(ROMTests, WriteWord)
+TEST(TestROM, WriteWord)
 {
     ROM rom(static_cast<size_t>(100));
     rom.Write(static_cast<uint16_t>(0xFFEE), 0x0030);
@@ -47,7 +47,7 @@ TEST(ROMTests, WriteWord)
     EXPECT_EQ(0xFFEE, get<uint16_t>(value));
 }
 
-TEST(ROMTests, ReadInvalidAddresses)
+TEST(TestROM, ReadInvalidAddresses)
 {
     ROM rom(static_cast<size_t>(0x50));
     auto invalidByteAddress = false;
@@ -75,7 +75,7 @@ TEST(ROMTests, ReadInvalidAddresses)
     EXPECT_TRUE(invalidWordAddress);
 }
 
-TEST(ROMTests, ReadInvalidAddressesTest2)
+TEST(TestROM, ReadInvalidAddressesTest2)
 {
     ROM rom(static_cast<size_t>(0x50));
     auto invalidByteAddress = false;
@@ -103,7 +103,7 @@ TEST(ROMTests, ReadInvalidAddressesTest2)
     EXPECT_TRUE(invalidWordAddress);
 }
 
-TEST(ROMTests, WriteInvalidAddresses)
+TEST(TestROM, WriteInvalidAddresses)
 {
     ROM rom(static_cast<size_t>(0x50));
     auto invalidByteAddress = false;
@@ -131,7 +131,7 @@ TEST(ROMTests, WriteInvalidAddresses)
     EXPECT_TRUE(invalidWordAddress);
 }
 
-TEST(ROMTests, WriteInvalidAddressesTest2)
+TEST(TestROM, WriteInvalidAddressesTest2)
 {
     ROM rom(static_cast<size_t>(0x50));
     auto invalidByteAddress = false;
@@ -159,7 +159,7 @@ TEST(ROMTests, WriteInvalidAddressesTest2)
     EXPECT_TRUE(invalidWordAddress);
 }
 
-TEST(ROMTests, LoadROM)
+TEST(TestROM, LoadROM)
 {
     ROM rom(static_cast<size_t>(0x10));
     array<uint8_t, 0x10> romContent = {0x0F, 0x0E, 0x0D, 0x0C, 

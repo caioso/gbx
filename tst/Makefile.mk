@@ -8,7 +8,7 @@ TARGET := gbxTest
 TARGET_DIR := $(CURDIR)/..
 DEPENDECIES := $(OBJ_DIR)/GBXExceptions.o $(OBJ_DIR)/RegisterBank.o $(OBJ_DIR)/ROM.o \
 			   $(OBJ_DIR)/MemoryController.o $(OBJ_DIR)/AddressRange.o $(OBJ_DIR)/CPU.o \
-			   $(OBJ_DIR)/ClockSource.o $(OBJ_DIR)/ControlUnit.o
+			   $(OBJ_DIR)/ClockSource.o $(OBJ_DIR)/ControlUnit.o $(OBJ_DIR)/ArithmeticLogicUnit.o \
 
 $(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
 	$(CC) -o $@ $^ $(DEPENDECIES) $(LDFLAGS)

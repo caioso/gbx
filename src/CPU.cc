@@ -10,7 +10,11 @@ CPU::CPU()
     , _registerBank(make_unique<RegisterBank>())
     , _internalROM(make_unique<ROM>(0x100))
     , _controlUnit(make_unique<ControlUnit>())
-{}
+    , _alu(make_unique<ArithmeticLogicUnit>())
+{
+    _controlUnit->ControlUnitALUChannel->Bind(_alu->ALUControlUnitChannel);
+    _alu->ALUROMChannel->Bind(_internalROM->ROMALUChannel);
+}
 
 void CPU::Initialize()
 {

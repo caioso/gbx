@@ -19,7 +19,7 @@ public:
 using namespace std;
 using namespace gbx;
 
-TEST(CPUTests, Construction) 
+TEST(TestCPU, Construction) 
 {
     auto cpu = make_shared<CPUWrapperForTests>();
     cpu->Initialize();
@@ -31,7 +31,7 @@ TEST(CPUTests, Construction)
     EXPECT_EQ(0x40, accumulator);
 }
 
-TEST(CPUTests, PCInitialization)
+TEST(TestCPU, PCInitialization)
 {
     auto cpu = make_shared<CPUWrapperForTests>();
     cpu->Initialize();
