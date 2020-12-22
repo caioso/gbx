@@ -7,8 +7,11 @@
 #include <vector>
 
 #include "AddressRange.h"
+#include "Channel.h"
 #include "GBXExceptions.h"
 #include "Memory.h"
+
+#include <memory>
 
 namespace gbx
 {
@@ -26,10 +29,25 @@ typedef struct ResourceIndexAndAddress_t
     uint16_t localAddress;
 }
 ResourceIndexAndAddress;
+
+enum class MemoryRequestType
+{
+    Read,
+    Write,
+    Result
+};
+typedef struct MemoryMessage_t
+{
+    MemoryRequestType Request;
+    std::variant<uint8_t, uint16_t> Data;
+    MemoryAccessType AccessType;
+}
+MemoryMessage;
+
 class MemoryController
 {
 public:
-    MemoryController() = default;
+    MemoryController();
     ~MemoryController() = default;
 
     std::variant<uint8_t, uint16_t> Read(uint16_t address, MemoryAccessType accessType);
@@ -38,13 +56,19 @@ public:
     void RegisterMemoryResource(std::shared_ptr<Memory> resource, AddressRange range);
     void UnregisterMemoryResource(std::shared_ptr<Memory> resource);
 
+    // Channels
+    std::shared_ptr<Channel<MemoryMessage>> MemoryControllerALUChannel;
+
 private:
     void SortResources();
     void DetectMisfit(std::shared_ptr<Memory> resource, AddressRange range);
     void DetectOverlap(AddressRange range);
 
-    std::optional<ResourceIndexAndAddress> CalculateLocalAddress(uint16_t address);
+    void HandleReadRequest(MemoryMessage message, std::shared_ptr<Channel<MemoryMessage>>& channel);
 
+    void OnALUMessage(MemoryMessage message);
+
+    std::optional<ResourceIndexAndAddress> CalculateLocalAddress(uint16_t address);
     std::vector<MemoryResource> _resources; 
 };
 

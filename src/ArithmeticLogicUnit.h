@@ -5,8 +5,8 @@
 #include <variant>
 
 #include "Channel.h"
+#include "MemoryController.h"
 #include "RegisterBank.h"
-#include "ROM.h"
 
 namespace gbx
 {
@@ -24,11 +24,12 @@ public:
 
     // Channels
     std::shared_ptr<Channel<ALUMessage>> ALUControlUnitChannel;
-    std::shared_ptr<Channel<ROMMessage>> ALUROMChannel;
+    std::shared_ptr<Channel<MemoryMessage>> ALUMemoryControllerChannel;
 
 protected:
+    void InitializeRegisters();
     void OnControlUnitMessage(ALUMessage message);
-    void OnROMMessage(ROMMessage message);
+    void OnMemoryControllerMessage(MemoryMessage message);
 
     RegisterBank _registers;
 };

@@ -7,19 +7,19 @@ namespace gbx
 
 CPU::CPU()
     : _clock(make_unique<ClockSource>(EngineParameters::GBCFrequency))
-    , _registerBank(make_unique<RegisterBank>())
-    , _internalROM(make_unique<ROM>(0x100))
     , _controlUnit(make_unique<ControlUnit>())
     , _alu(make_unique<ArithmeticLogicUnit>())
+    , _memoryController(make_unique<MemoryController>())
 {
+
     _controlUnit->ControlUnitALUChannel->Bind(_alu->ALUControlUnitChannel);
-    _alu->ALUROMChannel->Bind(_internalROM->ROMALUChannel);
+    _memoryController->MemoryControllerALUChannel->Bind(_alu->ALUMemoryControllerChannel);
 }
 
 void CPU::Initialize()
 {
-    InitializeRegisterBank();
     InitializeClockSubsystem();
+    InitializeMemorySubsystem();
 }
 
 void CPU::Run()
@@ -55,11 +55,11 @@ void CPU::InitializeClockSubsystem()
     _clock->Subscribe(mock);
 }
 
-void CPU::InitializeRegisterBank()
+void CPU::InitializeMemorySubsystem()
 {
-    _registerBank->Write(Register::IR, 0x00);
-    _registerBank->WritePair(Register::PC, 0x0000);
-    _registerBank->Write(Register::F, 0x00);
+    // 0x100 will change later
+    AddressRange range(0x0000, 0x0100, RangeType::BeginInclusive);
+    _memoryController->RegisterMemoryResource(static_pointer_cast<Memory>(_internalROM), range);
 }
 
 }

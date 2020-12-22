@@ -1,11 +1,15 @@
 #include "MemoryController.h"
 
-#include <iostream>
-
 using namespace std;
 
 namespace gbx
 {
+
+MemoryController::MemoryController()
+    : MemoryControllerALUChannel(make_shared<Channel<MemoryMessage>>(ChannelType::InOut))
+{
+    MemoryControllerALUChannel->OnReceived([this](MemoryMessage message) -> void { this->OnALUMessage(message); });
+}
 
 std::variant<uint8_t, uint16_t> MemoryController::Read(uint16_t address, MemoryAccessType accessType)
 {
@@ -89,6 +93,23 @@ std::optional<ResourceIndexAndAddress> MemoryController::CalculateLocalAddress(u
     }
 
     return nullopt;
+}
+
+void MemoryController::OnALUMessage(MemoryMessage message)
+{
+    if (message.Request == MemoryRequestType::Result)   
+        throw MemoryControllerException("invalid memory operation detected in ALU Channel");
+    
+    if (message.Request == MemoryRequestType::Read)
+        HandleReadRequest(message, MemoryControllerALUChannel);
+}
+
+void MemoryController::HandleReadRequest(MemoryMessage message, shared_ptr<Channel<MemoryMessage>>& channel)
+{
+    auto readData = Read(get<uint16_t>(message.Data), message.AccessType);
+    MemoryMessage response = {MemoryRequestType::Result, readData, message.AccessType};
+
+    channel->Send(response);
 }
 
 }

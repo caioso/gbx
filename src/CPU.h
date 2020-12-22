@@ -1,12 +1,15 @@
 #pragma once
 
+#include <map>
 #include <memory>
 
 #include "ArithmeticLogicUnit.h"
-#include "ClockSource.h"
 #include "ClockObserver.h"
+#include "AddressRange.h"
+#include "ClockSource.h"
 #include "ControlUnit.h"
 #include "EngineParameters.h"
+#include "MemoryController.h"
 #include "RegisterBank.h"
 #include "ROM.h"
 
@@ -28,14 +31,16 @@ public:
 
 protected:
     inline void UpdateEmulation();
-    void InitializeRegisterBank();
     void InitializeClockSubsystem();
+    void InitializeMemorySubsystem();
 
     std::unique_ptr<ClockSource> _clock;
-    std::unique_ptr<RegisterBank> _registerBank;
-    std::unique_ptr<ROM> _internalROM;
     std::unique_ptr<ControlUnit> _controlUnit;
     std::unique_ptr<ArithmeticLogicUnit> _alu;
+    std::unique_ptr<MemoryController> _memoryController;
+
+    // Memory Resources
+    std::shared_ptr<ROM> _internalROM;
 };
 
 }

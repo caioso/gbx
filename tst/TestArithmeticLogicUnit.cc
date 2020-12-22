@@ -9,8 +9,8 @@
 
 #include "../src/ArithmeticLogicUnit.h"
 #include "../src/Channel.h"
+#include "../src/MemoryController.h"
 #include "../src/RegisterBank.h"
-#include "../src/ROM.h"
 
 using namespace std;
 using namespace gbx;
@@ -34,20 +34,20 @@ TEST(TestArithmeticLogicUnit, FetchPCMessage)
 {
     auto alu = make_shared<ALUWrapperForTests>();
     auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
-    auto ROMALUChannel = make_shared<Channel<ROMMessage>>(ChannelType::InOut);
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
 
     controlUnitChannel->OnReceived( [](ALUMessage) -> void {return;} );
-    ROMALUChannel->OnReceived( [&ROMALUChannel](ROMMessage message) -> void 
+    MemoryControllerALUChannel->OnReceived( [&MemoryControllerALUChannel](MemoryMessage message) -> void 
     {
-        if (message.Request == ROMRequestType::Read && get<uint16_t>(message.Data) == 0x0000)
+        if (message.Request == MemoryRequestType::Read && get<uint16_t>(message.Data) == 0x0000)
         {
-            ROMALUChannel->Send({ROMRequestType::Result, static_cast<uint8_t>(0xAA)});
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, static_cast<uint8_t>(0xAA)});
         }
         return;
     });
 
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
-    alu->ALUROMChannel->Bind(ROMALUChannel);
+    alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
     controlUnitChannel->Send(ALUMessage::FetchPC);
 
     auto instructionRegister = alu->GetRegisterBank().Read(Register::IR);
