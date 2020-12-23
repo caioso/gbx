@@ -29,6 +29,9 @@ ArithmeticLogicUnitException::ArithmeticLogicUnitException(const std::string mes
     : GBXException(message)
 {}
 
+RegisterBankException::RegisterBankException(const std::string message)
+    : GBXException(message)
+{}
 
 const char* GBXException::what() const noexcept
 {

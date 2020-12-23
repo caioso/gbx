@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <exception>
 
+#include "GBXExceptions.h"
+
 namespace gbx
 {
 
@@ -54,6 +56,11 @@ public:
     std::uint16_t ReadPair(Register reg);
     void Write(Register reg, std::uint8_t val);
     void WritePair(Register reg, std::uint16_t val);
+    
+    uint8_t ToInstructionSource(Register reg);
+    Register FromInstructionSource(uint8_t reg);
+    uint8_t ToInstructionDestination(Register reg);
+    Register FromInstructionDestination(uint8_t reg);
 
 private:
     constexpr uint8_t RegisterToIndex(Register reg);

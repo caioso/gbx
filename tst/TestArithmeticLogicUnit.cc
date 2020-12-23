@@ -28,6 +28,11 @@ public:
         return this->_state;
     }
 
+    InstructionState GetInstructionState()
+    {
+        return this->_instructionState;
+    }
+
     void SetStateForTest(ALUState state)
     {
         this->_state = state;
@@ -70,16 +75,11 @@ TEST(TestArithmeticLogicUnit, FetchPCMessage)
 
 TEST(TestArithmeticLogicUnit, TestDecoding)
 {
-    auto testPassed = false;
     auto alu = make_shared<ALUWrapperForTests>();
     auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
 
-    controlUnitChannel->OnReceived( [&testPassed](ALUMessage message) -> void 
-    {
-        // For simple instructions
-        if (message == ALUMessage::Complete)
-            testPassed = true;
-    });
+    // To avoid 'unknown instruction'
+    alu->GetRegisterBank().Write(Register::IR, 0x44);
     
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
 
@@ -87,5 +87,47 @@ TEST(TestArithmeticLogicUnit, TestDecoding)
     alu->SetStateForTest(ALUState::FetchingPC);
     controlUnitChannel->Send(ALUMessage::Decode);
 
-    EXPECT_TRUE(testPassed);
+    EXPECT_EQ(ALUState::Decoding, alu->GetState());
+}
+
+TEST(TestArithmeticLogicUnit, DecodeLDRegisterInstruction)
+{
+    auto alu = make_shared<ALUWrapperForTests>();
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+
+    // Set initial Accumulator value
+    alu->GetRegisterBank().Write(Register::A, 0x89);
+
+    controlUnitChannel->OnReceived( [](ALUMessage) -> void {return;} );
+    MemoryControllerALUChannel->OnReceived( [&MemoryControllerALUChannel](MemoryMessage message) -> void 
+    {
+        if (message.Request == MemoryRequestType::Read && get<uint16_t>(message.Data) == 0x0000)
+        {
+            // LD B, A
+            // B <- A
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, static_cast<uint8_t>(0x47), 
+                                              MemoryAccessType::Byte});
+        }
+        return;
+    });
+
+    controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    controlUnitChannel->Send(ALUMessage::FetchPC);
+
+    auto instructionRegister = alu->GetRegisterBank().Read(Register::IR);
+    auto programCounter = alu->GetRegisterBank().ReadPair(Register::PC);
+
+    EXPECT_EQ(0x47, instructionRegister);
+    EXPECT_EQ(0x0001, programCounter);
+    EXPECT_EQ(ALUState::FetchingPC, alu->GetState());
+
+    controlUnitChannel->Send(ALUMessage::Decode);
+    EXPECT_EQ(ALUState::Decoding, alu->GetState());
+    EXPECT_EQ(InstructionState::ReadyToExecute, alu->GetInstructionState());
+
+    controlUnitChannel->Send(ALUMessage::Execute);
+    EXPECT_EQ(ALUState::Complete, alu->GetState());
+    EXPECT_EQ(alu->GetRegisterBank().Read(Register::A), alu->GetRegisterBank().Read(Register::B));
 }

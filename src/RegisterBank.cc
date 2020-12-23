@@ -84,18 +84,8 @@ uint8_t RegisterBank::PairToHighIndex(Register reg)
             return RegisterToIndex(Register::IX);
         case Register::IY:
             return RegisterToIndex(Register::IY);
-        case Register::A:
-        case Register::B:
-        case Register::C:
-        case Register::D:
-        case Register::E:
-        case Register::H:
-        case Register::L:
-        case Register::F:
-        case Register::I:
-        case Register::R:
-        case Register::IR:
-            throw invalid_argument("invalid pair register");
+        default:
+            throw RegisterBankException("invalid pair register");
     }
 }
 
@@ -119,18 +109,8 @@ uint8_t RegisterBank::PairToLowIndex(Register reg)
             return RegisterToIndex(Register::IX) + 1;
         case Register::IY:
             return RegisterToIndex(Register::IY) + 1;
-        case Register::A:
-        case Register::B:
-        case Register::C:
-        case Register::D:
-        case Register::E:
-        case Register::H:
-        case Register::L:
-        case Register::F:
-        case Register::I:
-        case Register::R:
-        case Register::IR:
-            throw invalid_argument("invalid pair register");
+        default:
+            throw RegisterBankException("invalid pair register");
     }
 }
 
@@ -140,6 +120,70 @@ void RegisterBank::Swap()
     copy(begin(_registers), begin(_registers) + 8, begin(tmp));
     copy(begin(_alternates), end(_alternates), begin(_registers));
     copy(begin(tmp), end(tmp), begin(_alternates));
+}
+
+uint8_t RegisterBank::ToInstructionSource(Register reg)
+{
+    switch (reg)
+    {
+        case Register::B: return 0x00;
+        case Register::C: return 0x01;
+        case Register::D: return 0x02;
+        case Register::E: return 0x03;
+        case Register::F: return 0x04;
+        case Register::L: return 0x06;
+        case Register::A: return 0x07;
+        default:
+            throw RegisterBankException("invalid source register");
+    }
+}
+
+Register RegisterBank::FromInstructionSource(uint8_t reg)
+{
+    switch (reg)
+    {
+        case 0x00: return Register::B;
+        case 0x01: return Register::C;
+        case 0x02: return Register::D;
+        case 0x03: return Register::E;
+        case 0x04: return Register::F;
+        case 0x06: return Register::L;
+        case 0x07: return Register::A;
+        default:
+            throw RegisterBankException("invalid source register");
+    }
+}
+
+uint8_t RegisterBank::ToInstructionDestination(Register reg)
+{
+    switch (reg)
+    {
+        case Register::B: return 0x00;
+        case Register::C: return 0x01;
+        case Register::D: return 0x02;
+        case Register::E: return 0x03;
+        case Register::H: return 0x04;
+        case Register::L: return 0x06;
+        case Register::A: return 0x07;
+        default:
+            throw RegisterBankException("invalid destination register");
+    }
+}
+
+Register RegisterBank::FromInstructionDestination(uint8_t reg)
+{
+    switch (reg)
+    {
+        case 0x00: return Register::B;
+        case 0x01: return Register::C;
+        case 0x02: return Register::D;
+        case 0x03: return Register::E;
+        case 0x04: return Register::H;
+        case 0x06: return Register::L;
+        case 0x07: return Register::A;
+        default:
+            throw RegisterBankException("invalid destination register");
+    }
 }
 
 }

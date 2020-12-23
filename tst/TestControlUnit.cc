@@ -91,6 +91,5 @@ TEST(TestControlUnit, RequestDecoding)
     controlUnit->Update();
     controlUnit->Update();
     controlUnit->Update();
-    controlUnit->Update();
     EXPECT_TRUE(testPassed);
 }

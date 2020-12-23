@@ -34,9 +34,10 @@ void ControlUnit::UpdateFetch()
                                      break;
         case FetchSubState::FetchT2: _fetchSubstate = FetchSubState::FetchT3;
                                      break;
-        case FetchSubState::FetchT3: _fetchSubstate = FetchSubState::FetchT4; 
+        case FetchSubState::FetchT3: ControlUnitALUChannel->Send(ALUMessage::Decode);
+                                     _fetchSubstate = FetchSubState::FetchT4; 
                                      break;
-        case FetchSubState::FetchT4: ControlUnitALUChannel->Send(ALUMessage::Decode);
+        case FetchSubState::FetchT4: ControlUnitALUChannel->Send(ALUMessage::Execute);
                                      _fetchSubstate = FetchSubState::FetchT1; 
                                      DecideNextState();
                                      break;

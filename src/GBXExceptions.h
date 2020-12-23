@@ -52,4 +52,11 @@ public:
     ~ArithmeticLogicUnitException() = default;
 };
 
+class RegisterBankException : public GBXException
+{
+public:
+    RegisterBankException(const std::string message);
+    ~RegisterBankException() = default;
+};
+
 }

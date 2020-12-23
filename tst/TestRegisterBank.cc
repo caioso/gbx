@@ -64,7 +64,7 @@ TEST(TestRegisterBank, WriteRegisterAll8BitRegisters)
         auto value = static_cast<uint8_t>(distance(registers.begin(), it));
         bank.Write(*it, value);
 
-        ASSERT_EQ(value, bank.Read(*it));
+        EXPECT_EQ(value, bank.Read(*it));
     }    
 }
 
@@ -78,6 +78,129 @@ TEST(TestRegisterBank, WriteRegisterAll16BitRegisters)
         auto value = static_cast<uint8_t>(distance(registers.begin(), it)) + 1;
         bank.WritePair(*it, ((value<<8) | value));
 
-        ASSERT_EQ(((value<<8) | value), bank.ReadPair(*it));
+        EXPECT_EQ(((value<<8) | value), bank.ReadPair(*it));
     }    
 }
+
+TEST(TestRegisterBank, InstructionSourceToRegister)
+{
+    RegisterBank bank;
+    
+    EXPECT_EQ(0x00, bank.ToInstructionSource(Register::B));
+    EXPECT_EQ(0x01, bank.ToInstructionSource(Register::C));
+    EXPECT_EQ(0x02, bank.ToInstructionSource(Register::D));
+    EXPECT_EQ(0x03, bank.ToInstructionSource(Register::E));
+    EXPECT_EQ(0x04, bank.ToInstructionSource(Register::F));
+    EXPECT_EQ(0x06, bank.ToInstructionSource(Register::L));
+    EXPECT_EQ(0x07, bank.ToInstructionSource(Register::A));
+
+    array<Register, 12> nonSources = { Register::H, Register::HL, Register::I, Register::IR, Register::IX, Register::IY,
+                                       Register::PC, Register::R, Register::SP, Register::AF, Register::BC, Register::DE };
+    
+    for (auto reg : nonSources)
+    {
+        auto checkPassed = false;
+        try
+        {
+            bank.ToInstructionSource(reg);
+        }
+        catch (const RegisterBankException& e)
+        {
+            checkPassed = true;
+        }
+        
+        EXPECT_TRUE(checkPassed);
+        checkPassed = false;
+    }
+}
+
+TEST(TestRegisterBank, InstructionDestinationToRegister)
+{
+    RegisterBank bank;
+    
+    EXPECT_EQ(0x00, bank.ToInstructionDestination(Register::B));
+    EXPECT_EQ(0x01, bank.ToInstructionDestination(Register::C));
+    EXPECT_EQ(0x02, bank.ToInstructionDestination(Register::D));
+    EXPECT_EQ(0x03, bank.ToInstructionDestination(Register::E));
+    EXPECT_EQ(0x04, bank.ToInstructionDestination(Register::H));
+    EXPECT_EQ(0x06, bank.ToInstructionDestination(Register::L));
+    EXPECT_EQ(0x07, bank.ToInstructionDestination(Register::A));
+
+    array<Register, 12> nonSources = { Register::F, Register::HL, Register::I, Register::IR, Register::IX, Register::IY,
+                                       Register::PC, Register::R, Register::SP, Register::AF, Register::BC, Register::DE };
+    
+    for (auto reg : nonSources)
+    {
+        auto checkPassed = false;
+        try
+        {
+            bank.ToInstructionDestination(reg);
+        }
+        catch (const RegisterBankException& e)
+        {
+            checkPassed = true;
+        }
+        
+        EXPECT_TRUE(checkPassed);
+        checkPassed = false;
+    }
+}
+
+TEST(TestRegisterBank, FromInstructionSourceToRegister)
+{
+    RegisterBank bank;
+    
+    EXPECT_EQ(Register::B, bank.FromInstructionSource(0x00));
+    EXPECT_EQ(Register::C, bank.FromInstructionSource(0x01));
+    EXPECT_EQ(Register::D, bank.FromInstructionSource(0x02));
+    EXPECT_EQ(Register::E, bank.FromInstructionSource(0x03));
+    EXPECT_EQ(Register::F, bank.FromInstructionSource(0x04));
+    EXPECT_EQ(Register::L, bank.FromInstructionSource(0x06));
+    EXPECT_EQ(Register::A, bank.FromInstructionSource(0x07));
+    
+    for (auto i = 8; i < 255; i++)
+    {
+        auto checkPassed = false;
+        try
+        {
+            bank.FromInstructionSource(i);
+        }
+        catch (const RegisterBankException& e)
+        {
+            checkPassed = true;
+        }
+        
+        EXPECT_TRUE(checkPassed);
+        checkPassed = false;
+    }
+}
+
+TEST(TestRegisterBank, FromInstructionDestinationToRegister)
+{
+    RegisterBank bank;
+    
+    EXPECT_EQ(Register::B, bank.FromInstructionDestination(0x00));
+    EXPECT_EQ(Register::C, bank.FromInstructionDestination(0x01));
+    EXPECT_EQ(Register::D, bank.FromInstructionDestination(0x02));
+    EXPECT_EQ(Register::E, bank.FromInstructionDestination(0x03));
+    EXPECT_EQ(Register::H, bank.FromInstructionDestination(0x04));
+    EXPECT_EQ(Register::L, bank.FromInstructionDestination(0x06));
+    EXPECT_EQ(Register::A, bank.FromInstructionDestination(0x07));
+    
+    for (auto i = 8; i < 255; i++)
+    {
+        auto checkPassed = false;
+        try
+        {
+            bank.FromInstructionDestination(i);
+        }
+        catch (const RegisterBankException& e)
+        {
+            checkPassed = true;
+        }
+        
+        EXPECT_TRUE(checkPassed);
+        checkPassed = false;
+    }
+}
+

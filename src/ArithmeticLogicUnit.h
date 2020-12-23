@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <variant>
+#include <sstream>
 
 #include "Channel.h"
 #include "GBXExceptions.h"
@@ -16,14 +17,22 @@ enum class ALUMessage
 {
     FetchPC,
     Decode,
-    Complete
+    Execute,
 };
 
 enum class ALUState
 {
     Idle,
     FetchingPC,
-    Decoding
+    Decoding,
+    Executing,
+    Complete
+};
+
+enum class InstructionState
+{
+    NoInstruction,
+    ReadyToExecute,
 };
 
 class ArithmeticLogicUnit
@@ -42,14 +51,18 @@ protected:
     void OnMemoryControllerMessage(MemoryMessage message);
 
     void DecodeInstruction();
+    void ExecuteInstruction();
+    void EvaluateInstructionDependencies();
 
     void HandleControlSignalFetchPC();
     void HandleMemoryResponseFetchPC(MemoryMessage message);
 
     void HandleControlUnitSignalDecode();
+    void HandleControlUnitSignalExecute();
 
     RegisterBank _registers;
     ALUState _state;
+    InstructionState _instructionState;
 };
 
 }
