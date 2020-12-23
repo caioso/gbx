@@ -25,7 +25,7 @@ public:
     virtual void Write(std::variant<uint8_t, uint16_t> value, uint16_t address) override;
 
     virtual std::size_t Size() override;
-    virtual void Load(const uint8_t* content, std::size_t size, std::optional<size_t> offset) override;
+    virtual void Load(std::shared_ptr<uint8_t*> content, std::size_t size, std::optional<size_t> offset) override;
 
 private:
     void CheckReadConditions(uint16_t address, MemoryAccessType accessType);

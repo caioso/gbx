@@ -10,6 +10,9 @@ CPU::CPU()
     , _controlUnit(make_unique<ControlUnit>())
     , _alu(make_unique<ArithmeticLogicUnit>())
     , _memoryController(make_unique<MemoryController>())
+
+    // Memory Resources
+    , _internalROM(make_unique<ROM>(0x100))
 {
 
     _controlUnit->ControlUnitALUChannel->Bind(_alu->ALUControlUnitChannel);

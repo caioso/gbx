@@ -17,7 +17,7 @@ size_t ROM::Size()
     return _size;
 }
 
-void ROM::Load(const uint8_t* content, std::size_t size, std::optional<size_t> offset)
+void ROM::Load(shared_ptr<uint8_t*> content, size_t size, optional<size_t> offset)
 {
     if (size + offset.value_or(0) > _size)
     {
@@ -26,7 +26,7 @@ void ROM::Load(const uint8_t* content, std::size_t size, std::optional<size_t> o
         throw MemoryAccessException(ss.str());
     }
 
-    copy(&content[0], &content[_size], &_rom.get()[0]);
+    copy(&(*content)[0], &(*content)[size], &_rom.get()[offset.value_or(0)]);
 }
 
 std::variant<uint8_t, uint16_t> ROM::Read(uint16_t address, MemoryAccessType accessType)

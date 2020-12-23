@@ -52,6 +52,7 @@ public:
 
     std::variant<uint8_t, uint16_t> Read(uint16_t address, MemoryAccessType accessType);
     void Write(std::variant<uint8_t, uint16_t> value, uint16_t address);
+    void Load(std::shared_ptr<uint8_t*> dataPointer, size_t size, uint16_t address, std::optional<size_t> offset);
 
     void RegisterMemoryResource(std::shared_ptr<Memory> resource, AddressRange range);
     void UnregisterMemoryResource(std::shared_ptr<Memory> resource);

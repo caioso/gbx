@@ -45,4 +45,11 @@ public:
     ~ChannelException() = default;
 };
 
+class ArithmeticLogicUnitException : public GBXException
+{
+public:
+    ArithmeticLogicUnitException(const std::string message);
+    ~ArithmeticLogicUnitException() = default;
+};
+
 }

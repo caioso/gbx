@@ -167,7 +167,7 @@ TEST(TestROM, LoadROM)
                                        0x07, 0x06, 0x05, 0x04, 
                                        0x03, 0x02, 0x01, 0x00};
 
-    rom.Load(romContent.data(), 0x10, std::nullopt);
+    rom.Load(make_shared<uint8_t*>(romContent.data()), 0x10, std::nullopt);
 
     uint16_t address = 0x00;
     for(auto element : romContent)
@@ -175,4 +175,48 @@ TEST(TestROM, LoadROM)
         auto value = rom.Read(address++, MemoryAccessType::Byte);
         ASSERT_EQ(element, get<uint8_t>(value));
     }
+}
+
+TEST(TestROM, LoadWithOffset)
+{
+    ROM rom(static_cast<size_t>(0x10));
+    array<uint8_t, 0x10> romContent = {0x0F, 0x0E, 0x0D, 0x0C, 
+                                       0x0B, 0x0A, 0x09, 0x08, 
+                                       0x07, 0x06, 0x05, 0x04, 
+                                       0x03, 0x02, 0x01, 0x00};
+
+    array<uint8_t, 0x08> offsetContent = {0xAA, 0xAA, 0xAA, 0xAA, 
+                                          0xAA, 0xAA, 0xAA, 0xAA};
+
+    rom.Load(make_shared<uint8_t*>(romContent.data()), 0x10, std::nullopt);
+    rom.Load(make_shared<uint8_t*>(offsetContent.data()), 0x08, make_optional<size_t>(0x08));
+
+    for(auto i = static_cast<size_t>(0); i < rom.Size(); i++)
+    {
+        auto value = rom.Read(i, MemoryAccessType::Byte);
+        if (i < 0x08)
+            ASSERT_EQ(romContent[i], get<uint8_t>(value));
+        else
+            ASSERT_EQ(offsetContent[i - 0x08], get<uint8_t>(value));
+    }
+}
+
+TEST(TestROM, LoadOffsetOutOfBounds)
+{
+    auto testPassed = false;
+    ROM rom(static_cast<size_t>(0x10));
+
+    array<uint8_t, 0x08> offsetContent = {0xAA, 0xAA, 0xAA, 0xAA, 
+                                          0xAA, 0xAA, 0xAA, 0xAA};
+
+    try
+    {
+        rom.Load(make_shared<uint8_t*>(offsetContent.data()), 0x08, make_optional<size_t>(0x0A));
+    }
+    catch (const MemoryAccessException& e)
+    {
+        testPassed = true;
+    }
+
+    EXPECT_TRUE(testPassed);
 }

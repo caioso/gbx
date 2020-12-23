@@ -31,6 +31,16 @@ void MemoryController::Write(std::variant<uint8_t, uint16_t> value, uint16_t add
     return _resources[localAddress.value().resourceIndex].resource.get()->Write(value, localAddress.value().localAddress);
 }
 
+void MemoryController::Load(std::shared_ptr<uint8_t*> dataPointer, size_t size, uint16_t address, optional<size_t> offset)
+{
+    auto localAddress = CalculateLocalAddress(address);
+
+    if (localAddress == nullopt)
+        throw MemoryControllerException("requested address to load data to does not fall into any resource");
+
+    _resources[localAddress.value().resourceIndex].resource.get()->Load(dataPointer, size, offset);
+}
+
 void MemoryController::RegisterMemoryResource(std::shared_ptr<Memory> resource, AddressRange range)
 {
     DetectOverlap(range);

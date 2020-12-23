@@ -5,6 +5,7 @@
 #include <variant>
 
 #include "Channel.h"
+#include "GBXExceptions.h"
 #include "MemoryController.h"
 #include "RegisterBank.h"
 
@@ -13,7 +14,16 @@ namespace gbx
 
 enum class ALUMessage
 {
-    FetchPC
+    FetchPC,
+    Decode,
+    Complete
+};
+
+enum class ALUState
+{
+    Idle,
+    FetchingPC,
+    Decoding
 };
 
 class ArithmeticLogicUnit
@@ -31,7 +41,15 @@ protected:
     void OnControlUnitMessage(ALUMessage message);
     void OnMemoryControllerMessage(MemoryMessage message);
 
+    void DecodeInstruction();
+
+    void HandleControlSignalFetchPC();
+    void HandleMemoryResponseFetchPC(MemoryMessage message);
+
+    void HandleControlUnitSignalDecode();
+
     RegisterBank _registers;
+    ALUState _state;
 };
 
 }

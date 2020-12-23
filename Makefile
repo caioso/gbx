@@ -14,8 +14,10 @@ unit:
 clean:
 	$(call CleanTarget, src)
 	$(call CleanTarget, tst)
-	rm -f ./obj/*.o ./$(TARGET)
-	rm -f ./tst/*.o ./$(TEST_TARGET)
+	rm -f ./obj/*.o ./obj/*.gcno ./$(TARGET)
+	rm -f ./tst/*.o ./$(TEST_TARGET) \
+	rm default.profraw \
+	rm gbxTestCoverage
 
 test:
 	./$(TEST_TARGET)
@@ -28,6 +30,10 @@ debug:
 
 run:
 	./$(TARGET)
+
+coverage:
+	xcrun llvm-profdata merge -o gbxTestCoverage default.profraw
+	xcrun llvm-cov report gbxTest -instr-profile=gbxTestCoverage -use-color --ignore-filename-regex="(gtest|gmock)"
 	
 .PHONY: all clean run
 

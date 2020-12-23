@@ -68,3 +68,29 @@ TEST(TestControlUnit, RequestPCFetch)
     controlUnit->Update();
     EXPECT_TRUE(testPassed);
 }
+
+TEST(TestControlUnit, RequestDecoding)
+{
+    auto testPassed = false;
+    auto updateCounter = 0;
+    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::In);
+
+    controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
+    dummyAluChannel->OnReceived([&updateCounter, &testPassed](ALUMessage message) 
+    { 
+        if (updateCounter == 0)
+            EXPECT_TRUE((updateCounter++) == 0 && message == ALUMessage::FetchPC);
+        else if (updateCounter == 1)
+        {
+            EXPECT_TRUE((updateCounter++) == 1 && message == ALUMessage::Decode);
+            testPassed = true;
+        }
+    });
+
+    controlUnit->Update();
+    controlUnit->Update();
+    controlUnit->Update();
+    controlUnit->Update();
+    EXPECT_TRUE(testPassed);
+}

@@ -8,17 +8,18 @@
 namespace gbx
 {
 
+// Naming following Z80 reference Manual
 enum class ControlUnitState
 {
-    Fetch,
+    Fetch, // Cycle M1
 };
 
 enum class FetchSubState
 {
-    FetchT1,
+    FetchT1,    // Fetch PC from memory and increase PC
     FetchT2,
     FetchT3,
-    FetchT4
+    FetchT4     // Decode and possibly execute instruction
 };
 
 class ControlUnit

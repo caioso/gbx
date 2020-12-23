@@ -324,3 +324,88 @@ TEST(TestMemoryController, ReuseUnregisteredRange)
     value = memController.Read(0x0101, MemoryAccessType::Byte);
     EXPECT_EQ(0xDD, get<uint8_t>(value));
 }
+
+TEST(TestMemoryController, LoadMemoryResource) 
+{
+    MemoryController memController;
+    shared_ptr<Memory> rom(new ROM(0x010));
+    memController.RegisterMemoryResource
+    (
+        rom,
+        AddressRange(0x0100, 0x0110, RangeType::BeginInclusive)
+    );
+
+    array<uint8_t, 0x10> romContent = {0xAA, 0xAA, 0xAA, 0xAA, 
+                                       0xAA, 0xAA, 0xAA, 0xAA, 
+                                       0xAA, 0xAA, 0xAA, 0xAA, 
+                                       0xAA, 0xAA, 0xAA, 0xAA};
+
+    memController.Load(make_shared<uint8_t*>(romContent.data()), romContent.size(), 0x0100, nullopt);
+    
+    auto address = 0x0100;
+    for (auto element : romContent)
+    {
+        auto readValue = memController.Read(address++, MemoryAccessType::Byte);
+        EXPECT_EQ(element, get<uint8_t>(readValue));
+    }
+}
+
+TEST(TestMemoryController, LoadMemoryResourceAtWrongLocation) 
+{
+    auto testPassed = false;
+    MemoryController memController;
+    shared_ptr<Memory> rom(new ROM(0x010));
+    memController.RegisterMemoryResource
+    (
+        rom,
+        AddressRange(0x0100, 0x0110, RangeType::BeginInclusive)
+    );
+
+    array<uint8_t, 0x10> romContent = {0xAA, 0xAA, 0xAA, 0xAA, 
+                                       0xAA, 0xAA, 0xAA, 0xAA, 
+                                       0xAA, 0xAA, 0xAA, 0xAA, 
+                                       0xAA, 0xAA, 0xAA, 0xAA};
+    try
+    {
+       memController.Load(make_shared<uint8_t*>(romContent.data()), romContent.size(), 0x0000, nullopt);
+    }
+    catch(const MemoryControllerException& e)
+    {
+        testPassed = true;
+    }
+
+    EXPECT_TRUE(testPassed);
+}
+
+
+TEST(TestMemoryController, LoadMemoryResourceWithOffset) 
+{
+    MemoryController memController;
+    shared_ptr<Memory> rom(new ROM(0x010));
+    memController.RegisterMemoryResource
+    (
+        rom,
+        AddressRange(0x0100, 0x0110, RangeType::BeginInclusive)
+    );
+
+    array<uint8_t, 0x10> romContent = {0xAA, 0xAA, 0xAA, 0xAA, 
+                                       0xAA, 0xAA, 0xAA, 0xAA, 
+                                       0xAA, 0xAA, 0xAA, 0xAA, 
+                                       0xAA, 0xAA, 0xAA, 0xAA};
+
+    array<uint8_t, 0x08> offsetContent = {0xBB, 0xBB, 0xBB, 0xBB, 
+                                          0xBB, 0xBB, 0xBB, 0xBB};
+
+    memController.Load(make_shared<uint8_t*>(romContent.data()), romContent.size(), 0x0100, nullopt);
+    memController.Load(make_shared<uint8_t*>(offsetContent.data()), offsetContent.size(), 0x0100, make_optional<size_t>(0x08));
+    
+    for (auto i = static_cast<size_t>(0x0100); i < rom->Size(); i++)
+    {
+        auto readValue = memController.Read(i, MemoryAccessType::Byte);
+
+        if (i < 0x08)
+            EXPECT_EQ(romContent[i], get<uint8_t>(readValue));
+        else
+            EXPECT_EQ(offsetContent[i - 0x08], get<uint8_t>(readValue));
+    }
+}
