@@ -45,6 +45,8 @@ enum class Register
     BC = 20,
     DE = 21,
     AF = 22,
+
+    NoRegiser
 };
 
 class RegisterBank

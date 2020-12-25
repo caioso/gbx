@@ -15,9 +15,17 @@ namespace gbx
 
 enum class ALUMessage
 {
-    FetchPC,
+    Fetch,
     Decode,
     Execute,
+    WriteBack,
+    Acquire,
+    
+    ReadyToDecode,
+    ReadyToExecute,
+    ReadyToWriteBack,
+    ReadyToFetch,
+    ReadyToAcquire
 };
 
 enum class ALUState
@@ -25,14 +33,33 @@ enum class ALUState
     Idle,
     FetchingPC,
     Decoding,
+    FethcingOperand1,
+    FetchingOperand2,
     Executing,
-    Complete
 };
 
-enum class InstructionState
+
+// Move this all to another file
+enum class Instruction
 {
-    NoInstruction,
-    ReadyToExecute,
+    unknown,
+    ld
+};
+
+enum class AddressingMode
+{
+    Register,
+    Immediate,
+    Implicit
+};
+
+struct DecodedInstruction
+{
+    Instruction opcode;
+    AddressingMode addressingMode;
+    uint8_t memoryOperand1;
+    Register source;
+    Register destination;
 };
 
 class ArithmeticLogicUnit
@@ -52,17 +79,22 @@ protected:
 
     void DecodeInstruction();
     void ExecuteInstruction();
-    void EvaluateInstructionDependencies();
+    void DecideToAcquireOrExecute();
+    void DecideToWriteBackOrFetchPC();
 
-    void HandleControlSignalFetchPC();
+    void HandleControlSignalFetch();
     void HandleMemoryResponseFetchPC(MemoryMessage message);
+    void HandleMemoryResponseFetchOperand1(MemoryMessage message);
 
     void HandleControlUnitSignalDecode();
     void HandleControlUnitSignalExecute();
+    void HandleControlUnitSignalAcquire();
+
+    DecodedInstruction Decode(uint8_t opcode);
 
     RegisterBank _registers;
     ALUState _state;
-    InstructionState _instructionState;
+    DecodedInstruction _currentInstruction;
 };
 
 }

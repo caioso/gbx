@@ -1,95 +1,68 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <cmath>
+#include <chrono>
 #include <thread>
+
+#include <iostream>
 
 #include <memory>
 #include "../src/GBXExceptions.h"
 #include "../src/EngineParameters.h"
-#include "../src/ClockObserver.h"
 #include "../src/ClockSource.h"
 
 using namespace std;
 using namespace gbx;
 
-class ClockObserverMock : public ClockObserver
-{
-public:
-    ClockObserverMock() = default;
-    virtual ~ClockObserverMock() = default;
-    MOCK_METHOD0(OnTick, void(void));
-};
-
 TEST(TestClock, Construction) 
 {
-    constexpr double GBCPeriod = 1.0/8388608;
-    ClockSource clock(EngineParameters::GBCFrequency);
+    constexpr double GBCPeriod = 119;
+    ClockSource clock(EngineParameters::GBCClockPeriod);
 
     EXPECT_DOUBLE_EQ(GBCPeriod, clock.Period());
 }
 
-TEST(TestClock, Tick)
+TEST(TestClock, SingleTickNoDelay)
 {
-    ClockSource clock(EngineParameters::GBCFrequency);
-    clock.Tick();
+    constexpr uint64_t GBCPeriodInNanoSeconds = 119;
+    ClockSource clock(EngineParameters::GBCClockPeriod);
 
-    EXPECT_EQ(static_cast<uint32_t>(1), clock.Ticks());
+    auto startTime = chrono::high_resolution_clock::now();
+    clock.Tick(1, 0);
+    auto endTime = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime);
 
-    for (auto i = 0; i < 1000; i++)
-    {
-        clock.Tick();
-    }
-
-    EXPECT_EQ(static_cast<uint32_t>(1001), clock.Ticks());
+    EXPECT_EQ(static_cast<uint64_t>(1), clock.Ticks());
+    EXPECT_TRUE(duration >= chrono::nanoseconds(static_cast<uint64_t>(GBCPeriodInNanoSeconds)));
+    EXPECT_TRUE(duration <= chrono::nanoseconds(static_cast<uint64_t>(GBCPeriodInNanoSeconds * 3)));
 }
 
-TEST(TestClock, Observers)
+TEST(TestClock, MultipleTickNoDelay)
 {
-    ClockSource clock(EngineParameters::GBCFrequency);
-    shared_ptr<ClockObserver> mock = make_shared<ClockObserverMock>();
-    auto observer = static_pointer_cast<ClockObserver>(mock);
+    constexpr uint64_t GBCPeriodInNanoSeconds = 119;
+    ClockSource clock(EngineParameters::GBCClockPeriod);
 
-    clock.Subscribe(observer);
+    auto startTime = chrono::high_resolution_clock::now();
+    clock.Tick(4, 0);
+    auto endTime = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime);
 
-    EXPECT_CALL(*dynamic_pointer_cast<ClockObserverMock>(mock), OnTick());
-    clock.Tick();
+    EXPECT_EQ(static_cast<uint64_t>(4), clock.Ticks());
+    EXPECT_TRUE(duration >= chrono::nanoseconds(static_cast<uint64_t>(GBCPeriodInNanoSeconds * 4)));
+    EXPECT_TRUE(duration <= chrono::nanoseconds(static_cast<uint64_t>(GBCPeriodInNanoSeconds * 6)));
 }
 
-TEST(TestClock, MultipleObservers)
+TEST(TestClock, MultipkleTickWithDelay)
 {
-    ClockSource clock(EngineParameters::GBCFrequency);
-    shared_ptr<ClockObserver> mock1 = make_shared<ClockObserverMock>();
-    auto observer1 = static_pointer_cast<ClockObserver>(mock1);
-    shared_ptr<ClockObserver> mock2 = make_shared<ClockObserverMock>();
-    auto observer2 = static_pointer_cast<ClockObserver>(mock2);
+    constexpr uint64_t GBCPeriodInNanoSeconds = 119;
+    ClockSource clock(EngineParameters::GBCClockPeriod);
 
-    clock.Subscribe(observer1);
-    clock.Subscribe(observer2);
+    auto startTime = chrono::high_resolution_clock::now();
+    clock.Tick(4, GBCPeriodInNanoSeconds * 2);
+    auto endTime = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime);
 
-    EXPECT_CALL(*dynamic_pointer_cast<ClockObserverMock>(mock1), OnTick()).Times(100);
-    EXPECT_CALL(*dynamic_pointer_cast<ClockObserverMock>(mock2), OnTick()).Times(100);
-
-    for (auto i = 0; i < 100; i++)
-        clock.Tick();
-}
-
-TEST(TestClock, SameObserverRegistered)
-{
-    auto testPassed = false;
-    ClockSource clock(EngineParameters::GBCFrequency);
-    shared_ptr<ClockObserver> mock = make_shared<ClockObserverMock>();
-    auto observer = static_pointer_cast<ClockObserver>(mock);
-
-    try
-    {
-        clock.Subscribe(observer);
-        clock.Subscribe(observer);
-    }
-    catch (const ClockSourceException& e)
-    {
-        testPassed = true;
-    }
-
-    EXPECT_TRUE(testPassed);
+    EXPECT_EQ(static_cast<uint64_t>(4), clock.Ticks());
+    EXPECT_TRUE(duration >= chrono::nanoseconds(static_cast<uint64_t>(GBCPeriodInNanoSeconds * 2)));
+    EXPECT_TRUE(duration <= chrono::nanoseconds(static_cast<uint64_t>(GBCPeriodInNanoSeconds * 4)));
 }

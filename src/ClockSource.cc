@@ -1,42 +1,21 @@
 #include "ClockSource.h"
 
 using namespace std;
+using namespace std::this_thread;
+using namespace std::chrono_literals;
+using std::chrono::system_clock;
 
 namespace gbx
 {
-ClockSource::ClockSource(uint64_t frequencyInHertz)
-    : _clockPeriod(1.0/frequencyInHertz)
+
+ClockSource::ClockSource(uint64_t clockPeriod)
+    : _clockPeriodInNanoSeconds(clockPeriod)
     , _ticks(0)
-    , _observersCounter(0)
+{}
+
+double ClockSource::Period()
 {
-    _threadSleepDuration = _clockPeriod*1000000000;
-}
-
-void ClockSource::Subscribe(std::weak_ptr<ClockObserver> observer)
-{
-    HasBeenRegistered(observer);
-    _observers[_observersCounter++] = observer;
-}
-
-void ClockSource::HasBeenRegistered(std::weak_ptr<ClockObserver> observer)
-{
-    for(auto i = static_cast<size_t>(0); i < _observersCounter; i++)
-    {
-        if (observer.expired() || _observers.at(i).expired())
-            throw ClockSourceException("null memory resource detected");
-
-        if (_observers.at(i).lock() == observer.lock())
-            throw ClockSourceException("observer already registerd");
-    }
-}
-
-void ClockSource::Tick()
-{
-    this_thread::sleep_for(chrono::nanoseconds(_threadSleepDuration));
-    _ticks++;
-
-    for (auto i = static_cast<size_t>(0); i < _observersCounter; i++)
-        if (!_observers.at(i).expired()) _observers.at(i).lock()->OnTick();
+    return _clockPeriodInNanoSeconds;
 }
 
 uint64_t ClockSource::Ticks()
@@ -44,9 +23,19 @@ uint64_t ClockSource::Ticks()
     return _ticks;
 }
 
-double ClockSource::Period()
+void ClockSource::Tick(uint64_t ticks, uint64_t instructionExecutionTimInNanoseconds)
 {
-    return _clockPeriod;
+    auto sleepTime = std::chrono::nanoseconds(static_cast<int64_t>(_clockPeriodInNanoSeconds*ticks) - instructionExecutionTimInNanoseconds);
+
+    if (sleepTime.count() > 0)
+    {
+        // This tecknique ensures more precision, because the current thread does not go through the OS scheduler
+        // like this_thread::sleep_for would.
+        auto start = chrono::high_resolution_clock::now();
+        while(chrono::high_resolution_clock::now() - start < sleepTime);
+    }
+
+    _ticks += ticks;
 }
 
 }

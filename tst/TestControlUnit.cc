@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "../src/ArithmeticLogicUnit.h"
+#include "../src/ClockSource.h"
 #include "../src/ControlUnit.h"
 
 using namespace std;
@@ -11,8 +12,8 @@ using namespace gbx;
 class ControlUnitWrapperForTests : public ControlUnit
 {
 public:
+    ClockSource GetClockSource() { return *_clock;}
     ControlUnitState CtrlUnitState() { return _state; }
-    FetchSubState CtrlFetchSubstate() { return _fetchSubstate; }
 };
 
 TEST(TestControlUnit, Construction) 
@@ -20,76 +21,202 @@ TEST(TestControlUnit, Construction)
     auto controlUnit = make_shared<ControlUnitWrapperForTests>();
 
     EXPECT_EQ(ControlUnitState::Fetch, controlUnit->CtrlUnitState());
-    EXPECT_EQ(FetchSubState::FetchT1, controlUnit->CtrlFetchSubstate());
 }
 
-TEST(TestControlUnit, UpdateFetchState) 
+TEST(TestControlUnit, Initialization) 
 {
     auto controlUnit = make_shared<ControlUnitWrapperForTests>();
-    auto dummyALUChannel = make_shared<Channel<ALUMessage>>(ChannelType::In);
-    dummyALUChannel->OnReceived([](ALUMessage){ return; });
-
-    controlUnit->ControlUnitALUChannel->Bind(dummyALUChannel);
-    
-    controlUnit->Update();
+    controlUnit->Initialize();
 
     EXPECT_EQ(ControlUnitState::Fetch, controlUnit->CtrlUnitState());
-    EXPECT_EQ(FetchSubState::FetchT2, controlUnit->CtrlFetchSubstate());
 
-    controlUnit->Update();
-
-    EXPECT_EQ(ControlUnitState::Fetch, controlUnit->CtrlUnitState());
-    EXPECT_EQ(FetchSubState::FetchT3, controlUnit->CtrlFetchSubstate());
-
-    controlUnit->Update();
-
-    EXPECT_EQ(ControlUnitState::Fetch, controlUnit->CtrlUnitState());
-    EXPECT_EQ(FetchSubState::FetchT4, controlUnit->CtrlFetchSubstate());
-
-    controlUnit->Update();
-
-    EXPECT_EQ(ControlUnitState::Fetch, controlUnit->CtrlUnitState());
-    EXPECT_EQ(FetchSubState::FetchT1, controlUnit->CtrlFetchSubstate());
 }
-
-TEST(TestControlUnit, RequestPCFetch)
+TEST(TestControlUnit, RequestFetch)
 {
     auto testPassed = false;
     auto controlUnit = make_shared<ControlUnitWrapperForTests>();
-    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::In);
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
 
     controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
-    dummyAluChannel->OnReceived([&testPassed](ALUMessage message) 
+    dummyAluChannel->OnReceived([&testPassed, &dummyAluChannel](ALUMessage message) 
     { 
-        if (message == ALUMessage::FetchPC)
-            testPassed = true;
-    });
-
-    controlUnit->Update();
-    EXPECT_TRUE(testPassed);
-}
-
-TEST(TestControlUnit, RequestDecoding)
-{
-    auto testPassed = false;
-    auto updateCounter = 0;
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
-    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::In);
-
-    controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
-    dummyAluChannel->OnReceived([&updateCounter, &testPassed](ALUMessage message) 
-    { 
-        if (updateCounter == 0)
-            EXPECT_TRUE((updateCounter++) == 0 && message == ALUMessage::FetchPC);
-        else if (updateCounter == 1)
+        if (message == ALUMessage::Fetch)
         {
-            EXPECT_TRUE((updateCounter++) == 1 && message == ALUMessage::Decode);
+            dummyAluChannel->Send(ALUMessage::ReadyToDecode);
             testPassed = true;
         }
     });
 
-    controlUnit->Update();
-    controlUnit->Update();
-    controlUnit->Update();
+    EXPECT_EQ(ControlUnitState::Fetch, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::Decode, controlUnit->CtrlUnitState());
+
     EXPECT_TRUE(testPassed);
+}
+
+TEST(TestControlUnit, RequestDecode)
+{
+    auto testPassed = false;
+    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+
+    controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
+    dummyAluChannel->OnReceived([&testPassed, &dummyAluChannel](ALUMessage message) 
+    { 
+        if (message == ALUMessage::Fetch)
+            dummyAluChannel->Send(ALUMessage::ReadyToDecode);
+        else if (message == ALUMessage::Decode)
+        {
+            dummyAluChannel->Send(ALUMessage::ReadyToExecute);
+            testPassed = true;
+        }
+    });
+
+    EXPECT_EQ(ControlUnitState::Fetch, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::Decode, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::Execute, controlUnit->CtrlUnitState());
+
+    EXPECT_TRUE(testPassed);
+}
+
+TEST(TestControlUnit, RequestExecute)
+{
+    auto testPassed = false;
+    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+
+    controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
+    dummyAluChannel->OnReceived([&testPassed, &dummyAluChannel](ALUMessage message) 
+    { 
+        if (message == ALUMessage::Fetch)
+            dummyAluChannel->Send(ALUMessage::ReadyToDecode);
+        if (message == ALUMessage::Decode)
+            dummyAluChannel->Send(ALUMessage::ReadyToExecute);
+        else if (message == ALUMessage::Execute)
+        {
+            dummyAluChannel->Send(ALUMessage::ReadyToWriteBack);
+            testPassed = true;
+        }
+    });
+
+    EXPECT_EQ(ControlUnitState::Fetch, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::Decode, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::Execute, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::WriteBack, controlUnit->CtrlUnitState());
+
+    EXPECT_TRUE(testPassed);
+}
+
+TEST(TestControlUnit, RequestWriteBack)
+{
+    auto testPassed = false;
+    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+
+    controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
+    dummyAluChannel->OnReceived([&testPassed, &dummyAluChannel](ALUMessage message) 
+    { 
+        if (message == ALUMessage::Fetch)
+            dummyAluChannel->Send(ALUMessage::ReadyToDecode);
+        if (message == ALUMessage::Decode)
+            dummyAluChannel->Send(ALUMessage::ReadyToExecute);
+        if (message == ALUMessage::Execute)
+            dummyAluChannel->Send(ALUMessage::ReadyToWriteBack);
+        else if (message == ALUMessage::WriteBack)
+        {
+            dummyAluChannel->Send(ALUMessage::ReadyToFetch);
+            testPassed = true;
+        }
+    });
+
+    EXPECT_EQ(ControlUnitState::Fetch, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::Decode, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::Execute, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::WriteBack, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::Fetch, controlUnit->CtrlUnitState());
+
+    EXPECT_TRUE(testPassed);
+}
+
+TEST(TestControlUnit, IntermediateAcquireRequest)
+{
+    auto messageCounter = 0;
+    auto testPassed = false;
+    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+
+    controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
+    dummyAluChannel->OnReceived([&testPassed, &dummyAluChannel, &messageCounter](ALUMessage message) 
+    { 
+        if (messageCounter == 0 && message == ALUMessage::Fetch)
+            dummyAluChannel->Send(ALUMessage::ReadyToDecode);
+        if (messageCounter == 1 && message == ALUMessage::Decode)
+            dummyAluChannel->Send(ALUMessage::ReadyToAcquire); // Read 8 bits operand from memory
+        if (messageCounter == 2 && message == ALUMessage::Acquire)
+            dummyAluChannel->Send(ALUMessage::ReadyToAcquire); // Read extra 8 bits operando from memory
+        else if (messageCounter == 3 && message == ALUMessage::Acquire)
+            dummyAluChannel->Send(ALUMessage::ReadyToExecute);
+        else if (messageCounter == 4 && message == ALUMessage::Execute)
+            dummyAluChannel->Send(ALUMessage::ReadyToWriteBack);
+        else if (messageCounter == 5 && message == ALUMessage::WriteBack)
+        {
+            dummyAluChannel->Send(ALUMessage::ReadyToFetch);
+            testPassed = true;
+        }
+
+        messageCounter++;
+    });
+
+    EXPECT_EQ(ControlUnitState::Fetch, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::Decode, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::Acquire, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::Acquire, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::Execute, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::WriteBack, controlUnit->CtrlUnitState());
+    controlUnit->RunInstructionCycle();
+    EXPECT_EQ(ControlUnitState::Fetch, controlUnit->CtrlUnitState());
+
+    EXPECT_TRUE(testPassed);
+}
+
+TEST(TestControlUnit, RunMultiplePlainCycles)
+{
+    auto fullCycles = 0;
+    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+
+    controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
+    dummyAluChannel->OnReceived([&dummyAluChannel, &fullCycles](ALUMessage message) 
+    { 
+        if (message == ALUMessage::Fetch)
+            dummyAluChannel->Send(ALUMessage::ReadyToDecode);
+        if (message == ALUMessage::Decode)
+            dummyAluChannel->Send(ALUMessage::ReadyToExecute);
+        if (message == ALUMessage::Execute)
+            dummyAluChannel->Send(ALUMessage::ReadyToWriteBack);
+        else if (message == ALUMessage::WriteBack)
+        {
+            fullCycles++;
+            dummyAluChannel->Send(ALUMessage::ReadyToFetch);
+        }
+    });
+
+    for (auto i = 0; i < 100; i++)
+        controlUnit->RunInstructionCycle();
+
+    EXPECT_EQ(25, fullCycles);
 }

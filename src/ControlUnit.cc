@@ -7,42 +7,75 @@ namespace gbx
 
 ControlUnit::ControlUnit()
     : ControlUnitALUChannel(make_shared<Channel<ALUMessage>>(ChannelType::InOut))
+    , _clock(make_unique<ClockSource>(EngineParameters::GBCClockPeriod))
     , _state(ControlUnitState::Fetch)
-    , _fetchSubstate(FetchSubState::FetchT1)
 {
     ControlUnitALUChannel->OnReceived([this](ALUMessage message) -> void { this->OnALUMessage(message); });
 }
 
-void ControlUnit::OnALUMessage(ALUMessage message)
-{
-}
+void ControlUnit::Initialize()
+{}
 
-void ControlUnit::Update()
+void ControlUnit::RunInstructionCycle()
 {
     switch (_state)
     {
-        case ControlUnitState::Fetch: UpdateFetch(); break;
+        case ControlUnitState::Fetch: Fetch(); break;
+        case ControlUnitState::Decode: Decode(); break;
+        case ControlUnitState::Execute: Execute(); break;
+        case ControlUnitState::WriteBack: WriteBack(); break;
+        case ControlUnitState::Acquire: Acquire(); break;
+        case ControlUnitState::Wait: Wait(); break;
+        case ControlUnitState::Interrupt: break;
+    }
+
+    // Adjust Clock Wait time.
+    // This calculates an Approximate timing for each instruction.
+    // _clock.Tick(#CyclesOfCurrentInstruction, approximate cycle execition time);
+    // Only Run this when a cycle is complete!!!!
+    _clock->Tick(4, 0);
+}
+
+void ControlUnit::OnALUMessage(ALUMessage message)
+{
+    switch(message)
+    {
+        case ALUMessage::ReadyToDecode: _state = ControlUnitState::Decode; break;
+        case ALUMessage::ReadyToExecute: _state = ControlUnitState::Execute; break;
+        case ALUMessage::ReadyToWriteBack: _state = ControlUnitState::WriteBack; break;
+        case ALUMessage::ReadyToFetch: _state = ControlUnitState::Fetch; break;
+        case ALUMessage::ReadyToAcquire: _state = ControlUnitState::Acquire; break;
+        default: return;
     }
 }
 
-void ControlUnit::UpdateFetch()
+void ControlUnit::Fetch()
 {
-    switch (_fetchSubstate)
-    {
-        case FetchSubState::FetchT1: ControlUnitALUChannel->Send(ALUMessage::FetchPC);
-                                     _fetchSubstate = FetchSubState::FetchT2; 
-                                     break;
-        case FetchSubState::FetchT2: _fetchSubstate = FetchSubState::FetchT3;
-                                     break;
-        case FetchSubState::FetchT3: ControlUnitALUChannel->Send(ALUMessage::Decode);
-                                     _fetchSubstate = FetchSubState::FetchT4; 
-                                     break;
-        case FetchSubState::FetchT4: ControlUnitALUChannel->Send(ALUMessage::Execute);
-                                     _fetchSubstate = FetchSubState::FetchT1; 
-                                     DecideNextState();
-                                     break;
-    }
+    ControlUnitALUChannel->Send(ALUMessage::Fetch);
 }
+
+void ControlUnit::Decode()
+{
+    ControlUnitALUChannel->Send(ALUMessage::Decode);
+}
+
+void ControlUnit::Execute()
+{
+    ControlUnitALUChannel->Send(ALUMessage::Execute);
+}
+
+void ControlUnit::WriteBack()
+{
+    ControlUnitALUChannel->Send(ALUMessage::WriteBack);
+}
+
+void ControlUnit::Acquire()
+{
+    ControlUnitALUChannel->Send(ALUMessage::Acquire);
+}
+
+void ControlUnit::Wait()
+{}
 
 void ControlUnit::DecideNextState()
 {

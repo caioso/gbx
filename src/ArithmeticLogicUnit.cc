@@ -9,7 +9,6 @@ ArithmeticLogicUnit::ArithmeticLogicUnit()
     : ALUControlUnitChannel(make_shared<Channel<ALUMessage>>(ChannelType::InOut))
     , ALUMemoryControllerChannel(make_shared<Channel<MemoryMessage>>(ChannelType::InOut))
     , _state(ALUState::Idle)
-    , _instructionState(InstructionState::NoInstruction)
 {
     ALUControlUnitChannel->OnReceived([this](ALUMessage message) -> void { this->OnControlUnitMessage(message); });
     ALUMemoryControllerChannel->OnReceived([this](MemoryMessage message) -> void { this->OnMemoryControllerMessage(message); });
@@ -21,9 +20,11 @@ void ArithmeticLogicUnit::OnControlUnitMessage(ALUMessage message)
 {
     switch(message)
     {
-        case ALUMessage::FetchPC: HandleControlSignalFetchPC(); break;
+        case ALUMessage::Fetch: HandleControlSignalFetch(); break;
         case ALUMessage::Decode: HandleControlUnitSignalDecode(); break;
         case ALUMessage::Execute: HandleControlUnitSignalExecute(); break;
+        case ALUMessage::Acquire: HandleControlUnitSignalAcquire(); break;
+        default: break;
     }
 }
 
@@ -32,85 +33,117 @@ void ArithmeticLogicUnit::OnMemoryControllerMessage(MemoryMessage message)
     switch(_state)
     {
         case ALUState::FetchingPC: HandleMemoryResponseFetchPC(message); break;
-        case ALUState::Idle:
+        case ALUState::FethcingOperand1: HandleMemoryResponseFetchOperand1(message); break;
         default:
             throw ArithmeticLogicUnitException("unexpected memory response received");
     }
 }
 
-void ArithmeticLogicUnit::HandleControlSignalFetchPC()
+void ArithmeticLogicUnit::HandleControlSignalFetch()
 {
-    if (_state != ALUState::Idle)
-        throw ArithmeticLogicUnitException("PC fetching can only be requested while the ALU is in Idle state");
+    auto programCounter = _registers.ReadPair(Register::PC);
 
     _state = ALUState::FetchingPC;
     
-    auto programCounter = _registers.ReadPair(Register::PC);
     ALUMemoryControllerChannel->Send({MemoryRequestType::Read, programCounter, MemoryAccessType::Byte});
-    
+    _registers.WritePair(Register::PC, programCounter + 1);
+
+    ALUControlUnitChannel->Send(ALUMessage::ReadyToDecode);
 }
 
 void ArithmeticLogicUnit::HandleControlUnitSignalDecode()
 {
-    if (_state != ALUState::FetchingPC)
-        throw ArithmeticLogicUnitException("Decoding can only happen while the ALU in is FetchingPC state");
-
-    DecodeInstruction();
-    EvaluateInstructionDependencies();
     _state = ALUState::Decoding;
+    DecodeInstruction();
+    DecideToAcquireOrExecute();
+}
+
+void ArithmeticLogicUnit::HandleControlUnitSignalAcquire()
+{
+    auto programCounter = _registers.ReadPair(Register::PC);
+
+    _state = ALUState::FethcingOperand1;
+
+    ALUMemoryControllerChannel->Send({MemoryRequestType::Read, programCounter, MemoryAccessType::Byte});
+    _registers.WritePair(Register::PC, programCounter + 1);
+    
+    ALUControlUnitChannel->Send(ALUMessage::ReadyToExecute);
 }
 
 void ArithmeticLogicUnit::HandleControlUnitSignalExecute()
 {
-    if (_state != ALUState::Decoding || _instructionState != InstructionState::ReadyToExecute)
-         throw ArithmeticLogicUnitException("Execute can only happen while the ALU in is Decoding state and the current instruction has no extra dependencies");
-
+    _state = ALUState::Executing;
     ExecuteInstruction();
-    _state = ALUState::Complete;
-    _instructionState = InstructionState::NoInstruction;
+    DecideToWriteBackOrFetchPC();
 }
 
 void ArithmeticLogicUnit::ExecuteInstruction()
 {
-    auto currentInstruction = _registers.Read(Register::IR);
-    if (auto opcode = (currentInstruction >> 6) & 0xFF;
-        opcode == 0x01)                                  // LD r, r opcode
+    if (_currentInstruction.opcode == Instruction::ld)
     {
-        auto source = _registers.FromInstructionSource((currentInstruction >> 3) & 0x07);
-        auto destination = _registers.FromInstructionDestination((currentInstruction) & 0x07); 
-        auto currentSourceValue = _registers.Read(source);
-        _registers.Write(destination, currentSourceValue);
+        if (_currentInstruction.addressingMode == AddressingMode::Register)
+        {
+            auto currentSourceValue = _registers.Read(_currentInstruction.source);
+            _registers.Write(_currentInstruction.destination, currentSourceValue);
+        }
+        else if (_currentInstruction.addressingMode == AddressingMode::Immediate)
+        {
+            _registers.Write(_currentInstruction.destination, _currentInstruction.memoryOperand1);
+        }
     }
 }
 
-void ArithmeticLogicUnit::EvaluateInstructionDependencies()
+void ArithmeticLogicUnit::DecideToAcquireOrExecute()
 {
-    // Evaluate here _instructionState to see whether the current instruction requires ferther memory access.
+    if (_currentInstruction.addressingMode == AddressingMode::Register)
+        ALUControlUnitChannel->Send(ALUMessage::ReadyToExecute);
+    else if (_currentInstruction.addressingMode == AddressingMode::Immediate)
+    {
+        ALUControlUnitChannel->Send(ALUMessage::ReadyToAcquire);
+    }
+}
+
+void ArithmeticLogicUnit::DecideToWriteBackOrFetchPC()
+{
+    ALUControlUnitChannel->Send(ALUMessage::ReadyToFetch);
 }
 
 void ArithmeticLogicUnit::DecodeInstruction()
 {
     // This will move to a separate class
     auto currentInstruction = _registers.Read(Register::IR);
-    if (auto opcode = (currentInstruction >> 6) & 0xFF;
-        opcode == 0x01)                                  // LD r, r opcode
+    _currentInstruction = Decode(currentInstruction);
+}
+
+DecodedInstruction ArithmeticLogicUnit::Decode(uint8_t opcode)
+{
+    auto prefix = (opcode >> 6);
+
+    if (prefix == 0x01)
     {
-        _instructionState = InstructionState::ReadyToExecute;
+        auto destination = _registers.FromInstructionSource((opcode >> 3) & 0x07);
+        auto source = _registers.FromInstructionDestination((opcode) & 0x07); 
+        return {Instruction::ld, AddressingMode::Register, 0x00, source, destination};
     }
-    else // Any other instruction
+    if (prefix == 0x00)
     {
-        stringstream ss;
-        ss << "Unable to decode instruction " << currentInstruction;
-        throw ArithmeticLogicUnitException(ss.str());
+        auto destination = _registers.FromInstructionDestination((opcode >> 3) & 0x07);
+        return {Instruction::ld, AddressingMode::Immediate, 0x00, Register::NoRegiser, destination};
     }
+
+    stringstream ss;
+    throw ArithmeticLogicUnitException(ss.str());
 }
 
 void ArithmeticLogicUnit::HandleMemoryResponseFetchPC(MemoryMessage message)
 {
-    _registers.WritePair(Register::PC, _registers.ReadPair(Register::PC) + 1);
     _registers.Write(Register::IR, get<uint8_t>(message.Data));
 }
 
+void ArithmeticLogicUnit::HandleMemoryResponseFetchOperand1(MemoryMessage message)
+{
+    _currentInstruction.memoryOperand1 = get<uint8_t>(message.Data);
+}
 
 void ArithmeticLogicUnit::InitializeRegisters()
 {

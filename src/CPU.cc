@@ -6,8 +6,7 @@ namespace gbx
 {
 
 CPU::CPU()
-    : _clock(make_unique<ClockSource>(EngineParameters::GBCFrequency))
-    , _controlUnit(make_unique<ControlUnit>())
+    : _controlUnit(make_unique<ControlUnit>())
     , _alu(make_unique<ArithmeticLogicUnit>())
     , _memoryController(make_unique<MemoryController>())
 
@@ -16,12 +15,13 @@ CPU::CPU()
 {
 
     _controlUnit->ControlUnitALUChannel->Bind(_alu->ALUControlUnitChannel);
+    _controlUnit->Initialize();
+
     _memoryController->MemoryControllerALUChannel->Bind(_alu->ALUMemoryControllerChannel);
 }
 
 void CPU::Initialize()
 {
-    InitializeClockSubsystem();
     InitializeMemorySubsystem();
 }
 
@@ -33,10 +33,10 @@ void CPU::Run()
     }
 }
 
-void CPU::Run(uint32_t cycles)
+void CPU::Run(uint32_t instructions)
 {
     auto counter = static_cast<uint32_t>(0);
-    while (counter++ != cycles)
+    while (counter++ != instructions)
     {
         UpdateEmulation();
     }
@@ -44,19 +44,9 @@ void CPU::Run(uint32_t cycles)
 
 void CPU::UpdateEmulation()
 {
-    _clock->Tick();
+    _controlUnit->RunInstructionCycle();
 }
 
-void CPU::OnTick()
-{
-    _controlUnit->Update();
-}
-
-void CPU::InitializeClockSubsystem()
-{
-    weak_ptr<ClockObserver> mock = shared_from_this();
-    _clock->Subscribe(mock);
-}
 
 void CPU::InitializeMemorySubsystem()
 {

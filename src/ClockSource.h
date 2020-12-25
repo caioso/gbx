@@ -7,7 +7,6 @@
 #include <memory>
 #include <thread>
 
-#include "ClockObserver.h"
 #include "EngineParameters.h"
 #include "GBXExceptions.h"
 
@@ -17,22 +16,17 @@ namespace gbx
 class ClockSource
 {
 public:
-    ClockSource(uint64_t frequencyInHertz);
+    ClockSource(uint64_t clockPeriodInNanoSeconds);
     ~ClockSource() = default;
 
-    void Subscribe(std::weak_ptr<ClockObserver> observer);
-    void Tick();
-    uint64_t Ticks();
+    void Tick(uint64_t ticks, uint64_t instructionExecutionTimInNanoseconds);
+
     double Period();
+    uint64_t Ticks();
 
 private:
-    void HasBeenRegistered(std::weak_ptr<ClockObserver> observer);
-
-    double _clockPeriod;
+    uint64_t _clockPeriodInNanoSeconds;
     uint64_t _ticks;
-    uint32_t _threadSleepDuration;
-    uint8_t _observersCounter;
-    std::array<std::weak_ptr<ClockObserver>, EngineParameters::MaxClockObservers> _observers;
 };
 
 }
