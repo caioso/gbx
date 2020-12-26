@@ -7,6 +7,7 @@
 
 #include "Channel.h"
 #include "GBXExceptions.h"
+#include "instructions/Instruction.h"
 #include "MemoryController.h"
 #include "RegisterBank.h"
 
@@ -36,30 +37,6 @@ enum class ALUState
     FethcingOperand1,
     FetchingOperand2,
     Executing,
-};
-
-
-// Move this all to another file
-enum class Instruction
-{
-    unknown,
-    ld
-};
-
-enum class AddressingMode
-{
-    Register,
-    Immediate,
-    Implicit
-};
-
-struct DecodedInstruction
-{
-    Instruction opcode;
-    AddressingMode addressingMode;
-    uint8_t memoryOperand1;
-    Register source;
-    Register destination;
 };
 
 class ArithmeticLogicUnit

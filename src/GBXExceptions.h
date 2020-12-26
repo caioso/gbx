@@ -59,4 +59,11 @@ public:
     ~RegisterBankException() = default;
 };
 
+class InstructionException : public GBXException
+{
+public:
+    InstructionException(const std::string message);
+    ~InstructionException() = default;
+};
+
 }
