@@ -9,6 +9,7 @@ ArithmeticLogicUnit::ArithmeticLogicUnit()
     : ALUControlUnitChannel(make_shared<Channel<ALUMessage>>(ChannelType::InOut))
     , ALUMemoryControllerChannel(make_shared<Channel<MemoryMessage>>(ChannelType::InOut))
     , _state(ALUState::Idle)
+    , _registers(make_shared<RegisterBank>())
 {
     ALUControlUnitChannel->OnReceived([this](ALUMessage message) -> void { this->OnControlUnitMessage(message); });
     ALUMemoryControllerChannel->OnReceived([this](MemoryMessage message) -> void { this->OnMemoryControllerMessage(message); });
@@ -41,12 +42,12 @@ void ArithmeticLogicUnit::OnMemoryControllerMessage(MemoryMessage message)
 
 void ArithmeticLogicUnit::HandleControlSignalFetch()
 {
-    auto programCounter = _registers.ReadPair(Register::PC);
+    auto programCounter = _registers->ReadPair(Register::PC);
 
     _state = ALUState::FetchingPC;
     
     ALUMemoryControllerChannel->Send({MemoryRequestType::Read, programCounter, MemoryAccessType::Byte});
-    _registers.WritePair(Register::PC, programCounter + 1);
+    _registers->WritePair(Register::PC, programCounter + 1);
 
     ALUControlUnitChannel->Send(ALUMessage::ReadyToDecode);
 }
@@ -60,12 +61,12 @@ void ArithmeticLogicUnit::HandleControlUnitSignalDecode()
 
 void ArithmeticLogicUnit::HandleControlUnitSignalAcquire()
 {
-    auto programCounter = _registers.ReadPair(Register::PC);
+    auto programCounter = _registers->ReadPair(Register::PC);
 
     _state = ALUState::FethcingOperand1;
 
     ALUMemoryControllerChannel->Send({MemoryRequestType::Read, programCounter, MemoryAccessType::Byte});
-    _registers.WritePair(Register::PC, programCounter + 1);
+    _registers->WritePair(Register::PC, programCounter + 1);
     
     ALUControlUnitChannel->Send(ALUMessage::ReadyToExecute);
 }
@@ -79,25 +80,16 @@ void ArithmeticLogicUnit::HandleControlUnitSignalExecute()
 
 void ArithmeticLogicUnit::ExecuteInstruction()
 {
-    if (_currentInstruction.Opcode == OpcodeType::ld)
-    {
-        if (_currentInstruction.AddressingMode == AddressingMode::Register)
-        {
-            auto currentSourceValue = _registers.Read(_currentInstruction.SourceRegister);
-            _registers.Write(_currentInstruction.DestinationRegister, currentSourceValue);
-        }
-        else if (_currentInstruction.AddressingMode == AddressingMode::Immediate)
-        {
-            _registers.Write(_currentInstruction.DestinationRegister, _currentInstruction.MemoryOperand1);
-        }
-    }
+    // TODO: Maybe move this to another class
+    if (_currentInstruction->InstructionData.value().Opcode == OpcodeType::ld)
+        _currentInstruction->Execute(_registers, ALUMemoryControllerChannel);
 }
 
 void ArithmeticLogicUnit::DecideToAcquireOrExecute()
 {
-    if (_currentInstruction.AddressingMode == AddressingMode::Register)
+    if (_currentInstruction->InstructionData.value().AddressingMode == AddressingMode::Register)
         ALUControlUnitChannel->Send(ALUMessage::ReadyToExecute);
-    else if (_currentInstruction.AddressingMode == AddressingMode::Immediate)
+    else if (_currentInstruction->InstructionData.value().AddressingMode == AddressingMode::Immediate)
     {
         ALUControlUnitChannel->Send(ALUMessage::ReadyToAcquire);
     }
@@ -110,46 +102,42 @@ void ArithmeticLogicUnit::DecideToWriteBackOrFetchPC()
 
 void ArithmeticLogicUnit::DecodeInstruction()
 {
-    // This will move to a separate class
-    auto currentInstruction = _registers.Read(Register::IR);
-    _currentInstruction = Decode(currentInstruction);
+    auto opcode = _registers->Read(Register::IR);
+    Decode(opcode);
 }
 
-DecodedInstruction ArithmeticLogicUnit::Decode(uint8_t opcode)
+void ArithmeticLogicUnit::Decode(uint8_t opcode)
 {
     auto prefix = (opcode >> 6);
 
-    if (prefix == 0x01)
+    // Improve this
+    if (prefix == 0x01 || prefix == 0x00)
     {
-        auto destination = RegisterBank::FromInstructionSource((opcode >> 3) & 0x07);
-        auto source = RegisterBank::FromInstructionDestination((opcode) & 0x07); 
-        return {OpcodeType::ld, AddressingMode::Register, 0x00, source, destination};
+        _currentInstruction = make_unique<LD>();
+        _currentInstruction->Decode(opcode);
     }
-    if (prefix == 0x00)
+    else
     {
-        auto destination = RegisterBank::FromInstructionDestination((opcode >> 3) & 0x07);
-        return {OpcodeType::ld, AddressingMode::Immediate, 0x00, Register::NoRegiser, destination};
+        stringstream ss;
+        throw ArithmeticLogicUnitException(ss.str());
     }
-
-    stringstream ss;
-    throw ArithmeticLogicUnitException(ss.str());
 }
 
 void ArithmeticLogicUnit::HandleMemoryResponseFetchPC(MemoryMessage message)
 {
-    _registers.Write(Register::IR, get<uint8_t>(message.Data));
+    _registers->Write(Register::IR, get<uint8_t>(message.Data));
 }
 
 void ArithmeticLogicUnit::HandleMemoryResponseFetchOperand1(MemoryMessage message)
 {
-    _currentInstruction.MemoryOperand1 = get<uint8_t>(message.Data);
+    _currentInstruction->InstructionData.value().MemoryOperand1 = get<uint8_t>(message.Data);
 }
 
 void ArithmeticLogicUnit::InitializeRegisters()
 {
-    _registers.Write(Register::IR, 0x00);
-    _registers.WritePair(Register::PC, 0x0000);
-    _registers.Write(Register::F, 0x00);
+    _registers->Write(Register::IR, 0x00);
+    _registers->WritePair(Register::PC, 0x0000);
+    _registers->Write(Register::F, 0x00);
 }
 
 }

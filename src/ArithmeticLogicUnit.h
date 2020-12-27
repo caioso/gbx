@@ -1,15 +1,15 @@
 #pragma once
 
-#include <iostream>
 #include <memory>
 #include <variant>
 #include <sstream>
 
 #include "Channel.h"
 #include "GBXExceptions.h"
-#include "instructions/Instruction.h"
 #include "MemoryController.h"
 #include "RegisterBank.h"
+#include "instructions/Instruction.h"
+#include "instructions/LD.h"
 
 namespace gbx
 {
@@ -39,7 +39,7 @@ enum class ALUState
     Executing,
 };
 
-class ArithmeticLogicUnit
+class ArithmeticLogicUnit : public std::enable_shared_from_this<ArithmeticLogicUnit>
 {
 public:
     ArithmeticLogicUnit();
@@ -67,11 +67,11 @@ protected:
     void HandleControlUnitSignalExecute();
     void HandleControlUnitSignalAcquire();
 
-    DecodedInstruction Decode(uint8_t opcode);
+    void Decode(uint8_t opcode);
 
-    RegisterBank _registers;
     ALUState _state;
-    DecodedInstruction _currentInstruction;
+    std::shared_ptr<RegisterBank> _registers;
+    std::unique_ptr<Instruction> _currentInstruction;
 };
 
 }

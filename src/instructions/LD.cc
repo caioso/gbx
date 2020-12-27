@@ -34,8 +34,20 @@ void LD::Decode(uint8_t opcode)
     }
 }
 
-void LD::Execute(RegisterBank registerBank, std::shared_ptr<Channel<MemoryMessage>> memoryChannel)
+void LD::Execute(std::shared_ptr<RegisterBank> registerBank, __attribute__((unused)) std::shared_ptr<Channel<MemoryMessage>> memoryChannel)
 {
+    if (InstructionData == nullopt)
+        throw InstructionException("attempted to execute a not-decoded instruction");
+
+    if (InstructionData.value().AddressingMode == AddressingMode::Immediate)
+    {
+        registerBank->Write(InstructionData.value().DestinationRegister, InstructionData.value().MemoryOperand1);
+    }
+    else if (InstructionData.value().AddressingMode == AddressingMode::Register)
+    {
+        auto currentSourceValue = registerBank->Read(InstructionData.value().SourceRegister);
+        registerBank->Write(InstructionData.value().DestinationRegister, currentSourceValue);
+    }
 }
 
 }

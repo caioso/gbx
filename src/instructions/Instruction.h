@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <memory>
 
 #include "../Channel.h"
 #include "../MemoryController.h"
@@ -35,8 +36,9 @@ struct DecodedInstruction
 class Instruction
 {
 public:
+    virtual ~Instruction() = default;    
     virtual void Decode(uint8_t opcode) = 0;
-    virtual void Execute(RegisterBank registerBank, std::shared_ptr<Channel<MemoryMessage>> memoryChannel) = 0;
+    virtual void Execute(std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<Channel<MemoryMessage>> memoryChannel) = 0;
 
     std::optional<DecodedInstruction> InstructionData;
 };

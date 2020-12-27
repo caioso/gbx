@@ -18,7 +18,7 @@ using namespace gbx;
 class ALUWrapperForTests : public ArithmeticLogicUnit
 {
 public:
-    RegisterBank& GetRegisterBank()
+    shared_ptr<RegisterBank> GetRegisterBank()
     {
         return this->_registers;
     }
@@ -68,8 +68,8 @@ TEST(TestArithmeticLogicUnit, FetchPCMessage)
     alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
     controlUnitChannel->Send(ALUMessage::Fetch);
 
-    auto instructionRegister = alu->GetRegisterBank().Read(Register::IR);
-    auto programCounter = alu->GetRegisterBank().ReadPair(Register::PC);
+    auto instructionRegister = alu->GetRegisterBank()->Read(Register::IR);
+    auto programCounter = alu->GetRegisterBank()->ReadPair(Register::PC);
 
     EXPECT_EQ(ALUState::FetchingPC, alu->GetState());
     EXPECT_EQ(0xAA, instructionRegister);
@@ -138,7 +138,7 @@ TEST(TestArithmeticLogicUnit, TestExecuting)
     controlUnitChannel->Send(ALUMessage::Fetch);
 
     // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(alu->GetRegisterBank().Read(Register::A), alu->GetRegisterBank().Read(Register::B));
+    EXPECT_EQ(alu->GetRegisterBank()->Read(Register::A), alu->GetRegisterBank()->Read(Register::B));
     EXPECT_EQ(ALUState::Executing, alu->GetState());
     EXPECT_TRUE(testPassed);    
 }
@@ -216,7 +216,7 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleOperand)
     controlUnitChannel->Send(ALUMessage::Fetch);
 
     // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0xAA, alu->GetRegisterBank().Read(Register::H));
+    EXPECT_EQ(0xAA, alu->GetRegisterBank()->Read(Register::H));
     EXPECT_EQ(ALUState::Executing, alu->GetState());
     EXPECT_TRUE(testPassed);    
 }
