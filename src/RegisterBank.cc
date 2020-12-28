@@ -131,7 +131,7 @@ uint8_t RegisterBank::ToInstructionSource(Register reg)
         case Register::D: return 0x02;
         case Register::E: return 0x03;
         case Register::F: return 0x04;
-        case Register::L: return 0x06;
+        case Register::L: return 0x05;
         case Register::A: return 0x07;
         default:
             throw RegisterBankException("invalid source register");
@@ -147,7 +147,7 @@ Register RegisterBank::FromInstructionSource(uint8_t reg)
         case 0x02: return Register::D;
         case 0x03: return Register::E;
         case 0x04: return Register::F;
-        case 0x06: return Register::L;
+        case 0x05: return Register::L;
         case 0x07: return Register::A;
         default:
             throw RegisterBankException("invalid source register");
@@ -163,7 +163,7 @@ uint8_t RegisterBank::ToInstructionDestination(Register reg)
         case Register::D: return 0x02;
         case Register::E: return 0x03;
         case Register::H: return 0x04;
-        case Register::L: return 0x06;
+        case Register::L: return 0x05;
         case Register::A: return 0x07;
         default:
             throw RegisterBankException("invalid destination register");
@@ -179,7 +179,7 @@ Register RegisterBank::FromInstructionDestination(uint8_t reg)
         case 0x02: return Register::D;
         case 0x03: return Register::E;
         case 0x04: return Register::H;
-        case 0x06: return Register::L;
+        case 0x05: return Register::L;
         case 0x07: return Register::A;
         default:
             throw RegisterBankException("invalid destination register");

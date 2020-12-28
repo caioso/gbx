@@ -39,6 +39,7 @@ enum class MemoryRequestType
 typedef struct MemoryMessage_t
 {
     MemoryRequestType Request;
+    uint16_t Address;
     std::variant<uint8_t, uint16_t> Data;
     MemoryAccessType AccessType;
 }
@@ -66,6 +67,7 @@ private:
     void DetectOverlap(AddressRange range);
 
     void HandleReadRequest(MemoryMessage message, std::shared_ptr<Channel<MemoryMessage>>& channel);
+    void HandleWriteRequest(MemoryMessage message, std::shared_ptr<Channel<MemoryMessage>>& channel);
 
     void OnALUMessage(MemoryMessage message);
 

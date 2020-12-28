@@ -21,6 +21,8 @@ enum class AddressingMode
 {
     Register,
     Immediate,
+    RegisterIndirectSource,
+    RegisterIndirectDestination,
     Implicit
 };
 

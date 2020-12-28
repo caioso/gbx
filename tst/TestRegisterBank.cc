@@ -91,7 +91,7 @@ TEST(TestRegisterBank, InstructionSourceToRegister)
     EXPECT_EQ(0x02, bank.ToInstructionSource(Register::D));
     EXPECT_EQ(0x03, bank.ToInstructionSource(Register::E));
     EXPECT_EQ(0x04, bank.ToInstructionSource(Register::F));
-    EXPECT_EQ(0x06, bank.ToInstructionSource(Register::L));
+    EXPECT_EQ(0x05, bank.ToInstructionSource(Register::L));
     EXPECT_EQ(0x07, bank.ToInstructionSource(Register::A));
 
     array<Register, 12> nonSources = { Register::H, Register::HL, Register::I, Register::IR, Register::IX, Register::IY,
@@ -123,7 +123,7 @@ TEST(TestRegisterBank, InstructionDestinationToRegister)
     EXPECT_EQ(0x02, bank.ToInstructionDestination(Register::D));
     EXPECT_EQ(0x03, bank.ToInstructionDestination(Register::E));
     EXPECT_EQ(0x04, bank.ToInstructionDestination(Register::H));
-    EXPECT_EQ(0x06, bank.ToInstructionDestination(Register::L));
+    EXPECT_EQ(0x05, bank.ToInstructionDestination(Register::L));
     EXPECT_EQ(0x07, bank.ToInstructionDestination(Register::A));
 
     array<Register, 12> nonSources = { Register::F, Register::HL, Register::I, Register::IR, Register::IX, Register::IY,
@@ -155,7 +155,7 @@ TEST(TestRegisterBank, FromInstructionSourceToRegister)
     EXPECT_EQ(Register::D, bank.FromInstructionSource(0x02));
     EXPECT_EQ(Register::E, bank.FromInstructionSource(0x03));
     EXPECT_EQ(Register::F, bank.FromInstructionSource(0x04));
-    EXPECT_EQ(Register::L, bank.FromInstructionSource(0x06));
+    EXPECT_EQ(Register::L, bank.FromInstructionSource(0x05));
     EXPECT_EQ(Register::A, bank.FromInstructionSource(0x07));
     
     for (auto i = 8; i < 255; i++)
@@ -184,7 +184,7 @@ TEST(TestRegisterBank, FromInstructionDestinationToRegister)
     EXPECT_EQ(Register::D, bank.FromInstructionDestination(0x02));
     EXPECT_EQ(Register::E, bank.FromInstructionDestination(0x03));
     EXPECT_EQ(Register::H, bank.FromInstructionDestination(0x04));
-    EXPECT_EQ(Register::L, bank.FromInstructionDestination(0x06));
+    EXPECT_EQ(Register::L, bank.FromInstructionDestination(0x05));
     EXPECT_EQ(Register::A, bank.FromInstructionDestination(0x07));
     
     for (auto i = 8; i < 255; i++)

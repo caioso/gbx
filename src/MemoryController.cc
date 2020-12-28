@@ -28,7 +28,7 @@ void MemoryController::Write(std::variant<uint8_t, uint16_t> value, uint16_t add
     if (localAddress == nullopt)
         throw MemoryControllerException("requested address to read from does not fall into any resource");
 
-    return _resources[localAddress.value().resourceIndex].resource.get()->Write(value, localAddress.value().localAddress);
+    _resources[localAddress.value().resourceIndex].resource.get()->Write(value, localAddress.value().localAddress);
 }
 
 void MemoryController::Load(std::shared_ptr<uint8_t*> dataPointer, size_t size, uint16_t address, optional<size_t> offset)
@@ -112,12 +112,24 @@ void MemoryController::OnALUMessage(MemoryMessage message)
     
     if (message.Request == MemoryRequestType::Read)
         HandleReadRequest(message, MemoryControllerALUChannel);
+
+    if (message.Request == MemoryRequestType::Write)
+        HandleWriteRequest(message, MemoryControllerALUChannel);
 }
 
 void MemoryController::HandleReadRequest(MemoryMessage message, shared_ptr<Channel<MemoryMessage>>& channel)
 {
-    auto readData = Read(get<uint16_t>(message.Data), message.AccessType);
-    MemoryMessage response = {MemoryRequestType::Result, readData, message.AccessType};
+    auto readData = Read(message.Address, message.AccessType);
+    MemoryMessage response = {MemoryRequestType::Result, message.Address, readData, message.AccessType};
+
+    channel->Send(response);
+}
+
+
+void MemoryController::HandleWriteRequest(MemoryMessage message, shared_ptr<Channel<MemoryMessage>>& channel)
+{
+    Write(message.Data, message.Address);
+    MemoryMessage response = {MemoryRequestType::Result, message.Address, message.Data, message.AccessType};
 
     channel->Send(response);
 }
