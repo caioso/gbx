@@ -33,6 +33,7 @@ struct DecodedInstruction
     uint8_t MemoryOperand1;
     Register SourceRegister;
     Register DestinationRegister;
+    uint8_t MemoryResult1;
 };
 
 class Instruction

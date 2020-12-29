@@ -42,13 +42,13 @@ void CPU::Run(uint32_t instructions)
     }
 }
 
-void CPU::UpdateEmulation()
+inline void CPU::UpdateEmulation()
 {
     _controlUnit->RunInstructionCycle();
 }
 
 
-void CPU::InitializeMemorySubsystem()
+inline void CPU::InitializeMemorySubsystem()
 {
     // 0x100 will change later
     AddressRange range(0x0000, 0x0100, RangeType::BeginInclusive);

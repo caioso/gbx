@@ -26,14 +26,14 @@ uint8_t BinaryImmediateAddressingMode(Register destination)
            0x00 << 6;
 }
 
-uint8_t BinaryDestinationRegisterIndirectAddressingMode(Register destination)
+uint8_t BinaryRegisterIndirectAsSourceAddressinMode(Register destination)
 {
     return 0x06 | 
            RegisterBank::ToInstructionDestination(destination) << 3 |
            0x01 << 6;
 }
 
-uint8_t BinarySourceRegisterIndirectAddressingMode(Register source)
+uint8_t BinaryRegisterIndirectAsDestinationAddressinMode(Register source)
 {
     return RegisterBank::ToInstructionSource(source) | 
            0x06 << 3 |
@@ -195,7 +195,7 @@ TEST(TestLD, DecodeRegisterIndirectAddressingMode)
 
     for (auto destination : destinationsList)
     {
-        rawBinary = BinaryDestinationRegisterIndirectAddressingMode(destination);
+        rawBinary = BinaryRegisterIndirectAsSourceAddressinMode(destination);
         ld.Decode(rawBinary);
 
         EXPECT_NE(nullopt, ld.InstructionData);
@@ -215,7 +215,7 @@ TEST(TestLD, DecodeRegisterIndirectAddressingMode)
     EXPECT_EQ(Register::BC, ld.InstructionData.value().SourceRegister);
     EXPECT_EQ(Register::A, ld.InstructionData.value().DestinationRegister);
 
-    rawBinary = 0x1A; // Ld A, (BC)
+    rawBinary = 0x1A; // Ld A, (DE)
     ld.Decode(rawBinary);
 
     EXPECT_NE(nullopt, ld.InstructionData);
@@ -228,7 +228,7 @@ TEST(TestLD, DecodeRegisterIndirectAddressingMode)
 
     for (auto source : sourceList)
     {
-        rawBinary = BinarySourceRegisterIndirectAddressingMode(source);
+        rawBinary = BinaryRegisterIndirectAsDestinationAddressinMode(source);
         ld.Decode(rawBinary);
 
         EXPECT_NE(nullopt, ld.InstructionData);
@@ -237,6 +237,25 @@ TEST(TestLD, DecodeRegisterIndirectAddressingMode)
         EXPECT_EQ(source, ld.InstructionData.value().SourceRegister);
         EXPECT_EQ(Register::HL, ld.InstructionData.value().DestinationRegister);
     }
+
+    // (BC) and (DE) as sources -> Only A is accepted as source
+    rawBinary = 0x02; // Ld (BC), A
+    ld.Decode(rawBinary);
+
+    EXPECT_NE(nullopt, ld.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, ld.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectDestination, ld.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::A, ld.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::BC, ld.InstructionData.value().DestinationRegister);
+
+    rawBinary = 0x12; // Ld (DE), A
+    ld.Decode(rawBinary);
+
+    EXPECT_NE(nullopt, ld.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, ld.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectDestination, ld.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::A, ld.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::DE, ld.InstructionData.value().DestinationRegister);
 
     const auto suffix = 0x06;
     constexpr auto opcode = 0x01 << 6;
@@ -323,7 +342,7 @@ TEST(TestLD, ExecuteRegisterAddressingMode)
     }
 }
 
-TEST(TestLD, ExecuteRegisterIndirectAddressingMode)
+TEST(TestLD, ExecuteRegisterIndirectSourceAddressingMode)
 {
    auto registerBank = make_shared<RegisterBank>();
     auto memoryChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
@@ -339,7 +358,7 @@ TEST(TestLD, ExecuteRegisterIndirectAddressingMode)
     for (auto i = static_cast<size_t>(0); i < destinationsList.size(); i++)
     {
         LD ld;
-        auto rawBinary = BinaryDestinationRegisterIndirectAddressingMode(*(begin(destinationsList) + i));
+        auto rawBinary = BinaryRegisterIndirectAsSourceAddressinMode(*(begin(destinationsList) + i));
         ld.Decode(rawBinary);
 
         // simulate ALU acquiring operand from memory.
@@ -348,5 +367,31 @@ TEST(TestLD, ExecuteRegisterIndirectAddressingMode)
         ld.Execute(registerBank, memoryChannel);
 
         EXPECT_EQ(*(begin(memoryContent) + i), registerBank->Read(*(begin(destinationsList) + i)));
+    }
+}
+
+TEST(TestLD, ExecuteRegisterIndirectDestinationAddressingMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+    auto memoryChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto dummyChannelEnd = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto registerContent = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11};
+
+    dummyChannelEnd->OnReceived([](MemoryMessage)-> void {});
+    memoryChannel->Bind(dummyChannelEnd);
+    memoryChannel->OnReceived([](MemoryMessage)-> void {});
+
+    auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::F, Register::L};
+    
+    for (auto i = static_cast<size_t>(0); i < sourceList.size(); i++)
+    {
+        LD ld;
+        auto rawBinary = BinaryRegisterIndirectAsDestinationAddressinMode(*(begin(sourceList) + i));
+        ld.Decode(rawBinary);
+
+        registerBank->Write(*(begin(sourceList) + i), *(begin(registerContent) + i));
+        ld.Execute(registerBank, memoryChannel);
+
+        EXPECT_EQ(*(begin(registerContent) + i), ld.InstructionData.value().MemoryResult1);
     }
 }

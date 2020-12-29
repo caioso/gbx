@@ -344,21 +344,22 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDEOperand)
     // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
     controlUnitChannel->Send(ALUMessage::Fetch);
 
-    // Check whether the instruction has been properlye executed (A == B)
     EXPECT_EQ(0x22, alu->GetRegisterBank()->Read(Register::A));
     EXPECT_EQ(ALUState::Executing, alu->GetState());
     EXPECT_TRUE(testPassed);    
 }
 
-TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestination)
+TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestinationHL)
 {
     auto testPassed = false;
+    auto readValue = static_cast<uint8_t>(0x00);
     auto alu = make_shared<ALUWrapperForTests>();
     auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
     auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
 
     // Initialize HL
     alu->GetRegisterBank()->WritePair(Register::HL, 0xAABB);
+    alu->GetRegisterBank()->Write(Register::A, 0xCC);
 
     controlUnitChannel->OnReceived([&testPassed, &controlUnitChannel](ALUMessage message) -> void 
     {
@@ -373,12 +374,15 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestination)
     });
 
     // The returned operation bytes will be OPCODE: 0x77  write A to (HL) (A value will be 0xEE, HL will point to 0xAABB)
-    MemoryControllerALUChannel->OnReceived( [&MemoryControllerALUChannel](MemoryMessage message) -> void 
+    MemoryControllerALUChannel->OnReceived( [&MemoryControllerALUChannel, &readValue](MemoryMessage message) -> void 
     {
         if (message.Request == MemoryRequestType::Read && message.Address == 0x0000)
-            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0x7E), MemoryAccessType::Byte});
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0x77), MemoryAccessType::Byte});
         else if (message.Request == MemoryRequestType::Write && message.Address == 0xAABB)
+        {
+            readValue = get<uint8_t>(message.Data);
             MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0xCC), MemoryAccessType::Byte});
+        }
     });
 
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
@@ -387,8 +391,101 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestination)
     // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
     controlUnitChannel->Send(ALUMessage::Fetch);
 
-    // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0xCC, alu->GetRegisterBank()->Read(Register::A));
-    EXPECT_EQ(ALUState::Executing, alu->GetState());
+    EXPECT_EQ(0xCC, readValue);
+    EXPECT_EQ(ALUState::WritingBack, alu->GetState());
+    EXPECT_TRUE(testPassed);    
+}
+
+TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestinationDE)
+{
+    auto testPassed = false;
+    auto readValue = static_cast<uint8_t>(0x00);
+    auto alu = make_shared<ALUWrapperForTests>();
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+
+    // Initialize HL
+    alu->GetRegisterBank()->WritePair(Register::DE, 0x1234);
+    alu->GetRegisterBank()->Write(Register::A, 0x99);
+
+    controlUnitChannel->OnReceived([&testPassed, &controlUnitChannel](ALUMessage message) -> void 
+    {
+        if (message == ALUMessage::ReadyToDecode)
+            controlUnitChannel->Send(ALUMessage::Decode);
+        else if (message == ALUMessage::ReadyToExecute)
+            controlUnitChannel->Send(ALUMessage::Execute);
+        else if (message == ALUMessage::ReadyToWriteBack)
+            controlUnitChannel->Send(ALUMessage::WriteBack);
+        else if (message == ALUMessage::ReadyToFetch)
+            testPassed = true;
+    });
+
+    // The returned operation bytes will be OPCODE: 0x77  write A to (HL) (A value will be 0xEE, HL will point to 0xAABB)
+    MemoryControllerALUChannel->OnReceived( [&MemoryControllerALUChannel, &readValue](MemoryMessage message) -> void 
+    {
+        if (message.Request == MemoryRequestType::Read && message.Address == 0x0000)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0x12), MemoryAccessType::Byte});
+        else if (message.Request == MemoryRequestType::Write && message.Address == 0x1234)
+        {
+            readValue = get<uint8_t>(message.Data);
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0xCC), MemoryAccessType::Byte});
+        }
+    });
+
+    controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    
+    // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
+    controlUnitChannel->Send(ALUMessage::Fetch);
+
+    EXPECT_EQ(0x99, readValue);
+    EXPECT_EQ(ALUState::WritingBack, alu->GetState());
+    EXPECT_TRUE(testPassed);    
+}
+
+TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestinationBC)
+{
+    auto testPassed = false;
+    auto readValue = static_cast<uint8_t>(0x00);
+    auto alu = make_shared<ALUWrapperForTests>();
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+
+    // Initialize HL
+    alu->GetRegisterBank()->WritePair(Register::BC, 0x9967);
+    alu->GetRegisterBank()->Write(Register::A, 0x12);
+
+    controlUnitChannel->OnReceived([&testPassed, &controlUnitChannel](ALUMessage message) -> void 
+    {
+        if (message == ALUMessage::ReadyToDecode)
+            controlUnitChannel->Send(ALUMessage::Decode);
+        else if (message == ALUMessage::ReadyToExecute)
+            controlUnitChannel->Send(ALUMessage::Execute);
+        else if (message == ALUMessage::ReadyToWriteBack)
+            controlUnitChannel->Send(ALUMessage::WriteBack);
+        else if (message == ALUMessage::ReadyToFetch)
+            testPassed = true;
+    });
+
+    // The returned operation bytes will be OPCODE: 0x77  write A to (HL) (A value will be 0xEE, HL will point to 0xAABB)
+    MemoryControllerALUChannel->OnReceived( [&MemoryControllerALUChannel, &readValue](MemoryMessage message) -> void 
+    {
+        if (message.Request == MemoryRequestType::Read && message.Address == 0x0000)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0x02), MemoryAccessType::Byte});
+        else if (message.Request == MemoryRequestType::Write && message.Address == 0x9967)
+        {
+            readValue = get<uint8_t>(message.Data);
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0xCC), MemoryAccessType::Byte});
+        }
+    });
+
+    controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    
+    // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
+    controlUnitChannel->Send(ALUMessage::Fetch);
+
+    EXPECT_EQ(0x12, readValue);
+    EXPECT_EQ(ALUState::WritingBack, alu->GetState());
     EXPECT_TRUE(testPassed);    
 }

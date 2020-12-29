@@ -64,7 +64,7 @@ constexpr bool RegisterBank::IsSingleRegister(Register reg)
 }
 
 
-uint8_t RegisterBank::PairToHighIndex(Register reg)
+inline uint8_t RegisterBank::PairToHighIndex(Register reg)
 {
     switch (reg)
     {
@@ -89,7 +89,7 @@ uint8_t RegisterBank::PairToHighIndex(Register reg)
     }
 }
 
-uint8_t RegisterBank::PairToLowIndex(Register reg)
+inline uint8_t RegisterBank::PairToLowIndex(Register reg)
 {
     switch (reg)
     {
@@ -114,7 +114,7 @@ uint8_t RegisterBank::PairToLowIndex(Register reg)
     }
 }
 
-void RegisterBank::Swap()
+inline void RegisterBank::Swap()
 {
     array<uint8_t, 8> tmp;
     copy(begin(_registers), begin(_registers) + 8, begin(tmp));

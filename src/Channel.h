@@ -30,13 +30,13 @@ public:
         return _type;
     }
     
-    void Bind(std::shared_ptr<Channel<T>> binding)
+    inline void Bind(std::shared_ptr<Channel<T>> binding)
     {
         _binding = binding;
         binding->_binding = this->shared_from_this();
     }
 
-    void OnReceived(const std::function<void(T)>& callback)
+    inline void OnReceived(const std::function<void(T)>& callback)
     {
         if (_type == ChannelType::Out)
             throw ChannelException("input channel cannot receive messages");
@@ -44,7 +44,7 @@ public:
         _callback = callback;
     }
 
-    void Send(T message)
+    inline void Send(T message)
     {
         if (_type == ChannelType::In)
             throw ChannelException("output channel cannot send messages");

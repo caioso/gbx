@@ -49,35 +49,35 @@ void ControlUnit::OnALUMessage(ALUMessage message)
     }
 }
 
-void ControlUnit::Fetch()
+inline void ControlUnit::Fetch()
 {
     ControlUnitALUChannel->Send(ALUMessage::Fetch);
 }
 
-void ControlUnit::Decode()
+inline void ControlUnit::Decode()
 {
     ControlUnitALUChannel->Send(ALUMessage::Decode);
 }
 
-void ControlUnit::Execute()
+inline void ControlUnit::Execute()
 {
     ControlUnitALUChannel->Send(ALUMessage::Execute);
 }
 
-void ControlUnit::WriteBack()
+inline void ControlUnit::WriteBack()
 {
     ControlUnitALUChannel->Send(ALUMessage::WriteBack);
 }
 
-void ControlUnit::Acquire()
+inline void ControlUnit::Acquire()
 {
     ControlUnitALUChannel->Send(ALUMessage::Acquire);
 }
 
-void ControlUnit::Wait()
+inline void ControlUnit::Wait()
 {}
 
-void ControlUnit::DecideNextState()
+inline void ControlUnit::DecideNextState()
 {
     _state = ControlUnitState::Fetch;
 }

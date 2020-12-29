@@ -34,14 +34,14 @@ public:
     std::shared_ptr<Channel<ALUMessage>> ControlUnitALUChannel;
 
 protected:
-    void OnALUMessage(ALUMessage message);
-    void DecideNextState();
-    void Fetch();
-    void Decode();
-    void Execute();
-    void WriteBack();
-    void Acquire();
-    void Wait();
+    inline void OnALUMessage(ALUMessage);
+    inline void DecideNextState();
+    inline void Fetch();
+    inline void Decode();
+    inline void Execute();
+    inline void WriteBack();
+    inline void Acquire();
+    inline void Wait();
 
     std::unique_ptr<ClockSource> _clock;
     ControlUnitState _state;

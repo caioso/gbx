@@ -34,25 +34,25 @@ uint16_t AddressRange::End() const
     return _end;
 }
 
-void AddressRange::SetAllInclusive(uint16_t begin, uint16_t end)
+inline void AddressRange::SetAllInclusive(uint16_t begin, uint16_t end)
 {
     _begin = begin;
     _end = end;
 }
 
-void AddressRange::SetBeginInclusive(uint16_t begin, uint16_t end)
+inline void AddressRange::SetBeginInclusive(uint16_t begin, uint16_t end)
 {
     _begin = begin;
     _end = (end - 1);
 }
 
-void AddressRange::SetEndInclusive(uint16_t begin, uint16_t end)
+inline void AddressRange::SetEndInclusive(uint16_t begin, uint16_t end)
 {
     _begin = (begin - 1);
     _end = end;
 }
 
-void AddressRange::SetNoneInclusive(uint16_t begin, uint16_t end)
+inline void AddressRange::SetNoneInclusive(uint16_t begin, uint16_t end)
 {
     _begin = (begin - 1);
     _end = (end - 1);

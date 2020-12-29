@@ -51,25 +51,25 @@ public:
     MemoryController();
     ~MemoryController() = default;
 
-    std::variant<uint8_t, uint16_t> Read(uint16_t address, MemoryAccessType accessType);
-    void Write(std::variant<uint8_t, uint16_t> value, uint16_t address);
-    void Load(std::shared_ptr<uint8_t*> dataPointer, size_t size, uint16_t address, std::optional<size_t> offset);
+    std::variant<uint8_t, uint16_t> Read(uint16_t, MemoryAccessType);
+    void Write(std::variant<uint8_t, uint16_t>, uint16_t);
+    void Load(std::shared_ptr<uint8_t*>, size_t, uint16_t, std::optional<size_t>);
 
-    void RegisterMemoryResource(std::shared_ptr<Memory> resource, AddressRange range);
-    void UnregisterMemoryResource(std::shared_ptr<Memory> resource);
+    void RegisterMemoryResource(std::shared_ptr<Memory>, AddressRange);
+    void UnregisterMemoryResource(std::shared_ptr<Memory>);
 
     // Channels
     std::shared_ptr<Channel<MemoryMessage>> MemoryControllerALUChannel;
 
 private:
-    void SortResources();
-    void DetectMisfit(std::shared_ptr<Memory> resource, AddressRange range);
-    void DetectOverlap(AddressRange range);
+    inline void SortResources();
+    inline void DetectMisfit(std::shared_ptr<Memory>, AddressRange);
+    inline void DetectOverlap(AddressRange);
 
-    void HandleReadRequest(MemoryMessage message, std::shared_ptr<Channel<MemoryMessage>>& channel);
-    void HandleWriteRequest(MemoryMessage message, std::shared_ptr<Channel<MemoryMessage>>& channel);
+    inline void HandleReadRequest(MemoryMessage, std::shared_ptr<Channel<MemoryMessage>>&);
+    inline void HandleWriteRequest(MemoryMessage, std::shared_ptr<Channel<MemoryMessage>>&);
 
-    void OnALUMessage(MemoryMessage message);
+    inline void OnALUMessage(MemoryMessage);
 
     std::optional<ResourceIndexAndAddress> CalculateLocalAddress(uint16_t address);
     std::vector<MemoryResource> _resources; 

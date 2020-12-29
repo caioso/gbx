@@ -58,7 +58,7 @@ void ROM::Write(std::variant<uint8_t, uint16_t> value, uint16_t address)
         throw MemoryAccessException("variant has no value.");
 }
 
-void ROM::CheckReadConditions(uint16_t address, MemoryAccessType accessType)
+inline void ROM::CheckReadConditions(uint16_t address, MemoryAccessType accessType)
 {
     if (address >= _size && accessType == MemoryAccessType::Byte)
     {
@@ -74,7 +74,7 @@ void ROM::CheckReadConditions(uint16_t address, MemoryAccessType accessType)
     }
 }
 
-void ROM::CheckWriteConditions(std::variant<uint8_t, uint16_t> value, uint16_t address)
+inline void ROM::CheckWriteConditions(std::variant<uint8_t, uint16_t> value, uint16_t address)
 {
     if (holds_alternative<uint8_t>(value) && address >= _size)
     {

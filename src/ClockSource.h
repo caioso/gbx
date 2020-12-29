@@ -16,10 +16,10 @@ namespace gbx
 class ClockSource
 {
 public:
-    ClockSource(uint64_t clockPeriodInNanoSeconds);
+    ClockSource(uint64_t);
     ~ClockSource() = default;
 
-    void Tick(uint64_t ticks, uint64_t instructionExecutionTimInNanoseconds);
+    void Tick(uint64_t, uint64_t);
 
     double Period();
     uint64_t Ticks();

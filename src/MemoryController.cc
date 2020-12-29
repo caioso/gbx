@@ -64,13 +64,13 @@ void MemoryController::UnregisterMemoryResource(std::shared_ptr<Memory> resource
     throw MemoryControllerException("the resource to be unregisterd could not found");
 }
 
-void MemoryController::DetectMisfit(std::shared_ptr<Memory> resource, AddressRange range)
+inline void MemoryController::DetectMisfit(std::shared_ptr<Memory> resource, AddressRange range)
 {
     if (range.End() - range.Begin() + 1 != resource.get()->Size())
         throw MemoryControllerException("resouce and range misfit");
 }
 
-void MemoryController::SortResources()
+inline void MemoryController::SortResources()
 {
     sort(begin(_resources), end(_resources),
         [] (const MemoryResource& resourceA, const MemoryResource& resourceB) -> bool 
@@ -80,7 +80,7 @@ void MemoryController::SortResources()
     );
 }
 
-void MemoryController::DetectOverlap(AddressRange range)
+inline void MemoryController::DetectOverlap(AddressRange range)
 {
     for (auto [_resource, _range] : _resources)
     {
@@ -105,7 +105,7 @@ std::optional<ResourceIndexAndAddress> MemoryController::CalculateLocalAddress(u
     return nullopt;
 }
 
-void MemoryController::OnALUMessage(MemoryMessage message)
+inline void MemoryController::OnALUMessage(MemoryMessage message)
 {
     if (message.Request == MemoryRequestType::Result)   
         throw MemoryControllerException("invalid memory operation detected in ALU Channel");
@@ -117,7 +117,7 @@ void MemoryController::OnALUMessage(MemoryMessage message)
         HandleWriteRequest(message, MemoryControllerALUChannel);
 }
 
-void MemoryController::HandleReadRequest(MemoryMessage message, shared_ptr<Channel<MemoryMessage>>& channel)
+inline void MemoryController::HandleReadRequest(MemoryMessage message, shared_ptr<Channel<MemoryMessage>>& channel)
 {
     auto readData = Read(message.Address, message.AccessType);
     MemoryMessage response = {MemoryRequestType::Result, message.Address, readData, message.AccessType};
@@ -125,8 +125,7 @@ void MemoryController::HandleReadRequest(MemoryMessage message, shared_ptr<Chann
     channel->Send(response);
 }
 
-
-void MemoryController::HandleWriteRequest(MemoryMessage message, shared_ptr<Channel<MemoryMessage>>& channel)
+inline void MemoryController::HandleWriteRequest(MemoryMessage message, shared_ptr<Channel<MemoryMessage>>& channel)
 {
     Write(message.Data, message.Address);
     MemoryMessage response = {MemoryRequestType::Result, message.Address, message.Data, message.AccessType};

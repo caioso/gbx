@@ -19,15 +19,13 @@ public:
     CPU();
     virtual ~CPU() = default;
 
-    
-
     void Initialize();
     void Run();
-    void Run(uint32_t instructions);
+    void Run(uint32_t);
 
 protected:
     inline void UpdateEmulation();
-    void InitializeMemorySubsystem();
+    inline void InitializeMemorySubsystem();
 
     std::unique_ptr<ControlUnit> _controlUnit;
     std::unique_ptr<ArithmeticLogicUnit> _alu;

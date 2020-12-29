@@ -37,6 +37,7 @@ enum class ALUState
     FethcingOperand1,
     FetchingOperand2,
     Executing,
+    WritingBack
 };
 
 class ArithmeticLogicUnit : public std::enable_shared_from_this<ArithmeticLogicUnit>
@@ -50,24 +51,27 @@ public:
     std::shared_ptr<Channel<MemoryMessage>> ALUMemoryControllerChannel;
 
 protected:
-    void InitializeRegisters();
-    void OnControlUnitMessage(ALUMessage message);
-    void OnMemoryControllerMessage(MemoryMessage message);
+    inline void InitializeRegisters();
+    inline void OnControlUnitMessage(ALUMessage);
+    inline void OnMemoryControllerMessage(MemoryMessage);
 
-    void DecodeInstruction();
-    void ExecuteInstruction();
-    void DecideToAcquireOrExecute();
-    void DecideToWriteBackOrFetchPC();
+    inline void DecodeInstruction();
+    inline void ExecuteInstruction();
+    inline void WriteBackResults();
+    inline void DecideToAcquireOrExecute();
+    inline void DecideToWriteBackOrFetchPC();
 
-    void HandleControlSignalFetch();
-    void HandleMemoryResponseFetchPC(MemoryMessage message);
-    void HandleMemoryResponseFetchOperand1(MemoryMessage message);
+    inline void HandleControlSignalFetch();
+    inline void HandleMemoryResponseFetchPC(MemoryMessage);
+    inline void HandleMemoryResponseFetchOperand1(MemoryMessage);
+    inline void HandleMemoryResponseWriteBack(MemoryMessage);
 
-    void HandleControlUnitSignalDecode();
-    void HandleControlUnitSignalExecute();
-    void HandleControlUnitSignalAcquire();
+    inline void HandleControlUnitSignalDecode();
+    inline void HandleControlUnitSignalExecute();
+    inline void HandleControlUnitSignalAcquire();
+    inline void HandleControlUnitSignalWriteBack();
 
-    void Decode(uint8_t opcode);
+    inline void Decode(uint8_t);
 
     ALUState _state;
     std::shared_ptr<RegisterBank> _registers;

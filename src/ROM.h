@@ -18,18 +18,19 @@ namespace gbx
 class ROM : public Memory
 {
 public:
-    ROM(std::size_t sizeInBytes);
+    ROM(std::size_t);
     virtual ~ROM() = default;
 
-    virtual std::variant<uint8_t, uint16_t> Read(uint16_t address, MemoryAccessType accessType) override;
-    virtual void Write(std::variant<uint8_t, uint16_t> value, uint16_t address) override;
+    virtual std::variant<uint8_t, uint16_t> Read(uint16_t, MemoryAccessType) override;
+    virtual void Write(std::variant<uint8_t, uint16_t>, uint16_t) override;
 
     virtual std::size_t Size() override;
-    virtual void Load(std::shared_ptr<uint8_t*> content, std::size_t size, std::optional<size_t> offset) override;
+    virtual void Load(std::shared_ptr<uint8_t*>, std::size_t, std::optional<size_t>) override;
 
 private:
-    void CheckReadConditions(uint16_t address, MemoryAccessType accessType);
-    void CheckWriteConditions(std::variant<uint8_t, uint16_t> value, uint16_t address);
+    inline void CheckReadConditions(uint16_t, MemoryAccessType);
+    inline void CheckWriteConditions(std::variant<uint8_t, uint16_t>, uint16_t);
+    
     std::size_t _size;
     std::unique_ptr<uint8_t[]> _rom;
 };

@@ -54,24 +54,24 @@ class RegisterBank
 public: 
     RegisterBank();
     ~RegisterBank() = default;
-    std::uint8_t Read(Register reg);
-    std::uint16_t ReadPair(Register reg);
-    void Write(Register reg, std::uint8_t val);
-    void WritePair(Register reg, std::uint16_t val);
+    std::uint8_t Read(Register);
+    std::uint16_t ReadPair(Register);
+    void Write(Register, std::uint8_t);
+    void WritePair(Register, std::uint16_t);
     
-    static uint8_t ToInstructionSource(Register reg);
-    static Register FromInstructionSource(uint8_t reg);
-    static uint8_t ToInstructionDestination(Register reg);
-    static Register FromInstructionDestination(uint8_t reg);
+    static uint8_t ToInstructionSource(Register);
+    static Register FromInstructionSource(uint8_t);
+    static uint8_t ToInstructionDestination(Register);
+    static Register FromInstructionDestination(uint8_t);
 
 private:
-    constexpr uint8_t RegisterToIndex(Register reg);
-    constexpr bool IsSingleRegister(Register reg);
+    constexpr uint8_t RegisterToIndex(Register);
+    constexpr bool IsSingleRegister(Register);
 
-    void Swap();
+    inline void Swap();
 
-    uint8_t PairToHighIndex(Register reg);
-    uint8_t PairToLowIndex(Register reg);
+    inline uint8_t PairToHighIndex(Register);
+    inline uint8_t PairToLowIndex(Register);
 
     std::array<std::uint8_t, 18> _registers;
     std::array<std::uint8_t, 8> _alternates;
