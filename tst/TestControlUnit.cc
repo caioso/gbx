@@ -35,9 +35,11 @@ TEST(TestControlUnit, RequestFetch)
 {
     auto testPassed = false;
     auto controlUnit = make_shared<ControlUnitWrapperForTests>();
-    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>();
 
     controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
+    dummyAluChannel->Bind(controlUnit->ControlUnitALUChannel);
+
     dummyAluChannel->OnReceived([&testPassed, &dummyAluChannel](ALUMessage message) 
     { 
         if (message == ALUMessage::Fetch)
@@ -58,9 +60,11 @@ TEST(TestControlUnit, RequestDecode)
 {
     auto testPassed = false;
     auto controlUnit = make_shared<ControlUnitWrapperForTests>();
-    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>();
 
     controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
+    dummyAluChannel->Bind(controlUnit->ControlUnitALUChannel);
+
     dummyAluChannel->OnReceived([&testPassed, &dummyAluChannel](ALUMessage message) 
     { 
         if (message == ALUMessage::Fetch)
@@ -85,9 +89,11 @@ TEST(TestControlUnit, RequestExecute)
 {
     auto testPassed = false;
     auto controlUnit = make_shared<ControlUnitWrapperForTests>();
-    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>();
 
     controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
+    dummyAluChannel->Bind(controlUnit->ControlUnitALUChannel);
+
     dummyAluChannel->OnReceived([&testPassed, &dummyAluChannel](ALUMessage message) 
     { 
         if (message == ALUMessage::Fetch)
@@ -116,9 +122,11 @@ TEST(TestControlUnit, RequestWriteBack)
 {
     auto testPassed = false;
     auto controlUnit = make_shared<ControlUnitWrapperForTests>();
-    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>();
 
     controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
+    dummyAluChannel->Bind(controlUnit->ControlUnitALUChannel);
+
     dummyAluChannel->OnReceived([&testPassed, &dummyAluChannel](ALUMessage message) 
     { 
         if (message == ALUMessage::Fetch)
@@ -152,9 +160,11 @@ TEST(TestControlUnit, IntermediateAcquireRequest)
     auto messageCounter = 0;
     auto testPassed = false;
     auto controlUnit = make_shared<ControlUnitWrapperForTests>();
-    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>();
 
     controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
+    dummyAluChannel->Bind(controlUnit->ControlUnitALUChannel);
+
     dummyAluChannel->OnReceived([&testPassed, &dummyAluChannel, &messageCounter](ALUMessage message) 
     { 
         if (messageCounter == 0 && message == ALUMessage::Fetch)
@@ -197,9 +207,11 @@ TEST(TestControlUnit, RunMultiplePlainCycles)
 {
     auto fullCycles = 0;
     auto controlUnit = make_shared<ControlUnitWrapperForTests>();
-    auto dummyAluChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
+    auto dummyAluChannel = make_shared<Channel<ALUMessage>>();
 
     controlUnit->ControlUnitALUChannel->Bind(dummyAluChannel);
+    dummyAluChannel->Bind(controlUnit->ControlUnitALUChannel);
+    
     dummyAluChannel->OnReceived([&dummyAluChannel, &fullCycles](ALUMessage message) 
     { 
         if (message == ALUMessage::Fetch)

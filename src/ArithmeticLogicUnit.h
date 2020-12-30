@@ -1,8 +1,11 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <variant>
 #include <sstream>
+
+#include <iostream>
 
 #include "Channel.h"
 #include "GBXExceptions.h"
@@ -17,6 +20,7 @@ namespace gbx
 enum class ALUMessage
 {
     Fetch,
+    FetchOpcode,
     Decode,
     Execute,
     WriteBack,
@@ -26,7 +30,8 @@ enum class ALUMessage
     ReadyToExecute,
     ReadyToWriteBack,
     ReadyToFetch,
-    ReadyToAcquire
+    ReadyToAcquire,
+    ReadyToReadRealOpcode
 };
 
 enum class ALUState
@@ -34,10 +39,11 @@ enum class ALUState
     Idle,
     FetchingPC,
     Decoding,
-    FethcingOperand1,
+    FetchingRealOpcode,
+    FetchingOperand1,
     FetchingOperand2,
     Executing,
-    WritingBack
+    WritingBack,
 };
 
 class ArithmeticLogicUnit : public std::enable_shared_from_this<ArithmeticLogicUnit>
@@ -62,8 +68,11 @@ protected:
     inline void DecideToWriteBackOrFetchPC();
 
     inline void HandleControlSignalFetch();
+    inline void HandleControlSignalFetchRealOpcode();
     inline void HandleMemoryResponseFetchPC(MemoryMessage);
+    inline void HandleMemoryResponseFetchRealOpcode(MemoryMessage);
     inline void HandleMemoryResponseFetchOperand1(MemoryMessage);
+    inline void HandleMemoryResponseFetchOperand2(MemoryMessage);
     inline void HandleMemoryResponseWriteBack(MemoryMessage);
 
     inline void HandleControlUnitSignalDecode();
@@ -76,6 +85,7 @@ protected:
     ALUState _state;
     std::shared_ptr<RegisterBank> _registers;
     std::unique_ptr<Instruction> _currentInstruction;
+    std::optional<uint8_t> _preOpcode;
 };
 
 }

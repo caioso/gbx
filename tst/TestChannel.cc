@@ -12,8 +12,7 @@ template<typename T>
 class ChannelWrapperForTests : public Channel<T>
 {
 public:
-    ChannelWrapperForTests(ChannelType type)
-    : Channel<T>(type)
+    ChannelWrapperForTests()
     {}
 
     shared_ptr<Channel<T>> Binding()
@@ -22,23 +21,14 @@ public:
     }
 };
 
-TEST(TestChannel, Construction) 
-{
-    auto sourceChannel = make_shared<Channel<int>>(ChannelType::In);
-    auto sinkChannel = make_shared<Channel<int>>(ChannelType::Out);
-    auto duplexChannel = make_shared<Channel<int>>(ChannelType::InOut);
-
-    EXPECT_EQ(ChannelType::In, sourceChannel->Type());
-    EXPECT_EQ(ChannelType::Out, sinkChannel->Type());
-    EXPECT_EQ(ChannelType::InOut, duplexChannel->Type());
-}
-
 TEST(TestChannel, Binding)
 {
-    auto sourceChannel = make_shared<ChannelWrapperForTests<int>>(ChannelType::In);
-    auto sinkChannel = make_shared<ChannelWrapperForTests<int>>(ChannelType::Out);
+    auto sourceChannel = make_shared<ChannelWrapperForTests<int>>();
+    auto sinkChannel = make_shared<ChannelWrapperForTests<int>>();
     
     sourceChannel->Bind(sinkChannel);
+    sinkChannel->Bind(sourceChannel);
+
     EXPECT_EQ(sourceChannel, sinkChannel->Binding());
     EXPECT_EQ(sinkChannel, sourceChannel->Binding());
 }
@@ -46,10 +36,12 @@ TEST(TestChannel, Binding)
 TEST(TestChannel, SendIntegerMessage)
 {
     auto testPassed = false;
-    auto sourceChannel = make_shared<ChannelWrapperForTests<int>>(ChannelType::Out);
-    auto sinkChannel = make_shared<ChannelWrapperForTests<int>>(ChannelType::In);
+    auto sourceChannel = make_shared<ChannelWrapperForTests<int>>();
+    auto sinkChannel = make_shared<ChannelWrapperForTests<int>>();
     
     sourceChannel->Bind(sinkChannel);
+    sinkChannel->Bind(sourceChannel);
+
     sinkChannel->OnReceived([&testPassed](int) -> void { testPassed = true; });
     sourceChannel->Send(0xFFAA);
 
@@ -59,10 +51,12 @@ TEST(TestChannel, SendIntegerMessage)
 TEST(TestChannel, SendStringMesage)
 {
     auto testPassed = false;
-    auto sourceChannel = make_shared<ChannelWrapperForTests<string>>(ChannelType::Out);
-    auto sinkChannel = make_shared<ChannelWrapperForTests<string>>(ChannelType::In);
+    auto sourceChannel = make_shared<ChannelWrapperForTests<string>>();
+    auto sinkChannel = make_shared<ChannelWrapperForTests<string>>();
     
     sourceChannel->Bind(sinkChannel);
+    sinkChannel->Bind(sourceChannel);
+
     sinkChannel->OnReceived([&testPassed](string) -> void { testPassed = true; });
     sourceChannel->Send("Hello World");
 
@@ -77,7 +71,7 @@ TEST(TestChannel, MessageCallbackDoesWork)
         TestClass()
         {
             _receivedValue = 0;
-            sinkChannel = make_shared<ChannelWrapperForTests<int>>(ChannelType::In);
+            sinkChannel = make_shared<ChannelWrapperForTests<int>>();
             sinkChannel->OnReceived([this](int value) -> void { this->DoWork(value); });
         }
 
@@ -98,8 +92,11 @@ TEST(TestChannel, MessageCallbackDoesWork)
     };
 
     TestClass testObject;
-    auto sourceChannel = make_shared<ChannelWrapperForTests<int>>(ChannelType::Out);
+    auto sourceChannel = make_shared<ChannelWrapperForTests<int>>();
+    
     sourceChannel->Bind(testObject.sinkChannel);
+    testObject.sinkChannel->Bind(sourceChannel);
+
     sourceChannel->Send(0xABCD);
 
     EXPECT_EQ(0xABCD, testObject.ReceivedValue());
@@ -109,10 +106,12 @@ TEST(TestChannel, SendMessageInDuplexChannel)
 {
     auto testPassed = false;
     string receivedString = "";
-    auto leftChannel = make_shared<ChannelWrapperForTests<string>>(ChannelType::InOut);
-    auto rightChannel = make_shared<ChannelWrapperForTests<string>>(ChannelType::InOut);
+    auto leftChannel = make_shared<ChannelWrapperForTests<string>>();
+    auto rightChannel = make_shared<ChannelWrapperForTests<string>>();
     
     leftChannel->Bind(rightChannel);
+    rightChannel->Bind(leftChannel);
+
     leftChannel->OnReceived([&leftChannel, &receivedString](string value) -> void 
     { 
         receivedString = value;
@@ -123,82 +122,4 @@ TEST(TestChannel, SendMessageInDuplexChannel)
 
     EXPECT_TRUE(testPassed);
     EXPECT_EQ("Hello World", receivedString);
-}
-
-TEST(TestChannel, SendMessageInOutputChannel)
-{
-    auto testPassed = false;
-    auto sourceChannel = make_shared<ChannelWrapperForTests<int>>(ChannelType::Out);
-    auto sinkChannel = make_shared<ChannelWrapperForTests<int>>(ChannelType::In);
-    
-    sourceChannel->Bind(sinkChannel);
-
-    try
-    {
-        sinkChannel->Send(1);
-    }
-    catch (const ChannelException& e)
-    {
-        testPassed = true;
-    }
-
-    EXPECT_TRUE(testPassed);
-}
-
-TEST(TestChannel, RegisterCallbackInInputChannel)
-{
-    auto testPassed = false;
-    auto sourceChannel = make_shared<ChannelWrapperForTests<int>>(ChannelType::Out);
-    auto sinkChannel = make_shared<ChannelWrapperForTests<int>>(ChannelType::In);
-    
-    sourceChannel->Bind(sinkChannel);
-
-    try
-    {
-        sourceChannel->OnReceived([](int)->void{});
-    }
-    catch (const ChannelException& e)
-    {
-        testPassed = true;
-    }
-
-    EXPECT_TRUE(testPassed);
-}
-
-TEST(TestChannel, SendMessageInNotBoundedChannel)
-{
-    auto testPassed = false;
-    auto sourceChannel = make_shared<ChannelWrapperForTests<int>>(ChannelType::In);
-    
-    try
-    {
-        sourceChannel->Send(1);
-    }
-    catch (const ChannelException& e)
-    {
-        testPassed = true;
-    }
-
-    EXPECT_TRUE(testPassed);
-}
-
-TEST(TestChannel, CalNullCallback)
-{
-    auto testPassed = false;
-    auto sourceChannel = make_shared<ChannelWrapperForTests<int>>(ChannelType::Out);
-    auto sinkChannel = make_shared<ChannelWrapperForTests<int>>(ChannelType::In);
-    
-    sourceChannel->Bind(sinkChannel);
-    sinkChannel->OnReceived(nullptr);
-
-    try
-    {
-        sourceChannel->Send(1);
-    }
-    catch (const ChannelException& e)
-    {
-        testPassed = true;
-    }
-
-    EXPECT_TRUE(testPassed);
 }

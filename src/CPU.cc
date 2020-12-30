@@ -15,9 +15,12 @@ CPU::CPU()
 {
 
     _controlUnit->ControlUnitALUChannel->Bind(_alu->ALUControlUnitChannel);
+    _alu->ALUControlUnitChannel->Bind(_controlUnit->ControlUnitALUChannel);
+    
     _controlUnit->Initialize();
 
     _memoryController->MemoryControllerALUChannel->Bind(_alu->ALUMemoryControllerChannel);
+    _alu->ALUMemoryControllerChannel->Bind(_memoryController->MemoryControllerALUChannel);
 }
 
 void CPU::Initialize()

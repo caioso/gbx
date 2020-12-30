@@ -6,7 +6,7 @@ namespace gbx
 {
 
 ControlUnit::ControlUnit()
-    : ControlUnitALUChannel(make_shared<Channel<ALUMessage>>(ChannelType::InOut))
+    : ControlUnitALUChannel(make_shared<Channel<ALUMessage>>())
     , _clock(make_unique<ClockSource>(EngineParameters::GBCClockPeriod))
     , _state(ControlUnitState::Fetch)
 {
@@ -21,6 +21,7 @@ void ControlUnit::RunInstructionCycle()
     switch (_state)
     {
         case ControlUnitState::Fetch: Fetch(); break;
+        case ControlUnitState::FetchRealOpcode: FetchRealOpcode(); break;
         case ControlUnitState::Decode: Decode(); break;
         case ControlUnitState::Execute: Execute(); break;
         case ControlUnitState::WriteBack: WriteBack(); break;
@@ -45,6 +46,7 @@ void ControlUnit::OnALUMessage(ALUMessage message)
         case ALUMessage::ReadyToWriteBack: _state = ControlUnitState::WriteBack; break;
         case ALUMessage::ReadyToFetch: _state = ControlUnitState::Fetch; break;
         case ALUMessage::ReadyToAcquire: _state = ControlUnitState::Acquire; break;
+        case ALUMessage::ReadyToReadRealOpcode: _state = ControlUnitState::FetchRealOpcode; break;
         default: return;
     }
 }
@@ -52,6 +54,11 @@ void ControlUnit::OnALUMessage(ALUMessage message)
 inline void ControlUnit::Fetch()
 {
     ControlUnitALUChannel->Send(ALUMessage::Fetch);
+}
+
+inline void ControlUnit::FetchRealOpcode()
+{
+    ControlUnitALUChannel->Send(ALUMessage::FetchOpcode);
 }
 
 inline void ControlUnit::Decode()

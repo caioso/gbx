@@ -425,7 +425,7 @@ TEST(TestMemoryController, TestMemoryControllerChannelReadOperation)
     // Set initial value
     rom->Write(static_cast<uint8_t>(0xAA), 0x0001);
 
-    auto aluChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto aluChannel = make_shared<Channel<MemoryMessage>>();
     aluChannel->OnReceived([&testPassed](MemoryMessage message) -> void 
     {
         if (message.AccessType == MemoryAccessType::Byte && get<uint8_t>(message.Data) == 0xAA && message.Request == MemoryRequestType::Result)
@@ -433,6 +433,8 @@ TEST(TestMemoryController, TestMemoryControllerChannelReadOperation)
     });
 
     memController.MemoryControllerALUChannel->Bind(aluChannel);
+    aluChannel->Bind(memController.MemoryControllerALUChannel);
+
     aluChannel->Send({MemoryRequestType::Read, static_cast<uint16_t>(0x0101), static_cast<uint8_t>(0x00), MemoryAccessType::Byte});
 
     EXPECT_TRUE(testPassed);
@@ -449,7 +451,7 @@ TEST(TestMemoryController, TestMemoryControllerChannelWriteOperation)
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive)
     );
 
-    auto aluChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto aluChannel = make_shared<Channel<MemoryMessage>>();
     aluChannel->OnReceived([&testPassed, &rom](MemoryMessage message) -> void 
     {
         if (message.AccessType == MemoryAccessType::Byte && message.Request == MemoryRequestType::Result)
@@ -461,6 +463,7 @@ TEST(TestMemoryController, TestMemoryControllerChannelWriteOperation)
     });
 
     memController.MemoryControllerALUChannel->Bind(aluChannel);
+    aluChannel->Bind(memController.MemoryControllerALUChannel);
     aluChannel->Send({MemoryRequestType::Write, static_cast<uint16_t>(0x0110), static_cast<uint8_t>(0xBB), MemoryAccessType::Byte});
 
     EXPECT_TRUE(testPassed);

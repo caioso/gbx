@@ -13,6 +13,7 @@ namespace gbx
 enum class ControlUnitState
 {
     Fetch,
+    FetchRealOpcode,
     Decode, 
     Execute,
     WriteBack,
@@ -37,6 +38,7 @@ protected:
     inline void OnALUMessage(ALUMessage);
     inline void DecideNextState();
     inline void Fetch();
+    inline void FetchRealOpcode();
     inline void Decode();
     inline void Execute();
     inline void WriteBack();

@@ -6,10 +6,11 @@ namespace gbx
 {
 
 ArithmeticLogicUnit::ArithmeticLogicUnit()
-    : ALUControlUnitChannel(make_shared<Channel<ALUMessage>>(ChannelType::InOut))
-    , ALUMemoryControllerChannel(make_shared<Channel<MemoryMessage>>(ChannelType::InOut))
+    : ALUControlUnitChannel(make_shared<Channel<ALUMessage>>())
+    , ALUMemoryControllerChannel(make_shared<Channel<MemoryMessage>>())
     , _state(ALUState::Idle)
     , _registers(make_shared<RegisterBank>())
+    , _preOpcode(nullopt)
 {
     ALUControlUnitChannel->OnReceived([this](ALUMessage message) -> void { this->OnControlUnitMessage(message); });
     ALUMemoryControllerChannel->OnReceived([this](MemoryMessage message) -> void { this->OnMemoryControllerMessage(message); });
@@ -22,6 +23,7 @@ inline void ArithmeticLogicUnit::OnControlUnitMessage(ALUMessage message)
     switch(message)
     {
         case ALUMessage::Fetch: HandleControlSignalFetch(); break;
+        case ALUMessage::FetchOpcode: HandleControlSignalFetchRealOpcode(); break;
         case ALUMessage::Decode: HandleControlUnitSignalDecode(); break;
         case ALUMessage::Execute: HandleControlUnitSignalExecute(); break;
         case ALUMessage::Acquire: HandleControlUnitSignalAcquire(); break;
@@ -35,7 +37,9 @@ inline void ArithmeticLogicUnit::OnMemoryControllerMessage(MemoryMessage message
     switch(_state)
     {
         case ALUState::FetchingPC: HandleMemoryResponseFetchPC(message); break;
-        case ALUState::FethcingOperand1: HandleMemoryResponseFetchOperand1(message); break;
+        case ALUState::FetchingRealOpcode: HandleMemoryResponseFetchRealOpcode(message); break;
+        case ALUState::FetchingOperand1: HandleMemoryResponseFetchOperand1(message); break;
+        case ALUState::FetchingOperand2: HandleMemoryResponseFetchOperand2(message); break;
         case ALUState::WritingBack: HandleMemoryResponseWriteBack(message); break;
         default:
             throw ArithmeticLogicUnitException("unexpected memory response received");
@@ -45,6 +49,22 @@ inline void ArithmeticLogicUnit::OnMemoryControllerMessage(MemoryMessage message
 inline void ArithmeticLogicUnit::HandleControlSignalFetch()
 {
     _state = ALUState::FetchingPC;
+    
+    auto programCounter = _registers->ReadPair(Register::PC);
+    ALUMemoryControllerChannel->Send({MemoryRequestType::Read, programCounter, static_cast<uint8_t>(0x00), MemoryAccessType::Byte});
+    _registers->WritePair(Register::PC, programCounter + 1);
+
+    if (_preOpcode.has_value())
+    {
+        ALUControlUnitChannel->Send(ALUMessage::ReadyToReadRealOpcode);
+    }
+    else if (_state == ALUState::FetchingPC)
+        ALUControlUnitChannel->Send(ALUMessage::ReadyToDecode);
+}
+
+inline void ArithmeticLogicUnit::HandleControlSignalFetchRealOpcode()
+{
+    _state = ALUState::FetchingRealOpcode;
     
     auto programCounter = _registers->ReadPair(Register::PC);
     ALUMemoryControllerChannel->Send({MemoryRequestType::Read, programCounter, static_cast<uint8_t>(0x00), MemoryAccessType::Byte});
@@ -62,23 +82,40 @@ inline void ArithmeticLogicUnit::HandleControlUnitSignalDecode()
 
 inline void ArithmeticLogicUnit::HandleControlUnitSignalAcquire()
 {
-    _state = ALUState::FethcingOperand1;
-    auto currentAddressingMode = _currentInstruction->InstructionData.value().AddressingMode;
+    // Improve THIS!!!
+    if (_state == ALUState::Decoding)
+    {
+        _state = ALUState::FetchingOperand1;
+        auto currentAddressingMode = _currentInstruction->InstructionData.value().AddressingMode;
 
-    if (currentAddressingMode == AddressingMode::Immediate)
-    {
-        // Move to function?
-        auto programCounter = _registers->ReadPair(Register::PC);
-        ALUMemoryControllerChannel->Send({MemoryRequestType::Read, programCounter, static_cast<uint8_t>(0x00), MemoryAccessType::Byte});
-        _registers->WritePair(Register::PC, programCounter + 1);
+        if (currentAddressingMode == AddressingMode::Immediate || currentAddressingMode == AddressingMode::RegisterIndexedSource)
+        {
+            // Move to function?
+            auto programCounter = _registers->ReadPair(Register::PC);
+            ALUMemoryControllerChannel->Send({MemoryRequestType::Read, programCounter, static_cast<uint8_t>(0x00), MemoryAccessType::Byte});
+            _registers->WritePair(Register::PC, programCounter + 1);
+        }
+        else if (currentAddressingMode == AddressingMode::RegisterIndirectSource)
+        {
+            auto sourceContent = _registers->ReadPair(_currentInstruction->InstructionData.value().SourceRegister);
+            ALUMemoryControllerChannel->Send({MemoryRequestType::Read, sourceContent, static_cast<uint8_t>(0x00), MemoryAccessType::Byte});
+        }
+        
+        if (currentAddressingMode == AddressingMode::RegisterIndexedSource)
+            ALUControlUnitChannel->Send(ALUMessage::ReadyToAcquire);
+        else
+            ALUControlUnitChannel->Send(ALUMessage::ReadyToExecute);
     }
-    else if (currentAddressingMode == AddressingMode::RegisterIndirectSource)
+    else if (_state == ALUState::FetchingOperand1)
     {
-        auto sourceContent = _registers->ReadPair(_currentInstruction->InstructionData.value().SourceRegister);
-        ALUMemoryControllerChannel->Send({MemoryRequestType::Read, sourceContent, static_cast<uint8_t>(0x00), MemoryAccessType::Byte});
+        _state = ALUState::FetchingOperand2;
+        
+        auto operandLocation = static_cast<uint16_t>(static_cast<int8_t>(_currentInstruction->InstructionData.value().MemoryOperand1) + 
+                               _registers->ReadPair(_currentInstruction->InstructionData.value().SourceRegister));
+        ALUMemoryControllerChannel->Send({MemoryRequestType::Read, operandLocation, static_cast<uint8_t>(0x00), MemoryAccessType::Byte});
+
+        ALUControlUnitChannel->Send(ALUMessage::ReadyToExecute);
     }
-    
-    ALUControlUnitChannel->Send(ALUMessage::ReadyToExecute);
 }
 
 inline void ArithmeticLogicUnit::HandleControlUnitSignalExecute()
@@ -115,10 +152,12 @@ inline void ArithmeticLogicUnit::DecideToAcquireOrExecute()
     auto currentAddressingMode = _currentInstruction->InstructionData.value().AddressingMode;
 
     if (currentAddressingMode == AddressingMode::Register || 
-        currentAddressingMode == AddressingMode::RegisterIndirectDestination)
+        currentAddressingMode == AddressingMode::RegisterIndirectDestination ||
+        (currentAddressingMode == AddressingMode::RegisterIndexedSource && _state == ALUState::FetchingOperand1))
         ALUControlUnitChannel->Send(ALUMessage::ReadyToExecute);
     else if (currentAddressingMode == AddressingMode::Immediate || 
-             currentAddressingMode == AddressingMode::RegisterIndirectSource)
+             currentAddressingMode == AddressingMode::RegisterIndirectSource ||
+             (currentAddressingMode == AddressingMode::RegisterIndexedSource && _state == ALUState::Decoding))
         ALUControlUnitChannel->Send(ALUMessage::ReadyToAcquire);
 }
 
@@ -134,6 +173,7 @@ inline void ArithmeticLogicUnit::DecodeInstruction()
 {
     auto opcode = _registers->Read(Register::IR);
     Decode(opcode);
+    _preOpcode = nullopt;
 }
 
 inline void ArithmeticLogicUnit::Decode(uint8_t opcode)
@@ -144,7 +184,7 @@ inline void ArithmeticLogicUnit::Decode(uint8_t opcode)
     if (prefix == 0x01 || prefix == 0x00)
     {
         _currentInstruction = make_unique<LD>();
-        _currentInstruction->Decode(opcode);
+        _currentInstruction->Decode(opcode, _preOpcode);
     }
     else
     {
@@ -155,6 +195,17 @@ inline void ArithmeticLogicUnit::Decode(uint8_t opcode)
 
 inline void ArithmeticLogicUnit::HandleMemoryResponseFetchPC(MemoryMessage message)
 {
+    auto data = get<uint8_t>(message.Data);
+    if (data == 0xDD || data == 0xFD)
+    {
+        _preOpcode = data;
+    }
+    else
+        _registers->Write(Register::IR, data);
+}
+
+inline void ArithmeticLogicUnit::HandleMemoryResponseFetchRealOpcode(MemoryMessage message)
+{
     _registers->Write(Register::IR, get<uint8_t>(message.Data));
 }
 
@@ -162,8 +213,18 @@ inline void ArithmeticLogicUnit::HandleMemoryResponseFetchOperand1(MemoryMessage
 {
     auto currentAddressingMode = _currentInstruction->InstructionData.value().AddressingMode;
 
-    if (currentAddressingMode == AddressingMode::Immediate || currentAddressingMode == AddressingMode::RegisterIndirectSource)
+    if (currentAddressingMode == AddressingMode::Immediate || 
+        currentAddressingMode == AddressingMode::RegisterIndirectSource || 
+        currentAddressingMode == AddressingMode::RegisterIndexedSource)
         _currentInstruction->InstructionData.value().MemoryOperand1 = get<uint8_t>(message.Data);
+}
+
+inline void ArithmeticLogicUnit::HandleMemoryResponseFetchOperand2(MemoryMessage message)
+{
+    auto currentAddressingMode = _currentInstruction->InstructionData.value().AddressingMode;
+
+    if (currentAddressingMode == AddressingMode::RegisterIndexedSource)
+        _currentInstruction->InstructionData.value().MemoryOperand2 = get<uint8_t>(message.Data);
 }
 
 inline void ArithmeticLogicUnit::HandleMemoryResponseWriteBack(__attribute__((unused)) MemoryMessage message)

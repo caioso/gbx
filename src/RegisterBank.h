@@ -73,7 +73,7 @@ private:
     inline uint8_t PairToHighIndex(Register);
     inline uint8_t PairToLowIndex(Register);
 
-    std::array<std::uint8_t, 18> _registers;
+    std::array<std::uint8_t, 19> _registers;
     std::array<std::uint8_t, 8> _alternates;
 };
 

@@ -6,7 +6,7 @@ namespace gbx
 {
 
 MemoryController::MemoryController()
-    : MemoryControllerALUChannel(make_shared<Channel<MemoryMessage>>(ChannelType::InOut))
+    : MemoryControllerALUChannel(make_shared<Channel<MemoryMessage>>())
 {
     MemoryControllerALUChannel->OnReceived([this](MemoryMessage message) -> void { this->OnALUMessage(message); });
 }

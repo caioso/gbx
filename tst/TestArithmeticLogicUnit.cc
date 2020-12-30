@@ -37,7 +37,6 @@ public:
 TEST(TestArithmeticLogicUnit, Construction) 
 {
     auto alu = make_shared<ALUWrapperForTests>();
-    EXPECT_EQ(ChannelType::InOut, alu->ALUControlUnitChannel->Type());
     EXPECT_EQ(ALUState::Idle, alu->GetState());
 }
 
@@ -45,8 +44,8 @@ TEST(TestArithmeticLogicUnit, FetchPCMessage)
 {
     auto testPassed = false;
     auto alu = make_shared<ALUWrapperForTests>();
-    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
-    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
 
     controlUnitChannel->OnReceived([&testPassed](ALUMessage message) -> void 
     {
@@ -65,7 +64,11 @@ TEST(TestArithmeticLogicUnit, FetchPCMessage)
     });
 
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
     alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
+
     controlUnitChannel->Send(ALUMessage::Fetch);
 
     auto instructionRegister = alu->GetRegisterBank()->Read(Register::IR);
@@ -81,8 +84,8 @@ TEST(TestArithmeticLogicUnit, TestDecoding)
 {
     auto testPassed = false;
     auto alu = make_shared<ALUWrapperForTests>();
-    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
-    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
 
     controlUnitChannel->OnReceived([&testPassed, &controlUnitChannel](ALUMessage message) -> void 
     {
@@ -99,7 +102,10 @@ TEST(TestArithmeticLogicUnit, TestDecoding)
     });
 
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
     alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
     
     // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
     controlUnitChannel->Send(ALUMessage::Fetch);
@@ -112,8 +118,8 @@ TEST(TestArithmeticLogicUnit, TestExecuting)
 {
     auto testPassed = false;
     auto alu = make_shared<ALUWrapperForTests>();
-    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
-    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
 
     controlUnitChannel->OnReceived([&testPassed, &controlUnitChannel](ALUMessage message) -> void 
     {
@@ -132,7 +138,10 @@ TEST(TestArithmeticLogicUnit, TestExecuting)
     });
 
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
     alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
     
     // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
     controlUnitChannel->Send(ALUMessage::Fetch);
@@ -148,8 +157,8 @@ TEST(TestArithmeticLogicUnit, TestExecutingUnknownInstructions)
 {
     auto testPassed = false;
     auto alu = make_shared<ALUWrapperForTests>();
-    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
-    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
 
     controlUnitChannel->OnReceived([&controlUnitChannel](ALUMessage message) -> void 
     {
@@ -166,7 +175,10 @@ TEST(TestArithmeticLogicUnit, TestExecutingUnknownInstructions)
     });
 
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
     alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
     
     try
     {
@@ -180,13 +192,12 @@ TEST(TestArithmeticLogicUnit, TestExecutingUnknownInstructions)
     EXPECT_TRUE(testPassed);    
 }
 
-
 TEST(TestArithmeticLogicUnit, TestAcquireSingleImmediateOperand)
 {
     auto testPassed = false;
     auto alu = make_shared<ALUWrapperForTests>();
-    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
-    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
 
     controlUnitChannel->OnReceived([&testPassed, &controlUnitChannel](ALUMessage message) -> void 
     {
@@ -210,7 +221,10 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleImmediateOperand)
     });
 
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
     alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
     
     // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
     controlUnitChannel->Send(ALUMessage::Fetch);
@@ -225,8 +239,8 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectOperand)
 {
     auto testPassed = false;
     auto alu = make_shared<ALUWrapperForTests>();
-    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
-    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
 
     // Initialize HL
     alu->GetRegisterBank()->WritePair(Register::HL, 0xAABB);
@@ -253,7 +267,10 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectOperand)
     });
 
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
     alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
     
     // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
     controlUnitChannel->Send(ALUMessage::Fetch);
@@ -268,8 +285,8 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectBCOperand)
 {
     auto testPassed = false;
     auto alu = make_shared<ALUWrapperForTests>();
-    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
-    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
 
     // Initialize HL
     alu->GetRegisterBank()->WritePair(Register::BC, 0x1234);
@@ -296,7 +313,10 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectBCOperand)
     });
 
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
     alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
     
     // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
     controlUnitChannel->Send(ALUMessage::Fetch);
@@ -311,8 +331,8 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDEOperand)
 {
     auto testPassed = false;
     auto alu = make_shared<ALUWrapperForTests>();
-    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
-    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
 
     // Initialize HL
     alu->GetRegisterBank()->WritePair(Register::DE, 0x6789);
@@ -339,7 +359,10 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDEOperand)
     });
 
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
     alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
     
     // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
     controlUnitChannel->Send(ALUMessage::Fetch);
@@ -354,8 +377,8 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestinationHL)
     auto testPassed = false;
     auto readValue = static_cast<uint8_t>(0x00);
     auto alu = make_shared<ALUWrapperForTests>();
-    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
-    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
 
     // Initialize HL
     alu->GetRegisterBank()->WritePair(Register::HL, 0xAABB);
@@ -386,7 +409,10 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestinationHL)
     });
 
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
     alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
     
     // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
     controlUnitChannel->Send(ALUMessage::Fetch);
@@ -401,8 +427,8 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestinationDE)
     auto testPassed = false;
     auto readValue = static_cast<uint8_t>(0x00);
     auto alu = make_shared<ALUWrapperForTests>();
-    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
-    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
 
     // Initialize HL
     alu->GetRegisterBank()->WritePair(Register::DE, 0x1234);
@@ -433,7 +459,10 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestinationDE)
     });
 
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
     alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
     
     // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
     controlUnitChannel->Send(ALUMessage::Fetch);
@@ -448,8 +477,8 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestinationBC)
     auto testPassed = false;
     auto readValue = static_cast<uint8_t>(0x00);
     auto alu = make_shared<ALUWrapperForTests>();
-    auto controlUnitChannel = make_shared<Channel<ALUMessage>>(ChannelType::InOut);
-    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>(ChannelType::InOut);
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
 
     // Initialize HL
     alu->GetRegisterBank()->WritePair(Register::BC, 0x9967);
@@ -480,12 +509,174 @@ TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestinationBC)
     });
 
     controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
     alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
     
     // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
     controlUnitChannel->Send(ALUMessage::Fetch);
 
     EXPECT_EQ(0x12, readValue);
     EXPECT_EQ(ALUState::WritingBack, alu->GetState());
+    EXPECT_TRUE(testPassed);    
+}
+
+TEST(TestArithmeticLogicUnit, TestIndexedSourceOpcodeIX)
+{
+    auto testPassed = false;
+    auto alu = make_shared<ALUWrapperForTests>();
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
+
+    controlUnitChannel->OnReceived([&testPassed, &controlUnitChannel](ALUMessage message) -> void 
+    {
+        if(message == ALUMessage::ReadyToReadRealOpcode)
+            controlUnitChannel->Send(ALUMessage::FetchOpcode);
+        else if (message == ALUMessage::ReadyToDecode)
+            controlUnitChannel->Send(ALUMessage::Decode);
+        else if(message == ALUMessage::ReadyToAcquire)
+            controlUnitChannel->Send(ALUMessage::Acquire);
+        else if(message == ALUMessage::ReadyToAcquire)
+            controlUnitChannel->Send(ALUMessage::Acquire);
+        else if (message == ALUMessage::ReadyToExecute)
+            controlUnitChannel->Send(ALUMessage::Execute);
+        else if (message == ALUMessage::ReadyToFetch) // LD A, (IX + d) does not perform write back.
+            testPassed = true;
+    });
+
+    alu->GetRegisterBank()->WritePair(Register::IX, 0x0100);
+
+    // IX will have value 0x0100 so the final address will be 0x01AA, which will hold value 0x11
+    MemoryControllerALUChannel->OnReceived( [&MemoryControllerALUChannel](MemoryMessage message) -> void 
+    {
+        if (message.Request == MemoryRequestType::Read && message.Address == 0x0000)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0xDD), MemoryAccessType::Byte});
+        else if (message.Request == MemoryRequestType::Read && message.Address == 0x0001)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0x7E), MemoryAccessType::Byte});
+        else if (message.Request == MemoryRequestType::Read && message.Address == 0x0002)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0x0A), MemoryAccessType::Byte});
+        else if (message.Request == MemoryRequestType::Read && message.Address == 0x010A)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0x11), MemoryAccessType::Byte});
+    });
+
+    controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
+    alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
+    
+    // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
+    controlUnitChannel->Send(ALUMessage::Fetch);
+
+    // Check whether the instruction has been properlye executed (A == B)
+    EXPECT_EQ(0x11, alu->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(ALUState::Executing, alu->GetState());
+    EXPECT_TRUE(testPassed);    
+}
+
+TEST(TestArithmeticLogicUnit, TestIndexedSourceOpcodeIY)
+{
+    auto testPassed = false;
+    auto alu = make_shared<ALUWrapperForTests>();
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
+
+    controlUnitChannel->OnReceived([&testPassed, &controlUnitChannel](ALUMessage message) -> void 
+    {
+        if(message == ALUMessage::ReadyToReadRealOpcode)
+            controlUnitChannel->Send(ALUMessage::FetchOpcode);
+        else if (message == ALUMessage::ReadyToDecode)
+            controlUnitChannel->Send(ALUMessage::Decode);
+        else if(message == ALUMessage::ReadyToAcquire)
+            controlUnitChannel->Send(ALUMessage::Acquire);
+        else if(message == ALUMessage::ReadyToAcquire)
+            controlUnitChannel->Send(ALUMessage::Acquire);
+        else if (message == ALUMessage::ReadyToExecute)
+            controlUnitChannel->Send(ALUMessage::Execute);
+        else if (message == ALUMessage::ReadyToFetch) // LD A, (IX + d) does not perform write back.
+            testPassed = true;
+    });
+
+    alu->GetRegisterBank()->WritePair(Register::IY, 0x0A00);
+
+    // IX will have value 0x0100 so the final address will be 0x01AA, which will hold value 0x11
+    MemoryControllerALUChannel->OnReceived( [&MemoryControllerALUChannel](MemoryMessage message) -> void 
+    {
+        if (message.Request == MemoryRequestType::Read && message.Address == 0x0000)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0xFD), MemoryAccessType::Byte});
+        else if (message.Request == MemoryRequestType::Read && message.Address == 0x0001)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0x7E), MemoryAccessType::Byte});
+        else if (message.Request == MemoryRequestType::Read && message.Address == 0x0002)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0x09), MemoryAccessType::Byte});
+        else if (message.Request == MemoryRequestType::Read && message.Address == 0x0A09)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0xCA), MemoryAccessType::Byte});
+    });
+
+    controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
+    alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
+    
+    // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
+    controlUnitChannel->Send(ALUMessage::Fetch);
+
+    // Check whether the instruction has been properlye executed (A == B)
+    EXPECT_EQ(0xCA, alu->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(ALUState::Executing, alu->GetState());
+    EXPECT_TRUE(testPassed);    
+}
+
+TEST(TestArithmeticLogicUnit, TestIndexedSourceOpcodeIXNegativeDisplacement)
+{
+    auto testPassed = false;
+    auto alu = make_shared<ALUWrapperForTests>();
+    auto controlUnitChannel = make_shared<Channel<ALUMessage>>();
+    auto MemoryControllerALUChannel = make_shared<Channel<MemoryMessage>>();
+
+    controlUnitChannel->OnReceived([&testPassed, &controlUnitChannel](ALUMessage message) -> void 
+    {
+        if(message == ALUMessage::ReadyToReadRealOpcode)
+            controlUnitChannel->Send(ALUMessage::FetchOpcode);
+        else if (message == ALUMessage::ReadyToDecode)
+            controlUnitChannel->Send(ALUMessage::Decode);
+        else if(message == ALUMessage::ReadyToAcquire)
+            controlUnitChannel->Send(ALUMessage::Acquire);
+        else if(message == ALUMessage::ReadyToAcquire)
+            controlUnitChannel->Send(ALUMessage::Acquire);
+        else if (message == ALUMessage::ReadyToExecute)
+            controlUnitChannel->Send(ALUMessage::Execute);
+        else if (message == ALUMessage::ReadyToFetch) // LD A, (IX + d) does not perform write back.
+            testPassed = true;
+    });
+
+    alu->GetRegisterBank()->WritePair(Register::IY, 0x0200);
+
+    // IX will have value 0x0100 so the final address will be 0x01AA, which will hold value 0x11
+    MemoryControllerALUChannel->OnReceived( [&MemoryControllerALUChannel](MemoryMessage message) -> void 
+    {
+        if (message.Request == MemoryRequestType::Read && message.Address == 0x0000)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0xFD), MemoryAccessType::Byte});
+        else if (message.Request == MemoryRequestType::Read && message.Address == 0x0001)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0x7E), MemoryAccessType::Byte});
+        else if (message.Request == MemoryRequestType::Read && message.Address == 0x0002)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0xFF), MemoryAccessType::Byte});
+        else if (message.Request == MemoryRequestType::Read && message.Address == 0x01FF)
+            MemoryControllerALUChannel->Send({MemoryRequestType::Result, message.Address, static_cast<uint8_t>(0x10), MemoryAccessType::Byte});
+    });
+
+    controlUnitChannel->Bind(alu->ALUControlUnitChannel);
+    alu->ALUControlUnitChannel->Bind(controlUnitChannel);
+
+    alu->ALUMemoryControllerChannel->Bind(MemoryControllerALUChannel);
+    MemoryControllerALUChannel->Bind(alu->ALUMemoryControllerChannel);
+    
+    // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
+    controlUnitChannel->Send(ALUMessage::Fetch);
+
+    // Check whether the instruction has been properlye executed (A == B)
+    EXPECT_EQ(0x10, alu->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(ALUState::Executing, alu->GetState());
     EXPECT_TRUE(testPassed);    
 }
