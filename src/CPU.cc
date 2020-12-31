@@ -6,26 +6,24 @@ namespace gbx
 {
 
 CPU::CPU()
-    : _controlUnit(make_unique<ControlUnit>())
-    , _alu(make_unique<ArithmeticLogicUnit>())
-    , _memoryController(make_unique<MemoryController>())
+    : _controlUnit(make_shared<ControlUnit>())
+    , _alu(make_shared<ArithmeticLogicUnit>())
+    , _memoryController(make_shared<MemoryController>())
 
     // Memory Resources
-    , _internalROM(make_unique<ROM>(0x100))
+    , _internalROM(make_shared<ROM>(0x100))
 {
 
     _controlUnit->ControlUnitALUChannel->Bind(_alu->ALUControlUnitChannel);
     _alu->ALUControlUnitChannel->Bind(_controlUnit->ControlUnitALUChannel);
     
     _controlUnit->Initialize();
-
-    _memoryController->MemoryControllerALUChannel->Bind(_alu->ALUMemoryControllerChannel);
-    _alu->ALUMemoryControllerChannel->Bind(_memoryController->MemoryControllerALUChannel);
 }
 
 void CPU::Initialize()
 {
     InitializeMemorySubsystem();
+    InitializeReferences();
 }
 
 void CPU::Run()
@@ -56,6 +54,11 @@ inline void CPU::InitializeMemorySubsystem()
     // 0x100 will change later
     AddressRange range(0x0000, 0x0100, RangeType::BeginInclusive);
     _memoryController->RegisterMemoryResource(static_pointer_cast<Memory>(_internalROM), range);
+}
+
+inline void CPU::InitializeReferences()
+{
+    _alu->Initialize(_memoryController);
 }
 
 }

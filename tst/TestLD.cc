@@ -50,21 +50,12 @@ uint8_t BinaryRegisterIndexedAddressingMode(Register destination)
 TEST(TestLD, ExecuteUndecodedInstruction)
 {
     auto registerBank = make_shared<RegisterBank>();
-    auto memoryChannel = make_shared<Channel<MemoryMessage>>();
-    auto dummyChannelEnd = make_shared<Channel<MemoryMessage>>();
-
-    memoryChannel->Bind(dummyChannelEnd);
-    dummyChannelEnd->Bind(memoryChannel);
-
-    memoryChannel->OnReceived([](MemoryMessage) -> void {});
-    dummyChannelEnd->OnReceived([](MemoryMessage)-> void {});
-
     auto testPassed = false;
 
     try
     {
         LD ld;
-        ld.Execute(registerBank, memoryChannel);
+        ld.Execute(registerBank);
     }
     catch (const InstructionException& e)
     {
@@ -321,14 +312,7 @@ TEST(TestLD, DecodeRegisterIndexedAddressingMode)
 TEST(TestLD, ExecuteImmediateAddressingMode)
 {
     auto registerBank = make_shared<RegisterBank>();
-    auto memoryChannel = make_shared<Channel<MemoryMessage>>();
-    auto dummyChannelEnd = make_shared<Channel<MemoryMessage>>();
     auto memoryContent = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11};
-
-    dummyChannelEnd->OnReceived([](MemoryMessage)-> void {});
-    memoryChannel->Bind(dummyChannelEnd);
-    dummyChannelEnd->Bind(memoryChannel);
-    memoryChannel->OnReceived([](MemoryMessage)-> void {});
 
     auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     
@@ -341,7 +325,7 @@ TEST(TestLD, ExecuteImmediateAddressingMode)
         // simulate ALU acquiring operand from memory.
         ld.InstructionData.value().MemoryOperand1 = *(begin(memoryContent) + i);
         
-        ld.Execute(registerBank, memoryChannel);
+        ld.Execute(registerBank);
 
         EXPECT_EQ(*(begin(memoryContent) + i), registerBank->Read(*(begin(destinationsList) + i)));
     }
@@ -350,14 +334,7 @@ TEST(TestLD, ExecuteImmediateAddressingMode)
 TEST(TestLD, ExecuteRegisterAddressingMode)
 {
     auto registerBank = make_shared<RegisterBank>();
-    auto memoryChannel = make_shared<Channel<MemoryMessage>>();
-    auto dummyChannelEnd = make_shared<Channel<MemoryMessage>>();
     auto registersContent = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11};
-
-    dummyChannelEnd->OnReceived([](MemoryMessage)-> void {});
-    memoryChannel->Bind(dummyChannelEnd);
-    dummyChannelEnd->Bind(memoryChannel);
-    memoryChannel->OnReceived([](MemoryMessage)-> void {});
 
     auto sourcesList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::F, Register::L};
     auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -377,7 +354,7 @@ TEST(TestLD, ExecuteRegisterAddressingMode)
             LD ld;
             auto rawBinary = BinaryRegisterAddressingMode(source, destination);
             ld.Decode(rawBinary, nullopt);
-            ld.Execute(registerBank, memoryChannel);
+            ld.Execute(registerBank);
 
             EXPECT_EQ(sourceValue, registerBank->Read(destination));
         }
@@ -388,16 +365,8 @@ TEST(TestLD, ExecuteRegisterAddressingMode)
 
 TEST(TestLD, ExecuteRegisterIndirectSourceAddressingMode)
 {
-   auto registerBank = make_shared<RegisterBank>();
-    auto memoryChannel = make_shared<Channel<MemoryMessage>>();
-    auto dummyChannelEnd = make_shared<Channel<MemoryMessage>>();
+    auto registerBank = make_shared<RegisterBank>();
     auto memoryContent = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11};
-
-    dummyChannelEnd->OnReceived([](MemoryMessage)-> void {});
-    memoryChannel->Bind(dummyChannelEnd);
-    dummyChannelEnd->Bind(memoryChannel);
-    memoryChannel->OnReceived([](MemoryMessage)-> void {});
-
     auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     
     for (auto i = static_cast<size_t>(0); i < destinationsList.size(); i++)
@@ -409,7 +378,7 @@ TEST(TestLD, ExecuteRegisterIndirectSourceAddressingMode)
         // simulate ALU acquiring operand from memory.
         ld.InstructionData.value().MemoryOperand1 = *(begin(memoryContent) + i);
         
-        ld.Execute(registerBank, memoryChannel);
+        ld.Execute(registerBank);
 
         EXPECT_EQ(*(begin(memoryContent) + i), registerBank->Read(*(begin(destinationsList) + i)));
     }
@@ -418,14 +387,7 @@ TEST(TestLD, ExecuteRegisterIndirectSourceAddressingMode)
 TEST(TestLD, ExecuteRegisterIndirectDestinationAddressingMode)
 {
     auto registerBank = make_shared<RegisterBank>();
-    auto memoryChannel = make_shared<Channel<MemoryMessage>>();
-    auto dummyChannelEnd = make_shared<Channel<MemoryMessage>>();
     auto registerContent = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11};
-
-    dummyChannelEnd->OnReceived([](MemoryMessage)-> void {});
-    memoryChannel->Bind(dummyChannelEnd);
-    dummyChannelEnd->Bind(memoryChannel);
-    memoryChannel->OnReceived([](MemoryMessage)-> void {});
 
     auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::F, Register::L};
     
@@ -436,7 +398,7 @@ TEST(TestLD, ExecuteRegisterIndirectDestinationAddressingMode)
         ld.Decode(rawBinary, nullopt);
 
         registerBank->Write(*(begin(sourceList) + i), *(begin(registerContent) + i));
-        ld.Execute(registerBank, memoryChannel);
+        ld.Execute(registerBank);
 
         EXPECT_EQ(*(begin(registerContent) + i), ld.InstructionData.value().MemoryResult1);
     }

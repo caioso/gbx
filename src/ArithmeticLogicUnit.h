@@ -52,9 +52,10 @@ public:
     ArithmeticLogicUnit();
     ~ArithmeticLogicUnit() = default;
 
+    void Initialize(std::shared_ptr<MemoryControllerInterface>);
+
     // Channels
     std::shared_ptr<Channel<ALUMessage>> ALUControlUnitChannel;
-    std::shared_ptr<Channel<MemoryMessage>> ALUMemoryControllerChannel;
 
 protected:
     inline void InitializeRegisters();
@@ -82,10 +83,16 @@ protected:
 
     inline void Decode(uint8_t);
 
+    inline uint8_t ReadAtRegister(Register);
+    inline void IncrementPC();
+    inline void CompleteFetchPC(uint8_t);
+    inline void CompletePreOpcodeFetch(uint8_t);
+
     ALUState _state;
     std::shared_ptr<RegisterBank> _registers;
     std::unique_ptr<Instruction> _currentInstruction;
     std::optional<uint8_t> _preOpcode;
+    std::shared_ptr<MemoryControllerInterface> _memoryController;
 };
 
 }

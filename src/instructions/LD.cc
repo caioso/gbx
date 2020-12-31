@@ -29,7 +29,7 @@ void LD::Decode(uint8_t opcode, std::optional<uint8_t> preOpcode)
         throw InstructionException("invalid opcode variant of instruction 'ld'");
 }
 
-void LD::Execute(std::shared_ptr<RegisterBank> registerBank, __attribute__((unused)) std::shared_ptr<Channel<MemoryMessage>> memoryChannel)
+void LD::Execute(std::shared_ptr<RegisterBank> registerBank)
 {
     if (InstructionData == nullopt)
         throw InstructionException("attempted to execute a not-decoded instruction");

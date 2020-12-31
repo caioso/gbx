@@ -5,12 +5,6 @@ using namespace std;
 namespace gbx
 {
 
-MemoryController::MemoryController()
-    : MemoryControllerALUChannel(make_shared<Channel<MemoryMessage>>())
-{
-    MemoryControllerALUChannel->OnReceived([this](MemoryMessage message) -> void { this->OnALUMessage(message); });
-}
-
 std::variant<uint8_t, uint16_t> MemoryController::Read(uint16_t address, MemoryAccessType accessType)
 {
     auto localAddress = CalculateLocalAddress(address);
@@ -103,34 +97,6 @@ std::optional<ResourceIndexAndAddress> MemoryController::CalculateLocalAddress(u
     }
 
     return nullopt;
-}
-
-inline void MemoryController::OnALUMessage(MemoryMessage message)
-{
-    if (message.Request == MemoryRequestType::Result)   
-        throw MemoryControllerException("invalid memory operation detected in ALU Channel");
-    
-    if (message.Request == MemoryRequestType::Read)
-        HandleReadRequest(message, MemoryControllerALUChannel);
-
-    if (message.Request == MemoryRequestType::Write)
-        HandleWriteRequest(message, MemoryControllerALUChannel);
-}
-
-inline void MemoryController::HandleReadRequest(MemoryMessage message, shared_ptr<Channel<MemoryMessage>>& channel)
-{
-    auto readData = Read(message.Address, message.AccessType);
-    MemoryMessage response = {MemoryRequestType::Result, message.Address, readData, message.AccessType};
-
-    channel->Send(response);
-}
-
-inline void MemoryController::HandleWriteRequest(MemoryMessage message, shared_ptr<Channel<MemoryMessage>>& channel)
-{
-    Write(message.Data, message.Address);
-    MemoryMessage response = {MemoryRequestType::Result, message.Address, message.Data, message.AccessType};
-
-    channel->Send(response);
 }
 
 }

@@ -26,10 +26,11 @@ public:
 protected:
     inline void UpdateEmulation();
     inline void InitializeMemorySubsystem();
+    inline void InitializeReferences();
 
-    std::unique_ptr<ControlUnit> _controlUnit;
-    std::unique_ptr<ArithmeticLogicUnit> _alu;
-    std::unique_ptr<MemoryController> _memoryController;
+    std::shared_ptr<ControlUnit> _controlUnit;
+    std::shared_ptr<ArithmeticLogicUnit> _alu;
+    std::shared_ptr<MemoryController> _memoryController;
 
     // Memory Resources
     std::shared_ptr<ROM> _internalROM;

@@ -63,7 +63,6 @@ constexpr bool RegisterBank::IsSingleRegister(Register reg)
            reg != Register::IX && reg != Register::IY;
 }
 
-
 inline uint8_t RegisterBank::PairToHighIndex(Register reg)
 {
     switch (reg)

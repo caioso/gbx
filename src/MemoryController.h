@@ -6,10 +6,8 @@
 #include <variant>
 #include <vector>
 
-#include "AddressRange.h"
-#include "Channel.h"
 #include "GBXExceptions.h"
-#include "Memory.h"
+#include "MemoryControllerInterface.h"
 
 #include <memory>
 
@@ -30,12 +28,6 @@ typedef struct ResourceIndexAndAddress_t
 }
 ResourceIndexAndAddress;
 
-enum class MemoryRequestType
-{
-    Read,
-    Write,
-    Result
-};
 typedef struct MemoryMessage_t
 {
     MemoryRequestType Request;
@@ -45,11 +37,11 @@ typedef struct MemoryMessage_t
 }
 MemoryMessage;
 
-class MemoryController
+class MemoryController : public MemoryControllerInterface
 {
 public:
-    MemoryController();
-    ~MemoryController() = default;
+    MemoryController() = default;
+    virtual ~MemoryController() = default;
 
     std::variant<uint8_t, uint16_t> Read(uint16_t, MemoryAccessType);
     void Write(std::variant<uint8_t, uint16_t>, uint16_t);
@@ -58,16 +50,10 @@ public:
     void RegisterMemoryResource(std::shared_ptr<Memory>, AddressRange);
     void UnregisterMemoryResource(std::shared_ptr<Memory>);
 
-    // Channels
-    std::shared_ptr<Channel<MemoryMessage>> MemoryControllerALUChannel;
-
 private:
     inline void SortResources();
     inline void DetectMisfit(std::shared_ptr<Memory>, AddressRange);
     inline void DetectOverlap(AddressRange);
-
-    inline void HandleReadRequest(MemoryMessage, std::shared_ptr<Channel<MemoryMessage>>&);
-    inline void HandleWriteRequest(MemoryMessage, std::shared_ptr<Channel<MemoryMessage>>&);
 
     inline void OnALUMessage(MemoryMessage);
 

@@ -4,7 +4,6 @@
 #include <optional>
 #include <memory>
 
-#include "../Channel.h"
 #include "../MemoryController.h"
 #include "../RegisterBank.h"
 
@@ -42,8 +41,8 @@ class Instruction
 {
 public:
     virtual ~Instruction() = default;    
-    virtual void Decode(uint8_t opcode, std::optional<uint8_t> preOpcode) = 0;
-    virtual void Execute(std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<Channel<MemoryMessage>> memoryChannel) = 0;
+    virtual void Decode(uint8_t, std::optional<uint8_t>) = 0;
+    virtual void Execute(std::shared_ptr<RegisterBank>) = 0;
 
     std::optional<DecodedInstruction> InstructionData;
 };

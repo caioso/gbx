@@ -14,7 +14,7 @@ public:
     LD() = default;
     virtual ~LD() = default;
     virtual void Decode(uint8_t, std::optional<uint8_t> preOpcode) override;
-    virtual void Execute(std::shared_ptr<RegisterBank>, std::shared_ptr<Channel<MemoryMessage>>) override;
+    virtual void Execute(std::shared_ptr<RegisterBank>) override;
 
 private:
     inline void DecodeImmediateOperand(uint8_t);
