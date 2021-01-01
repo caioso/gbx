@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "../src/AddressRange.h"
-#include "../src/Channel.h"
 #include "../src/CPU.h"
 #include "../src/MemoryController.h"
 #include "../src/ROM.h"

@@ -13,11 +13,7 @@ CPU::CPU()
     // Memory Resources
     , _internalROM(make_shared<ROM>(0x100))
 {
-
-    _controlUnit->ControlUnitALUChannel->Bind(_alu->ALUControlUnitChannel);
-    _alu->ALUControlUnitChannel->Bind(_controlUnit->ControlUnitALUChannel);
-    
-    _controlUnit->Initialize();
+    _controlUnit->Initialize(_alu);
 }
 
 void CPU::Initialize()

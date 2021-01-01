@@ -28,15 +28,6 @@ typedef struct ResourceIndexAndAddress_t
 }
 ResourceIndexAndAddress;
 
-typedef struct MemoryMessage_t
-{
-    MemoryRequestType Request;
-    uint16_t Address;
-    std::variant<uint8_t, uint16_t> Data;
-    MemoryAccessType AccessType;
-}
-MemoryMessage;
-
 class MemoryController : public MemoryControllerInterface
 {
 public:
@@ -54,8 +45,6 @@ private:
     inline void SortResources();
     inline void DetectMisfit(std::shared_ptr<Memory>, AddressRange);
     inline void DetectOverlap(AddressRange);
-
-    inline void OnALUMessage(MemoryMessage);
 
     std::optional<ResourceIndexAndAddress> CalculateLocalAddress(uint16_t address);
     std::vector<MemoryResource> _resources; 

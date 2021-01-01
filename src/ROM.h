@@ -8,7 +8,6 @@
 #include <sstream>
 #include <variant>
 
-#include "Channel.h"
 #include "GBXExceptions.h"
 #include "Memory.h"
 

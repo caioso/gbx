@@ -4,7 +4,6 @@
 #include <memory>
 #include <optional>
 
-#include "../src/Channel.h"
 #include "../src/MemoryController.h"
 #include "../src/RegisterBank.h"
 #include "../src/instructions/LD.h"

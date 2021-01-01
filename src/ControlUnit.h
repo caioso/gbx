@@ -2,9 +2,8 @@
 
 #include <memory>
 
-#include "Channel.h"
 #include "ClockSource.h"
-#include "ArithmeticLogicUnit.h"
+#include "ArithmeticLogicUnitInterface.h"
 
 namespace gbx
 {
@@ -28,23 +27,11 @@ public:
     ControlUnit();
     ~ControlUnit() = default;
 
-    void Initialize();
+    void Initialize(std::shared_ptr<ArithmeticLogicUnitInterface> alu);
     void RunInstructionCycle();
 
-    // Channels
-    std::shared_ptr<Channel<ALUMessage>> ControlUnitALUChannel;
-
 protected:
-    inline void OnALUMessage(ALUMessage);
-    inline void DecideNextState();
-    inline void Fetch();
-    inline void FetchRealOpcode();
-    inline void Decode();
-    inline void Execute();
-    inline void WriteBack();
-    inline void Acquire();
-    inline void Wait();
-
+    std::shared_ptr<ArithmeticLogicUnitInterface> _alu;
     std::unique_ptr<ClockSource> _clock;
     ControlUnitState _state;
 };
