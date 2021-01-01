@@ -23,7 +23,8 @@ enum class AddressingMode
     RegisterIndirectSource,
     RegisterIndirectDestination,
     Implicit,
-    RegisterIndexedSource
+    RegisterIndexedSource,
+    RegisterIndexedDestination,
 };
 
 struct DecodedInstruction

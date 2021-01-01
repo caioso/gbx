@@ -24,11 +24,12 @@ private:
     inline void DecodeRegisterRegisterOperand(uint8_t);
     inline void DecodeRegisterIndirectOperandDestinationBCDE(uint8_t);
     inline void DecodeRegisterIndexedSource(uint8_t, uint8_t);
+    inline void DecodeRegisterIndexedDestination(uint8_t, uint8_t);
 
     inline void ExecuteOneOperandBasedAddressingMode(std::shared_ptr<RegisterBank>);
-    inline void ExecuteTwoOperandsBasedAddressingMode(std::shared_ptr<RegisterBank>);
+    inline void ExecuteTwoOperandsBasedAddressingModeAsSource(std::shared_ptr<RegisterBank>);
+    inline void ExecuteTwoOperandsBasedAddressingModeAsDestination(std::shared_ptr<RegisterBank>);
     inline void ExecuteRegisterMode(std::shared_ptr<RegisterBank>);
-    inline void ExecuteRegisterIndirectDestinationMode(std::shared_ptr<RegisterBank>);
 
 };
 

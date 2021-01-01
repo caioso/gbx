@@ -17,8 +17,12 @@ void LD::Decode(uint8_t opcode, std::optional<uint8_t> preOpcode)
         DecodeRegisterIndirectOperandBCDE(opcode);
     else if (prefix == 0x00 && fullSuffix == 0x02)
         DecodeRegisterIndirectOperandDestinationBCDE(opcode);
-    else if (preOpcode.has_value() && (preOpcode.value() == 0xDD || preOpcode.value() == 0xFD) && prefix == 0x01)
+    else if (preOpcode.has_value() && (preOpcode.value() == 0xDD || 
+             preOpcode.value() == 0xFD) && prefix == 0x01 && suffix == 0x06)
         DecodeRegisterIndexedSource(opcode, preOpcode.value());
+    else if (preOpcode.has_value() && (preOpcode.value() == 0xDD || 
+             preOpcode.value() == 0xFD) && prefix == 0x01 && secondPrefix == 0x06)
+        DecodeRegisterIndexedDestination(opcode, preOpcode.value());
     else if (prefix == 0x01 && suffix == 0x06)
         DecodeRegisterIndirectOperandHL(opcode);
     else if (prefix == 0x01 && secondPrefix == 0x06)
@@ -39,11 +43,12 @@ void LD::Execute(std::shared_ptr<RegisterBank> registerBank)
         addressingMode == AddressingMode::RegisterIndirectSource)
         ExecuteOneOperandBasedAddressingMode(registerBank);
     else if (addressingMode == AddressingMode::RegisterIndexedSource)
-        ExecuteTwoOperandsBasedAddressingMode(registerBank);
+        ExecuteTwoOperandsBasedAddressingModeAsSource(registerBank);
     else if (InstructionData.value().AddressingMode == AddressingMode::Register)
         ExecuteRegisterMode(registerBank);
-    else if (addressingMode == AddressingMode::RegisterIndirectDestination)
-        ExecuteRegisterIndirectDestinationMode(registerBank);
+    else if (addressingMode == AddressingMode::RegisterIndirectDestination || 
+             addressingMode == AddressingMode::RegisterIndexedDestination)
+        ExecuteTwoOperandsBasedAddressingModeAsDestination(registerBank);
 }
 
 inline void LD::ExecuteOneOperandBasedAddressingMode(std::shared_ptr<RegisterBank> registerBank)
@@ -51,7 +56,7 @@ inline void LD::ExecuteOneOperandBasedAddressingMode(std::shared_ptr<RegisterBan
     registerBank->Write(InstructionData.value().DestinationRegister, InstructionData.value().MemoryOperand1);
 }
 
-inline void LD::ExecuteTwoOperandsBasedAddressingMode(std::shared_ptr<RegisterBank> registerBank)
+inline void LD::ExecuteTwoOperandsBasedAddressingModeAsSource(std::shared_ptr<RegisterBank> registerBank)
 {
     registerBank->Write(InstructionData.value().DestinationRegister, InstructionData.value().MemoryOperand2);
 }
@@ -62,11 +67,12 @@ inline void LD::ExecuteRegisterMode(std::shared_ptr<RegisterBank> registerBank)
     registerBank->Write(InstructionData.value().DestinationRegister, currentSourceValue);
 }
 
-inline void LD::ExecuteRegisterIndirectDestinationMode(std::shared_ptr<RegisterBank> registerBank)
+inline void LD::ExecuteTwoOperandsBasedAddressingModeAsDestination(std::shared_ptr<RegisterBank> registerBank)
 {
     auto currentSourceValue = registerBank->Read(InstructionData.value().SourceRegister);
     InstructionData.value().MemoryResult1 = currentSourceValue;
 }
+
 
 inline void LD::DecodeImmediateOperand(uint8_t opcode)
 {
@@ -152,6 +158,19 @@ inline void LD::DecodeRegisterIndexedSource(uint8_t opcode, uint8_t preOpcode)
                                                             indexRegister, 
                                                             destination,
                                                             0x00});
+}
+
+inline void LD::DecodeRegisterIndexedDestination(uint8_t opcode, uint8_t preOpcode)
+{
+    auto source = RegisterBank::FromInstructionSource(opcode & 0x07);
+    auto indexRegister = preOpcode == 0xDD ? Register::IX : Register::IY;
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterIndexedDestination, 
+                                                         0x00,
+                                                         0x00, 
+                                                         source, 
+                                                         indexRegister,
+                                                         0x00});
 }
 
 }

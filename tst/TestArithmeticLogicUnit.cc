@@ -208,7 +208,6 @@ TEST(TestArithmeticLogicUnit, TestIndexedSourceOpcodeIX)
     auto alu = make_shared<ALUWrapperForTests>();
          alu->Initialize(memoryController);
 
-
     alu->GetRegisterBank()->WritePair(Register::IX, 0x0100);
     
     // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
@@ -267,4 +266,24 @@ TEST(TestArithmeticLogicUnit, TestIndexedSourceOpcodeIXNegativeDisplacement)
 
     // Check whether the instruction has been properlye executed (A == B)
     EXPECT_EQ(0x10, alu->GetRegisterBank()->Read(Register::A));
+}
+
+TEST(TestArithmeticLogicUnit, TestIndexedDestinantionOpcodeIX)
+{
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    auto alu = make_shared<ALUWrapperForTests>();
+         alu->Initialize(memoryController);
+
+    alu->GetRegisterBank()->Write(Register::A, 0x88);
+    alu->GetRegisterBank()->WritePair(Register::IX, 0x0100);
+    
+    // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    // IX will have value 0x0100 so the final address will be 0x0110, which will hold value 0x88
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xDD)));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x77)));
+    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x10)));
+    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0x88)), static_cast<uint16_t>(0x110)));
+    
+    alu->RunCycle();
 }

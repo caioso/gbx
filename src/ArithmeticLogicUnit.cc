@@ -76,7 +76,9 @@ inline void ArithmeticLogicUnit::AcquireOperand1()
     _shouldAcquireOperand = false;
     auto currentAddressingMode = _currentInstruction->InstructionData.value().AddressingMode;
 
-    if (currentAddressingMode == AddressingMode::Immediate || currentAddressingMode == AddressingMode::RegisterIndexedSource)
+    if (currentAddressingMode == AddressingMode::Immediate || 
+        currentAddressingMode == AddressingMode::RegisterIndexedSource ||
+        currentAddressingMode == AddressingMode::RegisterIndexedDestination)
     {
         _currentInstruction->InstructionData.value().MemoryOperand1 = ReadAtRegister(Register::PC);
         IncrementPC();
@@ -112,8 +114,19 @@ inline void ArithmeticLogicUnit::WriteBack()
 inline void ArithmeticLogicUnit::WriteBackResults()
 {
     auto resultContent = _currentInstruction->InstructionData.value().MemoryResult1;
-    auto resultAddress = _registers->ReadPair(_currentInstruction->InstructionData.value().DestinationRegister);
-    _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
+    auto currentAddressingMode = _currentInstruction->InstructionData.value().AddressingMode;
+
+    if (currentAddressingMode == AddressingMode::RegisterIndexedDestination)
+    {
+        auto resultAddress = static_cast<uint16_t>(static_cast<int8_t>(_currentInstruction->InstructionData.value().MemoryOperand1) + 
+            _registers->ReadPair(_currentInstruction->InstructionData.value().DestinationRegister));
+        _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
+    }
+    else
+    {
+        auto resultAddress = _registers->ReadPair(_currentInstruction->InstructionData.value().DestinationRegister);
+        _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
+    }
 }
 
 inline void ArithmeticLogicUnit::ExecuteInstruction()
@@ -129,13 +142,16 @@ inline void ArithmeticLogicUnit::DecideToAcquireOrExecute()
 
     if (currentAddressingMode == AddressingMode::Immediate || 
         currentAddressingMode == AddressingMode::RegisterIndirectSource ||
-        currentAddressingMode == AddressingMode::RegisterIndexedSource)
+        currentAddressingMode == AddressingMode::RegisterIndexedSource ||
+        currentAddressingMode == AddressingMode::RegisterIndexedDestination)
         _shouldAcquireOperand = true;
 }
 
 inline void ArithmeticLogicUnit::DecideToWriteBackOrFetchPC()
 {
-    if (_currentInstruction->InstructionData.value().AddressingMode == AddressingMode::RegisterIndirectDestination)
+    auto currentAddressingMode = _currentInstruction->InstructionData.value().AddressingMode;
+    if (currentAddressingMode == AddressingMode::RegisterIndirectDestination ||
+        currentAddressingMode == AddressingMode::RegisterIndexedDestination)
         _shouldWriteBack = true;
 }
 
