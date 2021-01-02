@@ -33,6 +33,7 @@ protected:
     inline void Execute();
     inline void AcquireOperand1();
     inline void AcquireOperand2();
+    inline void AcquireOperand3();
     inline void WriteBack();
 
     inline uint8_t ReadAtRegister(Register);
@@ -54,6 +55,12 @@ protected:
     std::shared_ptr<MemoryControllerInterface> _memoryController;
     bool _shouldAcquireOperand;
     bool _shouldWriteBack;
+
+private:
+    struct AddressModeFormat
+    {
+        bool WriteBack;
+    };
 };
 
 }

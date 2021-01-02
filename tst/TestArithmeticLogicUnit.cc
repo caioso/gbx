@@ -287,3 +287,41 @@ TEST(TestArithmeticLogicUnit, TestIndexedDestinantionOpcodeIX)
     
     alu->RunCycle();
 }
+
+TEST(TestArithmeticLogicUnit, TestExtendedSource)
+{
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    auto alu = make_shared<ALUWrapperForTests>();
+         alu->Initialize(memoryController);
+
+    // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    // Register A will be loaded with the content stored in address 0xDAAD (0x9E)
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x3A)));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xAD)));
+    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xDA)));
+    EXPECT_CALL((*mockPointer), Read(0xDAAD, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x9E)));
+    
+    alu->RunCycle();
+
+    EXPECT_EQ(0x9E, alu->GetRegisterBank()->Read(Register::A));
+}
+
+TEST(TestArithmeticLogicUnit, TestExtendedDestination)
+{
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    auto alu = make_shared<ALUWrapperForTests>();
+         alu->Initialize(memoryController);
+
+    alu->GetRegisterBank()->Write(Register::A, 0xF8);
+
+    // First trigger to ALU. Subsequent changes are handled in the CU-ALU channel
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    // Content of Register A will be soted in address 0xBABE
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x32)));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xBE)));
+    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xBA)));
+    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xF8)), static_cast<uint16_t>(0xBABE)));
+    
+    alu->RunCycle();
+}

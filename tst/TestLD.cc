@@ -342,6 +342,29 @@ TEST(TestLD, DecodeRegisterIndexedAddressingMode)
     }
 }
 
+TEST(TestLD, DecodeExtendedAddressingMode)
+{
+    LD ld;
+    auto rawBinary = 0x3A;
+    ld.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, ld.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, ld.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::ExtendedSource, ld.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::NoRegiser, ld.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::A, ld.InstructionData.value().DestinationRegister);
+
+    rawBinary = 0x32;
+    ld.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, ld.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, ld.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::ExtendedDestination, ld.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::A, ld.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::NoRegiser, ld.InstructionData.value().DestinationRegister);
+
+}
+
 TEST(TestLD, ExecuteImmediateAddressingMode)
 {
     auto registerBank = make_shared<RegisterBank>();
@@ -476,4 +499,26 @@ TEST(TestLD, ExecuteRegisterIndexDestinationAddressingMode)
 
         EXPECT_EQ(*(begin(registerContent) + i), ld.InstructionData.value().MemoryResult1);
     }
+}
+
+TEST(TestLD, ExecuteExtendedSourceAddressingMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+
+    LD ld;
+    auto rawBinary = 0x3A;
+    ld.Decode(rawBinary, nullopt);
+
+    ld.InstructionData.value().MemoryOperand3 = 0xCC;
+    ld.Execute(registerBank);
+
+    EXPECT_EQ(0xCC, registerBank->Read(Register::A));
+
+    rawBinary = 0x32;
+    ld.Decode(rawBinary, nullopt);
+
+    registerBank->Write(Register::A, 0xEE);
+    ld.Execute(registerBank);
+
+    EXPECT_EQ(0xEE, ld.InstructionData.value().MemoryResult1);
 }

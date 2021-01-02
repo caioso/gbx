@@ -18,18 +18,20 @@ public:
 
 private:
     inline void DecodeImmediateOperand(uint8_t);
-    inline void DecodeRegisterIndirectOperandBCDE(uint8_t);
-    inline void DecodeRegisterIndirectOperandHL(uint8_t);
+    inline void DecodeRegisterIndirectOperandSourceBCDE(uint8_t);
+    inline void DecodeRegisterIndirectOperandSourceHL(uint8_t);
     inline void DecodeRegisterIndirectOperandDestinationHL(uint8_t);
     inline void DecodeRegisterRegisterOperand(uint8_t);
     inline void DecodeRegisterIndirectOperandDestinationBCDE(uint8_t);
     inline void DecodeRegisterIndexedSource(uint8_t, uint8_t);
     inline void DecodeRegisterIndexedDestination(uint8_t, uint8_t);
+    inline void DecodeExtendedOperand(uint8_t);
 
-    inline void ExecuteOneOperandBasedAddressingMode(std::shared_ptr<RegisterBank>);
-    inline void ExecuteTwoOperandsBasedAddressingModeAsSource(std::shared_ptr<RegisterBank>);
-    inline void ExecuteTwoOperandsBasedAddressingModeAsDestination(std::shared_ptr<RegisterBank>);
-    inline void ExecuteRegisterMode(std::shared_ptr<RegisterBank>);
+    inline void ExecuteMemoryBasedSource(std::shared_ptr<RegisterBank>);
+    inline void ExecuteIndexedSource(std::shared_ptr<RegisterBank>);
+    inline void ExecuteMemoryBasedDestination(std::shared_ptr<RegisterBank>);
+    inline void ExecuteRegisterSourceOrDestination(std::shared_ptr<RegisterBank>);
+    inline void ExecuteExtendedSource(std::shared_ptr<RegisterBank>);
 
 };
 
