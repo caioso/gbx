@@ -9,38 +9,47 @@ void LD::Decode(uint8_t opcode, std::optional<uint8_t> preOpcode)
     if (preOpcode.has_value() && (preOpcode.value() == InstructionConstants::PreOpcode_DD || preOpcode.value() == InstructionConstants::PreOpcode_FD))
     {
         
-        if (OpcodePatternsMatcher::Match(opcode, // 01XX X110
-            OpcodePatternsMatcher::Pattern(b::_0, b::_1, b::_X, b::_X, b::_X, b::_1, b::_1, b::_0)))
+        if (OpcodePatternMatcher::Match(opcode, // 01XX X110
+            OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_X, b::_X, b::_X, b::_1, b::_1, b::_0)))
             DecodeRegisterIndexedSource(opcode, preOpcode.value());
-        else if (OpcodePatternsMatcher::Match(opcode, // 0111 0XXX
-                 OpcodePatternsMatcher::Pattern(b::_0, b::_1, b::_1, b::_1, b::_0, b::_X, b::_X, b::_X)))
+        else if (OpcodePatternMatcher::Match(opcode, // 0111 0XXX
+                 OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_1, b::_1, b::_0, b::_X, b::_X, b::_X)))
             DecodeRegisterIndexedDestination(opcode, preOpcode.value());
         else 
             throw InstructionException("invalid opcode variant of instruction 'ld'");
     }
     else
     {
-        if (OpcodePatternsMatcher::Match(opcode, // 00XX X110
-            OpcodePatternsMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_X, b::_1, b::_1, b::_0)))
+        if (OpcodePatternMatcher::Match(opcode, // 0011 0110
+            OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_1, b::_0, b::_1, b::_1, b::_0)))
+            DecodeImmediateRegisterIndirect();
+        else if (OpcodePatternMatcher::Match(opcode, // 001X 1010
+            OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_X, b::_1, b::_0, b::_1, b::_0)))
+            DecodeRegisterIndirectSourceIncrementDecrement(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 001X 0010
+            OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_X, b::_0, b::_0, b::_1, b::_0)))
+            DecodeRegisterIndirectDestinationIncrementDecrement(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 00XX X110
+            OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_X, b::_1, b::_1, b::_0)))
             DecodeImmediateOperand(opcode);
-        else if (OpcodePatternsMatcher::Match(opcode, // 000X 1010
-                 OpcodePatternsMatcher::Pattern(b::_0, b::_0, b::_0, b::_X, b::_1, b::_0, b::_1, b::_0)))
+        else if (OpcodePatternMatcher::Match(opcode, // 000X 1010
+                 OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_X, b::_1, b::_0, b::_1, b::_0)))
             DecodeRegisterIndirectOperandSourceBCDE(opcode);
-        else if (OpcodePatternsMatcher::Match(opcode, // 000X 0010
-                 OpcodePatternsMatcher::Pattern(b::_0, b::_0, b::_0, b::_X, b::_0, b::_0, b::_1, b::_0)))
+        else if (OpcodePatternMatcher::Match(opcode, // 000X 0010
+                 OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_X, b::_0, b::_0, b::_1, b::_0)))
             DecodeRegisterIndirectOperandDestinationBCDE(opcode);
-        else if (OpcodePatternsMatcher::Match(opcode, // 01XX X110
-                 OpcodePatternsMatcher::Pattern(b::_0, b::_1, b::_X, b::_X, b::_X, b::_1, b::_1, b::_0)))
-            DecodeRegisterIndirectOperandSourceHL(opcode);
-        else if (OpcodePatternsMatcher::Match(opcode, // 0111 0XXX
-                 OpcodePatternsMatcher::Pattern(b::_0, b::_1, b::_1, b::_1, b::_0, b::_X, b::_X, b::_X)))
+        else if (OpcodePatternMatcher::Match(opcode, // 0111 0XXX
+                 OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_1, b::_1, b::_0, b::_X, b::_X, b::_X)))
             DecodeRegisterIndirectOperandDestinationHL(opcode);
-        else if (OpcodePatternsMatcher::Match(opcode, // 01XX XXXX
-                 OpcodePatternsMatcher::Pattern(b::_0, b::_1, b::_X, b::_X, b::_X, b::_X, b::_X, b::_X)))
-            DecodeRegisterRegisterOperand(opcode);
-        else if (OpcodePatternsMatcher::Match(opcode, // 0011 X010
-                 OpcodePatternsMatcher::Pattern(b::_0, b::_0, b::_1, b::_1, b::_X, b::_0, b::_1, b::_0)))
+        else if (OpcodePatternMatcher::Match(opcode, // 111X 1010
+                 OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_1, b::_X, b::_1, b::_0, b::_1, b::_0)))
             DecodeExtendedOperand(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 01XX X110
+                 OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_X, b::_X, b::_X, b::_1, b::_1, b::_0)))
+            DecodeRegisterIndirectOperandSourceHL(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 01XX XXXX
+                 OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_X, b::_X, b::_X, b::_X, b::_X, b::_X)))
+            DecodeRegisterRegisterOperand(opcode);
         else 
             throw InstructionException("invalid opcode variant of instruction 'ld'");
     }
@@ -53,7 +62,9 @@ void LD::Execute(std::shared_ptr<RegisterBank> registerBank)
 
     if (auto currentAddressingMode = InstructionData.value().AddressingMode;
         InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::Immediate, 
-                                                                      AddressingMode::RegisterIndirectSource))
+                                                                      AddressingMode::RegisterIndirectSource,
+                                                                      AddressingMode::RegisterIndirectSourceDecrement,
+                                                                      AddressingMode::RegisterIndirectSourceIncrement))
         ExecuteMemoryBasedSource(registerBank);
     else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::RegisterIndexedSource))
         ExecuteIndexedSource(registerBank);
@@ -61,10 +72,14 @@ void LD::Execute(std::shared_ptr<RegisterBank> registerBank)
         ExecuteRegisterSourceOrDestination(registerBank);
     else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::RegisterIndirectDestination, 
                                                                            AddressingMode::RegisterIndexedDestination, 
-                                                                           AddressingMode::ExtendedDestination))
+                                                                           AddressingMode::ExtendedDestination, 
+                                                                           AddressingMode::RegisterIndirectDestinationDecrement,
+                                                                           AddressingMode::RegisterIndirectDestinationIncrement))
         ExecuteMemoryBasedDestination(registerBank);
     else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::ExtendedSource))
         ExecuteExtendedSource(registerBank);
+    else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::ImmediateRegisterIndirect))
+        ExecuteImediateRegisterIndirect();
 }
 
 inline void LD::ExecuteMemoryBasedSource(std::shared_ptr<RegisterBank> registerBank)
@@ -94,6 +109,10 @@ inline void LD::ExecuteExtendedSource(std::shared_ptr<RegisterBank> registerBank
     registerBank->Write(InstructionData.value().DestinationRegister, InstructionData.value().MemoryOperand3);
 }
 
+inline void LD::ExecuteImediateRegisterIndirect()
+{
+    InstructionData.value().MemoryResult1 = InstructionData.value().MemoryOperand1;
+}
 
 inline void LD::DecodeImmediateOperand(uint8_t opcode)
 {
@@ -204,7 +223,7 @@ inline void LD::DecodeRegisterIndexedDestination(uint8_t opcode, uint8_t preOpco
 
 inline void LD::DecodeExtendedOperand(uint8_t opcode)
 {
-    if (opcode & 0x08)
+    if (opcode == 0xFA)
     {
         InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
                                                          AddressingMode::ExtendedSource, 
@@ -226,6 +245,72 @@ inline void LD::DecodeExtendedOperand(uint8_t opcode)
                                                          Register::NoRegiser, 
                                                          0x00});
     }
+}
+
+inline void LD::DecodeImmediateRegisterIndirect()
+{
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::ImmediateRegisterIndirect, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::NoRegiser, 
+                                                         Register::HL,
+                                                         0x00});
+}
+
+inline void LD::DecodeRegisterIndirectSourceIncrementDecrement(uint8_t opcode)
+{
+    if (opcode == 0x2A)
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterIndirectSourceIncrement, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::HL, 
+                                                         Register::A,
+                                                         0x00});
+    }
+    else
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterIndirectSourceDecrement, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::HL, 
+                                                         Register::A,
+                                                         0x00});
+    }
+    
+}
+
+inline void LD::DecodeRegisterIndirectDestinationIncrementDecrement(uint8_t opcode)
+{
+    if (opcode == 0x22)
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterIndirectDestinationIncrement, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::A, 
+                                                         Register::HL,
+                                                         0x00});
+    }
+    else
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterIndirectDestinationDecrement, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::A, 
+                                                         Register::HL,
+                                                         0x00});
+    }
+    
 }
 
 }

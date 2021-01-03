@@ -7,6 +7,7 @@
 
 #include <iostream>
 
+#include "AddressingModeFormat.h"
 #include "ArithmeticLogicUnitInterface.h"
 #include "GBXExceptions.h"
 #include "MemoryController.h"
@@ -38,29 +39,30 @@ protected:
 
     inline uint8_t ReadAtRegister(Register);
 
+    inline void AcquireAddressingMode();
     inline void InitializeRegisters();
     inline void DecodeInstruction();
     inline void ExecuteInstruction();
     inline void WriteBackResults();
-    inline void DecideToAcquireOrExecute();
-    inline void DecideToWriteBackOrFetchPC();
     inline void InstantiateInstruction(uint8_t);
-    inline void IncrementPC();
     inline void CompleteFetchPC(uint8_t);
     inline void CompletePreOpcodeFetch(uint8_t);
+    inline void IncrementPC();
+    inline void WriteBackAtOperandAddress();
+    inline void WriteBackAtRegisterAddress(); 
+    inline void WriteBackAtComposedAddress();
+    inline void ReadOperand1AtPC();
+    inline void ReadOperand1AtRegister();
+    inline void ReadOperand2AtPC();
+    inline void ReadOperand2AtComposedAddress();
+    inline void IncrementRegisterPair(Register);
+    inline void DecrementRegisterPair(Register);
 
     std::shared_ptr<RegisterBank> _registers;
     std::unique_ptr<Instruction> _currentInstruction;
     std::optional<uint8_t> _preOpcode;
     std::shared_ptr<MemoryControllerInterface> _memoryController;
-    bool _shouldAcquireOperand;
-    bool _shouldWriteBack;
-
-private:
-    struct AddressModeFormat
-    {
-        bool WriteBack;
-    };
+    std::shared_ptr<AddressingModeFormat> _currentAddressingMode;   
 };
 
 }
