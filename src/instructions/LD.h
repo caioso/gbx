@@ -31,13 +31,17 @@ private:
     inline void DecodeImmediateRegisterIndirect();
     inline void DecodeRegisterIndirectSourceIncrementDecrement(uint8_t);
     inline void DecodeRegisterIndirectDestinationIncrementDecrement(uint8_t);
+    inline void DecodeRegisterImplicitOperand(uint8_t);
+    inline void DecodeImmediateImplicitOperand(uint8_t);
+    inline void DecodeRegisterImmediatePair(uint8_t);
 
     inline void ExecuteMemoryBasedSource(std::shared_ptr<RegisterBank>);
-    inline void ExecuteIndexedSource(std::shared_ptr<RegisterBank>);
+    inline void ExecuteTwoOperandsMemoryBaseSource(std::shared_ptr<RegisterBank>);
     inline void ExecuteMemoryBasedDestination(std::shared_ptr<RegisterBank>);
     inline void ExecuteRegisterSourceOrDestination(std::shared_ptr<RegisterBank>);
     inline void ExecuteExtendedSource(std::shared_ptr<RegisterBank>);
     inline void ExecuteImediateRegisterIndirect();
+    inline void ExecuteMemoryBaseSourceOnPair(std::shared_ptr<RegisterBank>);
 };
 
 }

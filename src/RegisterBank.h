@@ -63,7 +63,9 @@ public:
     static Register FromInstructionSource(uint8_t);
     static uint8_t ToInstructionDestination(Register);
     static Register FromInstructionDestination(uint8_t);
-
+    static uint8_t ToInstructionRegisterPair(Register);
+    static Register FromInstructionToPair(uint8_t);
+    
 private:
     constexpr uint8_t RegisterToIndex(Register);
     constexpr bool IsSingleRegister(Register);

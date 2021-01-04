@@ -7,6 +7,7 @@ enum class AddressingMode
 {
     Register,
     Immediate,
+    ImmediatePair,
     ImmediateRegisterIndirect,
     RegisterIndirectSource,
     RegisterIndirectDestination,
@@ -18,7 +19,11 @@ enum class AddressingMode
     RegisterIndexedSource,
     RegisterIndexedDestination,
     ExtendedSource,
-    ExtendedDestination
+    ExtendedDestination,
+    RegisterImplicitSource,
+    RegisterImplicitDestination,
+    ImmediateImplicitSource,
+    ImmediateImplicitDestination
 };
 
 }

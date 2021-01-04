@@ -56,6 +56,32 @@ constexpr uint8_t RegisterBank::RegisterToIndex(Register reg)
     return static_cast<uint8_t>(reg);
 }
 
+uint8_t RegisterBank::ToInstructionRegisterPair(Register reg)
+{
+    switch (reg)
+    {
+        case Register::BC: return 0;
+        case Register::DE: return 1;
+        case Register::HL: return 2;
+        case Register::SP: return 3;
+        default:
+            throw RegisterBankException("invalid register pair");
+    }
+}
+
+Register RegisterBank::FromInstructionToPair(uint8_t reg)
+{
+    switch (reg)
+    {
+        case 0: return Register::BC;
+        case 1: return Register::DE;
+        case 2: return Register::HL;
+        case 3: return Register::SP;
+        default:
+            throw RegisterBankException("invalid register pair");
+    }
+}
+
 constexpr bool RegisterBank::IsSingleRegister(Register reg)
 {
     return reg != Register::BC && reg != Register::DE && reg != Register::HL && 

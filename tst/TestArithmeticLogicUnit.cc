@@ -16,6 +16,11 @@ using namespace std;
 using namespace gbx;
 using ::testing::Return;
 
+uint8_t ImmediateOpcode(Register source)
+{
+    return RegisterBank::ToInstructionRegisterPair(source) << 4 | 0x01;
+}
+
 class ALUWrapperForTests : public ArithmeticLogicUnit
 {
 public:
@@ -422,4 +427,110 @@ TEST(TestArithmeticLogicUnit, TestRegisterIndirectDestinationDecrement)
     alu->RunCycle();
 
     EXPECT_EQ(0x7649, alu->GetRegisterBank()->ReadPair(Register::HL));
+}
+
+TEST(TestArithmeticLogicUnit, TestImplicitRegisterSource)
+{
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    auto alu = make_shared<ALUWrapperForTests>();
+         alu->Initialize(memoryController);
+
+    alu->GetRegisterBank()->Write(Register::C, 0x55);
+
+    // First trigger to ALU. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    // Register A will hold content pointed by [C + 0xFF00]
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xF2)));
+    EXPECT_CALL((*mockPointer), Read(0xFF55, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xD0)));
+    
+    alu->RunCycle();
+
+    EXPECT_EQ(0xD0, alu->GetRegisterBank()->Read(Register::A));
+}
+
+TEST(TestArithmeticLogicUnit, TestImplicitRegisterDestination)
+{
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    auto alu = make_shared<ALUWrapperForTests>();
+         alu->Initialize(memoryController);
+
+    alu->GetRegisterBank()->Write(Register::A, 0xA6);
+    alu->GetRegisterBank()->Write(Register::C, 0xF4);
+
+    // First trigger to ALU. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    // [C + 0xFF00] will hold the content od register A
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xE2)));
+    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xA6)), static_cast<uint16_t>(0xFFF4)));
+    
+    alu->RunCycle();
+}
+
+TEST(TestArithmeticLogicUnit, TestImplicitImmediateSource)
+{
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    auto alu = make_shared<ALUWrapperForTests>();
+         alu->Initialize(memoryController);
+
+    // First trigger to ALU. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    // Register A will hold content pointed by [C + 0xFF00]
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xF0)));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x60)));
+    EXPECT_CALL((*mockPointer), Read(0xFF60, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x09)));
+    
+    alu->RunCycle();
+
+    EXPECT_EQ(0x09, alu->GetRegisterBank()->Read(Register::A));
+}
+
+TEST(TestArithmeticLogicUnit, TestImplicitImmediateDestination)
+{
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    auto alu = make_shared<ALUWrapperForTests>();
+         alu->Initialize(memoryController);
+
+    alu->GetRegisterBank()->Write(Register::A, 0xD2);
+
+    // First trigger to ALU. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    // Register A will hold content pointed by [C + 0xFF00]
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xE0)));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x06)));
+    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xD2)), static_cast<uint16_t>(0xFF06)));
+    
+    alu->RunCycle();
+}
+
+TEST(TestArithmeticLogicUnit, TestImmediatePair)
+{
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    auto alu = make_shared<ALUWrapperForTests>();
+         alu->Initialize(memoryController);
+
+    // First trigger to ALU. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    // Register A will hold content pointed by [C + 0xFF00]
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(ImmediateOpcode(Register::BC))));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x4A)));
+    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x98)));
+    EXPECT_CALL((*mockPointer), Read(0x0003, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(ImmediateOpcode(Register::DE))));
+    EXPECT_CALL((*mockPointer), Read(0x0004, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xBB)));
+    EXPECT_CALL((*mockPointer), Read(0x0005, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x1A)));
+    EXPECT_CALL((*mockPointer), Read(0x0006, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(ImmediateOpcode(Register::HL))));
+    EXPECT_CALL((*mockPointer), Read(0x0007, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x99)));
+    EXPECT_CALL((*mockPointer), Read(0x0008, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x50)));
+    EXPECT_CALL((*mockPointer), Read(0x0009, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(ImmediateOpcode(Register::SP))));
+    EXPECT_CALL((*mockPointer), Read(0x000A, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x24)));
+    EXPECT_CALL((*mockPointer), Read(0x000B, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xCE)));
+
+    alu->RunCycle();
+    alu->RunCycle();
+    alu->RunCycle();
+    alu->RunCycle();
+
+    EXPECT_EQ(0x984A, alu->GetRegisterBank()->ReadPair(Register::BC));
+    EXPECT_EQ(0x1ABB, alu->GetRegisterBank()->ReadPair(Register::DE));
+    EXPECT_EQ(0x5099, alu->GetRegisterBank()->ReadPair(Register::HL));
+    EXPECT_EQ(0xCE24, alu->GetRegisterBank()->ReadPair(Register::SP));
 }

@@ -51,7 +51,12 @@ uint8_t BinaryRegisterIndexedDestinationAddressingMode(Register source)
     return RegisterBank::ToInstructionSource(source) | 
            (0x07 << 4);
 }
-\
+
+uint8_t BinaryImmediateRegisterPair(Register source)
+{
+    return RegisterBank::ToInstructionRegisterPair(source) << 4 | 0x01;
+}
+
 TEST(TestLD, ExecuteUndecodedInstruction)
 {
     auto registerBank = make_shared<RegisterBank>();
@@ -404,6 +409,71 @@ TEST(TestLD, DecodeRegisterIndirectDestinationIncrementAndDecrement)
     EXPECT_EQ(Register::HL, ld.InstructionData.value().DestinationRegister);
 }
 
+TEST(TestLD, DecodeRegisterImplicitAddressingMode)
+{
+    LD ld;
+    auto rawBinary = 0xF2;
+    ld.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, ld.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, ld.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterImplicitSource, ld.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::C, ld.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::A, ld.InstructionData.value().DestinationRegister);
+
+    rawBinary = 0xE2;
+    ld.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, ld.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, ld.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterImplicitDestination, ld.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::A, ld.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::C, ld.InstructionData.value().DestinationRegister);
+}
+
+TEST(TestLD, DecodeImmediateImplicitAddressingMode)
+{
+    LD ld;
+    auto rawBinary = 0xF0;
+    ld.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, ld.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, ld.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::ImmediateImplicitSource, ld.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::NoRegiser, ld.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::A, ld.InstructionData.value().DestinationRegister);
+
+    rawBinary = 0xE0;
+    ld.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, ld.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, ld.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::ImmediateImplicitDestination, ld.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::A, ld.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::NoRegiser, ld.InstructionData.value().DestinationRegister);
+}
+
+TEST(TestLD, DecodeImmediateRegisterPairAddressingMode)
+{
+    auto destinationList = {Register::BC, 
+                            Register::DE, 
+                            Register::HL, 
+                            Register::SP};
+
+    for (auto destination : destinationList)
+    {
+        LD ld;
+        auto rawBinary = BinaryImmediateRegisterPair(destination);
+        ld.Decode(rawBinary, nullopt);
+
+        EXPECT_NE(nullopt, ld.InstructionData);
+        EXPECT_EQ(OpcodeType::ld, ld.InstructionData.value().Opcode);
+        EXPECT_EQ(AddressingMode::ImmediatePair, ld.InstructionData.value().AddressingMode);
+        EXPECT_EQ(Register::NoRegiser, ld.InstructionData.value().SourceRegister);
+        EXPECT_EQ(destination, ld.InstructionData.value().DestinationRegister);
+    }
+}
+
 TEST(TestLD, ExecuteImmediateAddressingMode)
 {
     auto registerBank = make_shared<RegisterBank>();
@@ -618,4 +688,77 @@ TEST(TestLD, ExecuteRegisterIndirectDestinationIncrementAndDecrement)
     ld.Execute(registerBank);
 
     EXPECT_EQ(0xA6, ld.InstructionData.value().MemoryResult1);
+}
+
+TEST(TestLD, ExecuteImplicitRegisterAddresingMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+
+    LD ld;
+    auto rawBinary = 0xF2;
+    ld.Decode(rawBinary, nullopt);
+
+    ld.InstructionData.value().MemoryOperand1 = 0x6D;
+    ld.Execute(registerBank);
+
+    EXPECT_EQ(0x6D, registerBank->Read(Register::A));
+
+    rawBinary = 0xE2;
+    ld.Decode(rawBinary, nullopt);
+
+    registerBank->Write(Register::A, 0xA1);
+    ld.Execute(registerBank);
+
+    EXPECT_EQ(0xA1, ld.InstructionData.value().MemoryResult1);
+}
+
+TEST(TestLD, ExecuteImplicitImmediateAddresingMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+
+    LD ld;
+    auto rawBinary = 0xF0;
+    ld.Decode(rawBinary, nullopt);
+
+    ld.InstructionData.value().MemoryOperand2 = 0x4A;
+    ld.Execute(registerBank);
+
+    EXPECT_EQ(0x4A, registerBank->Read(Register::A));
+
+    rawBinary = 0xE0;
+    ld.Decode(rawBinary, nullopt);
+
+    registerBank->Write(Register::A, 0x78);
+    ld.Execute(registerBank);
+
+    EXPECT_EQ(0x78, ld.InstructionData.value().MemoryResult1);
+}
+
+TEST(TestLD, ExecuteImmediateRegisrerPairAddresingMode)
+{
+    auto destinationList = {Register::BC, 
+                            Register::DE, 
+                            Register::HL, 
+                            Register::SP};
+
+    auto immediateValues = {static_cast<uint16_t>(0x45AD),
+                            static_cast<uint16_t>(0xF408),
+                            static_cast<uint16_t>(0x21A6),
+                            static_cast<uint16_t>(0x8BC1)};
+
+    auto registerBank = make_shared<RegisterBank>();
+
+    for (auto i = static_cast<size_t>(0); i < destinationList.size(); i++)
+    {
+        LD ld;
+        auto rawBinary = BinaryImmediateRegisterPair(*(begin(destinationList) + i));
+        ld.Decode(rawBinary, nullopt);
+
+        ld.InstructionData.value().MemoryOperand1 = *(begin(immediateValues) + i) & 0xFF;
+        ld.InstructionData.value().MemoryOperand2 = (*(begin(immediateValues) + i) >> 8) & 0xFF;
+
+        ld.Execute(registerBank);
+
+        EXPECT_EQ(*(begin(immediateValues) + i), registerBank->ReadPair(*(begin(destinationList) + i)));
+    }
 }

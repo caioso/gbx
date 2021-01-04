@@ -20,7 +20,10 @@ void LD::Decode(uint8_t opcode, std::optional<uint8_t> preOpcode)
     }
     else
     {
-        if (OpcodePatternMatcher::Match(opcode, // 0011 0110
+        if (OpcodePatternMatcher::Match(opcode, // 00XX 0001
+            OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_0, b::_0, b::_0, b::_1)))
+            DecodeRegisterImmediatePair(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 0011 0110
             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_1, b::_0, b::_1, b::_1, b::_0)))
             DecodeImmediateRegisterIndirect();
         else if (OpcodePatternMatcher::Match(opcode, // 001X 1010
@@ -41,6 +44,12 @@ void LD::Decode(uint8_t opcode, std::optional<uint8_t> preOpcode)
         else if (OpcodePatternMatcher::Match(opcode, // 0111 0XXX
                  OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_1, b::_1, b::_0, b::_X, b::_X, b::_X)))
             DecodeRegisterIndirectOperandDestinationHL(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 111X 0010
+                 OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_1, b::_X, b::_0, b::_0, b::_1, b::_0)))
+            DecodeRegisterImplicitOperand(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 111X 0000
+                 OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_1, b::_X, b::_0, b::_0, b::_0, b::_0)))
+            DecodeImmediateImplicitOperand(opcode);
         else if (OpcodePatternMatcher::Match(opcode, // 111X 1010
                  OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_1, b::_X, b::_1, b::_0, b::_1, b::_0)))
             DecodeExtendedOperand(opcode);
@@ -64,17 +73,23 @@ void LD::Execute(std::shared_ptr<RegisterBank> registerBank)
         InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::Immediate, 
                                                                       AddressingMode::RegisterIndirectSource,
                                                                       AddressingMode::RegisterIndirectSourceDecrement,
-                                                                      AddressingMode::RegisterIndirectSourceIncrement))
+                                                                      AddressingMode::RegisterIndirectSourceIncrement,
+                                                                      AddressingMode::RegisterImplicitSource))
         ExecuteMemoryBasedSource(registerBank);
-    else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::RegisterIndexedSource))
-        ExecuteIndexedSource(registerBank);
+    else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::ImmediatePair))
+        ExecuteMemoryBaseSourceOnPair(registerBank);
+    else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::RegisterIndexedSource,
+                                                                          AddressingMode::ImmediateImplicitSource))
+        ExecuteTwoOperandsMemoryBaseSource(registerBank);
     else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::Register))
         ExecuteRegisterSourceOrDestination(registerBank);
     else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::RegisterIndirectDestination, 
                                                                            AddressingMode::RegisterIndexedDestination, 
                                                                            AddressingMode::ExtendedDestination, 
                                                                            AddressingMode::RegisterIndirectDestinationDecrement,
-                                                                           AddressingMode::RegisterIndirectDestinationIncrement))
+                                                                           AddressingMode::RegisterIndirectDestinationIncrement,
+                                                                           AddressingMode::RegisterImplicitDestination,
+                                                                           AddressingMode::ImmediateImplicitDestination))
         ExecuteMemoryBasedDestination(registerBank);
     else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::ExtendedSource))
         ExecuteExtendedSource(registerBank);
@@ -87,7 +102,12 @@ inline void LD::ExecuteMemoryBasedSource(std::shared_ptr<RegisterBank> registerB
     registerBank->Write(InstructionData.value().DestinationRegister, InstructionData.value().MemoryOperand1);
 }
 
-inline void LD::ExecuteIndexedSource(std::shared_ptr<RegisterBank> registerBank)
+inline void LD::ExecuteMemoryBaseSourceOnPair(std::shared_ptr<RegisterBank> registerBank)
+{
+    registerBank->WritePair(InstructionData.value().DestinationRegister, InstructionData.value().MemoryOperand1 | InstructionData.value().MemoryOperand2 << 8);
+}
+
+inline void LD::ExecuteTwoOperandsMemoryBaseSource(std::shared_ptr<RegisterBank> registerBank)
 {
     registerBank->Write(InstructionData.value().DestinationRegister, InstructionData.value().MemoryOperand2);
 }
@@ -311,6 +331,72 @@ inline void LD::DecodeRegisterIndirectDestinationIncrementDecrement(uint8_t opco
                                                          0x00});
     }
     
+}
+
+inline void LD::DecodeRegisterImplicitOperand(uint8_t opcode)
+{
+    if (opcode == 0xF2)
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterImplicitSource, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::C, 
+                                                         Register::A,
+                                                         0x00});
+    }
+    else
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterImplicitDestination, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::A, 
+                                                         Register::C,
+                                                         0x00});
+    }
+    
+}
+
+inline void LD::DecodeImmediateImplicitOperand(uint8_t opcode)
+{
+    if (opcode == 0xF0)
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::ImmediateImplicitSource, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::NoRegiser, 
+                                                         Register::A,
+                                                         0x00});
+    }
+    else
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::ImmediateImplicitDestination, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::A, 
+                                                         Register::NoRegiser,
+                                                         0x00});
+    }
+}
+
+inline void LD::DecodeRegisterImmediatePair(uint8_t opcode)
+{
+    auto destination = RegisterBank::FromInstructionToPair((opcode >> 4) & 0x3);
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::ImmediatePair, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::NoRegiser, 
+                                                         destination,
+                                                         0x00});
 }
 
 }

@@ -12,14 +12,18 @@ struct AddressingModeFormat
             bool decrementSource;
             bool incrementDestination;
             bool decrementDestination;
+        bool acquireOperand1Implicitly;
     bool acquireOperand2;
         bool acquireOperand2FromPc;
         bool acquireOperand2AtComposedAddress;
+        bool acquireOperand2Implicitly;
     bool acquireOperand3;
     bool writeBack;
         bool writeBackAtOperandAddress;
         bool writeBackAtRegisterAddress;
         bool writeBackAtComposedOperandAddress;
+        bool writeBackAtImplicitlyWithRegister;
+        bool writeBackAtImplicitlyWithImmediateOperand;
 };
 
 class AddressingModeTemplate
@@ -39,6 +43,11 @@ public:
     static const AddressingModeFormat ImmediateRegisterIndirectSourceDecrementAddressingMode;
     static const AddressingModeFormat ImmediateRegisterIndirectDestinationIncrementAddressingMode;
     static const AddressingModeFormat ImmediateRegisterIndirectDestinationDecrementAddressingMode;
+    static const AddressingModeFormat ImplicitRegisterSourceAddressingMode;
+    static const AddressingModeFormat ImplicitRegisterDestinationAddressingMode;
+    static const AddressingModeFormat ImplicitImmediateSourceAddressingMode;
+    static const AddressingModeFormat ImplicitImmediateDestinationAddressingMode;
+    static const AddressingModeFormat ImmediatePairAddressingMode;
 };
 
 }

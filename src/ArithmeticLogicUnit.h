@@ -47,16 +47,20 @@ protected:
     inline void InstantiateInstruction(uint8_t);
     inline void CompleteFetchPC(uint8_t);
     inline void CompletePreOpcodeFetch(uint8_t);
+    inline void ReadOperand1AtPC();
+    inline void ReadOperand1AtRegister();
+    inline void ReadOperand1Implicitly();
+    inline void ReadOperand2AtPC();
+    inline void ReadOperand2AtComposedAddress();
+    inline void ReadOperand2Implicitly();
+    inline void IncrementRegisterPair(Register);
+    inline void DecrementRegisterPair(Register);
     inline void IncrementPC();
     inline void WriteBackAtOperandAddress();
     inline void WriteBackAtRegisterAddress(); 
     inline void WriteBackAtComposedAddress();
-    inline void ReadOperand1AtPC();
-    inline void ReadOperand1AtRegister();
-    inline void ReadOperand2AtPC();
-    inline void ReadOperand2AtComposedAddress();
-    inline void IncrementRegisterPair(Register);
-    inline void DecrementRegisterPair(Register);
+    inline void WriteBackAtImplicitRegisterAddress();
+    inline void WriteBackAtImplicitImmediateAddress();
 
     std::shared_ptr<RegisterBank> _registers;
     std::unique_ptr<Instruction> _currentInstruction;

@@ -1,5 +1,7 @@
 #include "ArithmeticLogicUnit.h"
 
+#include <iostream>
+
 using namespace std;
 
 namespace gbx
@@ -80,6 +82,8 @@ inline void ArithmeticLogicUnit::AcquireOperand1()
         ReadOperand1AtPC();
     else if (_currentAddressingMode->acquireOperand1Directly)
         ReadOperand1AtRegister();
+    else if (_currentAddressingMode->acquireOperand1Implicitly)
+        ReadOperand1Implicitly();
 }
 
 inline void ArithmeticLogicUnit::AcquireOperand2()
@@ -88,6 +92,8 @@ inline void ArithmeticLogicUnit::AcquireOperand2()
         ReadOperand2AtPC();
     else if (_currentAddressingMode->acquireOperand2AtComposedAddress)
         ReadOperand2AtComposedAddress();
+    else if (_currentAddressingMode->acquireOperand2Implicitly)
+        ReadOperand2Implicitly();
 }
 
 inline void ArithmeticLogicUnit::AcquireOperand3()
@@ -176,6 +182,11 @@ inline void ArithmeticLogicUnit::AcquireAddressingMode()
         case AddressingMode::RegisterIndirectSourceDecrement: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImmediateRegisterIndirectSourceDecrementAddressingMode); break;
         case AddressingMode::RegisterIndirectDestinationIncrement: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImmediateRegisterIndirectDestinationIncrementAddressingMode); break;
         case AddressingMode::RegisterIndirectDestinationDecrement: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImmediateRegisterIndirectDestinationDecrementAddressingMode); break;
+        case AddressingMode::RegisterImplicitSource: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImplicitRegisterSourceAddressingMode); break;
+        case AddressingMode::RegisterImplicitDestination: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImplicitRegisterDestinationAddressingMode); break;
+        case AddressingMode::ImmediateImplicitSource: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImplicitImmediateSourceAddressingMode); break;
+        case AddressingMode::ImmediateImplicitDestination: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImplicitImmediateDestinationAddressingMode); break;
+        case AddressingMode::ImmediatePair: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImmediatePairAddressingMode); break;
         default:
             throw ArithmeticLogicUnitException("invalid addressing mode");
     }
@@ -197,6 +208,12 @@ inline void ArithmeticLogicUnit::ReadOperand1AtRegister()
         DecrementRegisterPair(_currentInstruction->InstructionData.value().SourceRegister);
 }
 
+inline void ArithmeticLogicUnit::ReadOperand1Implicitly()
+{
+    auto operandLocation = static_cast<uint16_t>(0xFF << 8 | _registers->Read(_currentInstruction->InstructionData.value().SourceRegister));
+    _currentInstruction->InstructionData.value().MemoryOperand1 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
+}
+
 inline void ArithmeticLogicUnit::ReadOperand2AtPC()
 {
     _currentInstruction->InstructionData.value().MemoryOperand2 = ReadAtRegister(Register::PC);
@@ -206,6 +223,12 @@ inline void ArithmeticLogicUnit::ReadOperand2AtPC()
 inline void ArithmeticLogicUnit::ReadOperand2AtComposedAddress()
 {
     auto operandLocation = static_cast<uint16_t>(static_cast<int8_t>(_currentInstruction->InstructionData.value().MemoryOperand1) + _registers->ReadPair(_currentInstruction->InstructionData.value().SourceRegister));
+    _currentInstruction->InstructionData.value().MemoryOperand2 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
+}
+
+inline void ArithmeticLogicUnit::ReadOperand2Implicitly()
+{
+    auto operandLocation = static_cast<uint16_t>(0xFF << 8 | _currentInstruction->InstructionData.value().MemoryOperand1);
     _currentInstruction->InstructionData.value().MemoryOperand2 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
 }
 
@@ -222,6 +245,10 @@ inline void ArithmeticLogicUnit::WriteBackResults()
         WriteBackAtRegisterAddress();
     else if (_currentAddressingMode->writeBackAtComposedOperandAddress)
         WriteBackAtComposedAddress();
+    else if (_currentAddressingMode->writeBackAtImplicitlyWithRegister)
+        WriteBackAtImplicitRegisterAddress();
+    else if (_currentAddressingMode->writeBackAtImplicitlyWithImmediateOperand)
+        WriteBackAtImplicitImmediateAddress();
 }
 
 inline void ArithmeticLogicUnit::WriteBackAtOperandAddress()
@@ -247,6 +274,20 @@ inline void ArithmeticLogicUnit::WriteBackAtComposedAddress()
 {
     auto resultContent = _currentInstruction->InstructionData.value().MemoryResult1;
     auto resultAddress = static_cast<uint16_t>(_currentInstruction->InstructionData.value().MemoryOperand1 | _currentInstruction->InstructionData.value().MemoryOperand2 << 8);
+    _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
+}
+
+inline void ArithmeticLogicUnit::WriteBackAtImplicitRegisterAddress()
+{
+    auto resultContent = _currentInstruction->InstructionData.value().MemoryResult1;
+    auto resultAddress = static_cast<uint16_t>(0xFF << 8 | _registers->Read(_currentInstruction->InstructionData.value().DestinationRegister));
+    _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
+}
+
+inline void ArithmeticLogicUnit::WriteBackAtImplicitImmediateAddress()
+{
+    volatile auto resultContent = _registers->Read(_currentInstruction->InstructionData.value().SourceRegister);
+    volatile auto resultAddress = static_cast<uint16_t>(0xFF << 8 | _currentInstruction->InstructionData.value().MemoryOperand1);
     _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 }
 
