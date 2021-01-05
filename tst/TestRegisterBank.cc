@@ -90,11 +90,11 @@ TEST(TestRegisterBank, InstructionSourceToRegister)
     EXPECT_EQ(0x01, bank.ToInstructionSource(Register::C));
     EXPECT_EQ(0x02, bank.ToInstructionSource(Register::D));
     EXPECT_EQ(0x03, bank.ToInstructionSource(Register::E));
-    EXPECT_EQ(0x04, bank.ToInstructionSource(Register::F));
+    EXPECT_EQ(0x04, bank.ToInstructionSource(Register::H));
     EXPECT_EQ(0x05, bank.ToInstructionSource(Register::L));
     EXPECT_EQ(0x07, bank.ToInstructionSource(Register::A));
 
-    array<Register, 12> nonSources = { Register::H, Register::HL, Register::I, Register::IR, Register::IX, Register::IY,
+    array<Register, 12> nonSources = { Register::F, Register::HL, Register::I, Register::IR, Register::IX, Register::IY,
                                        Register::PC, Register::R, Register::SP, Register::AF, Register::BC, Register::DE };
     
     for (auto reg : nonSources)
@@ -154,7 +154,7 @@ TEST(TestRegisterBank, FromInstructionSourceToRegister)
     EXPECT_EQ(Register::C, bank.FromInstructionSource(0x01));
     EXPECT_EQ(Register::D, bank.FromInstructionSource(0x02));
     EXPECT_EQ(Register::E, bank.FromInstructionSource(0x03));
-    EXPECT_EQ(Register::F, bank.FromInstructionSource(0x04));
+    EXPECT_EQ(Register::H, bank.FromInstructionSource(0x04));
     EXPECT_EQ(Register::L, bank.FromInstructionSource(0x05));
     EXPECT_EQ(Register::A, bank.FromInstructionSource(0x07));
     

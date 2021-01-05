@@ -48,6 +48,7 @@ public:
     static const AddressingModeFormat ImplicitImmediateSourceAddressingMode;
     static const AddressingModeFormat ImplicitImmediateDestinationAddressingMode;
     static const AddressingModeFormat ImmediatePairAddressingMode;
+    static const AddressingModeFormat RegisterPairAddressingMode;
 };
 
 }

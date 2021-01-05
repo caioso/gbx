@@ -1,72 +1,51 @@
 #pragma once
 
 #include <memory>
-#include <optional>
-#include <variant>
-#include <sstream>
 
-#include <iostream>
-
-#include "AddressingModeFormat.h"
-#include "ArithmeticLogicUnitInterface.h"
 #include "GBXExceptions.h"
-#include "MemoryController.h"
-#include "RegisterBank.h"
-#include "instructions/Instruction.h"
-#include "instructions/LD.h"
+#include "instructions/InstructionUtilities.h"
+#include "instructions/OpcodePatternMatcher.h"
+#include "interfaces/ArithmeticLogicUnitInterface.h"
 
 namespace gbx
 {
-class ArithmeticLogicUnit : public std::enable_shared_from_this<ArithmeticLogicUnit>, public ArithmeticLogicUnitInterface
+
+class ArithmeticLogicUnit : public interfaces::ArithmeticLogicUnitInterface
 {
 public:
-    ArithmeticLogicUnit();
+    ArithmeticLogicUnit() = default;
     virtual ~ArithmeticLogicUnit() = default;
+    virtual void Decode(uint8_t, std::optional<uint8_t> preOpcode) override;
+    virtual void Execute(std::shared_ptr<RegisterBank>) override;
 
-    virtual void RunCycle() override;
+private:
+    inline void DecodeImmediateOperand(uint8_t);
+    inline void DecodeRegisterIndirectOperandSourceBCDE(uint8_t);
+    inline void DecodeRegisterIndirectOperandSourceHL(uint8_t);
+    inline void DecodeRegisterIndirectOperandDestinationHL(uint8_t);
+    inline void DecodeRegisterRegisterOperand(uint8_t);
+    inline void DecodeRegisterPairRegisterPairOperand();
+    inline void DecodeRegisterIndirectOperandDestinationBCDE(uint8_t);
+    inline void DecodeRegisterIndexedSource(uint8_t, uint8_t);
+    inline void DecodeRegisterIndexedDestination(uint8_t, uint8_t);
+    inline void DecodeExtendedOperand(uint8_t);
+    inline void DecodeImmediateRegisterIndirect();
+    inline void DecodeRegisterIndirectSourceIncrementDecrement(uint8_t);
+    inline void DecodeRegisterIndirectDestinationIncrementDecrement(uint8_t);
+    inline void DecodeRegisterImplicitOperand(uint8_t);
+    inline void DecodeImmediateImplicitOperand(uint8_t);
+    inline void DecodeRegisterImmediatePair(uint8_t);
+    inline void DecodeAddRegisterMode(uint8_t);
 
-    void Initialize(std::shared_ptr<MemoryControllerInterface>);
-
-protected:
-    inline void Fetch();
-    inline void FetchAgain();
-    inline void Decode();
-    inline void Execute();
-    inline void AcquireOperand1();
-    inline void AcquireOperand2();
-    inline void AcquireOperand3();
-    inline void WriteBack();
-
-    inline uint8_t ReadAtRegister(Register);
-
-    inline void AcquireAddressingMode();
-    inline void InitializeRegisters();
-    inline void DecodeInstruction();
-    inline void ExecuteInstruction();
-    inline void WriteBackResults();
-    inline void InstantiateInstruction(uint8_t);
-    inline void CompleteFetchPC(uint8_t);
-    inline void CompletePreOpcodeFetch(uint8_t);
-    inline void ReadOperand1AtPC();
-    inline void ReadOperand1AtRegister();
-    inline void ReadOperand1Implicitly();
-    inline void ReadOperand2AtPC();
-    inline void ReadOperand2AtComposedAddress();
-    inline void ReadOperand2Implicitly();
-    inline void IncrementRegisterPair(Register);
-    inline void DecrementRegisterPair(Register);
-    inline void IncrementPC();
-    inline void WriteBackAtOperandAddress();
-    inline void WriteBackAtRegisterAddress(); 
-    inline void WriteBackAtComposedAddress();
-    inline void WriteBackAtImplicitRegisterAddress();
-    inline void WriteBackAtImplicitImmediateAddress();
-
-    std::shared_ptr<RegisterBank> _registers;
-    std::unique_ptr<Instruction> _currentInstruction;
-    std::optional<uint8_t> _preOpcode;
-    std::shared_ptr<MemoryControllerInterface> _memoryController;
-    std::shared_ptr<AddressingModeFormat> _currentAddressingMode;   
+    inline void ExecuteMemoryBasedSource(std::shared_ptr<RegisterBank>);
+    inline void ExecuteTwoOperandsMemoryBaseSource(std::shared_ptr<RegisterBank>);
+    inline void ExecuteMemoryBasedDestination(std::shared_ptr<RegisterBank>);
+    inline void ExecuteRegisterSourceOrDestination(std::shared_ptr<RegisterBank>);
+    inline void ExecuteExtendedSource(std::shared_ptr<RegisterBank>);
+    inline void ExecuteImediateRegisterIndirect();
+    inline void ExecuteMemoryBaseSourceOnPair(std::shared_ptr<RegisterBank>);
+    inline void ExecuteRegisterPairAddressingMode(std::shared_ptr<RegisterBank>);
+    inline void ExecuteAdd(std::shared_ptr<RegisterBank>);
 };
 
 }

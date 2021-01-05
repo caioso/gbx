@@ -3,17 +3,18 @@
 #include <iostream>
 
 #include "../src/AddressRange.h"
-#include "../src/CPU.h"
 #include "../src/MemoryController.h"
+#include "../src/interfaces/MemoryControllerInterface.h"
 #include "../src/ROM.h"
 
 using namespace std;
 using namespace gbx;
+using namespace gbx::interfaces;
 
 TEST(TestMemoryController, ResourceRegistration) 
 {
     MemoryController memController;
-    shared_ptr<Memory> rom(new ROM(0x100));
+    shared_ptr<MemoryInterface> rom(new ROM(0x100));
     memController.RegisterMemoryResource
     (
         rom,
@@ -32,7 +33,7 @@ TEST(TestMemoryController, ResourceRegistrationAddressDoesNoMatchSize)
     auto test2Succeeded = false;
 
     MemoryController memController;
-    shared_ptr<Memory> rom(new ROM(0x100));
+    shared_ptr<MemoryInterface> rom(new ROM(0x100));
 
     try
     {
@@ -68,8 +69,8 @@ TEST(TestMemoryController, ResourceRegistrationWithOverlap)
 {
     auto overlapDetected = false;
     MemoryController memController;
-    shared_ptr<Memory> rom(new ROM(0x100));
-    shared_ptr<Memory> romOverlapping(new ROM(0x1000));
+    shared_ptr<MemoryInterface> rom(new ROM(0x100));
+    shared_ptr<MemoryInterface> romOverlapping(new ROM(0x1000));
 
     try
     {
@@ -96,8 +97,8 @@ TEST(TestMemoryController, ResourceRegistrationWithOverlap)
 TEST(TestMemoryController, TwoResourcesOperation) 
 {
     MemoryController memController;
-    shared_ptr<Memory> smallROM(new ROM(0x100));
-    shared_ptr<Memory> largeROM(new ROM(0x200));
+    shared_ptr<MemoryInterface> smallROM(new ROM(0x100));
+    shared_ptr<MemoryInterface> largeROM(new ROM(0x200));
 
     memController.RegisterMemoryResource
     (
@@ -124,8 +125,8 @@ TEST(TestMemoryController, TwoResourcesOperation)
 TEST(TestMemoryController, NonConsecultiveResources) 
 {
     MemoryController memController;
-    shared_ptr<Memory> smallROM(new ROM(0x100));
-    shared_ptr<Memory> largeROM(new ROM(0x200));
+    shared_ptr<MemoryInterface> smallROM(new ROM(0x100));
+    shared_ptr<MemoryInterface> largeROM(new ROM(0x200));
 
     memController.RegisterMemoryResource
     (
@@ -154,8 +155,8 @@ TEST(TestMemoryController, AccessEmptyAddressRange)
     auto test1Passed = false;
     auto test2Passed = false;
     MemoryController memController;
-    shared_ptr<Memory> rom1(new ROM(0x100));
-    shared_ptr<Memory> rom2(new ROM(0x100));
+    shared_ptr<MemoryInterface> rom1(new ROM(0x100));
+    shared_ptr<MemoryInterface> rom2(new ROM(0x100));
 
     memController.RegisterMemoryResource
     (
@@ -195,7 +196,7 @@ TEST(TestMemoryController, PerformOperationsInTheRangeBorders)
     auto test1Passed = false;
     auto test2Passed = false;
     MemoryController memController;
-    shared_ptr<Memory> rom(new ROM(0x100));
+    shared_ptr<MemoryInterface> rom(new ROM(0x100));
 
     memController.RegisterMemoryResource
     (
@@ -228,7 +229,7 @@ TEST(TestMemoryController, PerformOperationsInTheRangeBorders)
 TEST(TestMemoryController, UnregisterResource) 
 {
     MemoryController memController;
-    shared_ptr<Memory> rom(new ROM(0x100));
+    shared_ptr<MemoryInterface> rom(new ROM(0x100));
     memController.RegisterMemoryResource
     (
         rom,
@@ -243,11 +244,11 @@ TEST(TestMemoryController, UnregisterAFewResource)
 {
     auto finalTestPassed = false;
     MemoryController memController;
-    shared_ptr<Memory> rom(new ROM(0x100));
-    shared_ptr<Memory> rom1(new ROM(0x100));
-    shared_ptr<Memory> rom2(new ROM(0x100));
-    shared_ptr<Memory> rom3(new ROM(0x100));
-    shared_ptr<Memory> rom4(new ROM(0x100));
+    shared_ptr<MemoryInterface> rom(new ROM(0x100));
+    shared_ptr<MemoryInterface> rom1(new ROM(0x100));
+    shared_ptr<MemoryInterface> rom2(new ROM(0x100));
+    shared_ptr<MemoryInterface> rom3(new ROM(0x100));
+    shared_ptr<MemoryInterface> rom4(new ROM(0x100));
 
     memController.RegisterMemoryResource
     (
@@ -299,8 +300,8 @@ TEST(TestMemoryController, UnregisterAFewResource)
 TEST(TestMemoryController, ReuseUnregisteredRange) 
 {
     MemoryController memController;
-    shared_ptr<Memory> rom(new ROM(0x100));
-    shared_ptr<Memory> rom2(new ROM(0x100));
+    shared_ptr<MemoryInterface> rom(new ROM(0x100));
+    shared_ptr<MemoryInterface> rom2(new ROM(0x100));
     memController.RegisterMemoryResource
     (
         rom,
@@ -328,7 +329,7 @@ TEST(TestMemoryController, ReuseUnregisteredRange)
 TEST(TestMemoryController, LoadMemoryResource) 
 {
     MemoryController memController;
-    shared_ptr<Memory> rom(new ROM(0x010));
+    shared_ptr<MemoryInterface> rom(new ROM(0x010));
     memController.RegisterMemoryResource
     (
         rom,
@@ -354,7 +355,7 @@ TEST(TestMemoryController, LoadMemoryResourceAtWrongLocation)
 {
     auto testPassed = false;
     MemoryController memController;
-    shared_ptr<Memory> rom(new ROM(0x010));
+    shared_ptr<MemoryInterface> rom(new ROM(0x010));
     memController.RegisterMemoryResource
     (
         rom,
@@ -381,7 +382,7 @@ TEST(TestMemoryController, LoadMemoryResourceAtWrongLocation)
 TEST(TestMemoryController, LoadMemoryResourceWithOffset) 
 {
     MemoryController memController;
-    shared_ptr<Memory> rom(new ROM(0x010));
+    shared_ptr<MemoryInterface> rom(new ROM(0x010));
     memController.RegisterMemoryResource
     (
         rom,

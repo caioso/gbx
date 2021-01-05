@@ -4,7 +4,6 @@
 
 namespace gbx
 {
-
 class EngineParameters
 {
 public:

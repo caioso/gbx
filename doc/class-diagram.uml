@@ -1,0 +1,44 @@
+@startuml
+class Z80X
+class ControlUnit
+interface ArithmeticLogicUnit
+class Z80XArithmeticLogicUnit
+interface MemoryController
+class PagedMemoryController
+interface Clock
+class ClockSource
+class RegisterBank
+
+interface Memory
+class ROM
+class RAM
+class VRAM
+class ExpansionCard
+class Cartridge
+
+interface Instruction
+class LD
+
+Instruction <.. LD
+Memory <.. ROM
+Memory <.. RAM
+Memory <.. VRAM
+ROM <|-- ExpansionCard
+ROM <|-- Cartridge
+
+ArithmeticLogicUnit <.. Z80XArithmeticLogicUnit
+MemoryController <.. PagedMemoryController
+Clock <.. ClockSource
+
+Z80XArithmeticLogicUnit "1" --|> "many" Instruction
+ControlUnit *-- RegisterBank
+RegisterBank -- Z80XArithmeticLogicUnit
+ControlUnit o-- ClockSource
+ControlUnit o-- ArithmeticLogicUnit
+ControlUnit o-- MemoryController
+PagedMemoryController "1" --|> "many" Memory
+Z80X *-- Z80XArithmeticLogicUnit
+Z80X *-- Clock
+Z80X *-- PagedMemoryController
+Z80X *-- ControlUnit
+@enduml

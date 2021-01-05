@@ -1,306 +1,458 @@
 #include "ArithmeticLogicUnit.h"
 
-#include <iostream>
-
 using namespace std;
+using namespace gbx::interfaces;
 
 namespace gbx
 {
-
-ArithmeticLogicUnit::ArithmeticLogicUnit()
-    : _registers(make_shared<RegisterBank>())
-    , _preOpcode(nullopt)
-    , _currentAddressingMode(make_shared<AddressingModeFormat>(AddressingModeTemplate::NoAddressingMode))
+void ArithmeticLogicUnit::Decode(uint8_t opcode, std::optional<uint8_t> preOpcode)
 {
-    InitializeRegisters();
+    if (preOpcode.has_value() && (preOpcode.value() == InstructionConstants::PreOpcode_DD || preOpcode.value() == InstructionConstants::PreOpcode_FD))
+    {
+        
+        if (OpcodePatternMatcher::Match(opcode, // 01XX X110
+            OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_X, b::_X, b::_X, b::_1, b::_1, b::_0)))
+            DecodeRegisterIndexedSource(opcode, preOpcode.value());
+        else if (OpcodePatternMatcher::Match(opcode, // 0111 0XXX
+                 OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_1, b::_1, b::_0, b::_X, b::_X, b::_X)))
+            DecodeRegisterIndexedDestination(opcode, preOpcode.value());
+        else 
+            throw InstructionException("invalid opcode variant of instruction 'ld'");
+    }
+    else
+    {
+        if (OpcodePatternMatcher::Match(opcode, // 00XX 0001
+            OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_0, b::_0, b::_0, b::_1)))
+            DecodeRegisterImmediatePair(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 0011 0110
+            OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_1, b::_0, b::_1, b::_1, b::_0)))
+            DecodeImmediateRegisterIndirect();
+        else if (OpcodePatternMatcher::Match(opcode, // 001X 1010
+            OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_X, b::_1, b::_0, b::_1, b::_0)))
+            DecodeRegisterIndirectSourceIncrementDecrement(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 001X 0010
+            OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_X, b::_0, b::_0, b::_1, b::_0)))
+            DecodeRegisterIndirectDestinationIncrementDecrement(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 00XX X110
+            OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_X, b::_1, b::_1, b::_0)))
+            DecodeImmediateOperand(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 000X 1010
+                 OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_X, b::_1, b::_0, b::_1, b::_0)))
+            DecodeRegisterIndirectOperandSourceBCDE(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 000X 0010
+                 OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_X, b::_0, b::_0, b::_1, b::_0)))
+            DecodeRegisterIndirectOperandDestinationBCDE(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 1000 0XXX
+                 OpcodePatternMatcher::Pattern(b::_1, b::_0, b::_0, b::_0, b::_0, b::_X, b::_X, b::_X)))
+            DecodeAddRegisterMode(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 0111 0XXX
+                 OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_1, b::_1, b::_0, b::_X, b::_X, b::_X)))
+            DecodeRegisterIndirectOperandDestinationHL(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 111X 0010
+                 OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_1, b::_X, b::_0, b::_0, b::_1, b::_0)))
+            DecodeRegisterImplicitOperand(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 111X 0000
+                 OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_1, b::_X, b::_0, b::_0, b::_0, b::_0)))
+            DecodeImmediateImplicitOperand(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 111X 1010
+                 OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_1, b::_X, b::_1, b::_0, b::_1, b::_0)))
+            DecodeExtendedOperand(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 1111 1001
+                 OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_1, b::_1, b::_1, b::_0, b::_0, b::_1)))
+            DecodeRegisterPairRegisterPairOperand();
+        else if (OpcodePatternMatcher::Match(opcode, // 01XX X110
+                 OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_X, b::_X, b::_X, b::_1, b::_1, b::_0)))
+            DecodeRegisterIndirectOperandSourceHL(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 01XX XXXX
+                 OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_X, b::_X, b::_X, b::_X, b::_X, b::_X)))
+            DecodeRegisterRegisterOperand(opcode);
+        else 
+            throw InstructionException("invalid opcode variant of instruction 'ld'");
+    }
 }
 
-void ArithmeticLogicUnit::Initialize(shared_ptr<MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::Execute(std::shared_ptr<RegisterBank> registerBank)
 {
-    _memoryController = memoryController;
+    if (InstructionData == nullopt)
+        throw InstructionException("attempted to execute a not-decoded instruction");
+
+    if (InstructionData.value().Opcode == OpcodeType::ld)
+    {
+        if (auto currentAddressingMode = InstructionData.value().AddressingMode;
+            InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::Immediate, 
+                                                                        AddressingMode::RegisterIndirectSource,
+                                                                        AddressingMode::RegisterIndirectSourceDecrement,
+                                                                        AddressingMode::RegisterIndirectSourceIncrement,
+                                                                        AddressingMode::RegisterImplicitSource))
+            ExecuteMemoryBasedSource(registerBank);
+        else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::ImmediatePair))
+            ExecuteMemoryBaseSourceOnPair(registerBank);
+        else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::RegisterIndexedSource,
+                                                                            AddressingMode::ImmediateImplicitSource))
+            ExecuteTwoOperandsMemoryBaseSource(registerBank);
+        else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::Register))
+            ExecuteRegisterSourceOrDestination(registerBank);
+        else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::RegisterIndirectDestination, 
+                                                                            AddressingMode::RegisterIndexedDestination, 
+                                                                            AddressingMode::ExtendedDestination, 
+                                                                            AddressingMode::RegisterIndirectDestinationDecrement,
+                                                                            AddressingMode::RegisterIndirectDestinationIncrement,
+                                                                            AddressingMode::RegisterImplicitDestination,
+                                                                            AddressingMode::ImmediateImplicitDestination))
+            ExecuteMemoryBasedDestination(registerBank);
+        else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::ExtendedSource))
+            ExecuteExtendedSource(registerBank);
+        else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::ImmediateRegisterIndirect))
+            ExecuteImediateRegisterIndirect();
+        else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::RegisterPair))
+            ExecuteRegisterPairAddressingMode(registerBank);
+    }
+    else if (InstructionData.value().Opcode == OpcodeType::add)
+    {
+        ExecuteAdd(registerBank);
+    }
+        
 }
 
-void ArithmeticLogicUnit::RunCycle()
+inline void ArithmeticLogicUnit::ExecuteAdd(std::shared_ptr<RegisterBank> registerBank)
 {
-    // 1 Fetch
-    Fetch();
+    auto sourceValue = registerBank->Read(InstructionData.value().SourceRegister);
+    auto destinationValue = registerBank->Read(InstructionData.value().DestinationRegister);
+    uint8_t result = sourceValue + destinationValue;
+    registerBank->Write(InstructionData.value().DestinationRegister, result);
+}
 
-    // 1.1 Fetch Real Opcode
-    if (_preOpcode != nullopt)
-        FetchAgain();
+inline void ArithmeticLogicUnit::ExecuteRegisterPairAddressingMode(std::shared_ptr<RegisterBank> registerBank)
+{
+    auto value = registerBank->ReadPair(InstructionData.value().SourceRegister);
+    registerBank->WritePair(InstructionData.value().DestinationRegister, value);
+}
 
-    // 2 Decode Instruction
-    Decode();
+inline void ArithmeticLogicUnit::ExecuteMemoryBasedSource(std::shared_ptr<RegisterBank> registerBank)
+{
+    registerBank->Write(InstructionData.value().DestinationRegister, InstructionData.value().MemoryOperand1);
+}
 
-    // 2.1 Acquire Operand 1 or displacement
-    if (_currentAddressingMode->acquireOperand1)
-        AcquireOperand1();
+inline void ArithmeticLogicUnit::ExecuteMemoryBaseSourceOnPair(std::shared_ptr<RegisterBank> registerBank)
+{
+    registerBank->WritePair(InstructionData.value().DestinationRegister, InstructionData.value().MemoryOperand1 | InstructionData.value().MemoryOperand2 << 8);
+}
+
+inline void ArithmeticLogicUnit::ExecuteTwoOperandsMemoryBaseSource(std::shared_ptr<RegisterBank> registerBank)
+{
+    registerBank->Write(InstructionData.value().DestinationRegister, InstructionData.value().MemoryOperand2);
+}
+
+inline void ArithmeticLogicUnit::ExecuteRegisterSourceOrDestination(std::shared_ptr<RegisterBank> registerBank)
+{
+    auto currentSourceValue = registerBank->Read(InstructionData.value().SourceRegister);
+    registerBank->Write(InstructionData.value().DestinationRegister, currentSourceValue);
+}
+
+inline void ArithmeticLogicUnit::ExecuteMemoryBasedDestination(std::shared_ptr<RegisterBank> registerBank)
+{
+    auto currentSourceValue = registerBank->Read(InstructionData.value().SourceRegister);
+    InstructionData.value().MemoryResult1 = currentSourceValue;
+}
+
+inline void ArithmeticLogicUnit::ExecuteExtendedSource(std::shared_ptr<RegisterBank> registerBank)
+{
+    registerBank->Write(InstructionData.value().DestinationRegister, InstructionData.value().MemoryOperand3);
+}
+
+inline void ArithmeticLogicUnit::ExecuteImediateRegisterIndirect()
+{
+    InstructionData.value().MemoryResult1 = InstructionData.value().MemoryOperand1;
+}
+
+inline void ArithmeticLogicUnit::DecodeImmediateOperand(uint8_t opcode)
+{
+    auto destination = RegisterBank::FromInstructionDestination((opcode >> 3) & 0x07);
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                            AddressingMode::Immediate, 
+                                                            0x00,
+                                                            0x00, 
+                                                            0x00,
+                                                            Register::NoRegiser, 
+                                                            destination,
+                                                            0x00});
+}
+
+inline void ArithmeticLogicUnit::DecodeRegisterIndirectOperandSourceBCDE(uint8_t opcode)
+{
+    auto source = ((opcode >> 3) & 0x07) == 0x01? Register::BC : Register::DE;
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                            AddressingMode::RegisterIndirectSource, 
+                                                            0x00,
+                                                            0x00,
+                                                            0x00, 
+                                                            source, 
+                                                            Register::A,
+                                                            0x00});
+}
+
+inline void ArithmeticLogicUnit::DecodeRegisterIndirectOperandSourceHL(uint8_t opcode)
+{
+    auto destination = RegisterBank::FromInstructionDestination((opcode >> 3) & 0x07);
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                            AddressingMode::RegisterIndirectSource, 
+                                                            0x00,
+                                                            0x00,
+                                                            0x00, 
+                                                            Register::HL, 
+                                                            destination,
+                                                            0x00});
+}
+
+inline void ArithmeticLogicUnit::DecodeRegisterIndirectOperandDestinationHL(uint8_t opcode)
+{
+    auto source = RegisterBank::FromInstructionSource(opcode & 0x07);
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                            AddressingMode::RegisterIndirectDestination, 
+                                                            0x00,
+                                                            0x00,
+                                                            0x00, 
+                                                            source, 
+                                                            Register::HL,
+                                                            0x00});
+}
+
+inline void ArithmeticLogicUnit::DecodeRegisterRegisterOperand(uint8_t opcode)
+{
+    auto destination = RegisterBank::FromInstructionDestination((opcode >> 3) & 0x07);
+    auto source = RegisterBank::FromInstructionSource((opcode) & 0x07); 
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                            AddressingMode::Register, 
+                                                            0x00,
+                                                            0x00,
+                                                            0x00, 
+                                                            source, 
+                                                            destination,
+                                                            0x00}); 
+}
+
+inline void ArithmeticLogicUnit::DecodeRegisterIndirectOperandDestinationBCDE(uint8_t opcode)
+{
+    auto destination = ((opcode >> 4) & 0x0F) == 0x01? Register::DE : Register::BC;
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                            AddressingMode::RegisterIndirectDestination, 
+                                                            0x00,
+                                                            0x00,
+                                                            0x00, 
+                                                            Register::A, 
+                                                            destination,
+                                                            0x00});
+}
+
+inline void ArithmeticLogicUnit::DecodeRegisterIndexedSource(uint8_t opcode, uint8_t preOpcode)
+{
+    auto destination = RegisterBank::FromInstructionDestination((opcode >> 3) & 0x07);
+    auto indexRegister = preOpcode == 0xDD ? Register::IX : Register::IY;
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                            AddressingMode::RegisterIndexedSource, 
+                                                            0x00,
+                                                            0x00,
+                                                            0x00, 
+                                                            indexRegister, 
+                                                            destination,
+                                                            0x00});
+}
+
+inline void ArithmeticLogicUnit::DecodeRegisterIndexedDestination(uint8_t opcode, uint8_t preOpcode)
+{
+    auto source = RegisterBank::FromInstructionSource(opcode & 0x07);
+    auto indexRegister = preOpcode == 0xDD ? Register::IX : Register::IY;
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterIndexedDestination, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         source, 
+                                                         indexRegister,
+                                                         0x00});
+}
+
+inline void ArithmeticLogicUnit::DecodeExtendedOperand(uint8_t opcode)
+{
+    if (opcode == 0xFA)
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::ExtendedSource, 
+                                                         0x00,
+                                                         0x00,
+                                                         0x00, 
+                                                         Register::NoRegiser, 
+                                                         Register::A,
+                                                         0x00});
+    }
+    else
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::ExtendedDestination, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::A,
+                                                         Register::NoRegiser, 
+                                                         0x00});
+    }
+}
+
+inline void ArithmeticLogicUnit::DecodeImmediateRegisterIndirect()
+{
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::ImmediateRegisterIndirect, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::NoRegiser, 
+                                                         Register::HL,
+                                                         0x00});
+}
+
+inline void ArithmeticLogicUnit::DecodeRegisterIndirectSourceIncrementDecrement(uint8_t opcode)
+{
+    if (opcode == 0x2A)
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterIndirectSourceIncrement, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::HL, 
+                                                         Register::A,
+                                                         0x00});
+    }
+    else
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterIndirectSourceDecrement, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::HL, 
+                                                         Register::A,
+                                                         0x00});
+    }
     
-    // 2.2 Acquire Operand 2 or Operand from address + displacement or MSByte of 
-    if (_currentAddressingMode->acquireOperand2)
-        AcquireOperand2();
-
-    // 2.3 Acquire Operand 3 (extended source) 
-    if (_currentAddressingMode->acquireOperand3)
-        AcquireOperand3();
-
-    // 3 Execute
-    Execute();
-
-    // 4 WriteBack
-    if (_currentAddressingMode->writeBack)
-        WriteBack();
 }
 
-inline void ArithmeticLogicUnit::Fetch()
+inline void ArithmeticLogicUnit::DecodeRegisterIndirectDestinationIncrementDecrement(uint8_t opcode)
 {
-    auto instruction = ReadAtRegister(Register::PC);
-    IncrementPC();
-
-    if (instruction == 0xDD || instruction == 0xFD)
-        CompletePreOpcodeFetch(instruction);
-    else
-        CompleteFetchPC(instruction);
-}
-
-inline void ArithmeticLogicUnit::FetchAgain()
-{
-    auto instruction = ReadAtRegister(Register::PC);
-    IncrementPC();
-    CompleteFetchPC(instruction);
-}
-
-inline void ArithmeticLogicUnit::Decode()
-{
-    DecodeInstruction();
-    AcquireAddressingMode();
-}
-
-inline void ArithmeticLogicUnit::AcquireOperand1()
-{
-    if (_currentAddressingMode->acquireOperand1FromPc)
-        ReadOperand1AtPC();
-    else if (_currentAddressingMode->acquireOperand1Directly)
-        ReadOperand1AtRegister();
-    else if (_currentAddressingMode->acquireOperand1Implicitly)
-        ReadOperand1Implicitly();
-}
-
-inline void ArithmeticLogicUnit::AcquireOperand2()
-{
-    if (_currentAddressingMode->acquireOperand2FromPc)
-        ReadOperand2AtPC();
-    else if (_currentAddressingMode->acquireOperand2AtComposedAddress)
-        ReadOperand2AtComposedAddress();
-    else if (_currentAddressingMode->acquireOperand2Implicitly)
-        ReadOperand2Implicitly();
-}
-
-inline void ArithmeticLogicUnit::AcquireOperand3()
-{
-    auto operandLocation = static_cast<uint16_t>(_currentInstruction->InstructionData.value().MemoryOperand1 | _currentInstruction->InstructionData.value().MemoryOperand2 << 8);
-    _currentInstruction->InstructionData.value().MemoryOperand3 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
-}
-
-inline void ArithmeticLogicUnit::Execute()
-{
-    ExecuteInstruction();
-}
-
-inline void ArithmeticLogicUnit::WriteBack()
-{
-    WriteBackResults();
-}
-
-inline void ArithmeticLogicUnit::InitializeRegisters()
-{
-    _registers->Write(Register::IR, 0x00);
-    _registers->WritePair(Register::PC, 0x0000);
-    _registers->Write(Register::F, 0x00);
-}
-
-inline uint8_t ArithmeticLogicUnit::ReadAtRegister(Register reg)
-{
-    auto registerContent = _registers->ReadPair(reg);
-    return get<uint8_t>(_memoryController->Read(registerContent, MemoryAccessType::Byte));
-}
-
-inline void ArithmeticLogicUnit::IncrementPC()
-{
-    auto programCounter = _registers->ReadPair(Register::PC);
-    _registers->WritePair(Register::PC, programCounter + 1);
-}
-
-inline void ArithmeticLogicUnit::CompleteFetchPC(uint8_t instruction)
-{
-    _registers->Write(Register::IR, instruction);
-}
-
-inline void ArithmeticLogicUnit::CompletePreOpcodeFetch(uint8_t preOpcode)
-{
-    _preOpcode = preOpcode;
-}
-
-inline void ArithmeticLogicUnit::DecodeInstruction()
-{
-    auto opcode = _registers->Read(Register::IR);
-    InstantiateInstruction(opcode);
-    _preOpcode = nullopt;
-}
-
-inline void ArithmeticLogicUnit::InstantiateInstruction(uint8_t opcode)
-{
-    auto prefix = (opcode >> 6);
-
-    // Improve this
-    if (prefix == 0x01 || prefix == 0x00 || prefix == 0x03)
+    if (opcode == 0x22)
     {
-        _currentInstruction = make_unique<LD>();
-        _currentInstruction->Decode(opcode, _preOpcode);
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterIndirectDestinationIncrement, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::A, 
+                                                         Register::HL,
+                                                         0x00});
     }
     else
     {
-        stringstream ss;
-        throw ArithmeticLogicUnitException(ss.str());
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterIndirectDestinationDecrement, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::A, 
+                                                         Register::HL,
+                                                         0x00});
     }
+    
 }
 
-inline void ArithmeticLogicUnit::AcquireAddressingMode()
+inline void ArithmeticLogicUnit::DecodeRegisterImplicitOperand(uint8_t opcode)
 {
-    switch (_currentInstruction->InstructionData.value().AddressingMode)
+    if (opcode == 0xF2)
     {
-        case AddressingMode::Register: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::RegisterAddressingMode); break;
-        case AddressingMode::Immediate: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImmediateAddressingMode); break;
-        case AddressingMode::RegisterIndexedSource: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::RegisterIndexedSourceAddressingMode); break;
-        case AddressingMode::RegisterIndexedDestination: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::RegisterIndexedDestinationAddressingMode); break;
-        case AddressingMode::RegisterIndirectSource: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::RegisterIndirectSourceAddressingMode); break;
-        case AddressingMode::RegisterIndirectDestination: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::RegisterIndirectDestinationAddressingMode); break;
-        case AddressingMode::ExtendedSource: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::RegisterExtendedSourceAddressingMode); break;
-        case AddressingMode::ExtendedDestination: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::RegisterExtendedDestinationAddressingMode); break;
-        case AddressingMode::ImmediateRegisterIndirect: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImmediateRegisterIndirectAddressingMode); break;
-        case AddressingMode::RegisterIndirectSourceIncrement: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImmediateRegisterIndirectSourceIncrementAddressingMode); break;
-        case AddressingMode::RegisterIndirectSourceDecrement: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImmediateRegisterIndirectSourceDecrementAddressingMode); break;
-        case AddressingMode::RegisterIndirectDestinationIncrement: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImmediateRegisterIndirectDestinationIncrementAddressingMode); break;
-        case AddressingMode::RegisterIndirectDestinationDecrement: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImmediateRegisterIndirectDestinationDecrementAddressingMode); break;
-        case AddressingMode::RegisterImplicitSource: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImplicitRegisterSourceAddressingMode); break;
-        case AddressingMode::RegisterImplicitDestination: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImplicitRegisterDestinationAddressingMode); break;
-        case AddressingMode::ImmediateImplicitSource: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImplicitImmediateSourceAddressingMode); break;
-        case AddressingMode::ImmediateImplicitDestination: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImplicitImmediateDestinationAddressingMode); break;
-        case AddressingMode::ImmediatePair: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImmediatePairAddressingMode); break;
-        default:
-            throw ArithmeticLogicUnitException("invalid addressing mode");
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterImplicitSource, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::C, 
+                                                         Register::A,
+                                                         0x00});
+    }
+    else
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterImplicitDestination, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::A, 
+                                                         Register::C,
+                                                         0x00});
+    }
+    
+}
+
+inline void ArithmeticLogicUnit::DecodeImmediateImplicitOperand(uint8_t opcode)
+{
+    if (opcode == 0xF0)
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::ImmediateImplicitSource, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::NoRegiser, 
+                                                         Register::A,
+                                                         0x00});
+    }
+    else
+    {
+        InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::ImmediateImplicitDestination, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::A, 
+                                                         Register::NoRegiser,
+                                                         0x00});
     }
 }
 
-inline void ArithmeticLogicUnit::ReadOperand1AtPC()
+inline void ArithmeticLogicUnit::DecodeRegisterImmediatePair(uint8_t opcode)
 {
-    _currentInstruction->InstructionData.value().MemoryOperand1 = ReadAtRegister(Register::PC);
-    IncrementPC();
+    auto destination = RegisterBank::FromInstructionToPair((opcode >> 4) & 0x3);
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::ImmediatePair, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::NoRegiser, 
+                                                         destination,
+                                                         0x00});
 }
 
-inline void ArithmeticLogicUnit::ReadOperand1AtRegister()
+inline void ArithmeticLogicUnit::DecodeRegisterPairRegisterPairOperand()
 {
-    _currentInstruction->InstructionData.value().MemoryOperand1 = ReadAtRegister(_currentInstruction->InstructionData.value().SourceRegister);
-
-    if (_currentAddressingMode->incrementSource)
-        IncrementRegisterPair(_currentInstruction->InstructionData.value().SourceRegister);
-    else if (_currentAddressingMode->decrementSource)
-        DecrementRegisterPair(_currentInstruction->InstructionData.value().SourceRegister);
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::ld, 
+                                                         AddressingMode::RegisterPair, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::HL, 
+                                                         Register::SP,
+                                                         0x00});
 }
 
-inline void ArithmeticLogicUnit::ReadOperand1Implicitly()
+inline void ArithmeticLogicUnit::DecodeAddRegisterMode(uint8_t opcode)
 {
-    auto operandLocation = static_cast<uint16_t>(0xFF << 8 | _registers->Read(_currentInstruction->InstructionData.value().SourceRegister));
-    _currentInstruction->InstructionData.value().MemoryOperand1 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
-}
-
-inline void ArithmeticLogicUnit::ReadOperand2AtPC()
-{
-    _currentInstruction->InstructionData.value().MemoryOperand2 = ReadAtRegister(Register::PC);
-    IncrementPC();
-}
-
-inline void ArithmeticLogicUnit::ReadOperand2AtComposedAddress()
-{
-    auto operandLocation = static_cast<uint16_t>(static_cast<int8_t>(_currentInstruction->InstructionData.value().MemoryOperand1) + _registers->ReadPair(_currentInstruction->InstructionData.value().SourceRegister));
-    _currentInstruction->InstructionData.value().MemoryOperand2 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
-}
-
-inline void ArithmeticLogicUnit::ReadOperand2Implicitly()
-{
-    auto operandLocation = static_cast<uint16_t>(0xFF << 8 | _currentInstruction->InstructionData.value().MemoryOperand1);
-    _currentInstruction->InstructionData.value().MemoryOperand2 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
-}
-
-inline void ArithmeticLogicUnit::ExecuteInstruction()
-{
-    _currentInstruction->Execute(_registers);
-}
-
-inline void ArithmeticLogicUnit::WriteBackResults()
-{
-    if (_currentAddressingMode->writeBackAtOperandAddress)
-        WriteBackAtOperandAddress();
-    else if (_currentAddressingMode->writeBackAtRegisterAddress)
-        WriteBackAtRegisterAddress();
-    else if (_currentAddressingMode->writeBackAtComposedOperandAddress)
-        WriteBackAtComposedAddress();
-    else if (_currentAddressingMode->writeBackAtImplicitlyWithRegister)
-        WriteBackAtImplicitRegisterAddress();
-    else if (_currentAddressingMode->writeBackAtImplicitlyWithImmediateOperand)
-        WriteBackAtImplicitImmediateAddress();
-}
-
-inline void ArithmeticLogicUnit::WriteBackAtOperandAddress()
-{
-    auto resultContent = _currentInstruction->InstructionData.value().MemoryResult1;
-    auto resultAddress = static_cast<uint16_t>(static_cast<int8_t>(_currentInstruction->InstructionData.value().MemoryOperand1) + _registers->ReadPair(_currentInstruction->InstructionData.value().DestinationRegister));
-    _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
-}
-
-inline void ArithmeticLogicUnit::WriteBackAtRegisterAddress()
-{
-    auto resultContent = _currentInstruction->InstructionData.value().MemoryResult1;
-    auto resultAddress = _registers->ReadPair(_currentInstruction->InstructionData.value().DestinationRegister);
-    _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
-
-     if (_currentAddressingMode->incrementDestination)
-        IncrementRegisterPair(_currentInstruction->InstructionData.value().DestinationRegister);
-    else if (_currentAddressingMode->decrementDestination)
-        DecrementRegisterPair(_currentInstruction->InstructionData.value().DestinationRegister);
-}
-
-inline void ArithmeticLogicUnit::WriteBackAtComposedAddress()
-{
-    auto resultContent = _currentInstruction->InstructionData.value().MemoryResult1;
-    auto resultAddress = static_cast<uint16_t>(_currentInstruction->InstructionData.value().MemoryOperand1 | _currentInstruction->InstructionData.value().MemoryOperand2 << 8);
-    _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
-}
-
-inline void ArithmeticLogicUnit::WriteBackAtImplicitRegisterAddress()
-{
-    auto resultContent = _currentInstruction->InstructionData.value().MemoryResult1;
-    auto resultAddress = static_cast<uint16_t>(0xFF << 8 | _registers->Read(_currentInstruction->InstructionData.value().DestinationRegister));
-    _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
-}
-
-inline void ArithmeticLogicUnit::WriteBackAtImplicitImmediateAddress()
-{
-    volatile auto resultContent = _registers->Read(_currentInstruction->InstructionData.value().SourceRegister);
-    volatile auto resultAddress = static_cast<uint16_t>(0xFF << 8 | _currentInstruction->InstructionData.value().MemoryOperand1);
-    _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
-}
-
-inline void ArithmeticLogicUnit::IncrementRegisterPair(Register reg)
-{
-    auto currentValue = _registers->ReadPair(reg);
-    _registers->WritePair(reg, currentValue + 1);
-}
-
-inline void ArithmeticLogicUnit::DecrementRegisterPair(Register reg)
-{
-    auto currentValue = _registers->ReadPair(reg);
-    _registers->WritePair(reg, currentValue - 1);
+    auto source = RegisterBank::FromInstructionSource(opcode & 0x07);
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::add, 
+                                                         AddressingMode::Register, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         source, 
+                                                         Register::A,
+                                                         0x00});
 }
 
 }

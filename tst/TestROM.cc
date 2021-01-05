@@ -8,9 +8,11 @@
 
 #include "../src/GBXExceptions.h"
 #include "../src/ROM.h"
+#include "../src/interfaces/MemoryControllerInterface.h"
 
 using namespace std;
 using namespace gbx;
+using namespace gbx::interfaces;
 
 TEST(TestROM, Construction) 
 {

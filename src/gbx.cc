@@ -3,7 +3,7 @@
 
 #include "Version.h"
 #include "Logger.h"
-#include "CPU.h"
+#include "GameBoyX.h"
 
 using namespace std;
 using namespace gbx;
@@ -14,7 +14,6 @@ int main ()
     message << "GAME BOY X Emulator " << SystemVersion();
     Log::LogLn(message.str().c_str());
 
-    auto cpu = make_shared<CPU>();
-    cpu->Initialize();
-    cpu->Run(100);
+    auto gbx = make_unique<GameBoyX>();
+    gbx->Run();
 }

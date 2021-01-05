@@ -1,536 +1,812 @@
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
-#include <cmath>
-#include <thread>
-#include <variant>
-
+#include <algorithm>
 #include <memory>
+#include <optional>
+#include <random>
+#include <vector>
 
-#include "../src/ArithmeticLogicUnit.h"
-#include "../src/MemoryControllerInterface.h"
+#include <iostream>
+
 #include "../src/MemoryController.h"
 #include "../src/RegisterBank.h"
+#include "../src/ArithmeticLogicUnit.h"
+#include "../src/instructions/Opcodes.h"
 
 using namespace std;
 using namespace gbx;
-using ::testing::Return;
 
-uint8_t ImmediateOpcode(Register source)
+uint8_t BinaryRegisterAddressingMode(Register source, Register destination)
+{
+    return RegisterBank::ToInstructionSource(source) | 
+           RegisterBank::ToInstructionDestination(destination) << 3 |
+           0x01 << 6;
+}
+
+uint8_t BinaryImmediateAddressingMode(Register destination)
+{
+    return 0x06 | 
+           RegisterBank::ToInstructionDestination(destination) << 3 |
+           0x00 << 6;
+}
+
+uint8_t BinaryRegisterIndirectAsSourceAddressingMode(Register destination)
+{
+    return 0x06 | 
+           RegisterBank::ToInstructionDestination(destination) << 3 |
+           0x01 << 6;
+}
+
+uint8_t BinaryRegisterIndirectAsDestinationAddressingMode(Register source)
+{
+    return RegisterBank::ToInstructionSource(source) | 
+           0x06 << 3 |
+           0x01 << 6;
+}
+
+uint8_t BinaryRegisterIndexedSourceAddressingMode(Register destination)
+{
+    return 0x06 | 
+           RegisterBank::ToInstructionDestination(destination) << 3 | 
+           0x01 << 6;
+}
+
+uint8_t BinaryRegisterIndexedDestinationAddressingMode(Register source)
+{
+    return RegisterBank::ToInstructionSource(source) | 
+           (0x07 << 4);
+}
+
+uint8_t BinaryImmediateRegisterPair(Register source)
 {
     return RegisterBank::ToInstructionRegisterPair(source) << 4 | 0x01;
 }
 
-class ALUWrapperForTests : public ArithmeticLogicUnit
+TEST(TestALU, ExecuteUndecodedInstruction)
 {
-public:
-    shared_ptr<RegisterBank> GetRegisterBank()
+    auto registerBank = make_shared<RegisterBank>();
+    auto testPassed = false;
+
+    try
     {
-        return this->_registers;
+        ArithmeticLogicUnit alu;
+        alu.Execute(registerBank);
     }
-};
+    catch (const InstructionException& e)
+    {
+        testPassed = true;
+    }
 
-class MemoryControllerMock : public MemoryControllerInterface
-{
-public:
-    virtual ~MemoryControllerMock() = default;
-    MOCK_METHOD((std::variant<uint8_t, uint16_t>), Read, (uint16_t a, MemoryAccessType b));
-    MOCK_METHOD(void, Write, ((std::variant<uint8_t, uint16_t>), uint16_t));
-    MOCK_METHOD(void, Load, ((std::shared_ptr<uint8_t*>), size_t, uint16_t, (std::optional<size_t>)));
-    MOCK_METHOD(void, RegisterMemoryResource, ((std::shared_ptr<Memory>), AddressRange));
-    MOCK_METHOD(void, UnregisterMemoryResource, ((std::shared_ptr<Memory>)));
-};
-
-TEST(TestArithmeticLogicUnit, FetchPCMessage)
-{
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
-
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x47)));
-    
-    alu->RunCycle();
-
-    auto instructionRegister = alu->GetRegisterBank()->Read(Register::IR);
-    auto programCounter = alu->GetRegisterBank()->ReadPair(Register::PC);
-
-    EXPECT_EQ(0x47, instructionRegister);
-    EXPECT_EQ(0x0001, programCounter);
+    EXPECT_TRUE(testPassed);
 }
-
-TEST(TestArithmeticLogicUnit, TestExecutingUnknownInstructions)
-{
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
-
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x00)));
-    EXPECT_THROW(alu->RunCycle(), InstructionException);
-}
-
-TEST(TestArithmeticLogicUnit, TestAcquireSingleImmediateOperand)
-{
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
-    
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // The returned operation bytes will be 0x26 0xAA which translates to LD H, 0xAA (load H immediate with 0xAA)
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x26)));
-    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xAA)));
-    
-    alu->RunCycle();
-
-    // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0xAA, alu->GetRegisterBank()->Read(Register::H));
-}
-
-TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectOperand)
-{
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
-
-    // Initialize HL
-    alu->GetRegisterBank()->WritePair(Register::HL, 0xAABB);
-    
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // The returned operation bytes will be OPCODE: 0x7E  (HL): 0xCC where HL holds address 0xAABB
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x7E)));
-    EXPECT_CALL((*mockPointer), Read(0xAABB, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xCC)));
    
-    alu->RunCycle();
 
-    // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0xCC, alu->GetRegisterBank()->Read(Register::A));
-}
-
-TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectBCOperand)
+TEST(TestALU, DecodeImmediateAddressingMode)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
-
-    // Initialize HL
-    alu->GetRegisterBank()->WritePair(Register::BC, 0x1234);
-
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // The returned operation bytes will be OPCODE: 0x0A  (BC): 0xDD where BC holds address 0x1234
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x0A)));
-    EXPECT_CALL((*mockPointer), Read(0x1234, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xDD)));
+    auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     
-    alu->RunCycle();
+    for (auto destination : destinationsList)
+    {
+        ArithmeticLogicUnit alu;
+        auto rawBinary = BinaryImmediateAddressingMode(destination);
+        alu.Decode(rawBinary, nullopt);
 
-    // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0xDD, alu->GetRegisterBank()->Read(Register::A));
+        EXPECT_NE(nullopt, alu.InstructionData);
+        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+        EXPECT_EQ(AddressingMode::Immediate, alu.InstructionData.value().AddressingMode);
+        EXPECT_EQ(Register::NoRegiser, alu.InstructionData.value().SourceRegister);
+        EXPECT_EQ(destination, alu.InstructionData.value().DestinationRegister);
+    }
 }
 
-TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDEOperand)
+TEST(TestALU, DecodingRegisterAddressingMode)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+    auto sourcesList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
+    auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
 
-    // Initialize HL
-    alu->GetRegisterBank()->WritePair(Register::DE, 0x6789);
+    for (auto source : sourcesList)
+    for (auto destination : destinationsList)
+    {
+        ArithmeticLogicUnit alu;
+        auto rawBinary = BinaryRegisterAddressingMode(source, destination);
+        alu.Decode(rawBinary, nullopt);
 
-     // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // The returned operation bytes will be OPCODE: 0x0A  (BC): 0xDD where BC holds address 0x1234
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x1A)));
-    EXPECT_CALL((*mockPointer), Read(0x6789, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x22)));
+        EXPECT_NE(nullopt, alu.InstructionData);
+        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+        EXPECT_EQ(AddressingMode::Register, alu.InstructionData.value().AddressingMode);
+        EXPECT_EQ(source, alu.InstructionData.value().SourceRegister);
+        EXPECT_EQ(destination, alu.InstructionData.value().DestinationRegister);
+    }
+
+    for (auto destination : destinationsList)
+    {
+        ArithmeticLogicUnit alu;
+        constexpr auto opcode = 0x01 << 6;
+        constexpr auto forbiddenSourceRegister = (0x06);
+        auto bin = forbiddenSourceRegister | RegisterBank::ToInstructionDestination(destination) << 3 | opcode;
+
+        alu.Decode(bin, nullopt);
+        // using 0x06 as source will lead to register indirect (thus using (HL));
+        EXPECT_EQ(AddressingMode::RegisterIndirectSource, alu.InstructionData.value().AddressingMode);
+    }
+
+    for (auto source : sourcesList)
+    {
+        ArithmeticLogicUnit alu;
+        constexpr auto opcode = 0x01 << 6;
+        constexpr auto forbiddenDestinationRegister = (0x06 << 3);
+        auto bin = RegisterBank::ToInstructionSource(source) | forbiddenDestinationRegister | opcode;
+
+        alu.Decode(bin, nullopt);
+        
+        EXPECT_EQ(AddressingMode::RegisterIndirectDestination, alu.InstructionData.value().AddressingMode);
+    }
+}
+
+TEST(TestALU, DecodeRegisterIndirectAddressingMode)
+{
+    auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
+    auto rawBinary = static_cast<uint8_t>(0x00);
+    ArithmeticLogicUnit alu;
+
+    for (auto destination : destinationsList)
+    {
+        rawBinary = BinaryRegisterIndirectAsSourceAddressingMode(destination);
+        alu.Decode(rawBinary, nullopt);
+
+        EXPECT_NE(nullopt, alu.InstructionData);
+        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+        EXPECT_EQ(AddressingMode::RegisterIndirectSource, alu.InstructionData.value().AddressingMode);
+        EXPECT_EQ(Register::HL, alu.InstructionData.value().SourceRegister);
+        EXPECT_EQ(destination, alu.InstructionData.value().DestinationRegister);
+    }
+
+    // (BC) and (DE) as sources -> Only A is accepted as source
+    rawBinary = 0x0A; // Ld A, (BC)
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectSource, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::BC, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().DestinationRegister);
+
+    rawBinary = 0x1A; // Ld A, (DE)
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectSource, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::DE, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().DestinationRegister);
+
+    auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
+
+    for (auto source : sourceList)
+    {
+        rawBinary = BinaryRegisterIndirectAsDestinationAddressingMode(source);
+        alu.Decode(rawBinary, nullopt);
+
+        EXPECT_NE(nullopt, alu.InstructionData);
+        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+        EXPECT_EQ(AddressingMode::RegisterIndirectDestination, alu.InstructionData.value().AddressingMode);
+        EXPECT_EQ(source, alu.InstructionData.value().SourceRegister);
+        EXPECT_EQ(Register::HL, alu.InstructionData.value().DestinationRegister);
+    }
+
+    // (BC) and (DE) as sources -> Only A is accepted as source
+    rawBinary = 0x02; // Ld (BC), A
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectDestination, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::BC, alu.InstructionData.value().DestinationRegister);
+
+    rawBinary = 0x12; // Ld (DE), A
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectDestination, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::DE, alu.InstructionData.value().DestinationRegister);
+
+    const auto suffix = 0x06;
+    constexpr auto opcode = 0x01 << 6;
+    constexpr auto forbiddenDestinationRegister = (0x06 << 3);
+    auto forbiddenDestinationTestPassed = false;
+    auto incorrectDestinationBinary = suffix | forbiddenDestinationRegister | opcode;
+
+    try
+    {
+        ArithmeticLogicUnit alu;
+        alu.Decode(incorrectDestinationBinary, nullopt);
+    }
+    catch (const RegisterBankException& e)
+    {
+        forbiddenDestinationTestPassed = true;
+    }
+
+    EXPECT_TRUE(forbiddenDestinationTestPassed);
+}
+
+TEST(TestALU, DecodeRegisterIndexedAddressingMode)
+{
+    auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
+    auto preOpcode = static_cast<uint8_t>(0xDD);
+    ArithmeticLogicUnit alu;
+
+    for (auto destination : destinationsList)
+    {
+        auto rawBinary = BinaryRegisterIndexedSourceAddressingMode(destination);
+        alu.Decode(rawBinary, preOpcode);
+
+        EXPECT_NE(nullopt, alu.InstructionData);
+        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+        EXPECT_EQ(AddressingMode::RegisterIndexedSource, alu.InstructionData.value().AddressingMode);
+        EXPECT_EQ(Register::IX, alu.InstructionData.value().SourceRegister);
+        EXPECT_EQ(destination, alu.InstructionData.value().DestinationRegister);
+    }
+
+    preOpcode = static_cast<uint8_t>(0xFD);
+
+    for (auto destination : destinationsList)
+    {
+        auto rawBinary = BinaryRegisterIndexedSourceAddressingMode(destination);
+        alu.Decode(rawBinary, preOpcode);
+
+        EXPECT_NE(nullopt, alu.InstructionData);
+        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+        EXPECT_EQ(AddressingMode::RegisterIndexedSource, alu.InstructionData.value().AddressingMode);
+        EXPECT_EQ(Register::IY, alu.InstructionData.value().SourceRegister);
+        EXPECT_EQ(destination, alu.InstructionData.value().DestinationRegister);
+    }
+
+    auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
+
+    preOpcode = static_cast<uint8_t>(0xDD);
+    for (auto source : sourceList)
+    {
+        auto rawBinary = BinaryRegisterIndexedDestinationAddressingMode(source);
+        alu.Decode(rawBinary, preOpcode);
+
+        EXPECT_NE(nullopt, alu.InstructionData);
+        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+        EXPECT_EQ(AddressingMode::RegisterIndexedDestination, alu.InstructionData.value().AddressingMode);
+        EXPECT_EQ(source, alu.InstructionData.value().SourceRegister);
+        EXPECT_EQ(Register::IX, alu.InstructionData.value().DestinationRegister);
+    }
+
+    preOpcode = static_cast<uint8_t>(0xFD);
+    for (auto source : sourceList)
+    {
+        auto rawBinary = BinaryRegisterIndexedDestinationAddressingMode(source);
+        alu.Decode(rawBinary, preOpcode);
+
+        EXPECT_NE(nullopt, alu.InstructionData);
+        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+        EXPECT_EQ(AddressingMode::RegisterIndexedDestination, alu.InstructionData.value().AddressingMode);
+        EXPECT_EQ(source, alu.InstructionData.value().SourceRegister);
+        EXPECT_EQ(Register::IY, alu.InstructionData.value().DestinationRegister);
+    }
+}
+
+TEST(TestALU, DecodeExtendedAddressingMode)
+{
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0xFA;
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::ExtendedSource, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::NoRegiser, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().DestinationRegister);
+
+    rawBinary = 0xEA;
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::ExtendedDestination, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::NoRegiser, alu.InstructionData.value().DestinationRegister);
+}
+
+
+TEST(TestALU, DecodeImmediateRegisterIndirect)
+{
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0x36;
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::ImmediateRegisterIndirect, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::NoRegiser, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::HL, alu.InstructionData.value().DestinationRegister);
+}
+
+TEST(TestALU, DecodeRegisterIndirectSourceIncrementAndDecrement)
+{
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0x2A;
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectSourceIncrement, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::HL, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().DestinationRegister);
+
+    rawBinary = 0x3A;
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectSourceDecrement, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::HL, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().DestinationRegister);
+}
+
+TEST(TestALU, DecodeRegisterIndirectDestinationIncrementAndDecrement)
+{
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0x22;
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectDestinationIncrement, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::HL, alu.InstructionData.value().DestinationRegister);
+
+    rawBinary = 0x32;
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectDestinationDecrement, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::HL, alu.InstructionData.value().DestinationRegister);
+}
+
+TEST(TestALU, DecodeRegisterImplicitAddressingMode)
+{
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0xF2;
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterImplicitSource, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::C, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().DestinationRegister);
+
+    rawBinary = 0xE2;
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterImplicitDestination, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::C, alu.InstructionData.value().DestinationRegister);
+}
+
+TEST(TestALU, DecodeImmediateImplicitAddressingMode)
+{
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0xF0;
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::ImmediateImplicitSource, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::NoRegiser, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().DestinationRegister);
+
+    rawBinary = 0xE0;
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::ImmediateImplicitDestination, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::A, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::NoRegiser, alu.InstructionData.value().DestinationRegister);
+}
+
+TEST(TestALU, DecodeImmediateRegisterPairAddressingMode)
+{
+    auto destinationList = {Register::BC, 
+                            Register::DE, 
+                            Register::HL, 
+                            Register::SP};
+
+    for (auto destination : destinationList)
+    {
+        ArithmeticLogicUnit alu;
+        auto rawBinary = BinaryImmediateRegisterPair(destination);
+        alu.Decode(rawBinary, nullopt);
+
+        EXPECT_NE(nullopt, alu.InstructionData);
+        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+        EXPECT_EQ(AddressingMode::ImmediatePair, alu.InstructionData.value().AddressingMode);
+        EXPECT_EQ(Register::NoRegiser, alu.InstructionData.value().SourceRegister);
+        EXPECT_EQ(destination, alu.InstructionData.value().DestinationRegister);
+    }
+}
+
+TEST(TestALU, DecodeTransferToSP)
+{
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0xF9;
+    alu.Decode(rawBinary, nullopt);
+
+    EXPECT_NE(nullopt, alu.InstructionData);
+    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.value().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterPair, alu.InstructionData.value().AddressingMode);
+    EXPECT_EQ(Register::HL, alu.InstructionData.value().SourceRegister);
+    EXPECT_EQ(Register::SP, alu.InstructionData.value().DestinationRegister);
+}
+
+TEST(TestALU, DecodeAdd)
+{
+    ArithmeticLogicUnit alu;
+    auto binaryBase = 0x80;
+    auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
+
+    for (auto source : sourceList)
+    {
+        auto rawBinary = binaryBase | RegisterBank::ToInstructionSource(source);
+        alu.Decode(rawBinary, nullopt);
+
+        EXPECT_NE(nullopt, alu.InstructionData);
+        EXPECT_EQ(OpcodeType::add, alu.InstructionData.value().Opcode);
+        EXPECT_EQ(AddressingMode::Register, alu.InstructionData.value().AddressingMode);
+        EXPECT_EQ(source, alu.InstructionData.value().SourceRegister);
+        EXPECT_EQ(Register::A, alu.InstructionData.value().DestinationRegister);
+    }
+}
+
+TEST(TestALU, ExecuteImmediateAddressingMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+    auto memoryContent = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11};
+
+    auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     
-    alu->RunCycle();
+    for (auto i = static_cast<size_t>(0); i < destinationsList.size(); i++)
+    {
+        ArithmeticLogicUnit alu;
+        auto rawBinary = BinaryImmediateAddressingMode(*(begin(destinationsList) + i));
+        alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(0x22, alu->GetRegisterBank()->Read(Register::A));
+        // simulate ALU acquiring operand from memory.
+        alu.InstructionData.value().MemoryOperand1 = *(begin(memoryContent) + i);
+        
+        alu.Execute(registerBank);
+
+        EXPECT_EQ(*(begin(memoryContent) + i), registerBank->Read(*(begin(destinationsList) + i)));
+    }
 }
 
-TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestinationHL)
+TEST(TestALU, ExecuteRegisterAddressingMode)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+    auto registerBank = make_shared<RegisterBank>();
+    auto registersContent = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11};
 
-    // Initialize HL
-    alu->GetRegisterBank()->WritePair(Register::HL, 0xAABB);
-    alu->GetRegisterBank()->Write(Register::A, 0xCC);
-
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // Write A (0xCC) to the location pointed by HL (0xAABB);
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x77)));
-    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xCC)), static_cast<uint16_t>(0xAABB)));
+    auto sourcesList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
+    auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     
-    alu->RunCycle();
+    auto registerCounter = 0;
+    for (auto source : sourcesList)
+    {
+        auto sourceValue = *(begin(registersContent) + (registerCounter++));
+        registerBank->Write(source, sourceValue);
+        
+        for (auto destination : destinationsList)
+            if (destination != source)
+                registerBank->Write(destination, 0x00);
+
+        for (auto destination : destinationsList)
+        {
+            ArithmeticLogicUnit alu;
+            auto rawBinary = BinaryRegisterAddressingMode(source, destination);
+            alu.Decode(rawBinary, nullopt);
+            alu.Execute(registerBank);
+
+            EXPECT_EQ(sourceValue, registerBank->Read(destination));
+        }
+
+        EXPECT_EQ(sourceValue, registerBank->Read(source));
+    }
 }
 
-TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestinationDE)
+TEST(TestALU, ExecuteRegisterIndirectSourceAddressingMode)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
-
-    // Initialize HL
-    alu->GetRegisterBank()->WritePair(Register::DE, 0x1234);
-    alu->GetRegisterBank()->Write(Register::A, 0x99);
-
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // The returned operation bytes will be OPCODE: 0x77  write A to (HL) (A value will be 0xEE, HL will point to 0xAABB)
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x12)));
-    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0x99)), static_cast<uint16_t>(0x1234)));
-
-    alu->RunCycle();
-}
-
-TEST(TestArithmeticLogicUnit, TestAcquireSingleRegisterIndirectDestinationBC)
-{
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
-
-    // Initialize HL
-    alu->GetRegisterBank()->WritePair(Register::BC, 0x9967);
-    alu->GetRegisterBank()->Write(Register::A, 0x12);
-
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // The returned operation bytes will be OPCODE: 0x77  write A to (HL) (A value will be 0xEE, HL will point to 0xAABB)
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x02)));
-    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0x12)), static_cast<uint16_t>(0x9967)));
+    auto registerBank = make_shared<RegisterBank>();
+    auto memoryContent = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11};
+    auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     
-    alu->RunCycle();
+    for (auto i = static_cast<size_t>(0); i < destinationsList.size(); i++)
+    {
+        ArithmeticLogicUnit alu;
+        auto rawBinary = BinaryRegisterIndirectAsSourceAddressingMode(*(begin(destinationsList) + i));
+        alu.Decode(rawBinary, nullopt);
+
+        // simulate ALU acquiring operand from memory.
+        alu.InstructionData.value().MemoryOperand1 = *(begin(memoryContent) + i);
+        
+        alu.Execute(registerBank);
+
+        EXPECT_EQ(*(begin(memoryContent) + i), registerBank->Read(*(begin(destinationsList) + i)));
+    }
 }
 
-TEST(TestArithmeticLogicUnit, TestIndexedSourceOpcodeIX)
+TEST(TestALU, ExecuteRegisterIndirectDestinationAddressingMode)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+    auto registerBank = make_shared<RegisterBank>();
+    auto registerContent = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11};
 
-    alu->GetRegisterBank()->WritePair(Register::IX, 0x0100);
+    auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // IX will have value 0x0100 so the final address will be 0x01AA, which will hold value 0x11
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xDD)));
-    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x7E)));
-    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x0A)));
-    EXPECT_CALL((*mockPointer), Read(0x010A, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x11)));
+    for (auto i = static_cast<size_t>(0); i < sourceList.size(); i++)
+    {
+        ArithmeticLogicUnit alu;
+        auto rawBinary = BinaryRegisterIndirectAsDestinationAddressingMode(*(begin(sourceList) + i));
+        alu.Decode(rawBinary, nullopt);
+
+        registerBank->Write(*(begin(sourceList) + i), *(begin(registerContent) + i));
+        alu.Execute(registerBank);
+
+        EXPECT_EQ(*(begin(registerContent) + i), alu.InstructionData.value().MemoryResult1);
+    }
+}
+
+TEST(TestALU, ExecuteRegisterIndexSourceAddressingMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+    auto memoryContent = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11};
+    auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     
-    alu->RunCycle();
+    for (auto i = static_cast<size_t>(0); i < destinationsList.size(); i++)
+    {
+         ArithmeticLogicUnit alu;
+        auto rawBinary = BinaryRegisterIndexedSourceAddressingMode(*(begin(destinationsList) + i));
+        alu.Decode(rawBinary, 0xDD);
 
-    // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0x11, alu->GetRegisterBank()->Read(Register::A));
+        // simulate ALU acquiring operand from memory.
+        alu.InstructionData.value().MemoryOperand2 = *(begin(memoryContent) + i);
+        
+        alu.Execute(registerBank);
+
+        EXPECT_EQ(*(begin(memoryContent) + i), registerBank->Read(*(begin(destinationsList) + i)));
+    }
 }
 
-TEST(TestArithmeticLogicUnit, TestIndexedSourceOpcodeIY)
+TEST(TestALU, ExecuteRegisterIndexDestinationAddressingMode)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+    auto registerBank = make_shared<RegisterBank>();
+    auto registerContent = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11};
 
-    alu->GetRegisterBank()->WritePair(Register::IY, 0x0A00);
-
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // IY will have value 0x0A00 so the final address will be 0x0A09, which will hold value 0xCA
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xFD)));
-    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x7E)));
-    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x09)));
-    EXPECT_CALL((*mockPointer), Read(0x0A09, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xCA)));
-
-    alu->RunCycle();
-
-    // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0xCA, alu->GetRegisterBank()->Read(Register::A));
-}
-
-TEST(TestArithmeticLogicUnit, TestIndexedSourceOpcodeIXNegativeDisplacement)
-{
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
-
-    alu->GetRegisterBank()->WritePair(Register::IY, 0x0200);
-
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // IY will have value 0x0200 so the final address will be 0x01FF, which will hold value 0x10
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xFD)));
-    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x7E)));
-    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xFF)));
-    EXPECT_CALL((*mockPointer), Read(0x01FF, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x10)));
-
-    alu->RunCycle();
-
-    // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0x10, alu->GetRegisterBank()->Read(Register::A));
-}
-
-TEST(TestArithmeticLogicUnit, TestIndexedDestinantionOpcodeIX)
-{
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
-
-    alu->GetRegisterBank()->Write(Register::A, 0x88);
-    alu->GetRegisterBank()->WritePair(Register::IX, 0x0100);
+    auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // IX will have value 0x0100 so the final address will be 0x0110, which will hold value 0x88
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xDD)));
-    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x77)));
-    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x10)));
-    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0x88)), static_cast<uint16_t>(0x110)));
-    
-    alu->RunCycle();
+    for (auto i = static_cast<size_t>(0); i < sourceList.size(); i++)
+    {
+        ArithmeticLogicUnit alu;
+        auto rawBinary = BinaryRegisterIndexedDestinationAddressingMode(*(begin(sourceList) + i));
+        alu.Decode(rawBinary, nullopt);
+
+        registerBank->Write(*(begin(sourceList) + i), *(begin(registerContent) + i));
+        alu.Execute(registerBank);
+
+        EXPECT_EQ(*(begin(registerContent) + i), alu.InstructionData.value().MemoryResult1);
+    }
 }
 
-TEST(TestArithmeticLogicUnit, TestExtendedSource)
+TEST(TestALU, ExecuteExtendedSourceAddressingMode)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+    auto registerBank = make_shared<RegisterBank>();
 
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // Register A will be loaded with the content stored in address 0xDAAD (0x9E)
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xFA)));
-    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xAD)));
-    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xDA)));
-    EXPECT_CALL((*mockPointer), Read(0xDAAD, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x9E)));
-    
-    alu->RunCycle();
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0xFA;
+    alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(0x9E, alu->GetRegisterBank()->Read(Register::A));
+    alu.InstructionData.value().MemoryOperand3 = 0xCC;
+    alu.Execute(registerBank);
+
+    EXPECT_EQ(0xCC, registerBank->Read(Register::A));
+
+    rawBinary = 0xEA;
+    alu.Decode(rawBinary, nullopt);
+
+    registerBank->Write(Register::A, 0xEE);
+    alu.Execute(registerBank);
+
+    EXPECT_EQ(0xEE, alu.InstructionData.value().MemoryResult1);
 }
 
-TEST(TestArithmeticLogicUnit, TestExtendedDestination)
+TEST(TestALU, ExecuteImmediateRegisterIndirectAddressingMode)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+    auto registerBank = make_shared<RegisterBank>();
 
-    alu->GetRegisterBank()->Write(Register::A, 0xF8);
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0x36;
+    alu.Decode(rawBinary, nullopt);
 
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // Content of Register A will be soted in address 0xBABE
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xEA)));
-    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xBE)));
-    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xBA)));
-    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xF8)), static_cast<uint16_t>(0xBABE)));
-    
-    alu->RunCycle();
+    alu.InstructionData.value().MemoryOperand1 = 0xD0;
+    alu.Execute(registerBank);
+
+    EXPECT_EQ(0xD0, alu.InstructionData.value().MemoryResult1);
 }
 
-TEST(TestArithmeticLogicUnit, TestImmediateRegisterIndirect)
+TEST(TestALU, ExecuteRegisterIndirectSourceIncrementAndDecrement)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+    auto registerBank = make_shared<RegisterBank>();
 
-    alu->GetRegisterBank()->WritePair(Register::HL, 0xF5D2);
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0x2A;
+    alu.Decode(rawBinary, nullopt);
 
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // Content of the Operand 1 will be stored in the address held by HL.
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x36)));
-    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xCC)));
-    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xCC)), static_cast<uint16_t>(0xF5D2)));
-    
-    alu->RunCycle();
+    alu.InstructionData.value().MemoryOperand1 = 0xCA;
+    alu.Execute(registerBank);
+
+    EXPECT_EQ(0xCA, registerBank->Read(Register::A));
+
+    rawBinary = 0x3A;
+    alu.Decode(rawBinary, nullopt);
+
+    alu.InstructionData.value().MemoryOperand1 = 0x10;
+    alu.Execute(registerBank);
+
+    EXPECT_EQ(0x10, registerBank->Read(Register::A));
 }
 
-TEST(TestArithmeticLogicUnit, TestRegisterIndirectSourceIncrement)
+TEST(TestALU, ExecuteRegisterIndirectDestinationIncrementAndDecrement)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+    auto registerBank = make_shared<RegisterBank>();
 
-    alu->GetRegisterBank()->WritePair(Register::HL, 0x99AA);
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0x22;
+    alu.Decode(rawBinary, nullopt);
 
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // Content of the Operand 1 will be stored in the address held by HL.
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x2A)));
-    EXPECT_CALL((*mockPointer), Read(0x99AA, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xAB)));
-    
-    alu->RunCycle();
+    registerBank->Write(Register::A, 0x77);
+    alu.Execute(registerBank);
 
-    EXPECT_EQ(0xAB, alu->GetRegisterBank()->Read(Register::A));
-    EXPECT_EQ(0x99AB, alu->GetRegisterBank()->ReadPair(Register::HL));
+    EXPECT_EQ(0x77, alu.InstructionData.value().MemoryResult1);
+
+    rawBinary = 0x32;
+    alu.Decode(rawBinary, nullopt);
+
+     registerBank->Write(Register::A, 0xA6);
+    alu.Execute(registerBank);
+
+    EXPECT_EQ(0xA6, alu.InstructionData.value().MemoryResult1);
 }
 
-TEST(TestArithmeticLogicUnit, TestRegisterIndirectSourceDecrement)
+TEST(TestALU, ExecuteImplicitRegisterAddresingMode)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+    auto registerBank = make_shared<RegisterBank>();
 
-    alu->GetRegisterBank()->WritePair(Register::HL, 0x88BB);
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0xF2;
+    alu.Decode(rawBinary, nullopt);
 
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // Content of the Operand 1 will be stored in the address held by HL.
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x3A)));
-    EXPECT_CALL((*mockPointer), Read(0x88BB, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x45)));
-    
-    alu->RunCycle();
+    alu.InstructionData.value().MemoryOperand1 = 0x6D;
+    alu.Execute(registerBank);
 
-    EXPECT_EQ(0x45, alu->GetRegisterBank()->Read(Register::A));
-    EXPECT_EQ(0x88BA, alu->GetRegisterBank()->ReadPair(Register::HL));
+    EXPECT_EQ(0x6D, registerBank->Read(Register::A));
+
+    rawBinary = 0xE2;
+    alu.Decode(rawBinary, nullopt);
+
+    registerBank->Write(Register::A, 0xA1);
+    alu.Execute(registerBank);
+
+    EXPECT_EQ(0xA1, alu.InstructionData.value().MemoryResult1);
 }
 
-TEST(TestArithmeticLogicUnit, TestRegisterIndirectDestinationIncrement)
+TEST(TestALU, ExecuteImplicitImmediateAddresingMode)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+    auto registerBank = make_shared<RegisterBank>();
 
-    alu->GetRegisterBank()->Write(Register::A, 0x66);
-    alu->GetRegisterBank()->WritePair(Register::HL, 0x1234);
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0xF0;
+    alu.Decode(rawBinary, nullopt);
 
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // Content of the Operand 1 will be stored in the address held by HL.
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x22)));
-    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0x66)), static_cast<uint16_t>(0x1234)));
-    
-    alu->RunCycle();
+    alu.InstructionData.value().MemoryOperand2 = 0x4A;
+    alu.Execute(registerBank);
 
-    EXPECT_EQ(0x1235, alu->GetRegisterBank()->ReadPair(Register::HL));
+    EXPECT_EQ(0x4A, registerBank->Read(Register::A));
+
+    rawBinary = 0xE0;
+    alu.Decode(rawBinary, nullopt);
+
+    registerBank->Write(Register::A, 0x78);
+    alu.Execute(registerBank);
+
+    EXPECT_EQ(0x78, alu.InstructionData.value().MemoryResult1);
 }
 
-TEST(TestArithmeticLogicUnit, TestRegisterIndirectDestinationDecrement)
+TEST(TestALU, ExecuteImmediateRegisrerPairAddresingMode)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+    auto destinationList = {Register::BC, 
+                            Register::DE, 
+                            Register::HL, 
+                            Register::SP};
 
-    alu->GetRegisterBank()->Write(Register::A, 0x41);
-    alu->GetRegisterBank()->WritePair(Register::HL, 0x764A);
+    auto immediateValues = {static_cast<uint16_t>(0x45AD),
+                            static_cast<uint16_t>(0xF408),
+                            static_cast<uint16_t>(0x21A6),
+                            static_cast<uint16_t>(0x8BC1)};
 
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // Content of the Operand 1 will be stored in the address held by HL.
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x32)));
-    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0x41)), static_cast<uint16_t>(0x764A)));
-    
-    alu->RunCycle();
+    auto registerBank = make_shared<RegisterBank>();
 
-    EXPECT_EQ(0x7649, alu->GetRegisterBank()->ReadPair(Register::HL));
+    for (auto i = static_cast<size_t>(0); i < destinationList.size(); i++)
+    {
+        ArithmeticLogicUnit alu;
+        auto rawBinary = BinaryImmediateRegisterPair(*(begin(destinationList) + i));
+        alu.Decode(rawBinary, nullopt);
+
+        alu.InstructionData.value().MemoryOperand1 = *(begin(immediateValues) + i) & 0xFF;
+        alu.InstructionData.value().MemoryOperand2 = (*(begin(immediateValues) + i) >> 8) & 0xFF;
+
+        alu.Execute(registerBank);
+
+        EXPECT_EQ(*(begin(immediateValues) + i), registerBank->ReadPair(*(begin(destinationList) + i)));
+    }
 }
 
-TEST(TestArithmeticLogicUnit, TestImplicitRegisterSource)
+TEST(TestALU, ExecuteSPTransferAddressingMode)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+    auto registerBank = make_shared<RegisterBank>();
 
-    alu->GetRegisterBank()->Write(Register::C, 0x55);
+    ArithmeticLogicUnit alu;
+    auto rawBinary = 0xF9;
+    alu.Decode(rawBinary, nullopt);
 
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // Register A will hold content pointed by [C + 0xFF00]
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xF2)));
-    EXPECT_CALL((*mockPointer), Read(0xFF55, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xD0)));
-    
-    alu->RunCycle();
+    registerBank->WritePair(Register::HL, 0x97A3);
 
-    EXPECT_EQ(0xD0, alu->GetRegisterBank()->Read(Register::A));
+    alu.Execute(registerBank);
+
+    EXPECT_EQ(0x97A3, registerBank->ReadPair(Register::SP));
 }
 
-TEST(TestArithmeticLogicUnit, TestImplicitRegisterDestination)
+
+TEST(TestALU, ExecuteAdd)
 {
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
-
-    alu->GetRegisterBank()->Write(Register::A, 0xA6);
-    alu->GetRegisterBank()->Write(Register::C, 0xF4);
-
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // [C + 0xFF00] will hold the content od register A
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xE2)));
-    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xA6)), static_cast<uint16_t>(0xFFF4)));
+    auto registerBank = make_shared<RegisterBank>();
+    auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     
-    alu->RunCycle();
-}
+    ArithmeticLogicUnit alu;
+    random_device randomDevice;
+    mt19937 engine{randomDevice()};
+    uniform_int_distribution<int8_t> distribution{-100, 100};
+    vector<int8_t> registerAValues;
+    vector<int8_t> registerSourceValues;
 
-TEST(TestArithmeticLogicUnit, TestImplicitImmediateSource)
-{
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+    for (auto i = 0; i < 6; i++)
+    {
+        registerAValues.push_back(distribution(engine));
+        registerSourceValues.push_back(distribution(engine));
+    }
 
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // Register A will hold content pointed by [C + 0xFF00]
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xF0)));
-    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x60)));
-    EXPECT_CALL((*mockPointer), Read(0xFF60, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x09)));
-    
-    alu->RunCycle();
+    auto counter = static_cast<size_t>(0);
+    for (auto source : sourceList)
+    {
+        auto aValue = registerAValues[counter];
+        auto sourceValue = registerSourceValues[counter++];
+        auto result = static_cast<uint8_t>(aValue + sourceValue);
 
-    EXPECT_EQ(0x09, alu->GetRegisterBank()->Read(Register::A));
-}
+        registerBank->Write(Register::A, aValue);
+        registerBank->Write(source, sourceValue);
 
-TEST(TestArithmeticLogicUnit, TestImplicitImmediateDestination)
-{
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
+        auto rawBinary = 0x80 | RegisterBank::ToInstructionSource(source);
+        alu.Decode(rawBinary, nullopt);
+        alu.Execute(registerBank);
 
-    alu->GetRegisterBank()->Write(Register::A, 0xD2);
-
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // Register A will hold content pointed by [C + 0xFF00]
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xE0)));
-    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x06)));
-    EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xD2)), static_cast<uint16_t>(0xFF06)));
-    
-    alu->RunCycle();
-}
-
-TEST(TestArithmeticLogicUnit, TestImmediatePair)
-{
-    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    auto alu = make_shared<ALUWrapperForTests>();
-         alu->Initialize(memoryController);
-
-    // First trigger to ALU. 
-    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
-    // Register A will hold content pointed by [C + 0xFF00]
-    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(ImmediateOpcode(Register::BC))));
-    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x4A)));
-    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x98)));
-    EXPECT_CALL((*mockPointer), Read(0x0003, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(ImmediateOpcode(Register::DE))));
-    EXPECT_CALL((*mockPointer), Read(0x0004, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xBB)));
-    EXPECT_CALL((*mockPointer), Read(0x0005, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x1A)));
-    EXPECT_CALL((*mockPointer), Read(0x0006, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(ImmediateOpcode(Register::HL))));
-    EXPECT_CALL((*mockPointer), Read(0x0007, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x99)));
-    EXPECT_CALL((*mockPointer), Read(0x0008, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x50)));
-    EXPECT_CALL((*mockPointer), Read(0x0009, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(ImmediateOpcode(Register::SP))));
-    EXPECT_CALL((*mockPointer), Read(0x000A, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x24)));
-    EXPECT_CALL((*mockPointer), Read(0x000B, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xCE)));
-
-    alu->RunCycle();
-    alu->RunCycle();
-    alu->RunCycle();
-    alu->RunCycle();
-
-    EXPECT_EQ(0x984A, alu->GetRegisterBank()->ReadPair(Register::BC));
-    EXPECT_EQ(0x1ABB, alu->GetRegisterBank()->ReadPair(Register::DE));
-    EXPECT_EQ(0x5099, alu->GetRegisterBank()->ReadPair(Register::HL));
-    EXPECT_EQ(0xCE24, alu->GetRegisterBank()->ReadPair(Register::SP));
+        EXPECT_EQ(registerBank->Read(Register::A), result);
+    }
 }

@@ -1,6 +1,7 @@
 #include "MemoryController.h"
 
 using namespace std;
+using namespace gbx::interfaces;
 
 namespace gbx
 {
@@ -35,7 +36,7 @@ void MemoryController::Load(std::shared_ptr<uint8_t*> dataPointer, size_t size, 
     _resources[localAddress.value().resourceIndex].resource.get()->Load(dataPointer, size, offset);
 }
 
-void MemoryController::RegisterMemoryResource(std::shared_ptr<Memory> resource, AddressRange range)
+void MemoryController::RegisterMemoryResource(std::shared_ptr<MemoryInterface> resource, AddressRange range)
 {
     DetectOverlap(range);
     DetectMisfit(resource, range);
@@ -44,7 +45,7 @@ void MemoryController::RegisterMemoryResource(std::shared_ptr<Memory> resource, 
     SortResources();
 }
 
-void MemoryController::UnregisterMemoryResource(std::shared_ptr<Memory> resource)
+void MemoryController::UnregisterMemoryResource(std::shared_ptr<MemoryInterface> resource)
 {
     for (size_t i = static_cast<size_t>(0); i < _resources.size(); i++)
     {
@@ -58,7 +59,7 @@ void MemoryController::UnregisterMemoryResource(std::shared_ptr<Memory> resource
     throw MemoryControllerException("the resource to be unregisterd could not found");
 }
 
-inline void MemoryController::DetectMisfit(std::shared_ptr<Memory> resource, AddressRange range)
+inline void MemoryController::DetectMisfit(std::shared_ptr<MemoryInterface> resource, AddressRange range)
 {
     if (range.End() - range.Begin() + 1 != resource.get()->Size())
         throw MemoryControllerException("resouce and range misfit");

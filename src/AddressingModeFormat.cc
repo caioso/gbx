@@ -423,4 +423,26 @@ const AddressingModeFormat AddressingModeTemplate::ImmediatePairAddressingMode
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false
                                                                         };
 
+const AddressingModeFormat AddressingModeTemplate::RegisterPairAddressingMode
+                                                                    {.acquireOperand1 = false,
+                                                                        .acquireOperand1FromPc = false, 
+                                                                        .acquireOperand1Directly = false, 
+                                                                        .incrementDestination = false,
+                                                                        .decrementDestination = false,
+                                                                        .incrementSource = false,
+                                                                        .decrementSource = false,
+                                                                        .acquireOperand1Implicitly = false,
+                                                                        .acquireOperand2 = false, 
+                                                                        .acquireOperand2FromPc = false, 
+                                                                        .acquireOperand2AtComposedAddress = false, 
+                                                                        .acquireOperand2Implicitly = false,
+                                                                        .acquireOperand3 = false, 
+                                                                        .writeBack = false, 
+                                                                        .writeBackAtOperandAddress = false, 
+                                                                        .writeBackAtRegisterAddress = false, 
+                                                                        .writeBackAtComposedOperandAddress = false,
+                                                                        .writeBackAtImplicitlyWithRegister = false,
+                                                                        .writeBackAtImplicitlyWithImmediateOperand = false
+                                                                        };
+
 }

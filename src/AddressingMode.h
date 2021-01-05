@@ -6,6 +6,7 @@ namespace gbx
 enum class AddressingMode
 {
     Register,
+    RegisterPair,
     Immediate,
     ImmediatePair,
     ImmediateRegisterIndirect,

@@ -3,13 +3,12 @@
 
 #include <chrono>
 #include <thread>
-
-#include <iostream>
-
 #include <memory>
+
+#include "../src/Clock.h"
 #include "../src/GBXExceptions.h"
 #include "../src/EngineParameters.h"
-#include "../src/ClockSource.h"
+#include "../src/interfaces/ClockInterface.h"
 
 using namespace std;
 using namespace gbx;
@@ -17,7 +16,7 @@ using namespace gbx;
 TEST(TestClock, Construction) 
 {
     constexpr double GBCPeriod = 119;
-    ClockSource clock(EngineParameters::GBCClockPeriod);
+    Clock clock(EngineParameters::GBCClockPeriod);
 
     EXPECT_DOUBLE_EQ(GBCPeriod, clock.Period());
 }
@@ -25,7 +24,7 @@ TEST(TestClock, Construction)
 TEST(TestClock, SingleTickNoDelay)
 {
     constexpr uint64_t GBCPeriodInNanoSeconds = 119;
-    ClockSource clock(EngineParameters::GBCClockPeriod);
+    Clock clock(EngineParameters::GBCClockPeriod);
 
     auto startTime = chrono::high_resolution_clock::now();
     clock.Tick(1, 0);
@@ -40,7 +39,7 @@ TEST(TestClock, SingleTickNoDelay)
 TEST(TestClock, MultipleTickNoDelay)
 {
     constexpr uint64_t GBCPeriodInNanoSeconds = 119;
-    ClockSource clock(EngineParameters::GBCClockPeriod);
+    Clock clock(EngineParameters::GBCClockPeriod);
 
     auto startTime = chrono::high_resolution_clock::now();
     clock.Tick(4, 0);
@@ -55,7 +54,7 @@ TEST(TestClock, MultipleTickNoDelay)
 TEST(TestClock, MultipkleTickWithDelay)
 {
     constexpr uint64_t GBCPeriodInNanoSeconds = 119;
-    ClockSource clock(EngineParameters::GBCClockPeriod);
+    Clock clock(EngineParameters::GBCClockPeriod);
 
     auto startTime = chrono::high_resolution_clock::now();
     clock.Tick(4, GBCPeriodInNanoSeconds * 2);

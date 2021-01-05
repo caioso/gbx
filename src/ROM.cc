@@ -1,6 +1,7 @@
 #include "ROM.h"
 
 using namespace std;
+using namespace gbx::interfaces;
 
 namespace gbx
 {
