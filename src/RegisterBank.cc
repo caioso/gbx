@@ -6,8 +6,8 @@ namespace gbx
 {
 
 RegisterBank::RegisterBank()
-    : _registers({0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
-    , _alternates({0, 0, 0, 0, 0, 0, 0, 0})
+    : _registers({0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+    , _alternates({0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 {}
 
 uint8_t RegisterBank::Read(Register reg)

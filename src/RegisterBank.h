@@ -5,11 +5,20 @@
 #include <assert.h>
 #include <cstdint>
 #include <exception>
+#include <type_traits>
 
 #include "GBXExceptions.h"
 
 namespace gbx
 {
+
+enum class Flag
+{
+    Z = 7,
+    N = 6,
+    H = 5,
+    CY = 4,
+};
 
 enum class Register
 {
@@ -54,10 +63,27 @@ class RegisterBank
 public: 
     RegisterBank();
     ~RegisterBank() = default;
+
     std::uint8_t Read(Register);
     std::uint16_t ReadPair(Register);
+
     void Write(Register, std::uint8_t);
     void WritePair(Register, std::uint16_t);
+    
+    inline void SetFlag(Flag flag)
+    {
+        _registers[static_cast<uint8_t>(Register::F)] |= 1 << static_cast<uint8_t>(flag);
+    }
+    
+    inline void ClearFlag(Flag flag)
+    {
+        _registers[static_cast<uint8_t>(Register::F)] &= ~(1 << static_cast<uint8_t>(flag));
+    }
+
+    inline uint8_t ReadFlag(Flag flag)
+    {
+        return ((_registers[static_cast<uint8_t>(Register::F)] >> static_cast<uint8_t>(flag)) & 0x01);
+    }
     
     static uint8_t ToInstructionSource(Register);
     static Register FromInstructionSource(uint8_t);
@@ -76,7 +102,7 @@ private:
     inline uint8_t PairToLowIndex(Register);
 
     std::array<std::uint8_t, 19> _registers;
-    std::array<std::uint8_t, 8> _alternates;
+    std::array<std::uint8_t, 19> _alternates;
 };
 
 }

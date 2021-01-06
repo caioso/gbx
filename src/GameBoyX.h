@@ -20,7 +20,7 @@ public:
     virtual ~GameBoyX() = default;
     void Run();
     
-private:
+protected:
     std::shared_ptr<Z80X> _cpu;
     std::shared_ptr<ControlUnit> _controlUnit;
     std::shared_ptr<MemoryController> _memoryController;

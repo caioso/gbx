@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <iostream>
+
 #include "GBXExceptions.h"
 #include "instructions/InstructionUtilities.h"
 #include "instructions/OpcodePatternMatcher.h"
@@ -36,6 +38,7 @@ private:
     inline void DecodeImmediateImplicitOperand(uint8_t);
     inline void DecodeRegisterImmediatePair(uint8_t);
     inline void DecodeAddRegisterMode(uint8_t);
+    inline void DecodeAddImmediateMode();
 
     inline void ExecuteMemoryBasedSource(std::shared_ptr<RegisterBank>);
     inline void ExecuteTwoOperandsMemoryBaseSource(std::shared_ptr<RegisterBank>);

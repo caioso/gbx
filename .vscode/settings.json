@@ -75,6 +75,8 @@
         "vector": "cpp",
         "thread": "cpp",
         "__functional_03": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "numeric": "cpp",
+        "random": "cpp"
     }
 }

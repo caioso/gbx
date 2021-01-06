@@ -48,6 +48,9 @@ void ArithmeticLogicUnit::Decode(uint8_t opcode, std::optional<uint8_t> preOpcod
         else if (OpcodePatternMatcher::Match(opcode, // 0111 0XXX
                  OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_1, b::_1, b::_0, b::_X, b::_X, b::_X)))
             DecodeRegisterIndirectOperandDestinationHL(opcode);
+        else if (OpcodePatternMatcher::Match(opcode, // 1100 0110
+                 OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_0, b::_0, b::_0, b::_1, b::_1, b::_0)))
+            DecodeAddImmediateMode();
         else if (OpcodePatternMatcher::Match(opcode, // 111X 0010
                  OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_1, b::_X, b::_0, b::_0, b::_1, b::_0)))
             DecodeRegisterImplicitOperand(opcode);
@@ -116,10 +119,40 @@ void ArithmeticLogicUnit::Execute(std::shared_ptr<RegisterBank> registerBank)
 
 inline void ArithmeticLogicUnit::ExecuteAdd(std::shared_ptr<RegisterBank> registerBank)
 {
-    auto sourceValue = registerBank->Read(InstructionData.value().SourceRegister);
-    auto destinationValue = registerBank->Read(InstructionData.value().DestinationRegister);
-    uint8_t result = sourceValue + destinationValue;
-    registerBank->Write(InstructionData.value().DestinationRegister, result);
+    auto sourceValue = static_cast<uint8_t>(0x00);
+    auto destinationValue  = registerBank->Read(InstructionData.value().DestinationRegister);
+
+    if (InstructionData.value().AddressingMode == AddressingMode::Register)
+        sourceValue = registerBank->Read(InstructionData.value().SourceRegister);
+    else
+        sourceValue = InstructionData.value().MemoryOperand1;
+
+    auto result = static_cast<uint8_t>(0x00);
+    auto carryIn = static_cast<uint8_t>(0x00);
+
+    registerBank->Write(Register::F, 0x00);
+
+    for (auto i = 0; i < 8; i++)
+    {
+        auto sourceBit = (sourceValue >> i) & 0x01;
+        auto destinationBit = (destinationValue >> i) & 0x01;
+        auto output = (sourceBit ^ destinationBit) ^ carryIn;
+        carryIn = (sourceBit & destinationBit) | (carryIn & (sourceBit ^ destinationBit));
+
+        if (i == 3 && carryIn)
+            registerBank->SetFlag(Flag::H);
+        else if (i == 7 && carryIn)
+            registerBank->SetFlag(Flag::CY);
+
+        result |= (output << i);
+    }
+
+    if (result == 0)
+        registerBank->SetFlag(Flag::Z);
+
+    registerBank->ClearFlag(Flag::N);
+
+    registerBank->Write(InstructionData.value().DestinationRegister, static_cast<uint8_t>(result));
 }
 
 inline void ArithmeticLogicUnit::ExecuteRegisterPairAddressingMode(std::shared_ptr<RegisterBank> registerBank)
@@ -451,6 +484,18 @@ inline void ArithmeticLogicUnit::DecodeAddRegisterMode(uint8_t opcode)
                                                          0x00, 
                                                          0x00,
                                                          source, 
+                                                         Register::A,
+                                                         0x00});
+}
+
+inline void ArithmeticLogicUnit::DecodeAddImmediateMode()
+{
+    InstructionData = make_optional<DecodedInstruction>({OpcodeType::add, 
+                                                         AddressingMode::Immediate, 
+                                                         0x00,
+                                                         0x00, 
+                                                         0x00,
+                                                         Register::NoRegiser, 
                                                          Register::A,
                                                          0x00});
 }

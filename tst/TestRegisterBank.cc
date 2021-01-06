@@ -204,3 +204,24 @@ TEST(TestRegisterBank, FromInstructionDestinationToRegister)
     }
 }
 
+TEST(TestRegisterBank, TestFlags)
+{
+    RegisterBank bank;
+
+    auto flags = {Flag::CY, Flag::H, Flag::N, Flag::Z};
+
+    for (auto flag : flags)
+        EXPECT_EQ(0x00, bank.ReadFlag(flag));
+
+    for (auto flag : flags)
+        bank.SetFlag(flag);
+
+    for (auto flag : flags)
+        EXPECT_EQ(0x01, bank.ReadFlag(flag));
+
+    for (auto flag : flags)
+        bank.ClearFlag(flag);
+
+    for (auto flag : flags)
+        EXPECT_EQ(0x00, bank.ReadFlag(flag));
+}
