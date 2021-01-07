@@ -44,7 +44,6 @@ protected:
     inline void DecodeInstruction();
     inline void ExecuteInstruction();
     inline void WriteBackResults();
-    inline void InstantiateInstruction(uint8_t);
     inline void CompleteFetchPC(uint8_t);
     inline void CompletePreOpcodeFetch(uint8_t);
     inline void ReadOperand1AtPC();

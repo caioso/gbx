@@ -98,8 +98,8 @@ inline void ControlUnit::AcquireOperand2()
 
 inline void ControlUnit::AcquireOperand3()
 {
-    auto operandLocation = static_cast<uint16_t>(_alu->InstructionData.value().MemoryOperand1 | _alu->InstructionData.value().MemoryOperand2 << 8);
-    _alu->InstructionData.value().MemoryOperand3 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
+    auto operandLocation = static_cast<uint16_t>(_alu->InstructionData.MemoryOperand1 | _alu->InstructionData.MemoryOperand2 << 8);
+    _alu->InstructionData.MemoryOperand3 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
 }
 
 inline void ControlUnit::Execute()
@@ -144,18 +144,13 @@ inline void ControlUnit::CompletePreOpcodeFetch(uint8_t preOpcode)
 inline void ControlUnit::DecodeInstruction()
 {
     auto opcode = _registers->Read(Register::IR);
-    InstantiateInstruction(opcode);
-    _preOpcode = nullopt;
-}
-
-inline void ControlUnit::InstantiateInstruction(uint8_t opcode)
-{
     _alu->Decode(opcode, _preOpcode);
+    _preOpcode = nullopt;
 }
 
 inline void ControlUnit::AcquireAddressingMode()
 {
-    switch (_alu->InstructionData.value().AddressingMode)
+    switch (_alu->InstructionData.AddressingMode)
     {
         case AddressingMode::Register: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::RegisterAddressingMode); break;
         case AddressingMode::Immediate: _currentAddressingMode = make_shared<AddressingModeFormat>(AddressingModeTemplate::ImmediateAddressingMode); break;
@@ -183,42 +178,42 @@ inline void ControlUnit::AcquireAddressingMode()
 
 inline void ControlUnit::ReadOperand1AtPC()
 {
-    _alu->InstructionData.value().MemoryOperand1 = ReadAtRegister(Register::PC);
+    _alu->InstructionData.MemoryOperand1 = ReadAtRegister(Register::PC);
     IncrementPC();
 }
 
 inline void ControlUnit::ReadOperand1AtRegister()
 {
-    _alu->InstructionData.value().MemoryOperand1 = ReadAtRegister(_alu->InstructionData.value().SourceRegister);
+    _alu->InstructionData.MemoryOperand1 = ReadAtRegister(_alu->InstructionData.SourceRegister);
 
     if (_currentAddressingMode->incrementSource)
-        IncrementRegisterPair(_alu->InstructionData.value().SourceRegister);
+        IncrementRegisterPair(_alu->InstructionData.SourceRegister);
     else if (_currentAddressingMode->decrementSource)
-        DecrementRegisterPair(_alu->InstructionData.value().SourceRegister);
+        DecrementRegisterPair(_alu->InstructionData.SourceRegister);
 }
 
 inline void ControlUnit::ReadOperand1Implicitly()
 {
-    auto operandLocation = static_cast<uint16_t>(0xFF << 8 | _registers->Read(_alu->InstructionData.value().SourceRegister));
-    _alu->InstructionData.value().MemoryOperand1 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
+    auto operandLocation = static_cast<uint16_t>(0xFF << 8 | _registers->Read(_alu->InstructionData.SourceRegister));
+    _alu->InstructionData.MemoryOperand1 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
 }
 
 inline void ControlUnit::ReadOperand2AtPC()
 {
-    _alu->InstructionData.value().MemoryOperand2 = ReadAtRegister(Register::PC);
+    _alu->InstructionData.MemoryOperand2 = ReadAtRegister(Register::PC);
     IncrementPC();
 }
 
 inline void ControlUnit::ReadOperand2AtComposedAddress()
 {
-    auto operandLocation = static_cast<uint16_t>(static_cast<int8_t>(_alu->InstructionData.value().MemoryOperand1) + _registers->ReadPair(_alu->InstructionData.value().SourceRegister));
-    _alu->InstructionData.value().MemoryOperand2 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
+    auto operandLocation = static_cast<uint16_t>(static_cast<int8_t>(_alu->InstructionData.MemoryOperand1) + _registers->ReadPair(_alu->InstructionData.SourceRegister));
+    _alu->InstructionData.MemoryOperand2 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
 }
 
 inline void ControlUnit::ReadOperand2Implicitly()
 {
-    auto operandLocation = static_cast<uint16_t>(0xFF << 8 | _alu->InstructionData.value().MemoryOperand1);
-    _alu->InstructionData.value().MemoryOperand2 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
+    auto operandLocation = static_cast<uint16_t>(0xFF << 8 | _alu->InstructionData.MemoryOperand1);
+    _alu->InstructionData.MemoryOperand2 = get<uint8_t>(_memoryController->Read(operandLocation, MemoryAccessType::Byte));
 }
 
 inline void ControlUnit::ExecuteInstruction()
@@ -242,41 +237,41 @@ inline void ControlUnit::WriteBackResults()
 
 inline void ControlUnit::WriteBackAtOperandAddress()
 {
-    auto resultContent = _alu->InstructionData.value().MemoryResult1;
-    auto resultAddress = static_cast<uint16_t>(static_cast<int8_t>(_alu->InstructionData.value().MemoryOperand1) + _registers->ReadPair(_alu->InstructionData.value().DestinationRegister));
+    auto resultContent = _alu->InstructionData.MemoryResult1;
+    auto resultAddress = static_cast<uint16_t>(static_cast<int8_t>(_alu->InstructionData.MemoryOperand1) + _registers->ReadPair(_alu->InstructionData.DestinationRegister));
     _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 }
 
 inline void ControlUnit::WriteBackAtRegisterAddress()
 {
-    auto resultContent = _alu->InstructionData.value().MemoryResult1;
-    auto resultAddress = _registers->ReadPair(_alu->InstructionData.value().DestinationRegister);
+    auto resultContent = _alu->InstructionData.MemoryResult1;
+    auto resultAddress = _registers->ReadPair(_alu->InstructionData.DestinationRegister);
     _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 
      if (_currentAddressingMode->incrementDestination)
-        IncrementRegisterPair(_alu->InstructionData.value().DestinationRegister);
+        IncrementRegisterPair(_alu->InstructionData.DestinationRegister);
     else if (_currentAddressingMode->decrementDestination)
-        DecrementRegisterPair(_alu->InstructionData.value().DestinationRegister);
+        DecrementRegisterPair(_alu->InstructionData.DestinationRegister);
 }
 
 inline void ControlUnit::WriteBackAtComposedAddress()
 {
-    auto resultContent = _alu->InstructionData.value().MemoryResult1;
-    auto resultAddress = static_cast<uint16_t>(_alu->InstructionData.value().MemoryOperand1 | _alu->InstructionData.value().MemoryOperand2 << 8);
+    auto resultContent = _alu->InstructionData.MemoryResult1;
+    auto resultAddress = static_cast<uint16_t>(_alu->InstructionData.MemoryOperand1 | _alu->InstructionData.MemoryOperand2 << 8);
     _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 }
 
 inline void ControlUnit::WriteBackAtImplicitRegisterAddress()
 {
-    auto resultContent = _alu->InstructionData.value().MemoryResult1;
-    auto resultAddress = static_cast<uint16_t>(0xFF << 8 | _registers->Read(_alu->InstructionData.value().DestinationRegister));
+    auto resultContent = _alu->InstructionData.MemoryResult1;
+    auto resultAddress = static_cast<uint16_t>(0xFF << 8 | _registers->Read(_alu->InstructionData.DestinationRegister));
     _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 }
 
 inline void ControlUnit::WriteBackAtImplicitImmediateAddress()
 {
-    volatile auto resultContent = _registers->Read(_alu->InstructionData.value().SourceRegister);
-    volatile auto resultAddress = static_cast<uint16_t>(0xFF << 8 | _alu->InstructionData.value().MemoryOperand1);
+    volatile auto resultContent = _registers->Read(_alu->InstructionData.SourceRegister);
+    volatile auto resultAddress = static_cast<uint16_t>(0xFF << 8 | _alu->InstructionData.MemoryOperand1);
     _memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 }
 

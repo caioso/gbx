@@ -10,4 +10,6 @@ enum class OpcodeType
     add
 };
 
+const uint8_t MemoryOperand = 0x06;
+
 }

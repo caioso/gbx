@@ -37,7 +37,7 @@ public:
     virtual void Decode(uint8_t, std::optional<uint8_t>) = 0;
     virtual void Execute(std::shared_ptr<RegisterBank>) = 0;
 
-    std::optional<DecodedInstruction> InstructionData;
+    DecodedInstruction InstructionData;
 };
 
 
