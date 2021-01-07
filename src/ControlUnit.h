@@ -65,7 +65,7 @@ protected:
     std::shared_ptr<interfaces::ArithmeticLogicUnitInterface> _alu;
     std::optional<uint8_t> _preOpcode;
     std::shared_ptr<interfaces::MemoryControllerInterface> _memoryController;
-    std::shared_ptr<AddressingModeFormat> _currentAddressingMode;   
+    AddressingModeFormat* _currentAddressingMode;   
 };
 
 }

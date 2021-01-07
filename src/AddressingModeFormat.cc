@@ -3,7 +3,7 @@
 namespace gbx
 {
     
-const AddressingModeFormat AddressingModeTemplate::NoAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::NoAddressingMode                          
                                                                     {.acquireOperand1 = false,
                                                                         .acquireOperand1FromPc = false, 
                                                                         .acquireOperand1Directly = false, 
@@ -25,7 +25,7 @@ const AddressingModeFormat AddressingModeTemplate::NoAddressingMode
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::RegisterAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::RegisterAddressingMode                          
                                                                     {.acquireOperand1 = false,
                                                                         .acquireOperand1FromPc = false, 
                                                                         .acquireOperand1Directly = false, 
@@ -47,7 +47,7 @@ const AddressingModeFormat AddressingModeTemplate::RegisterAddressingMode
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::ImmediateAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::ImmediateAddressingMode                          
                                                                     {.acquireOperand1 = true, 
                                                                         .acquireOperand1FromPc = true,  
                                                                         .acquireOperand1Directly = false, 
@@ -69,7 +69,7 @@ const AddressingModeFormat AddressingModeTemplate::ImmediateAddressingMode
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::RegisterIndexedSourceAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::RegisterIndexedSourceAddressingMode                          
                                                                     {.acquireOperand1 = true, 
                                                                         .acquireOperand1FromPc = true,  
                                                                         .acquireOperand1Directly = false, 
@@ -91,7 +91,7 @@ const AddressingModeFormat AddressingModeTemplate::RegisterIndexedSourceAddressi
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::RegisterIndexedDestinationAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::RegisterIndexedDestinationAddressingMode                          
                                                                     {.acquireOperand1 = true, 
                                                                         .acquireOperand1FromPc = true,  
                                                                         .acquireOperand1Directly = false, 
@@ -113,7 +113,7 @@ const AddressingModeFormat AddressingModeTemplate::RegisterIndexedDestinationAdd
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::RegisterIndirectSourceAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::RegisterIndirectSourceAddressingMode                          
                                                                     {.acquireOperand1 = true, 
                                                                         .acquireOperand1FromPc = false, 
                                                                         .acquireOperand1Directly = true, 
@@ -135,7 +135,7 @@ const AddressingModeFormat AddressingModeTemplate::RegisterIndirectSourceAddress
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::RegisterIndirectDestinationAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::RegisterIndirectDestinationAddressingMode                          
                                                                     {.acquireOperand1 = true, 
                                                                         .acquireOperand1FromPc = false, 
                                                                         .acquireOperand1Directly = false, 
@@ -157,7 +157,7 @@ const AddressingModeFormat AddressingModeTemplate::RegisterIndirectDestinationAd
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::RegisterExtendedSourceAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::RegisterExtendedSourceAddressingMode                          
                                                                     {.acquireOperand1 = true, 
                                                                         .acquireOperand1FromPc = true,  
                                                                         .acquireOperand1Directly = false, 
@@ -179,7 +179,7 @@ const AddressingModeFormat AddressingModeTemplate::RegisterExtendedSourceAddress
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::RegisterExtendedDestinationAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::RegisterExtendedDestinationAddressingMode                          
                                                                     {.acquireOperand1 = true, 
                                                                         .acquireOperand1FromPc = true,  
                                                                         .acquireOperand1Directly = false, 
@@ -201,7 +201,7 @@ const AddressingModeFormat AddressingModeTemplate::RegisterExtendedDestinationAd
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectAddressingMode 
+AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectAddressingMode 
                                                                 {.acquireOperand1 = true, 
                                                                         .acquireOperand1FromPc = true,  
                                                                         .acquireOperand1Directly = false, 
@@ -223,7 +223,7 @@ const AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectAddr
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
                                                                         
-const AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectSourceIncrementAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectSourceIncrementAddressingMode                          
                                                                     {.acquireOperand1 = true, 
                                                                         .acquireOperand1FromPc = false, 
                                                                         .acquireOperand1Directly = true, 
@@ -245,7 +245,7 @@ const AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectSour
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectSourceDecrementAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectSourceDecrementAddressingMode                          
                                                                     {.acquireOperand1 = true, 
                                                                         .acquireOperand1FromPc = false, 
                                                                         .acquireOperand1Directly = true, 
@@ -267,7 +267,7 @@ const AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectSour
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectDestinationIncrementAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectDestinationIncrementAddressingMode                          
                                                                     {.acquireOperand1 = false, 
                                                                         .acquireOperand1FromPc = false, 
                                                                         .acquireOperand1Directly = false, 
@@ -289,7 +289,7 @@ const AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectDest
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectDestinationDecrementAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectDestinationDecrementAddressingMode                          
                                                                     {.acquireOperand1 = false, 
                                                                         .acquireOperand1FromPc = false, 
                                                                         .acquireOperand1Directly = false, 
@@ -312,7 +312,7 @@ const AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectDest
                                                                         };
                                                                         
 
-const AddressingModeFormat AddressingModeTemplate::ImplicitRegisterSourceAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::ImplicitRegisterSourceAddressingMode                          
                                                                     {.acquireOperand1 = true, 
                                                                         .acquireOperand1FromPc = false, 
                                                                         .acquireOperand1Directly = false, 
@@ -335,7 +335,7 @@ const AddressingModeFormat AddressingModeTemplate::ImplicitRegisterSourceAddress
                                                                         };
 
 
-const AddressingModeFormat AddressingModeTemplate::ImplicitRegisterDestinationAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::ImplicitRegisterDestinationAddressingMode                          
                                                                     {.acquireOperand1 = false,
                                                                         .acquireOperand1FromPc = false, 
                                                                         .acquireOperand1Directly = false, 
@@ -357,7 +357,7 @@ const AddressingModeFormat AddressingModeTemplate::ImplicitRegisterDestinationAd
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::ImplicitImmediateSourceAddressingMode                          
+AddressingModeFormat AddressingModeTemplate::ImplicitImmediateSourceAddressingMode                          
                                                                     {.acquireOperand1 = true,
                                                                         .acquireOperand1FromPc = true, 
                                                                         .acquireOperand1Directly = false, 
@@ -379,7 +379,7 @@ const AddressingModeFormat AddressingModeTemplate::ImplicitImmediateSourceAddres
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::ImplicitImmediateDestinationAddressingMode
+AddressingModeFormat AddressingModeTemplate::ImplicitImmediateDestinationAddressingMode
                                                                     {.acquireOperand1 = true,
                                                                         .acquireOperand1FromPc = true, 
                                                                         .acquireOperand1Directly = false, 
@@ -401,7 +401,7 @@ const AddressingModeFormat AddressingModeTemplate::ImplicitImmediateDestinationA
                                                                         .writeBackAtImplicitlyWithImmediateOperand = true
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::ImmediatePairAddressingMode
+AddressingModeFormat AddressingModeTemplate::ImmediatePairAddressingMode
                                                                     {.acquireOperand1 = true,
                                                                         .acquireOperand1FromPc = true, 
                                                                         .acquireOperand1Directly = false, 
@@ -423,7 +423,7 @@ const AddressingModeFormat AddressingModeTemplate::ImmediatePairAddressingMode
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false
                                                                         };
 
-const AddressingModeFormat AddressingModeTemplate::RegisterPairAddressingMode
+AddressingModeFormat AddressingModeTemplate::RegisterPairAddressingMode
                                                                     {.acquireOperand1 = false,
                                                                         .acquireOperand1FromPc = false, 
                                                                         .acquireOperand1Directly = false, 

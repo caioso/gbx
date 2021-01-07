@@ -62,6 +62,12 @@ uint8_t BinaryImmediateRegisterPair(Register source)
     return (RegisterBank::ToInstructionRegisterPair(source) << 4) | 0x01;
 }
 
+class ArithmeticLogicUnitDecorator : public ArithmeticLogicUnit
+{
+public:
+    interfaces::DecodedInstruction& GetInstructionData() { return _instructionData; }
+};
+
 TEST(TestALU, ExecuteUndecodedInstruction)
 {
     auto registerBank = make_shared<RegisterBank>();
@@ -69,7 +75,7 @@ TEST(TestALU, ExecuteUndecodedInstruction)
 
     try
     {
-        ArithmeticLogicUnit alu;
+        ArithmeticLogicUnitDecorator alu;
         alu.Execute(registerBank);
     }
     catch (const InstructionException& e)
@@ -87,14 +93,14 @@ TEST(TestALU, DecodeImmediateAddressingMode)
     
     for (auto destination : destinationsList)
     {
-        ArithmeticLogicUnit alu;
+        ArithmeticLogicUnitDecorator alu;
         auto rawBinary = BinaryImmediateAddressingMode(destination);
         alu.Decode(rawBinary, nullopt);
 
-        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-        EXPECT_EQ(AddressingMode::Immediate, alu.InstructionData.AddressingMode);
-        EXPECT_EQ(Register::NoRegiser, alu.InstructionData.SourceRegister);
-        EXPECT_EQ(destination, alu.InstructionData.DestinationRegister);
+        EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+        EXPECT_EQ(AddressingMode::Immediate, alu.GetInstructionData().AddressingMode);
+        EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(destination, alu.GetInstructionData().DestinationRegister);
     }
 }
 
@@ -106,26 +112,26 @@ TEST(TestALU, DecodingRegisterAddressingMode)
     for (auto source : sourcesList)
     for (auto destination : destinationsList)
     {
-        ArithmeticLogicUnit alu;
+        ArithmeticLogicUnitDecorator alu;
         auto rawBinary = BinaryRegisterAddressingMode(source, destination);
         alu.Decode(rawBinary, nullopt);
 
-        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-        EXPECT_EQ(AddressingMode::Register, alu.InstructionData.AddressingMode);
-        EXPECT_EQ(source, alu.InstructionData.SourceRegister);
-        EXPECT_EQ(destination, alu.InstructionData.DestinationRegister);
+        EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+        EXPECT_EQ(AddressingMode::Register, alu.GetInstructionData().AddressingMode);
+        EXPECT_EQ(source, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(destination, alu.GetInstructionData().DestinationRegister);
     }
 
     for (auto destination : destinationsList)
     {
-        ArithmeticLogicUnit alu;
+        ArithmeticLogicUnitDecorator alu;
         constexpr auto opcode = 0x01 << 6;
         constexpr auto forbiddenSourceRegister = (0x06);
         auto bin = forbiddenSourceRegister | RegisterBank::ToInstructionDestination(destination) << 3 | opcode;
 
         alu.Decode(bin, nullopt);
         // using 0x06 as source will lead to register indirect (thus using (HL));
-        EXPECT_EQ(AddressingMode::RegisterIndirectSource, alu.InstructionData.AddressingMode);
+        EXPECT_EQ(AddressingMode::RegisterIndirectSource, alu.GetInstructionData().AddressingMode);
     }
 }
 
@@ -133,35 +139,35 @@ TEST(TestALU, DecodeRegisterIndirectAddressingMode)
 {
     auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     auto rawBinary = static_cast<uint8_t>(0x00);
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
 
     for (auto destination : destinationsList)
     {
         rawBinary = BinaryRegisterIndirectAsSourceAddressingMode(destination);
         alu.Decode(rawBinary, nullopt);
 
-        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-        EXPECT_EQ(AddressingMode::RegisterIndirectSource, alu.InstructionData.AddressingMode);
-        EXPECT_EQ(Register::HL, alu.InstructionData.SourceRegister);
-        EXPECT_EQ(destination, alu.InstructionData.DestinationRegister);
+        EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+        EXPECT_EQ(AddressingMode::RegisterIndirectSource, alu.GetInstructionData().AddressingMode);
+        EXPECT_EQ(Register::HL, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(destination, alu.GetInstructionData().DestinationRegister);
     }
 
     // (BC) and (DE) as sources -> Only A is accepted as source
     rawBinary = 0x0A; // Ld A, (BC)
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::RegisterIndirectSource, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::BC, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::A, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectSource, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::BC, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 
     rawBinary = 0x1A; // Ld A, (DE)
     alu.Decode(rawBinary, nullopt);
     
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::RegisterIndirectSource, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::DE, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::A, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectSource, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::DE, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 
     auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
 
@@ -170,28 +176,28 @@ TEST(TestALU, DecodeRegisterIndirectAddressingMode)
         rawBinary = BinaryRegisterIndirectAsDestinationAddressingMode(source);
         alu.Decode(rawBinary, nullopt);
 
-        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-        EXPECT_EQ(AddressingMode::RegisterIndirectDestination, alu.InstructionData.AddressingMode);
-        EXPECT_EQ(source, alu.InstructionData.SourceRegister);
-        EXPECT_EQ(Register::HL, alu.InstructionData.DestinationRegister);
+        EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+        EXPECT_EQ(AddressingMode::RegisterIndirectDestination, alu.GetInstructionData().AddressingMode);
+        EXPECT_EQ(source, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(Register::HL, alu.GetInstructionData().DestinationRegister);
     }
 
     // (BC) and (DE) as sources -> Only A is accepted as source
     rawBinary = 0x02; // Ld (BC), A
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::RegisterIndirectDestination, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::A, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::BC, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectDestination, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::BC, alu.GetInstructionData().DestinationRegister);
 
     rawBinary = 0x12; // Ld (DE), A
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::RegisterIndirectDestination, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::A, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::DE, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectDestination, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::DE, alu.GetInstructionData().DestinationRegister);
 }
 
 TEST(TestALU, DecodeRegisterIndexedAddressingMode)
@@ -199,17 +205,17 @@ TEST(TestALU, DecodeRegisterIndexedAddressingMode)
     return ;
     auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     auto preOpcode = static_cast<uint8_t>(0xDD);
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
 
     for (auto destination : destinationsList)
     {
         auto rawBinary = BinaryRegisterIndexedSourceAddressingMode(destination);
         alu.Decode(rawBinary, preOpcode);
 
-        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-        EXPECT_EQ(AddressingMode::RegisterIndexedSource, alu.InstructionData.AddressingMode);
-        EXPECT_EQ(Register::IX, alu.InstructionData.SourceRegister);
-        EXPECT_EQ(destination, alu.InstructionData.DestinationRegister);
+        EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+        EXPECT_EQ(AddressingMode::RegisterIndexedSource, alu.GetInstructionData().AddressingMode);
+        EXPECT_EQ(Register::IX, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(destination, alu.GetInstructionData().DestinationRegister);
     }
 
     preOpcode = static_cast<uint8_t>(0xFD);
@@ -219,10 +225,10 @@ TEST(TestALU, DecodeRegisterIndexedAddressingMode)
         auto rawBinary = BinaryRegisterIndexedSourceAddressingMode(destination);
         alu.Decode(rawBinary, preOpcode);
 
-        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-        EXPECT_EQ(AddressingMode::RegisterIndexedSource, alu.InstructionData.AddressingMode);
-        EXPECT_EQ(Register::IY, alu.InstructionData.SourceRegister);
-        EXPECT_EQ(destination, alu.InstructionData.DestinationRegister);
+        EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+        EXPECT_EQ(AddressingMode::RegisterIndexedSource, alu.GetInstructionData().AddressingMode);
+        EXPECT_EQ(Register::IY, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(destination, alu.GetInstructionData().DestinationRegister);
     }
 
     auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -233,10 +239,10 @@ TEST(TestALU, DecodeRegisterIndexedAddressingMode)
         auto rawBinary = BinaryRegisterIndexedDestinationAddressingMode(source);
         alu.Decode(rawBinary, preOpcode);
 
-        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-        EXPECT_EQ(AddressingMode::RegisterIndexedDestination, alu.InstructionData.AddressingMode);
-        EXPECT_EQ(source, alu.InstructionData.SourceRegister);
-        EXPECT_EQ(Register::IX, alu.InstructionData.DestinationRegister);
+        EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+        EXPECT_EQ(AddressingMode::RegisterIndexedDestination, alu.GetInstructionData().AddressingMode);
+        EXPECT_EQ(source, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(Register::IX, alu.GetInstructionData().DestinationRegister);
     }
 
     preOpcode = static_cast<uint8_t>(0xFD);
@@ -245,124 +251,124 @@ TEST(TestALU, DecodeRegisterIndexedAddressingMode)
         auto rawBinary = BinaryRegisterIndexedDestinationAddressingMode(source);
         alu.Decode(rawBinary, preOpcode);
 
-        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-        EXPECT_EQ(AddressingMode::RegisterIndexedDestination, alu.InstructionData.AddressingMode);
-        EXPECT_EQ(source, alu.InstructionData.SourceRegister);
-        EXPECT_EQ(Register::IY, alu.InstructionData.DestinationRegister);
+        EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+        EXPECT_EQ(AddressingMode::RegisterIndexedDestination, alu.GetInstructionData().AddressingMode);
+        EXPECT_EQ(source, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(Register::IY, alu.GetInstructionData().DestinationRegister);
     }
 }
 
 TEST(TestALU, DecodeExtendedAddressingMode)
 {
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0xFA;
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::ExtendedSource, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::NoRegiser, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::A, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::ExtendedSource, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 
     rawBinary = 0xEA;
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::ExtendedDestination, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::A, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::NoRegiser, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::ExtendedDestination, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().DestinationRegister);
 }
 
 
 TEST(TestALU, DecodeImmediateRegisterIndirect)
 {
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0x36;
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::ImmediateRegisterIndirect, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::NoRegiser, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::HL, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::ImmediateRegisterIndirect, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::HL, alu.GetInstructionData().DestinationRegister);
 }
 
 TEST(TestALU, DecodeRegisterIndirectSourceIncrementAndDecrement)
 {
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0x2A;
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::RegisterIndirectSourceIncrement, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::HL, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::A, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectSourceIncrement, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::HL, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 
     rawBinary = 0x3A;
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::RegisterIndirectSourceDecrement, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::HL, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::A, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectSourceDecrement, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::HL, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
 TEST(TestALU, DecodeRegisterIndirectDestinationIncrementAndDecrement)
 {
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0x22;
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::RegisterIndirectDestinationIncrement, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::A, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::HL, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectDestinationIncrement, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::HL, alu.GetInstructionData().DestinationRegister);
 
     rawBinary = 0x32;
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::RegisterIndirectDestinationDecrement, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::A, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::HL, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectDestinationDecrement, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::HL, alu.GetInstructionData().DestinationRegister);
 }
 
 TEST(TestALU, DecodeRegisterImplicitAddressingMode)
 {
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0xF2;
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::RegisterImplicitSource, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::C, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::A, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterImplicitSource, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::C, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 
     rawBinary = 0xE2;
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::RegisterImplicitDestination, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::A, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::C, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterImplicitDestination, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::C, alu.GetInstructionData().DestinationRegister);
 }
 
 TEST(TestALU, DecodeImmediateImplicitAddressingMode)
 {
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0xF0;
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::ImmediateImplicitSource, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::NoRegiser, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::A, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::ImmediateImplicitSource, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 
     rawBinary = 0xE0;
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::ImmediateImplicitDestination, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::A, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::NoRegiser, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::ImmediateImplicitDestination, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().DestinationRegister);
 }
 
 TEST(TestALU, DecodeImmediateRegisterPairAddressingMode)
@@ -374,32 +380,32 @@ TEST(TestALU, DecodeImmediateRegisterPairAddressingMode)
 
     for (auto destination : destinationList)
     {
-        ArithmeticLogicUnit alu;
+        ArithmeticLogicUnitDecorator alu;
         auto rawBinary = BinaryImmediateRegisterPair(destination);
         alu.Decode(rawBinary, nullopt);
 
-        EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-        EXPECT_EQ(AddressingMode::ImmediatePair, alu.InstructionData.AddressingMode);
-        EXPECT_EQ(Register::NoRegiser, alu.InstructionData.SourceRegister);
-        EXPECT_EQ(destination, alu.InstructionData.DestinationRegister);
+        EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+        EXPECT_EQ(AddressingMode::ImmediatePair, alu.GetInstructionData().AddressingMode);
+        EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(destination, alu.GetInstructionData().DestinationRegister);
     }
 }
 
 TEST(TestALU, DecodeTransferToSP)
 {
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0xF9;
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::ld, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::RegisterPair, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::HL, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::SP, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterPair, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::HL, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::SP, alu.GetInstructionData().DestinationRegister);
 }
 
 TEST(TestALU, DecodeAddRegisterMode)
 {
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto binaryBase = 0x80;
     auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
 
@@ -408,24 +414,24 @@ TEST(TestALU, DecodeAddRegisterMode)
         auto rawBinary = binaryBase | RegisterBank::ToInstructionSource(source);
         alu.Decode(rawBinary, nullopt);
 
-        EXPECT_EQ(OpcodeType::add, alu.InstructionData.Opcode);
-        EXPECT_EQ(AddressingMode::Register, alu.InstructionData.AddressingMode);
-        EXPECT_EQ(source, alu.InstructionData.SourceRegister);
-        EXPECT_EQ(Register::A, alu.InstructionData.DestinationRegister);
+        EXPECT_EQ(OpcodeType::add, alu.GetInstructionData().Opcode);
+        EXPECT_EQ(AddressingMode::Register, alu.GetInstructionData().AddressingMode);
+        EXPECT_EQ(source, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
     }
 }
 
 TEST(TestALU, DecodeAddImmediateMode)
 {
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
 
     auto rawBinary = 0xC6;
     alu.Decode(rawBinary, nullopt);
 
-    EXPECT_EQ(OpcodeType::add, alu.InstructionData.Opcode);
-    EXPECT_EQ(AddressingMode::Immediate, alu.InstructionData.AddressingMode);
-    EXPECT_EQ(Register::NoRegiser, alu.InstructionData.SourceRegister);
-    EXPECT_EQ(Register::A, alu.InstructionData.DestinationRegister);
+    EXPECT_EQ(OpcodeType::add, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::Immediate, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
 TEST(TestALU, ExecuteImmediateAddressingMode)
@@ -437,12 +443,12 @@ TEST(TestALU, ExecuteImmediateAddressingMode)
     
     for (auto i = static_cast<size_t>(0); i < destinationsList.size(); i++)
     {
-        ArithmeticLogicUnit alu;
+        ArithmeticLogicUnitDecorator alu;
         auto rawBinary = BinaryImmediateAddressingMode(*(begin(destinationsList) + i));
         alu.Decode(rawBinary, nullopt);
 
         // simulate ALU acquiring operand from memory.
-        alu.InstructionData.MemoryOperand1 = *(begin(memoryContent) + i);
+        alu.GetInstructionData().MemoryOperand1 = *(begin(memoryContent) + i);
         
         alu.Execute(registerBank);
 
@@ -470,7 +476,7 @@ TEST(TestALU, ExecuteRegisterAddressingMode)
 
         for (auto destination : destinationsList)
         {
-            ArithmeticLogicUnit alu;
+            ArithmeticLogicUnitDecorator alu;
             auto rawBinary = BinaryRegisterAddressingMode(source, destination);
             alu.Decode(rawBinary, nullopt);
             alu.Execute(registerBank);
@@ -490,12 +496,12 @@ TEST(TestALU, ExecuteRegisterIndirectSourceAddressingMode)
     
     for (auto i = static_cast<size_t>(0); i < destinationsList.size(); i++)
     {
-        ArithmeticLogicUnit alu;
+        ArithmeticLogicUnitDecorator alu;
         auto rawBinary = BinaryRegisterIndirectAsSourceAddressingMode(*(begin(destinationsList) + i));
         alu.Decode(rawBinary, nullopt);
 
         // simulate ALU acquiring operand from memory.
-        alu.InstructionData.MemoryOperand1 = *(begin(memoryContent) + i);
+        alu.GetInstructionData().MemoryOperand1 = *(begin(memoryContent) + i);
         
         alu.Execute(registerBank);
 
@@ -512,14 +518,14 @@ TEST(TestALU, ExecuteRegisterIndirectDestinationAddressingMode)
     
     for (auto i = static_cast<size_t>(0); i < sourceList.size(); i++)
     {
-        ArithmeticLogicUnit alu;
+        ArithmeticLogicUnitDecorator alu;
         auto rawBinary = BinaryRegisterIndirectAsDestinationAddressingMode(*(begin(sourceList) + i));
         alu.Decode(rawBinary, nullopt);
 
         registerBank->Write(*(begin(sourceList) + i), *(begin(registerContent) + i));
         alu.Execute(registerBank);
 
-        EXPECT_EQ(*(begin(registerContent) + i), alu.InstructionData.MemoryResult1);
+        EXPECT_EQ(*(begin(registerContent) + i), alu.GetInstructionData().MemoryResult1);
     }
 }
 
@@ -531,12 +537,12 @@ TEST(TestALU, ExecuteRegisterIndexSourceAddressingMode)
     
     for (auto i = static_cast<size_t>(0); i < destinationsList.size(); i++)
     {
-         ArithmeticLogicUnit alu;
+         ArithmeticLogicUnitDecorator alu;
         auto rawBinary = BinaryRegisterIndexedSourceAddressingMode(*(begin(destinationsList) + i));
         alu.Decode(rawBinary, 0xDD);
 
         // simulate ALU acquiring operand from memory.
-        alu.InstructionData.MemoryOperand2 = *(begin(memoryContent) + i);
+        alu.GetInstructionData().MemoryOperand2 = *(begin(memoryContent) + i);
         
         alu.Execute(registerBank);
 
@@ -553,14 +559,14 @@ TEST(TestALU, ExecuteRegisterIndexDestinationAddressingMode)
     
     for (auto i = static_cast<size_t>(0); i < sourceList.size(); i++)
     {
-        ArithmeticLogicUnit alu;
+        ArithmeticLogicUnitDecorator alu;
         auto rawBinary = BinaryRegisterIndexedDestinationAddressingMode(*(begin(sourceList) + i));
         alu.Decode(rawBinary, nullopt);
 
         registerBank->Write(*(begin(sourceList) + i), *(begin(registerContent) + i));
         alu.Execute(registerBank);
 
-        EXPECT_EQ(*(begin(registerContent) + i), alu.InstructionData.MemoryResult1);
+        EXPECT_EQ(*(begin(registerContent) + i), alu.GetInstructionData().MemoryResult1);
     }
 }
 
@@ -568,11 +574,11 @@ TEST(TestALU, ExecuteExtendedSourceAddressingMode)
 {
     auto registerBank = make_shared<RegisterBank>();
 
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0xFA;
     alu.Decode(rawBinary, nullopt);
 
-    alu.InstructionData.MemoryOperand3 = 0xCC;
+    alu.GetInstructionData().MemoryOperand3 = 0xCC;
     alu.Execute(registerBank);
 
     EXPECT_EQ(0xCC, registerBank->Read(Register::A));
@@ -583,32 +589,32 @@ TEST(TestALU, ExecuteExtendedSourceAddressingMode)
     registerBank->Write(Register::A, 0xEE);
     alu.Execute(registerBank);
 
-    EXPECT_EQ(0xEE, alu.InstructionData.MemoryResult1);
+    EXPECT_EQ(0xEE, alu.GetInstructionData().MemoryResult1);
 }
 
 TEST(TestALU, ExecuteImmediateRegisterIndirectAddressingMode)
 {
     auto registerBank = make_shared<RegisterBank>();
 
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0x36;
     alu.Decode(rawBinary, nullopt);
 
-    alu.InstructionData.MemoryOperand1 = 0xD0;
+    alu.GetInstructionData().MemoryOperand1 = 0xD0;
     alu.Execute(registerBank);
 
-    EXPECT_EQ(0xD0, alu.InstructionData.MemoryResult1);
+    EXPECT_EQ(0xD0, alu.GetInstructionData().MemoryResult1);
 }
 
 TEST(TestALU, ExecuteRegisterIndirectSourceIncrementAndDecrement)
 {
     auto registerBank = make_shared<RegisterBank>();
 
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0x2A;
     alu.Decode(rawBinary, nullopt);
 
-    alu.InstructionData.MemoryOperand1 = 0xCA;
+    alu.GetInstructionData().MemoryOperand1 = 0xCA;
     alu.Execute(registerBank);
 
     EXPECT_EQ(0xCA, registerBank->Read(Register::A));
@@ -616,7 +622,7 @@ TEST(TestALU, ExecuteRegisterIndirectSourceIncrementAndDecrement)
     rawBinary = 0x3A;
     alu.Decode(rawBinary, nullopt);
 
-    alu.InstructionData.MemoryOperand1 = 0x10;
+    alu.GetInstructionData().MemoryOperand1 = 0x10;
     alu.Execute(registerBank);
 
     EXPECT_EQ(0x10, registerBank->Read(Register::A));
@@ -626,14 +632,14 @@ TEST(TestALU, ExecuteRegisterIndirectDestinationIncrementAndDecrement)
 {
     auto registerBank = make_shared<RegisterBank>();
 
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0x22;
     alu.Decode(rawBinary, nullopt);
 
     registerBank->Write(Register::A, 0x77);
     alu.Execute(registerBank);
 
-    EXPECT_EQ(0x77, alu.InstructionData.MemoryResult1);
+    EXPECT_EQ(0x77, alu.GetInstructionData().MemoryResult1);
 
     rawBinary = 0x32;
     alu.Decode(rawBinary, nullopt);
@@ -641,18 +647,18 @@ TEST(TestALU, ExecuteRegisterIndirectDestinationIncrementAndDecrement)
      registerBank->Write(Register::A, 0xA6);
     alu.Execute(registerBank);
 
-    EXPECT_EQ(0xA6, alu.InstructionData.MemoryResult1);
+    EXPECT_EQ(0xA6, alu.GetInstructionData().MemoryResult1);
 }
 
 TEST(TestALU, ExecuteImplicitRegisterAddresingMode)
 {
     auto registerBank = make_shared<RegisterBank>();
 
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0xF2;
     alu.Decode(rawBinary, nullopt);
 
-    alu.InstructionData.MemoryOperand1 = 0x6D;
+    alu.GetInstructionData().MemoryOperand1 = 0x6D;
     alu.Execute(registerBank);
 
     EXPECT_EQ(0x6D, registerBank->Read(Register::A));
@@ -663,18 +669,18 @@ TEST(TestALU, ExecuteImplicitRegisterAddresingMode)
     registerBank->Write(Register::A, 0xA1);
     alu.Execute(registerBank);
 
-    EXPECT_EQ(0xA1, alu.InstructionData.MemoryResult1);
+    EXPECT_EQ(0xA1, alu.GetInstructionData().MemoryResult1);
 }
 
 TEST(TestALU, ExecuteImplicitImmediateAddresingMode)
 {
     auto registerBank = make_shared<RegisterBank>();
 
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0xF0;
     alu.Decode(rawBinary, nullopt);
 
-    alu.InstructionData.MemoryOperand2 = 0x4A;
+    alu.GetInstructionData().MemoryOperand2 = 0x4A;
     alu.Execute(registerBank);
 
     EXPECT_EQ(0x4A, registerBank->Read(Register::A));
@@ -685,7 +691,7 @@ TEST(TestALU, ExecuteImplicitImmediateAddresingMode)
     registerBank->Write(Register::A, 0x78);
     alu.Execute(registerBank);
 
-    EXPECT_EQ(0x78, alu.InstructionData.MemoryResult1);
+    EXPECT_EQ(0x78, alu.GetInstructionData().MemoryResult1);
 }
 
 TEST(TestALU, ExecuteImmediateRegisrerPairAddresingMode)
@@ -704,12 +710,12 @@ TEST(TestALU, ExecuteImmediateRegisrerPairAddresingMode)
 
     for (auto i = static_cast<size_t>(0); i < destinationList.size(); i++)
     {
-        ArithmeticLogicUnit alu;
+        ArithmeticLogicUnitDecorator alu;
         auto rawBinary = BinaryImmediateRegisterPair(*(begin(destinationList) + i));
         alu.Decode(rawBinary, nullopt);
 
-        alu.InstructionData.MemoryOperand1 = *(begin(immediateValues) + i) & 0xFF;
-        alu.InstructionData.MemoryOperand2 = (*(begin(immediateValues) + i) >> 8) & 0xFF;
+        alu.GetInstructionData().MemoryOperand1 = *(begin(immediateValues) + i) & 0xFF;
+        alu.GetInstructionData().MemoryOperand2 = (*(begin(immediateValues) + i) >> 8) & 0xFF;
 
         alu.Execute(registerBank);
 
@@ -721,7 +727,7 @@ TEST(TestALU, ExecuteSPTransferAddressingMode)
 {
     auto registerBank = make_shared<RegisterBank>();
 
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     auto rawBinary = 0xF9;
     alu.Decode(rawBinary, nullopt);
 
@@ -738,7 +744,7 @@ TEST(TestALU, ExecuteAddRegisterMode)
     auto registerBank = make_shared<RegisterBank>();
     auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     random_device randomDevice;
     mt19937 engine{randomDevice()};
     uniform_int_distribution<int8_t> distribution{-100, 100};
@@ -854,7 +860,7 @@ TEST(TestALU, ExecuteAddImmediateMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
-    ArithmeticLogicUnit alu;
+    ArithmeticLogicUnitDecorator alu;
     random_device randomDevice;
     mt19937 engine{randomDevice()};
     uniform_int_distribution<int8_t> distribution{-100, 100};
@@ -878,7 +884,7 @@ TEST(TestALU, ExecuteAddImmediateMode)
         auto rawBinary = 0xC6;
         alu.Decode(rawBinary, nullopt);
         registerBank->Write(Register::A, aValue);
-        alu.InstructionData.MemoryOperand1 = memoryOperandValue;
+        alu.GetInstructionData().MemoryOperand1 = memoryOperandValue;
         alu.Execute(registerBank);
 
         EXPECT_EQ(registerBank->Read(Register::A), static_cast<uint8_t>(result));
@@ -889,7 +895,7 @@ TEST(TestALU, ExecuteAddImmediateMode)
 
     alu.Decode(rawBinary, nullopt);
     registerBank->Write(Register::A, 0xFE);
-    alu.InstructionData.MemoryOperand1 = 0x02;
+    alu.GetInstructionData().MemoryOperand1 = 0x02;
     alu.Execute(registerBank);
 
     EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
@@ -900,7 +906,7 @@ TEST(TestALU, ExecuteAddImmediateMode)
 
     alu.Decode(rawBinary, nullopt);
     registerBank->Write(Register::A, 0x0F);
-    alu.InstructionData.MemoryOperand1 = 0x01;
+    alu.GetInstructionData().MemoryOperand1 = 0x01;
     alu.Execute(registerBank);
 
     EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
@@ -911,7 +917,7 @@ TEST(TestALU, ExecuteAddImmediateMode)
 
     alu.Decode(rawBinary, nullopt);
     registerBank->Write(Register::A, 0xF0);
-    alu.InstructionData.MemoryOperand1 = 0x80;
+    alu.GetInstructionData().MemoryOperand1 = 0x80;
     alu.Execute(registerBank);
 
     EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
@@ -922,7 +928,7 @@ TEST(TestALU, ExecuteAddImmediateMode)
 
     alu.Decode(rawBinary, nullopt);
     registerBank->Write(Register::A, 0x00);
-    alu.InstructionData.MemoryOperand1 = 0x00;
+    alu.GetInstructionData().MemoryOperand1 = 0x00;
     alu.Execute(registerBank);
 
     EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
@@ -933,7 +939,7 @@ TEST(TestALU, ExecuteAddImmediateMode)
 
     alu.Decode(rawBinary, nullopt);
     registerBank->Write(Register::A, 0xFE);
-    alu.InstructionData.MemoryOperand1 = 0x01;
+    alu.GetInstructionData().MemoryOperand1 = 0x01;
     alu.Execute(registerBank);
 
     EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));

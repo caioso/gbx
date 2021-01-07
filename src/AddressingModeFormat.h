@@ -29,26 +29,26 @@ struct AddressingModeFormat
 class AddressingModeTemplate
 {
 public:
-    static const AddressingModeFormat NoAddressingMode;
-    static const AddressingModeFormat RegisterAddressingMode;
-    static const AddressingModeFormat ImmediateAddressingMode;
-    static const AddressingModeFormat RegisterIndexedSourceAddressingMode;
-    static const AddressingModeFormat RegisterIndexedDestinationAddressingMode;
-    static const AddressingModeFormat RegisterIndirectSourceAddressingMode;
-    static const AddressingModeFormat RegisterIndirectDestinationAddressingMode;
-    static const AddressingModeFormat RegisterExtendedSourceAddressingMode;
-    static const AddressingModeFormat RegisterExtendedDestinationAddressingMode;
-    static const AddressingModeFormat ImmediateRegisterIndirectAddressingMode;
-    static const AddressingModeFormat ImmediateRegisterIndirectSourceIncrementAddressingMode;
-    static const AddressingModeFormat ImmediateRegisterIndirectSourceDecrementAddressingMode;
-    static const AddressingModeFormat ImmediateRegisterIndirectDestinationIncrementAddressingMode;
-    static const AddressingModeFormat ImmediateRegisterIndirectDestinationDecrementAddressingMode;
-    static const AddressingModeFormat ImplicitRegisterSourceAddressingMode;
-    static const AddressingModeFormat ImplicitRegisterDestinationAddressingMode;
-    static const AddressingModeFormat ImplicitImmediateSourceAddressingMode;
-    static const AddressingModeFormat ImplicitImmediateDestinationAddressingMode;
-    static const AddressingModeFormat ImmediatePairAddressingMode;
-    static const AddressingModeFormat RegisterPairAddressingMode;
+    static AddressingModeFormat NoAddressingMode;
+    static AddressingModeFormat RegisterAddressingMode;
+    static AddressingModeFormat ImmediateAddressingMode;
+    static AddressingModeFormat RegisterIndexedSourceAddressingMode;
+    static AddressingModeFormat RegisterIndexedDestinationAddressingMode;
+    static AddressingModeFormat RegisterIndirectSourceAddressingMode;
+    static AddressingModeFormat RegisterIndirectDestinationAddressingMode;
+    static AddressingModeFormat RegisterExtendedSourceAddressingMode;
+    static AddressingModeFormat RegisterExtendedDestinationAddressingMode;
+    static AddressingModeFormat ImmediateRegisterIndirectAddressingMode;
+    static AddressingModeFormat ImmediateRegisterIndirectSourceIncrementAddressingMode;
+    static AddressingModeFormat ImmediateRegisterIndirectSourceDecrementAddressingMode;
+    static AddressingModeFormat ImmediateRegisterIndirectDestinationIncrementAddressingMode;
+    static AddressingModeFormat ImmediateRegisterIndirectDestinationDecrementAddressingMode;
+    static AddressingModeFormat ImplicitRegisterSourceAddressingMode;
+    static AddressingModeFormat ImplicitRegisterDestinationAddressingMode;
+    static AddressingModeFormat ImplicitImmediateSourceAddressingMode;
+    static AddressingModeFormat ImplicitImmediateDestinationAddressingMode;
+    static AddressingModeFormat ImmediatePairAddressingMode;
+    static AddressingModeFormat RegisterPairAddressingMode;
 };
 
 }
