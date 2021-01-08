@@ -10,12 +10,28 @@ ArithmeticLogicUnit::ArithmeticLogicUnit()
     : _currentAddressingMode(nullptr)
 {}
 
-void ArithmeticLogicUnit::Decode(uint8_t opcode, std::optional<uint8_t> preOpcode)
+void ArithmeticLogicUnit::Initialize(shared_ptr<RegisterBankInterface> registers)
+{
+    _registers = registers;
+}
+
+void ArithmeticLogicUnit::InitializeRegisters()
+{
+    _registers->Write(Register::IR, 0x00);
+    _registers->WritePair(Register::PC, 0x0000);
+    _registers->Write(Register::F, 0x00);
+}
+
+void ArithmeticLogicUnit::Decode()
 {
     try
     {
+        auto opcode = _registers->Read(Register::IR);
+        auto prefix = _registers->Read(Register::PIR);
+        auto preOpcode = prefix == 0x00? nullopt : make_optional<uint8_t>(prefix);
         _currentInstruction = _decoder.DecodeOpcode(opcode, preOpcode);
         _currentInstruction->Decode(opcode, preOpcode, _instructionData);
+        _registers->Write(Register::PIR, 0x00);
     }
     catch (const InstructionException&)
     {
@@ -23,12 +39,32 @@ void ArithmeticLogicUnit::Decode(uint8_t opcode, std::optional<uint8_t> preOpcod
     }
 }
 
-void ArithmeticLogicUnit::Execute(std::shared_ptr<RegisterBank> registerBank)
+uint8_t ArithmeticLogicUnit::AcquireInstruction(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+{
+    auto instruction = ReadAtRegister(Register::PC, memoryController);
+    IncrementPC();
+
+    if (instruction == InstructionConstants::PreOpcode_DD || instruction == InstructionConstants::PreOpcode_FD)
+    {
+        auto secondInstruction = ReadAtRegister(Register::PC, memoryController);
+        IncrementPC();
+
+        _registers->Write(Register::PIR, instruction);
+        _registers->Write(Register::IR, secondInstruction);
+    }
+    else 
+        _registers->Write(Register::IR, instruction);
+
+    
+    return instruction;
+}
+
+void ArithmeticLogicUnit::Execute()
 {
     if (_currentInstruction == nullptr)
         throw InstructionException("tried to execute an andecoded instruction");
 
-    _currentInstruction->Execute(registerBank, _instructionData);     
+    _currentInstruction->Execute(_registers, _instructionData);     
 }
 
 AddressingModeFormat* ArithmeticLogicUnit::AcquireAddressingModeTraits()
@@ -61,114 +97,114 @@ AddressingModeFormat* ArithmeticLogicUnit::AcquireAddressingModeTraits()
     return _currentAddressingMode;
 }
 
-void ArithmeticLogicUnit::AcquireOperand1AtPC(std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::AcquireOperand1AtPC(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
-    _instructionData.MemoryOperand1 = ReadAtRegister(Register::PC, registerBank, memoryController);
-    IncrementPC(registerBank);
+    _instructionData.MemoryOperand1 = ReadAtRegister(Register::PC, memoryController);
+    IncrementPC();
 }
 
-void ArithmeticLogicUnit::AcquireOperand1AtRegister(std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::AcquireOperand1AtRegister(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
-    _instructionData.MemoryOperand1 = ReadAtRegister(_instructionData.SourceRegister, registerBank, memoryController);
+    _instructionData.MemoryOperand1 = ReadAtRegister(_instructionData.SourceRegister, memoryController);
 
     if (_currentAddressingMode->incrementSource)
-        IncrementRegisterPair(_instructionData.SourceRegister, registerBank);
+        IncrementRegisterPair(_instructionData.SourceRegister);
     else if (_currentAddressingMode->decrementSource)
-        DecrementRegisterPair(_instructionData.SourceRegister, registerBank);
+        DecrementRegisterPair(_instructionData.SourceRegister);
 }
 
-void ArithmeticLogicUnit::AcquireOperand1Implicitly(std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::AcquireOperand1Implicitly(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
-    auto operandLocation = static_cast<uint16_t>(0xFF << 8 | registerBank->Read(_instructionData.SourceRegister));
+    auto operandLocation = static_cast<uint16_t>(0xFF << 8 | _registers->Read(_instructionData.SourceRegister));
     _instructionData.MemoryOperand1 = get<uint8_t>(memoryController->Read(operandLocation, MemoryAccessType::Byte));
 }
 
-void ArithmeticLogicUnit::AcquireOperand2AtPC(std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<interfaces::MemoryControllerInterface> memoryContorller)
+void ArithmeticLogicUnit::AcquireOperand2AtPC(shared_ptr<interfaces::MemoryControllerInterface> memoryContorller)
 {
-    _instructionData.MemoryOperand2 = ReadAtRegister(Register::PC, registerBank, memoryContorller);
-    IncrementPC(registerBank);
+    _instructionData.MemoryOperand2 = ReadAtRegister(Register::PC, memoryContorller);
+    IncrementPC();
 }
 
-void ArithmeticLogicUnit::AcquireOperand2AtComposedAddress(std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::AcquireOperand2AtComposedAddress(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
-    auto operandLocation = static_cast<uint16_t>(static_cast<int8_t>(_instructionData.MemoryOperand1) + registerBank->ReadPair(_instructionData.SourceRegister));
+    auto operandLocation = static_cast<uint16_t>(static_cast<int8_t>(_instructionData.MemoryOperand1) + _registers->ReadPair(_instructionData.SourceRegister));
     _instructionData.MemoryOperand2 = get<uint8_t>(memoryController->Read(operandLocation, MemoryAccessType::Byte));
 }
 
-void ArithmeticLogicUnit::AcquireOperand2Implicitly(__attribute__((unused)) std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::AcquireOperand2Implicitly(__attribute__((unused)) shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
     auto operandLocation = static_cast<uint16_t>(0xFF << 8 | _instructionData.MemoryOperand1);
     _instructionData.MemoryOperand2 = get<uint8_t>(memoryController->Read(operandLocation, MemoryAccessType::Byte));
 }
 
-void ArithmeticLogicUnit::AcquireOperand3(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::AcquireOperand3(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
     auto operandLocation = static_cast<uint16_t>(_instructionData.MemoryOperand1 | _instructionData.MemoryOperand2 << 8);
     _instructionData.MemoryOperand3 = get<uint8_t>(memoryController->Read(operandLocation, MemoryAccessType::Byte));
 }
 
-void ArithmeticLogicUnit::WriteBackAtOperandAddress(std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::WriteBackAtOperandAddress(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
     auto resultContent = _instructionData.MemoryResult1;
-    auto resultAddress = static_cast<uint16_t>(static_cast<int8_t>(_instructionData.MemoryOperand1) + registerBank->ReadPair(_instructionData.DestinationRegister));
+    auto resultAddress = static_cast<uint16_t>(static_cast<int8_t>(_instructionData.MemoryOperand1) + _registers->ReadPair(_instructionData.DestinationRegister));
     memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 }
 
-void ArithmeticLogicUnit::WriteBackAtRegisterAddress(std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::WriteBackAtRegisterAddress(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
     auto resultContent = _instructionData.MemoryResult1;
-    auto resultAddress = registerBank->ReadPair(_instructionData.DestinationRegister);
+    auto resultAddress = _registers->ReadPair(_instructionData.DestinationRegister);
     memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 
      if (_currentAddressingMode->incrementDestination)
-        IncrementRegisterPair(_instructionData.DestinationRegister, registerBank);
+        IncrementRegisterPair(_instructionData.DestinationRegister);
     else if (_currentAddressingMode->decrementDestination)
-        DecrementRegisterPair(_instructionData.DestinationRegister, registerBank);
+        DecrementRegisterPair(_instructionData.DestinationRegister);
 }
 
-void ArithmeticLogicUnit::WriteBackAtComposedAddress(__attribute__((unused)) std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::WriteBackAtComposedAddress(__attribute__((unused)) shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
     auto resultContent = _instructionData.MemoryResult1;
     auto resultAddress = static_cast<uint16_t>(_instructionData.MemoryOperand1 | _instructionData.MemoryOperand2 << 8);
     memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 }
 
-void ArithmeticLogicUnit::WriteBackAtImplicitRegisterAddress(std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::WriteBackAtImplicitRegisterAddress(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
     auto resultContent = _instructionData.MemoryResult1;
-    auto resultAddress = static_cast<uint16_t>(0xFF << 8 | registerBank->Read(_instructionData.DestinationRegister));
+    auto resultAddress = static_cast<uint16_t>(0xFF << 8 | _registers->Read(_instructionData.DestinationRegister));
     memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 }
 
-void ArithmeticLogicUnit::WriteBackAtImplicitImmediateAddress(std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::WriteBackAtImplicitImmediateAddress(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
-    volatile auto resultContent = registerBank->Read(_instructionData.SourceRegister);
+    volatile auto resultContent = _registers->Read(_instructionData.SourceRegister);
     volatile auto resultAddress = static_cast<uint16_t>(0xFF << 8 | _instructionData.MemoryOperand1);
     memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 }
 
-inline uint8_t ArithmeticLogicUnit::ReadAtRegister(Register reg, std::shared_ptr<RegisterBank> registerBank, std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+inline uint8_t ArithmeticLogicUnit::ReadAtRegister(Register reg, shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
-    auto registerContent = registerBank->ReadPair(reg);
+    auto registerContent = _registers->ReadPair(reg);
     return get<uint8_t>(memoryController->Read(registerContent, MemoryAccessType::Byte));
 }
 
-inline void ArithmeticLogicUnit::IncrementRegisterPair(Register reg, std::shared_ptr<RegisterBank> registerBank)
+inline void ArithmeticLogicUnit::IncrementRegisterPair(Register reg)
 {
-    auto currentValue = registerBank->ReadPair(reg);
-    registerBank->WritePair(reg, currentValue + 1);
+    auto currentValue = _registers->ReadPair(reg);
+    _registers->WritePair(reg, currentValue + 1);
 }
 
-inline void ArithmeticLogicUnit::DecrementRegisterPair(Register reg, std::shared_ptr<RegisterBank> registerBank)
+inline void ArithmeticLogicUnit::DecrementRegisterPair(Register reg)
 {
-    auto currentValue = registerBank->ReadPair(reg);
-    registerBank->WritePair(reg, currentValue - 1);
+    auto currentValue = _registers->ReadPair(reg);
+    _registers->WritePair(reg, currentValue - 1);
 }
 
-inline void ArithmeticLogicUnit::IncrementPC(std::shared_ptr<RegisterBank> registerBank)
+inline void ArithmeticLogicUnit::IncrementPC()
 {
-    auto programCounter = registerBank->ReadPair(Register::PC);
-    registerBank->WritePair(Register::PC, programCounter + 1);
+    auto programCounter = _registers->ReadPair(Register::PC);
+    _registers->WritePair(Register::PC, programCounter + 1);
 }
 
 }

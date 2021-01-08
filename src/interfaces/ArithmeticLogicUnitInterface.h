@@ -4,12 +4,12 @@
 #include <optional>
 #include <memory>
 
-#include "MemoryControllerInterface.h"
 #include "../AddressingMode.h"
 #include "../AddressingModeFormat.h"
 #include "../MemoryController.h"
-#include "../RegisterBank.h"
 #include "../instructions/Opcodes.h"
+#include "MemoryControllerInterface.h"
+#include "RegisterBankInterface.h"
 
 namespace gbx::interfaces
 {
@@ -36,22 +36,28 @@ class ArithmeticLogicUnitInterface
 {
 public:
     virtual ~ArithmeticLogicUnitInterface() = default;    
-    virtual void Decode(uint8_t, std::optional<uint8_t>) = 0;
-    virtual void Execute(std::shared_ptr<RegisterBank>) = 0;
     
+    virtual void Initialize(std::shared_ptr<RegisterBankInterface>) = 0;
+
+    virtual void InitializeRegisters() = 0;
+    virtual void Decode() = 0;
+    virtual void Execute() = 0;
+    
+    virtual uint8_t AcquireInstruction(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController) = 0;
+
     virtual AddressingModeFormat* AcquireAddressingModeTraits() = 0;
-    virtual void AcquireOperand1AtPC(std::shared_ptr<RegisterBank>, std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void AcquireOperand1Implicitly(std::shared_ptr<RegisterBank>, std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void AcquireOperand1AtRegister(std::shared_ptr<RegisterBank>, std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void AcquireOperand2AtPC(std::shared_ptr<RegisterBank>, std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void AcquireOperand2AtComposedAddress(std::shared_ptr<RegisterBank>, std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void AcquireOperand2Implicitly(std::shared_ptr<RegisterBank>, std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void AcquireOperand1AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void AcquireOperand1Implicitly(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void AcquireOperand1AtRegister(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void AcquireOperand2AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void AcquireOperand2AtComposedAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void AcquireOperand2Implicitly(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
     virtual void AcquireOperand3(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void WriteBackAtOperandAddress(std::shared_ptr<RegisterBank>, std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void WriteBackAtRegisterAddress(std::shared_ptr<RegisterBank>, std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void WriteBackAtComposedAddress(std::shared_ptr<RegisterBank>, std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void WriteBackAtImplicitRegisterAddress(std::shared_ptr<RegisterBank>, std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void WriteBackAtImplicitImmediateAddress(std::shared_ptr<RegisterBank>, std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void WriteBackAtOperandAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void WriteBackAtRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void WriteBackAtComposedAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void WriteBackAtImplicitRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void WriteBackAtImplicitImmediateAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
 };
 
 

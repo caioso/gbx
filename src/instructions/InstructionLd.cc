@@ -58,7 +58,7 @@ void InstructionLd::Decode(uint8_t opcode, std::optional<uint8_t> preOpcode, Dec
     }
 }
 
-void InstructionLd::Execute(shared_ptr<RegisterBank> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionLd::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     if (auto currentAddressingMode = decodedInstruction.AddressingMode;
         InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::Immediate, 
@@ -87,7 +87,7 @@ void InstructionLd::Execute(shared_ptr<RegisterBank> registerBank, DecodedInstru
 
 inline void InstructionLd::DecodeRegisterImmediateMove(uint8_t opcode, DecodedInstruction& decodedInstruction)
 {
-    auto destination = RegisterBank::FromInstructionDestination((opcode >> 3) & 0x07);
+    auto destination = RegisterBankInterface::FromInstructionDestination((opcode >> 3) & 0x07);
     decodedInstruction =
     {
         .Opcode = OpcodeType::ld,
@@ -103,8 +103,8 @@ inline void InstructionLd::DecodeRegisterImmediateMove(uint8_t opcode, DecodedIn
 
 inline void InstructionLd::DecodeRegisterRegisterMove(uint8_t opcode, DecodedInstruction& decodedInstruction)
 {
-    auto source = RegisterBank::FromInstructionSource(opcode & 0x07);
-    auto destination = RegisterBank::FromInstructionDestination((opcode >> 3) & 0x07);
+    auto source = RegisterBankInterface::FromInstructionSource(opcode & 0x07);
+    auto destination = RegisterBankInterface::FromInstructionDestination((opcode >> 3) & 0x07);
     decodedInstruction =
     {
         .Opcode = OpcodeType::ld,
@@ -120,7 +120,7 @@ inline void InstructionLd::DecodeRegisterRegisterMove(uint8_t opcode, DecodedIns
 
 inline void InstructionLd::DecodeRegisterPointerMove(uint8_t opcode, DecodedInstruction& decodedInstruction)
 {
-    auto destination = RegisterBank::FromInstructionDestination((opcode >> 3) & 0x07);
+    auto destination = RegisterBankInterface::FromInstructionDestination((opcode >> 3) & 0x07);
     decodedInstruction =
     {
         .Opcode = OpcodeType::ld,
@@ -136,7 +136,7 @@ inline void InstructionLd::DecodeRegisterPointerMove(uint8_t opcode, DecodedInst
 
 inline void InstructionLd::DecodePointerRegisterMove(uint8_t opcode, DecodedInstruction& decodedInstruction)
 {
-    auto source = RegisterBank::FromInstructionSource(opcode & 0x07);
+    auto source = RegisterBankInterface::FromInstructionSource(opcode & 0x07);
 
     decodedInstruction =
     {
@@ -350,7 +350,7 @@ inline void InstructionLd::DecodePointerDecrementAccumulatorMove(DecodedInstruct
 
 inline void InstructionLd::DecodeRegisterPairImmediateMove(uint8_t opcode, interfaces::DecodedInstruction& decodedInstruction)
 {
-    auto destination = RegisterBank::FromInstructionToPair((opcode >> 4) & 0x03);
+    auto destination = RegisterBankInterface::FromInstructionToPair((opcode >> 4) & 0x03);
     decodedInstruction =
     {
         .Opcode = OpcodeType::ld,
@@ -381,7 +381,7 @@ inline void InstructionLd::DecodeStackPointerPointerMove(DecodedInstruction& dec
 
 inline void InstructionLd::DecodeRegisterIndexedMove(uint8_t opcode, uint8_t preOpcode, interfaces::DecodedInstruction& decodedInstruction)
 {
-    auto destination = RegisterBank::FromInstructionDestination((opcode >> 3) & 0x07);
+    auto destination = RegisterBankInterface::FromInstructionDestination((opcode >> 3) & 0x07);
     auto source = preOpcode == 0xDD ? Register::IX : Register::IY;
 
     decodedInstruction =
@@ -399,7 +399,7 @@ inline void InstructionLd::DecodeRegisterIndexedMove(uint8_t opcode, uint8_t pre
 
 inline void InstructionLd::DecodeIndexedRegisterMove(uint8_t opcode, uint8_t preOpcode, interfaces::DecodedInstruction& decodedInstruction)
 {
-    auto source = RegisterBank::FromInstructionSource(opcode & 0x07);
+    auto source = RegisterBankInterface::FromInstructionSource(opcode & 0x07);
     auto destination = preOpcode == 0xDD ? Register::IX : Register::IY;
 
     decodedInstruction =
@@ -415,33 +415,33 @@ inline void InstructionLd::DecodeIndexedRegisterMove(uint8_t opcode, uint8_t pre
     };
 }
 
-inline void InstructionLd::ExecuteRegisterMemoryOperand1Transfer(shared_ptr<RegisterBank> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLd::ExecuteRegisterMemoryOperand1Transfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     registerBank->Write(decodedInstruction.DestinationRegister, decodedInstruction.MemoryOperand1);
 }
 
-inline void InstructionLd::ExecuteRegisterMemoryOperand1And2Transfer(shared_ptr<RegisterBank> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLd::ExecuteRegisterMemoryOperand1And2Transfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     registerBank->WritePair(decodedInstruction.DestinationRegister, decodedInstruction.MemoryOperand1 | decodedInstruction.MemoryOperand2 << 8);
 }
 
-inline void InstructionLd::ExecuteRegisterMemoryOperand3Transfer(shared_ptr<RegisterBank> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLd::ExecuteRegisterMemoryOperand3Transfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     registerBank->Write(decodedInstruction.DestinationRegister, decodedInstruction.MemoryOperand3);
 }
 
-inline void InstructionLd::ExecuteRegisterMemoryOperand2Transfer(shared_ptr<RegisterBank> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLd::ExecuteRegisterMemoryOperand2Transfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     registerBank->Write(decodedInstruction.DestinationRegister, decodedInstruction.MemoryOperand2);
 }
 
-inline void InstructionLd::ExecuteRegisterRegisterTransfer(shared_ptr<RegisterBank> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLd::ExecuteRegisterRegisterTransfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     auto source = registerBank->Read(decodedInstruction.SourceRegister);
     registerBank->Write(decodedInstruction.DestinationRegister, source);
 }
 
-inline void InstructionLd::ExecuteRegisterMemoryTransfer(shared_ptr<RegisterBank> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLd::ExecuteRegisterMemoryTransfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     auto currentSourceValue = registerBank->Read(decodedInstruction.SourceRegister);
     decodedInstruction.MemoryResult1 = currentSourceValue;
@@ -452,7 +452,7 @@ inline void InstructionLd::ExecuteMemoryOperand1MemoryTransfer(DecodedInstructio
     decodedInstruction.MemoryResult1 = decodedInstruction.MemoryOperand1;
 }
 
-inline void InstructionLd::ExecuteRegisterPairRegisterPairTransfer(std::shared_ptr<RegisterBank> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLd::ExecuteRegisterPairRegisterPairTransfer(std::shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     auto source = registerBank->ReadPair(decodedInstruction.SourceRegister);
     registerBank->WritePair(decodedInstruction.DestinationRegister, source);

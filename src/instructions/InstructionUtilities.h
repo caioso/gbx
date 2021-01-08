@@ -6,7 +6,6 @@
 
 #include "../AddressingMode.h"
 #include "../MemoryController.h"
-#include "../RegisterBank.h"
 
 namespace gbx
 {

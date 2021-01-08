@@ -29,7 +29,6 @@ public:
 
 protected:
     inline void Fetch();
-    inline void FetchAgain();
     inline void Decode();
     inline void Execute();
     inline void AcquireOperand1();
@@ -37,35 +36,31 @@ protected:
     inline void AcquireOperand3();
     inline void WriteBack();
 
-    inline uint8_t ReadAtRegister(Register);
-
     inline void AcquireAddressingMode();
     inline void InitializeRegisters();
     inline void DecodeInstruction();
     inline void ExecuteInstruction();
     inline void WriteBackResults();
-    inline void CompleteFetchPC(uint8_t);
-    inline void CompletePreOpcodeFetch(uint8_t);
     inline void ReadOperand1AtPC();
     inline void ReadOperand1AtRegister();
     inline void ReadOperand1Implicitly();
     inline void ReadOperand2AtPC();
     inline void ReadOperand2AtComposedAddress();
     inline void ReadOperand2Implicitly();
-    inline void IncrementRegisterPair(Register);
-    inline void DecrementRegisterPair(Register);
-    inline void IncrementPC();
+    inline void IncrementRegisterPair(interfaces::Register);
+    inline void DecrementRegisterPair(interfaces::Register);
     inline void WriteBackAtOperandAddress();
     inline void WriteBackAtRegisterAddress(); 
     inline void WriteBackAtComposedAddress();
     inline void WriteBackAtImplicitRegisterAddress();
     inline void WriteBackAtImplicitImmediateAddress();
 
-    std::shared_ptr<RegisterBank> _registers;
     std::shared_ptr<interfaces::ArithmeticLogicUnitInterface> _alu;
     std::optional<uint8_t> _preOpcode;
     std::shared_ptr<interfaces::MemoryControllerInterface> _memoryController;
     AddressingModeFormat* _currentAddressingMode;   
+
+    std::once_flag _flag;
 };
 
 }

@@ -7,12 +7,9 @@ namespace gbx
 {
 
 ControlUnit::ControlUnit()
-    : _registers(make_shared<RegisterBank>())
-    , _preOpcode(nullopt)
+    : _preOpcode(nullopt)
     , _currentAddressingMode(nullptr)
-{
-    InitializeRegisters();
-}
+{}
 
 void ControlUnit::Initialize(shared_ptr<MemoryControllerInterface> memoryController, shared_ptr<ArithmeticLogicUnitInterface> alu)
 {
@@ -22,12 +19,10 @@ void ControlUnit::Initialize(shared_ptr<MemoryControllerInterface> memoryControl
 
 void ControlUnit::RunCycle()
 {
+    call_once(_flag, [&]() -> void { _alu->InitializeRegisters(); });
+    
     // 1 Fetch
     Fetch();
-
-    // 1.1 Fetch Real Opcode
-    if (_preOpcode != nullopt)
-        FetchAgain();
 
     // 2 Decode Instruction
     Decode();
@@ -54,20 +49,7 @@ void ControlUnit::RunCycle()
 
 inline void ControlUnit::Fetch()
 {
-    auto instruction = ReadAtRegister(Register::PC);
-    IncrementPC();
-
-    if (instruction == 0xDD || instruction == 0xFD)
-        CompletePreOpcodeFetch(instruction);
-    else
-        CompleteFetchPC(instruction);
-}
-
-inline void ControlUnit::FetchAgain()
-{
-    auto instruction = ReadAtRegister(Register::PC);
-    IncrementPC();
-    CompleteFetchPC(instruction);
+    _alu->AcquireInstruction(_memoryController);
 }
 
 inline void ControlUnit::Decode()
@@ -113,38 +95,12 @@ inline void ControlUnit::WriteBack()
 
 inline void ControlUnit::InitializeRegisters()
 {
-    _registers->Write(Register::IR, 0x00);
-    _registers->WritePair(Register::PC, 0x0000);
-    _registers->Write(Register::F, 0x00);
-}
-
-inline uint8_t ControlUnit::ReadAtRegister(Register reg)
-{
-    auto registerContent = _registers->ReadPair(reg);
-    return get<uint8_t>(_memoryController->Read(registerContent, MemoryAccessType::Byte));
-}
-
-inline void ControlUnit::IncrementPC()
-{
-    auto programCounter = _registers->ReadPair(Register::PC);
-    _registers->WritePair(Register::PC, programCounter + 1);
-}
-
-inline void ControlUnit::CompleteFetchPC(uint8_t instruction)
-{
-    _registers->Write(Register::IR, instruction);
-}
-
-inline void ControlUnit::CompletePreOpcodeFetch(uint8_t preOpcode)
-{
-    _preOpcode = preOpcode;
+    _alu->InitializeRegisters();
 }
 
 inline void ControlUnit::DecodeInstruction()
 {
-    auto opcode = _registers->Read(Register::IR);
-    _alu->Decode(opcode, _preOpcode);
-    _preOpcode = nullopt;
+    _alu->Decode();
 }
 
 inline void ControlUnit::AcquireAddressingMode()
@@ -154,37 +110,37 @@ inline void ControlUnit::AcquireAddressingMode()
 
 inline void ControlUnit::ReadOperand1AtPC()
 {
-    _alu->AcquireOperand1AtPC(_registers, _memoryController);
+    _alu->AcquireOperand1AtPC(_memoryController);
 }
 
 inline void ControlUnit::ReadOperand1AtRegister()
 {
-    _alu->AcquireOperand1AtRegister(_registers, _memoryController);
+    _alu->AcquireOperand1AtRegister(_memoryController);
 }
 
 inline void ControlUnit::ReadOperand1Implicitly()
 {
-    _alu->AcquireOperand1Implicitly(_registers, _memoryController);
+    _alu->AcquireOperand1Implicitly(_memoryController);
 }
 
 inline void ControlUnit::ReadOperand2AtPC()
 {
-    _alu->AcquireOperand2AtPC(_registers, _memoryController);
+    _alu->AcquireOperand2AtPC(_memoryController);
 }
 
 inline void ControlUnit::ReadOperand2AtComposedAddress()
 {
-    _alu->AcquireOperand2AtComposedAddress(_registers, _memoryController);
+    _alu->AcquireOperand2AtComposedAddress(_memoryController);
 }
 
 inline void ControlUnit::ReadOperand2Implicitly()
 {
-    _alu->AcquireOperand2Implicitly(_registers, _memoryController);
+    _alu->AcquireOperand2Implicitly(_memoryController);
 }
 
 inline void ControlUnit::ExecuteInstruction()
 {
-    _alu->Execute(_registers);
+    _alu->Execute();
 }
 
 inline void ControlUnit::WriteBackResults()
@@ -203,27 +159,27 @@ inline void ControlUnit::WriteBackResults()
 
 inline void ControlUnit::WriteBackAtOperandAddress()
 {
-    _alu->WriteBackAtOperandAddress(_registers, _memoryController);
+    _alu->WriteBackAtOperandAddress(_memoryController);
 }
 
 inline void ControlUnit::WriteBackAtRegisterAddress()
 {
-    _alu->WriteBackAtRegisterAddress(_registers, _memoryController);
+    _alu->WriteBackAtRegisterAddress(_memoryController);
 }
 
 inline void ControlUnit::WriteBackAtComposedAddress()
 {
-    _alu->WriteBackAtComposedAddress(_registers, _memoryController);
+    _alu->WriteBackAtComposedAddress(_memoryController);
 }
 
 inline void ControlUnit::WriteBackAtImplicitRegisterAddress()
 {
-    _alu->WriteBackAtImplicitRegisterAddress(_registers, _memoryController);
+    _alu->WriteBackAtImplicitRegisterAddress(_memoryController);
 }
 
 inline void ControlUnit::WriteBackAtImplicitImmediateAddress()
 {
-    _alu->WriteBackAtImplicitImmediateAddress(_registers, _memoryController);
+    _alu->WriteBackAtImplicitImmediateAddress(_memoryController);
 }
 
 }

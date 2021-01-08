@@ -12,7 +12,7 @@ class ControlUnitInterface
 {
 public:
     virtual void RunCycle() = 0;
-    virtual void Initialize(std::shared_ptr<interfaces::MemoryControllerInterface>, std::shared_ptr<ArithmeticLogicUnitInterface>) = 0;
+    virtual void Initialize(std::shared_ptr<MemoryControllerInterface>, std::shared_ptr<ArithmeticLogicUnitInterface>) = 0;
 };
 
 }

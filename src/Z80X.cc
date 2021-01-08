@@ -6,17 +6,20 @@ using namespace gbx::interfaces;
 namespace gbx
 {
 
-void Z80X::Initialize(std::shared_ptr<ControlUnitInterface> controlUnit, 
-                      std::shared_ptr<interfaces::ClockInterface> clock, 
-                      std::shared_ptr<interfaces::ArithmeticLogicUnitInterface> alu,
-                      std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void Z80X::Initialize(shared_ptr<ControlUnitInterface> controlUnit, 
+                      shared_ptr<ClockInterface> clock, 
+                      shared_ptr<ArithmeticLogicUnitInterface> alu,
+                      shared_ptr<MemoryControllerInterface> memoryController,
+                      shared_ptr<RegisterBankInterface> registers)
 {
     _controlUnit = controlUnit;
     _clock = clock;
     _alu = alu;
     _memoryController = memoryController;
+    _registers = registers;
 
     _controlUnit->Initialize(_memoryController, _alu);
+    _alu->Initialize(_registers);
 }
 
 void Z80X::Run()

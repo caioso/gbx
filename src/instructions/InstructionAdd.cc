@@ -14,7 +14,7 @@ void InstructionAdd::Decode(uint8_t opcode, __attribute__((unused)) std::optiona
         DecodeAddImmediateMode(decodeInstruction);
 }
 
-void InstructionAdd::Execute(shared_ptr<RegisterBank> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionAdd::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     auto operand1 = AcquireSourceOperandValue(registerBank, decodedInstruction);
     auto operand2  = registerBank->Read(decodedInstruction.DestinationRegister); // Always A
@@ -24,7 +24,7 @@ void InstructionAdd::Execute(shared_ptr<RegisterBank> registerBank, DecodedInstr
     registerBank->Write(decodedInstruction.DestinationRegister, static_cast<uint8_t>(result));
 }
 
-inline uint8_t InstructionAdd::CalculateBinaryAdditionAndSetFlags(uint8_t operand1, uint8_t operand2 , shared_ptr<RegisterBank> registerBank)
+inline uint8_t InstructionAdd::CalculateBinaryAdditionAndSetFlags(uint8_t operand1, uint8_t operand2 , shared_ptr<RegisterBankInterface> registerBank)
 {
     auto result = static_cast<uint8_t>(0x00);
     auto carryIn = static_cast<uint8_t>(0x00);
@@ -51,7 +51,7 @@ inline uint8_t InstructionAdd::CalculateBinaryAdditionAndSetFlags(uint8_t operan
     return result;
 }
 
-inline uint8_t InstructionAdd::AcquireSourceOperandValue(shared_ptr<RegisterBank> registerBank, DecodedInstruction& decodedInstruction)
+inline uint8_t InstructionAdd::AcquireSourceOperandValue(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.AddressingMode == AddressingMode::Register)
         return registerBank->Read(decodedInstruction.SourceRegister);
@@ -61,7 +61,7 @@ inline uint8_t InstructionAdd::AcquireSourceOperandValue(shared_ptr<RegisterBank
 
 inline void InstructionAdd::DecodeAddRegisterMode(uint8_t opcode, DecodedInstruction& decodedInstruction)
 {
-    auto source = RegisterBank::FromInstructionSource(opcode & 0x07);
+    auto source = RegisterBankInterface::FromInstructionSource(opcode & 0x07);
     decodedInstruction =
     {
         .Opcode = OpcodeType::add,

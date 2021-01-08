@@ -13,12 +13,13 @@ GameBoyX::GameBoyX()
     _systemROM = make_shared<ROM>(0x1000); // sample rom size
     _alu = make_shared<ArithmeticLogicUnit>();
     _clock = make_shared<Clock>(EngineParameters::GBCClockPeriod);
+    _registers = make_shared<RegisterBank>();
 
     // Initialize Memory Controller
     _memoryController->RegisterMemoryResource(_systemROM, AddressRange(0, 0x1000, RangeType::BeginInclusive));
 
     // Initialize Z80X CPU
-    _cpu->Initialize(_controlUnit, _clock, _alu, _memoryController);
+    _cpu->Initialize(_controlUnit, _clock, _alu, _memoryController, _registers);
 }
 
 void GameBoyX::Run()

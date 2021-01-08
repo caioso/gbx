@@ -7,6 +7,7 @@
 #include "ControlUnit.h"
 #include "EngineParameters.h"
 #include "MemoryController.h"
+#include "RegisterBank.h"
 #include "ROM.h"
 #include "Z80X.h"
 
@@ -27,6 +28,7 @@ protected:
     std::shared_ptr<ROM> _systemROM;
     std::shared_ptr<ArithmeticLogicUnit> _alu;
     std::shared_ptr<Clock> _clock;
+    std::shared_ptr<RegisterBank> _registers;
 };
 
 }

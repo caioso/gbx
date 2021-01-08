@@ -23,17 +23,17 @@ uint8_t ImmediateOpcode(Register source)
     return RegisterBank::ToInstructionRegisterPair(source) << 4 | 0x01;
 }
 
-class ControlUnitWrapperForTests : public ControlUnit
+class ControlUnitDecorator : public ControlUnit
+{};
+
+class ArithmeticLogicUnitDecorator : public ArithmeticLogicUnit
 {
 public:
-    shared_ptr<RegisterBank> GetRegisterBank()
+    shared_ptr<RegisterBankInterface> GetRegisterBank()
     {
         return this->_registers;
-    }
+    }    
 };
-
-class ArithmethicWrapperForTests : public ArithmeticLogicUnit
-{};
 
 class MemoryControllerMock : public MemoryControllerInterface
 {
@@ -49,8 +49,11 @@ public:
 TEST(TestControlUnit, FetchPCMessage)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -58,8 +61,8 @@ TEST(TestControlUnit, FetchPCMessage)
     
     controlUnit->RunCycle();
 
-    auto instructionRegister = controlUnit->GetRegisterBank()->Read(Register::IR);
-    auto programCounter = controlUnit->GetRegisterBank()->ReadPair(Register::PC);
+    auto instructionRegister = static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::IR);
+    auto programCounter = static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->ReadPair(Register::PC);
 
     EXPECT_EQ(0x47, instructionRegister);
     EXPECT_EQ(0x0001, programCounter);
@@ -68,8 +71,11 @@ TEST(TestControlUnit, FetchPCMessage)
 TEST(TestControlUnit, TestExecutingUnknownInstructions)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -80,8 +86,11 @@ TEST(TestControlUnit, TestExecutingUnknownInstructions)
 TEST(TestControlUnit, TestAcquireSingleImmediateOperand)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
     
     // First trigger to controlUnit. 
@@ -93,18 +102,21 @@ TEST(TestControlUnit, TestAcquireSingleImmediateOperand)
     controlUnit->RunCycle();
 
     // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0xAA, controlUnit->GetRegisterBank()->Read(Register::H));
+    EXPECT_EQ(0xAA, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::H));
 }
 
 TEST(TestControlUnit, TestAcquireSingleRegisterIndirectOperand)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Initialize HL
-    controlUnit->GetRegisterBank()->WritePair(Register::HL, 0xAABB);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::HL, 0xAABB);
     
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -115,18 +127,21 @@ TEST(TestControlUnit, TestAcquireSingleRegisterIndirectOperand)
     controlUnit->RunCycle();
 
     // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0xCC, controlUnit->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(0xCC, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::A));
 }
 
 TEST(TestControlUnit, TestAcquireSingleRegisterIndirectBCOperand)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Initialize HL
-    controlUnit->GetRegisterBank()->WritePair(Register::BC, 0x1234);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::BC, 0x1234);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -137,18 +152,21 @@ TEST(TestControlUnit, TestAcquireSingleRegisterIndirectBCOperand)
     controlUnit->RunCycle();
 
     // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0xDD, controlUnit->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(0xDD, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::A));
 }
 
 TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDEOperand)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Initialize HL
-    controlUnit->GetRegisterBank()->WritePair(Register::DE, 0x6789);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::DE, 0x6789);
 
      // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -158,19 +176,22 @@ TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDEOperand)
     
     controlUnit->RunCycle();
 
-    EXPECT_EQ(0x22, controlUnit->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(0x22, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::A));
 }
 
 TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDestinationHL)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Initialize HL
-    controlUnit->GetRegisterBank()->WritePair(Register::HL, 0xAABB);
-    controlUnit->GetRegisterBank()->Write(Register::A, 0xCC);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::HL, 0xAABB);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Write(Register::A, 0xCC);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -184,13 +205,16 @@ TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDestinationHL)
 TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDestinationDE)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Initialize HL
-    controlUnit->GetRegisterBank()->WritePair(Register::DE, 0x1234);
-    controlUnit->GetRegisterBank()->Write(Register::A, 0x99);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::DE, 0x1234);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Write(Register::A, 0x99);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -204,13 +228,16 @@ TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDestinationDE)
 TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDestinationBC)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Initialize HL
-    controlUnit->GetRegisterBank()->WritePair(Register::BC, 0x9967);
-    controlUnit->GetRegisterBank()->Write(Register::A, 0x12);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::BC, 0x9967);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Write(Register::A, 0x12);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -224,11 +251,14 @@ TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDestinationBC)
 TEST(TestControlUnit, TestIndexedSourceOpcodeIX)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->WritePair(Register::IX, 0x0100);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::IX, 0x0100);
     
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -241,17 +271,20 @@ TEST(TestControlUnit, TestIndexedSourceOpcodeIX)
     controlUnit->RunCycle();
 
     // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0x11, controlUnit->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(0x11, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::A));
 }
 
 TEST(TestControlUnit, TestIndexedSourceOpcodeIY)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->WritePair(Register::IY, 0x0A00);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::IY, 0x0A00);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -264,17 +297,20 @@ TEST(TestControlUnit, TestIndexedSourceOpcodeIY)
     controlUnit->RunCycle();
 
     // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0xCA, controlUnit->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(0xCA, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::A));
 }
 
 TEST(TestControlUnit, TestIndexedSourceOpcodeIXNegativeDisplacement)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->WritePair(Register::IY, 0x0200);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::IY, 0x0200);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -287,18 +323,21 @@ TEST(TestControlUnit, TestIndexedSourceOpcodeIXNegativeDisplacement)
     controlUnit->RunCycle();
 
     // Check whether the instruction has been properlye executed (A == B)
-    EXPECT_EQ(0x10, controlUnit->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(0x10, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::A));
 }
 
 TEST(TestControlUnit, TestIndexedDestinantionOpcodeIX)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->Write(Register::A, 0x88);
-    controlUnit->GetRegisterBank()->WritePair(Register::IX, 0x0100);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Write(Register::A, 0x88);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::IX, 0x0100);
     
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -314,8 +353,11 @@ TEST(TestControlUnit, TestIndexedDestinantionOpcodeIX)
 TEST(TestControlUnit, TestExtendedSource)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // First trigger to controlUnit. 
@@ -328,17 +370,20 @@ TEST(TestControlUnit, TestExtendedSource)
     
     controlUnit->RunCycle();
 
-    EXPECT_EQ(0x9E, controlUnit->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(0x9E, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::A));
 }
 
 TEST(TestControlUnit, TestExtendedDestination)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->Write(Register::A, 0xF8);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Write(Register::A, 0xF8);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -354,11 +399,14 @@ TEST(TestControlUnit, TestExtendedDestination)
 TEST(TestControlUnit, TestImmediateRegisterIndirect)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->WritePair(Register::HL, 0xF5D2);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::HL, 0xF5D2);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -373,11 +421,14 @@ TEST(TestControlUnit, TestImmediateRegisterIndirect)
 TEST(TestControlUnit, TestRegisterIndirectSourceIncrement)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->WritePair(Register::HL, 0x99AA);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::HL, 0x99AA);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -387,18 +438,21 @@ TEST(TestControlUnit, TestRegisterIndirectSourceIncrement)
     
     controlUnit->RunCycle();
 
-    EXPECT_EQ(0xAB, controlUnit->GetRegisterBank()->Read(Register::A));
-    EXPECT_EQ(0x99AB, controlUnit->GetRegisterBank()->ReadPair(Register::HL));
+    EXPECT_EQ(0xAB, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(0x99AB, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->ReadPair(Register::HL));
 }
 
 TEST(TestControlUnit, TestRegisterIndirectSourceDecrement)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->WritePair(Register::HL, 0x88BB);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::HL, 0x88BB);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -408,19 +462,22 @@ TEST(TestControlUnit, TestRegisterIndirectSourceDecrement)
     
     controlUnit->RunCycle();
 
-    EXPECT_EQ(0x45, controlUnit->GetRegisterBank()->Read(Register::A));
-    EXPECT_EQ(0x88BA, controlUnit->GetRegisterBank()->ReadPair(Register::HL));
+    EXPECT_EQ(0x45, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(0x88BA, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->ReadPair(Register::HL));
 }
 
 TEST(TestControlUnit, TestRegisterIndirectDestinationIncrement)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->Write(Register::A, 0x66);
-    controlUnit->GetRegisterBank()->WritePair(Register::HL, 0x1234);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Write(Register::A, 0x66);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::HL, 0x1234);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -430,18 +487,21 @@ TEST(TestControlUnit, TestRegisterIndirectDestinationIncrement)
     
     controlUnit->RunCycle();
 
-    EXPECT_EQ(0x1235, controlUnit->GetRegisterBank()->ReadPair(Register::HL));
+    EXPECT_EQ(0x1235, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->ReadPair(Register::HL));
 }
 
 TEST(TestControlUnit, TestRegisterIndirectDestinationDecrement)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->Write(Register::A, 0x41);
-    controlUnit->GetRegisterBank()->WritePair(Register::HL, 0x764A);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Write(Register::A, 0x41);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::HL, 0x764A);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -451,17 +511,20 @@ TEST(TestControlUnit, TestRegisterIndirectDestinationDecrement)
     
     controlUnit->RunCycle();
 
-    EXPECT_EQ(0x7649, controlUnit->GetRegisterBank()->ReadPair(Register::HL));
+    EXPECT_EQ(0x7649, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->ReadPair(Register::HL));
 }
 
 TEST(TestControlUnit, TestImplicitRegisterSource)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->Write(Register::C, 0x55);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Write(Register::C, 0x55);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -471,18 +534,21 @@ TEST(TestControlUnit, TestImplicitRegisterSource)
     
     controlUnit->RunCycle();
 
-    EXPECT_EQ(0xD0, controlUnit->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(0xD0, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::A));
 }
 
 TEST(TestControlUnit, TestImplicitRegisterDestination)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->Write(Register::A, 0xA6);
-    controlUnit->GetRegisterBank()->Write(Register::C, 0xF4);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Write(Register::A, 0xA6);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Write(Register::C, 0xF4);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -496,8 +562,11 @@ TEST(TestControlUnit, TestImplicitRegisterDestination)
 TEST(TestControlUnit, TestImplicitImmediateSource)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // First trigger to controlUnit. 
@@ -509,17 +578,20 @@ TEST(TestControlUnit, TestImplicitImmediateSource)
     
     controlUnit->RunCycle();
 
-    EXPECT_EQ(0x09, controlUnit->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(0x09, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::A));
 }
 
 TEST(TestControlUnit, TestImplicitImmediateDestination)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->Write(Register::A, 0xD2);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Write(Register::A, 0xD2);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -534,8 +606,11 @@ TEST(TestControlUnit, TestImplicitImmediateDestination)
 TEST(TestControlUnit, TestImmediatePair)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // First trigger to controlUnit. 
@@ -559,20 +634,23 @@ TEST(TestControlUnit, TestImmediatePair)
     controlUnit->RunCycle();
     controlUnit->RunCycle();
 
-    EXPECT_EQ(0x984A, controlUnit->GetRegisterBank()->ReadPair(Register::BC));
-    EXPECT_EQ(0x1ABB, controlUnit->GetRegisterBank()->ReadPair(Register::DE));
-    EXPECT_EQ(0x5099, controlUnit->GetRegisterBank()->ReadPair(Register::HL));
-    EXPECT_EQ(0xCE24, controlUnit->GetRegisterBank()->ReadPair(Register::SP));
+    EXPECT_EQ(0x984A, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->ReadPair(Register::BC));
+    EXPECT_EQ(0x1ABB, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->ReadPair(Register::DE));
+    EXPECT_EQ(0x5099, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->ReadPair(Register::HL));
+    EXPECT_EQ(0xCE24, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->ReadPair(Register::SP));
 }
 
 TEST(TestControlUnit, TestTransferToSP)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    controlUnit->GetRegisterBank()->WritePair(Register::HL, 0x65A1);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->WritePair(Register::HL, 0x65A1);
 
     // First trigger to controlUnit. 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -580,19 +658,22 @@ TEST(TestControlUnit, TestTransferToSP)
     EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xF9)));
     
     controlUnit->RunCycle();
-    EXPECT_EQ(0x65A1, controlUnit->GetRegisterBank()->ReadPair(Register::SP));
+    EXPECT_EQ(0x65A1, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->ReadPair(Register::SP));
 }
 
 TEST(TestControlUnit, TestAddRegister)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // ADD A, C
-    controlUnit->GetRegisterBank()->Write(Register::C, 0x45);
-    controlUnit->GetRegisterBank()->Write(Register::A, 0x82);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Write(Register::C, 0x45);
+    static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Write(Register::A, 0x82);
 
     auto rawBinary = 0x80 | RegisterBank::ToInstructionSource(Register::C);
 
@@ -602,18 +683,25 @@ TEST(TestControlUnit, TestAddRegister)
     EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(rawBinary)));
     
     controlUnit->RunCycle();
-    EXPECT_EQ(0xC7, controlUnit->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(0xC7, static_pointer_cast<ArithmeticLogicUnitDecorator>(arithmeticLogicUnit)->GetRegisterBank()->Read(Register::A));
 }
 
 TEST(TestControlUnit, TestAddImmediate)
 {
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
-    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmethicWrapperForTests>();
-    auto controlUnit = make_shared<ControlUnitWrapperForTests>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicUnitDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    arithmeticLogicUnit->Initialize(registers);
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // ADD A, #73
-    controlUnit->GetRegisterBank()->Write(Register::A, 0x24);
+    registers->Write(Register::A, 0x24);
 
     auto rawBinary = 0xC6;
 
@@ -624,5 +712,5 @@ TEST(TestControlUnit, TestAddImmediate)
     EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x73)));
     
     controlUnit->RunCycle();
-    EXPECT_EQ(0x97, controlUnit->GetRegisterBank()->Read(Register::A));
+    EXPECT_EQ(0x97, registers->Read(Register::A));
 }

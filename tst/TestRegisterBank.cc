@@ -5,6 +5,7 @@
 
 using namespace std;
 using namespace gbx;
+using namespace gbx::interfaces;
 
 TEST(TestRegisterBank, ReadRegisterA) 
 {
@@ -94,7 +95,7 @@ TEST(TestRegisterBank, InstructionSourceToRegister)
     EXPECT_EQ(0x05, bank.ToInstructionSource(Register::L));
     EXPECT_EQ(0x07, bank.ToInstructionSource(Register::A));
 
-    array<Register, 12> nonSources = { Register::F, Register::HL, Register::I, Register::IR, Register::IX, Register::IY,
+    array<Register, 12> nonSources = { Register::F, Register::HL, Register::PIR, Register::IR, Register::IX, Register::IY,
                                        Register::PC, Register::R, Register::SP, Register::AF, Register::BC, Register::DE };
     
     for (auto reg : nonSources)
@@ -126,7 +127,7 @@ TEST(TestRegisterBank, InstructionDestinationToRegister)
     EXPECT_EQ(0x05, bank.ToInstructionDestination(Register::L));
     EXPECT_EQ(0x07, bank.ToInstructionDestination(Register::A));
 
-    array<Register, 12> nonSources = { Register::F, Register::HL, Register::I, Register::IR, Register::IX, Register::IY,
+    array<Register, 12> nonSources = { Register::F, Register::HL, Register::PIR, Register::IR, Register::IX, Register::IY,
                                        Register::PC, Register::R, Register::SP, Register::AF, Register::BC, Register::DE };
     
     for (auto reg : nonSources)
