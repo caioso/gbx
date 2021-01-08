@@ -30,7 +30,9 @@ shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithPreOpcode(_
 shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithoutPreOpcode(uint8_t opcode)
 {
     // Add Instruction Opcodes
-    if (OpcodePatternMatcher::Match(opcode, // 1000 0XXX
+    if (OpcodePatternMatcher::Match(opcode, // 1000 0110
+        OpcodePatternMatcher::Pattern(b::_1, b::_0, b::_0, b::_0, b::_0, b::_1, b::_1, b::_0)) ||
+        OpcodePatternMatcher::Match(opcode, // 1000 0XXX
         OpcodePatternMatcher::Pattern(b::_1, b::_0, b::_0, b::_0, b::_0, b::_X, b::_X, b::_X)) ||
         OpcodePatternMatcher::Match(opcode, // 1100 0110
         OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_0, b::_0, b::_0, b::_1, b::_1, b::_0)))

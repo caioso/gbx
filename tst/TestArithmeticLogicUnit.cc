@@ -507,6 +507,23 @@ TEST(TestALU, DecodeAddImmediateMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
+TEST(TestALU, DecodeAddRegisterIndirectMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+    
+    ArithmeticLogicUnitDecorator alu;
+    alu.Initialize(registerBank);
+    alu.InitializeRegisters();
+
+    auto rawBinary = 0x86;
+    alu.DecodeInstruction(rawBinary, nullopt);
+
+    EXPECT_EQ(OpcodeType::add, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectSource, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::HL, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
+}
+
 TEST(TestALU, ExecuteImmediateAddressingMode)
 {
     auto registerBank = make_shared<RegisterBank>();
@@ -1074,5 +1091,91 @@ TEST(TestALU, ExecuteAddImmediateMode)
     EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::Z));
     EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
     EXPECT_EQ(0xFF, registerBank->Read(Register::A));
+}
 
+TEST(TestALU, ExecuteAddRegisterIndirectMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+    
+    ArithmeticLogicUnitDecorator alu;
+    alu.Initialize(registerBank);
+    alu.InitializeRegisters();
+
+    random_device randomDevice;
+    mt19937 engine{randomDevice()};
+    uniform_int_distribution<int8_t> distribution{-100, 100};
+
+    for (auto i = 0; i < 1000; i++)
+    {
+        auto aValue = distribution(engine);
+        auto memoryOperandValue = distribution(engine);
+        auto result = static_cast<uint8_t>(0);
+        result = aValue + memoryOperandValue;
+
+        auto rawBinary = 0x86;
+        alu.DecodeInstruction(rawBinary, nullopt);
+        registerBank->Write(Register::A, aValue);
+        alu.GetInstructionData().MemoryOperand1 = memoryOperandValue;
+        alu.Execute();
+
+        EXPECT_EQ(registerBank->Read(Register::A), static_cast<uint8_t>(result));
+    }
+
+    // Test Flaga
+    auto rawBinary = 0x86;
+
+    alu.DecodeInstruction(rawBinary, nullopt);
+    registerBank->Write(Register::A, 0xFE);
+    alu.GetInstructionData().MemoryOperand1 = 0x02;
+    alu.Execute();
+
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::H));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::Z));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
+    EXPECT_EQ(0x00, registerBank->Read(Register::A));
+
+    alu.DecodeInstruction(rawBinary, nullopt);
+    registerBank->Write(Register::A, 0x0F);
+    alu.GetInstructionData().MemoryOperand1 = 0x01;
+    alu.Execute();
+
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::H));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::Z));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
+    EXPECT_EQ(0x10, registerBank->Read(Register::A));
+
+    alu.DecodeInstruction(rawBinary, nullopt);
+    registerBank->Write(Register::A, 0xF0);
+    alu.GetInstructionData().MemoryOperand1 = 0x80;
+    alu.Execute();
+
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::Z));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
+    EXPECT_EQ(0x70, registerBank->Read(Register::A));
+
+    alu.DecodeInstruction(rawBinary, nullopt);
+    registerBank->Write(Register::A, 0x00);
+    alu.GetInstructionData().MemoryOperand1 = 0x00;
+    alu.Execute();
+
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::Z));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
+    EXPECT_EQ(0x00, registerBank->Read(Register::A));
+
+    alu.DecodeInstruction(rawBinary, nullopt);
+    registerBank->Write(Register::A, 0xFE);
+    alu.GetInstructionData().MemoryOperand1 = 0x01;
+    alu.Execute();
+
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::Z));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
+    EXPECT_EQ(0xFF, registerBank->Read(Register::A));
 }

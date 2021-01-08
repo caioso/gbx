@@ -8,10 +8,12 @@ namespace gbx
 
 void InstructionAdd::Decode(uint8_t opcode, __attribute__((unused)) std::optional<uint8_t> preOpcode, DecodedInstruction& decodeInstruction)
 {
-    if ((opcode >> 0x03) == 0x10)  // ADD A, r
-        DecodeAddRegisterMode(opcode, decodeInstruction);
-    else if (opcode & 0xC6)  // ADD A, #XX
+    if (opcode == 0x86)  // ADD A, (HL))
+        DecodeAddPointerMode(decodeInstruction);
+    else if (opcode == 0xC6)  // ADD A, #XX
         DecodeAddImmediateMode(decodeInstruction);
+    else if ((opcode >> 0x03) == 0x10)  // ADD A, r
+        DecodeAddRegisterMode(opcode, decodeInstruction);
 }
 
 void InstructionAdd::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
@@ -89,4 +91,21 @@ inline void InstructionAdd::DecodeAddImmediateMode(DecodedInstruction& decodedIn
         .MemoryResult1 = 0x00
     };
 }
+
+inline void InstructionAdd::DecodeAddPointerMode(interfaces::DecodedInstruction& decodedInstruction)
+{
+    decodedInstruction =
+    {
+        .Opcode = OpcodeType::add,
+        .AddressingMode = AddressingMode::RegisterIndirectSource,
+        .MemoryOperand1 = 0x00,
+        .MemoryOperand2 = 0x00,
+        .MemoryOperand3 = 0x00,
+        .SourceRegister = Register::HL, 
+        .DestinationRegister = Register::A,
+        .MemoryResult1 = 0x00
+    };
+}
+
+
 }
