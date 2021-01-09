@@ -3,6 +3,7 @@
 #include <memory>
 #include <optional>
 
+#include "InstructionAdc.h"
 #include "InstructionAdd.h"
 #include "InstructionLd.h"
 

@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include "../GBXExceptions.h"
+
 namespace gbx::interfaces
 {
 

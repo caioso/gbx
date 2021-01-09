@@ -1,44 +1,58 @@
 @startuml
+class GameBoyX
 class Z80X
 class ControlUnit
-interface ArithmeticLogicUnit
-class Z80XArithmeticLogicUnit
-interface MemoryController
-class PagedMemoryController
-interface Clock
-class ClockSource
+interface ArithmeticLogicUnitInterface
+class ArithmeticLogicUnit
+interface MemoryControllerInterface
+class MemoryController
+interface ClockInterface
+class Clock
+interface RegisterBankInterface
 class RegisterBank
+class OpcodeDecoder
 
-interface Memory
+GameBoyX *-- Z80X
+
+interface MemoryInterface
 class ROM
 class RAM
 class VRAM
 class ExpansionCard
 class Cartridge
 
-interface Instruction
-class LD
+interface InstructionInterface
+class InstructionLd
+class InstructionAdd
+InstructionInterface <|-- InstructionLd
+InstructionInterface <|-- InstructionAdd
+InstructionInterface <|-- InstructionAdC
 
-Instruction <.. LD
-Memory <.. ROM
-Memory <.. RAM
-Memory <.. VRAM
+
+MemoryInterface <.. ROM
+MemoryInterface <.. RAM
+MemoryInterface <.. VRAM
 ROM <|-- ExpansionCard
 ROM <|-- Cartridge
 
-ArithmeticLogicUnit <.. Z80XArithmeticLogicUnit
-MemoryController <.. PagedMemoryController
-Clock <.. ClockSource
+ArithmeticLogicUnitInterface <.. ArithmeticLogicUnit
+MemoryControllerInterface <.. MemoryController
+ClockInterface <.. Clock
+RegisterBankInterface <.. RegisterBank
 
-Z80XArithmeticLogicUnit "1" --|> "many" Instruction
-ControlUnit *-- RegisterBank
-RegisterBank -- Z80XArithmeticLogicUnit
-ControlUnit o-- ClockSource
-ControlUnit o-- ArithmeticLogicUnit
-ControlUnit o-- MemoryController
-PagedMemoryController "1" --|> "many" Memory
-Z80X *-- Z80XArithmeticLogicUnit
+ArithmeticLogicUnit  -- InstructionInterface
+ArithmeticLogicUnit *-- OpcodeDecoder
+
+InstructionInterface -- "generates" OpcodeDecoder
+ControlUnit O-- RegisterBankInterface
+RegisterBank -- ArithmeticLogicUnit
+ControlUnit o-- ClockInterface
+ControlUnit o-- ArithmeticLogicUnitInterface
+ControlUnit o-- MemoryControllerInterface
+MemoryController "1" --|> "many" MemoryInterface
+Z80X *-- ArithmeticLogicUnit
 Z80X *-- Clock
-Z80X *-- PagedMemoryController
+Z80X *-- MemoryController
 Z80X *-- ControlUnit
+Z80X *-- RegisterBank
 @enduml

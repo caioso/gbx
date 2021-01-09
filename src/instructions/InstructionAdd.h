@@ -1,11 +1,12 @@
 #pragma once
 
+#include "InstructionAddBase.h"
 #include "../interfaces/InstructionInterface.h"
 
 namespace gbx
 {
 
-class InstructionAdd : public interfaces::InstructionInterface
+class InstructionAdd : public interfaces::InstructionInterface, public InstructionAddBase
 {
 public:
     InstructionAdd() = default;
@@ -18,9 +19,6 @@ private:
     inline void DecodeAddRegisterMode(uint8_t, interfaces::DecodedInstruction&);
     inline void DecodeAddImmediateMode(interfaces::DecodedInstruction&);
     inline void DecodeAddPointerMode(interfaces::DecodedInstruction&);
-
-    inline uint8_t AcquireSourceOperandValue(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
-    inline uint8_t CalculateBinaryAdditionAndSetFlags(uint8_t, uint8_t, std::shared_ptr<interfaces::RegisterBankInterface>);
 };
 
 }

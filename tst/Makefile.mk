@@ -12,7 +12,8 @@ DEPENDECIES := $(OBJ_DIR)/GBXExceptions.o $(OBJ_DIR)/RegisterBank.o $(OBJ_DIR)/R
 			   $(OBJ_DIR)/MemoryController.o $(OBJ_DIR)/AddressRange.o \
 			   $(OBJ_DIR)/Clock.o $(OBJ_DIR)/ControlUnit.o $(OBJ_DIR)/ArithmeticLogicUnit.o  \
 			   $(OBJ_DIR)/AddressingModeFormat.o $(OBJ_DIR)/OpcodePatternMatcher.o \
-			   $(OBJ_DIR)/InstructionAdd.o $(OBJ_DIR)/InstructionLd.o $(OBJ_DIR)/OpcodeDecoder.o
+			   $(OBJ_DIR)/InstructionAddBase.o $(OBJ_DIR)/InstructionLd.o $(OBJ_DIR)/OpcodeDecoder.o \
+			   $(OBJ_DIR)/InstructionAdc.o $(OBJ_DIR)/InstructionAdd.o
 
 $(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
 	$(CC) -o $@ $^ $(DEPENDECIES) $(LDFLAGS)

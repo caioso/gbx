@@ -7,7 +7,8 @@ enum class OpcodeType
 {
     unknown,
     ld,
-    add
+    add,
+    adc
 };
 
 const uint8_t MemoryOperand = 0x06;
