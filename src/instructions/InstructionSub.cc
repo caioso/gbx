@@ -22,7 +22,7 @@ void InstructionSub::Execute(shared_ptr<RegisterBankInterface> registerBank, Dec
     auto operand2 = AcquireSourceOperandValue(registerBank, decodedInstruction);
     
     registerBank->Write(Register::F, 0x00);
-    auto result = CalculateBinarySubtractionAndSetFlags(operand1, operand2, registerBank);
+    auto result = CalculateBinarySubtractionAndSetFlags(operand1, operand2, nullopt, registerBank);
     registerBank->Write(decodedInstruction.DestinationRegister, static_cast<uint8_t>(result));
 }
 

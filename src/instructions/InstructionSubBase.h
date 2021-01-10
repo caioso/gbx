@@ -15,7 +15,7 @@ class InstructionSubBase
 {
 public:
     uint8_t AcquireSourceOperandValue(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
-    uint8_t CalculateBinarySubtractionAndSetFlags(uint8_t, uint8_t, std::shared_ptr<interfaces::RegisterBankInterface>);
+    uint8_t CalculateBinarySubtractionAndSetFlags(uint8_t, uint8_t, std::optional<uint8_t>, std::shared_ptr<interfaces::RegisterBankInterface>);
 };
 
 }

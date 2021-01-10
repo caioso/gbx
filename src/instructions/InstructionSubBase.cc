@@ -14,10 +14,10 @@ uint8_t InstructionSubBase::AcquireSourceOperandValue(shared_ptr<interfaces::Reg
         return decodedInstruction.MemoryOperand1;
 }
 
-uint8_t InstructionSubBase::CalculateBinarySubtractionAndSetFlags(uint8_t operand1, uint8_t operand2, shared_ptr<RegisterBankInterface> registerBank)
+uint8_t InstructionSubBase::CalculateBinarySubtractionAndSetFlags(uint8_t operand1, uint8_t operand2, optional<uint8_t> borrow, shared_ptr<RegisterBankInterface> registerBank)
 {
     auto result = static_cast<uint8_t>(0x00);
-    auto borrowIn = static_cast<uint8_t>(0x00);
+    auto borrowIn = borrow.value_or(0x00);
 
     for (auto i = 0; i < 8; i++)
     {

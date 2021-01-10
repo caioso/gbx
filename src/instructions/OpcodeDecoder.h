@@ -7,6 +7,7 @@
 #include "InstructionAdd.h"
 #include "InstructionLd.h"
 #include "InstructionSub.h"
+#include "InstructionSbc.h"
 
 #include "../GBXExceptions.h"
 #include "../interfaces/InstructionInterface.h"
