@@ -6,9 +6,12 @@
 #include "InstructionAdc.h"
 #include "InstructionAdd.h"
 #include "InstructionAnd.h"
+#include "InstructionCp.h"
 #include "InstructionLd.h"
+#include "InstructionOr.h"
 #include "InstructionSub.h"
 #include "InstructionSbc.h"
+#include "InstructionXor.h"
 
 #include "../GBXExceptions.h"
 #include "../interfaces/InstructionInterface.h"

@@ -23,7 +23,11 @@ OpcodePattern;
 class OpcodePatternMatcher
 {
 public:
-    static bool Match(uint8_t opcode, OpcodePattern opcodePattern);
+    inline static bool Match(uint8_t opcode, OpcodePattern opcodePattern)
+    {
+        return ((opcode & opcodePattern.mask) ^ opcodePattern.pattern) == 0;
+    }
+
     constexpr static OpcodePattern Pattern(BitPattern_t p7, BitPattern_t p6, BitPattern_t p5, BitPattern_t p4, BitPattern_t p3, BitPattern_t p2, BitPattern_t p1, BitPattern_t p0)
     {
         return {

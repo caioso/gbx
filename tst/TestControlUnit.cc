@@ -1057,7 +1057,7 @@ TEST(TestControlUnit, TestAndImmediate)
     auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    // AND A, C
+    // AND A, #0A
     registers->Write(Register::A, 0xAA);
 
     auto instruction1 = 0xE6;
@@ -1083,7 +1083,7 @@ TEST(TestControlUnit, TestAndRegisterIndirect)
     auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    // AND A, C
+    // AND A, (HL)
     registers->Write(Register::A, 0xFF);
     registers->WritePair(Register::HL, 0x8A5D);
 
@@ -1097,4 +1097,189 @@ TEST(TestControlUnit, TestAndRegisterIndirect)
     controlUnit->RunCycle();
 
     EXPECT_EQ(0x00, registers->Read(Register::A));
+}
+
+TEST(TestControlUnit, TestOrRegister)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    // OR A, C
+    registers->Write(Register::A, 0xF0);
+    registers->Write(Register::C, 0x0F);
+
+    auto instruction1 = 0xB0 | RegisterBank::ToInstructionSource(Register::C);
+
+    // First trigger to controlUnit. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction1)));
+    
+    controlUnit->RunCycle();
+
+    EXPECT_EQ(0xFF, registers->Read(Register::A));
+}
+
+TEST(TestControlUnit, TestOrImmediate)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    // OR A, #0x55
+    registers->Write(Register::A, 0xAA);
+
+    auto instruction1 = 0xF6;
+
+    // First trigger to controlUnit. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction1)));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x55)));
+    
+    controlUnit->RunCycle();
+
+    EXPECT_EQ(0xFF, registers->Read(Register::A));
+}
+
+TEST(TestControlUnit, TestOrRegisterIndirect)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    // OR A, (HL))
+    registers->Write(Register::A, 0x80);
+    registers->WritePair(Register::HL, 0x1111);
+
+    auto instruction1 = 0xB6;
+
+    // First trigger to controlUnit. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction1)));
+    EXPECT_CALL((*mockPointer), Read(0x1111, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x0F)));
+    
+    controlUnit->RunCycle();
+
+    EXPECT_EQ(0x8F, registers->Read(Register::A));
+}
+
+TEST(TestControlUnit, TestXorRegister)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    // XOR A, D
+    registers->Write(Register::A, 0x45);
+    registers->Write(Register::D, 0x45);
+
+    auto instruction1 = 0xA8 | RegisterBank::ToInstructionSource(Register::D);
+
+    // First trigger to controlUnit. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction1)));
+    
+    controlUnit->RunCycle();
+
+    EXPECT_EQ(0x00, registers->Read(Register::A));
+}
+
+TEST(TestControlUnit, TestXorImmediate)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    // XOR A, #79
+    registers->Write(Register::A, 0xFF);
+
+    auto instruction1 = 0xEE;
+
+    // First trigger to controlUnit. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction1)));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x79)));
+    
+    controlUnit->RunCycle();
+
+    EXPECT_EQ(0x86, registers->Read(Register::A));
+}
+
+TEST(TestControlUnit, TestXorRegisterIndirect)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    // XOR A, (HL)
+    registers->Write(Register::A, 0x81);
+    registers->WritePair(Register::HL, 0x0914);
+
+    auto instruction1 = 0xAE;
+
+    // First trigger to controlUnit. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction1)));
+    EXPECT_CALL((*mockPointer), Read(0x0914, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x7E)));
+    
+    controlUnit->RunCycle();
+
+    EXPECT_EQ(0xFF, registers->Read(Register::A));
+}
+
+TEST(TestControlUnit, TestCpRegister)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    // CP A, D
+    registers->Write(Register::A, 0xA1);
+    registers->Write(Register::D, 0xA0);
+
+    auto instruction1 = 0xB8 | RegisterBank::ToInstructionSource(Register::D);
+
+    // First trigger to controlUnit. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction1)));
+    
+    controlUnit->RunCycle();
+
+    EXPECT_EQ(0xA1, registers->Read(Register::A));
+    EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z)); // A is different then D
 }

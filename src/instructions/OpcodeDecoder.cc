@@ -65,6 +65,23 @@ shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithoutPreOpcod
              OpcodePatternMatcher::Match(opcode, // 1010 0XXX
              OpcodePatternMatcher::Pattern(b::_1, b::_0, b::_1, b::_0, b::_0, b::_X, b::_X, b::_X)))
              return make_shared<InstructionAnd>();
+    else if (OpcodePatternMatcher::Match(opcode, // 1111 0110
+             OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_1, b::_1, b::_0, b::_1, b::_1, b::_0)) ||
+             OpcodePatternMatcher::Match(opcode, // 1011 0110
+             OpcodePatternMatcher::Pattern(b::_1, b::_0, b::_1, b::_1, b::_0, b::_1, b::_1, b::_0)) ||
+             OpcodePatternMatcher::Match(opcode, // 1011 0XXX
+             OpcodePatternMatcher::Pattern(b::_1, b::_0, b::_1, b::_1, b::_0, b::_X, b::_X, b::_X)))
+             return make_shared<InstructionOr>();
+    else if (OpcodePatternMatcher::Match(opcode, // 1110 1110
+             OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_1, b::_0, b::_1, b::_1, b::_1, b::_0)) ||
+             OpcodePatternMatcher::Match(opcode, // 1010 1110
+             OpcodePatternMatcher::Pattern(b::_1, b::_0, b::_1, b::_0, b::_1, b::_1, b::_1, b::_0)) ||
+             OpcodePatternMatcher::Match(opcode, // 1010 1XXX
+             OpcodePatternMatcher::Pattern(b::_1, b::_0, b::_1, b::_0, b::_1, b::_X, b::_X, b::_X)))
+             return make_shared<InstructionXor>();
+    else if (OpcodePatternMatcher::Match(opcode, // 1011 1XXX
+             OpcodePatternMatcher::Pattern(b::_1, b::_0, b::_1, b::_1, b::_1, b::_X, b::_X, b::_X)))
+             return make_shared<InstructionCp>();
     else if (OpcodePatternMatcher::Match(opcode, // 00XX 0001
              OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_0, b::_0, b::_0, b::_1)) ||
              OpcodePatternMatcher::Match(opcode, // 0011 0110

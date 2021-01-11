@@ -12,6 +12,9 @@ enum class OpcodeType
     sub,
     sbc,
     bitwiseand,
+    bitwiseor,
+    bitwisexor,
+    cp,
 };
 
 const uint8_t MemoryOperand = 0x06;
