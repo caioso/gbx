@@ -10,7 +10,8 @@ enum class OpcodeType
     add,
     adc,
     sub,
-    sbc
+    sbc,
+    bitwiseand,
 };
 
 const uint8_t MemoryOperand = 0x06;

@@ -5,6 +5,7 @@
 
 #include "InstructionAdc.h"
 #include "InstructionAdd.h"
+#include "InstructionAnd.h"
 #include "InstructionLd.h"
 #include "InstructionSub.h"
 #include "InstructionSbc.h"
