@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int main (const int argc, const char* argv[])
+int main (__attribute__((unused)) const int argc, __attribute__((unused)) const char* argv[])
 {
-    cout << "Game Boy X Assembler version 0.0.1-alpha" << '\n';
+    cout << "GAME BOY X Assembler 0.0.1-alpha" << '\n';
 }
