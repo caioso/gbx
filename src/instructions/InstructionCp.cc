@@ -7,8 +7,11 @@ namespace gbx
 {
 void InstructionCp::Decode(uint8_t opcode, __attribute__((unused)) std::optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction)
 {
-    
-    if ((opcode >> 0x03) == 0x17)
+    if (opcode == 0xFE)
+       DecodeCpImmediateMode(decodedInstruction);
+    else if (opcode == 0xBE)
+       DecodeCpRegisterIndirectMode(decodedInstruction);
+    else if ((opcode >> 0x03) == 0x17)
         DecodeCpRegisterMode(opcode, decodedInstruction);
 }
 
@@ -16,10 +19,10 @@ void InstructionCp::Execute(shared_ptr<RegisterBankInterface> registerBank, Deco
 {
     auto operand1 = registerBank->Read(decodedInstruction.DestinationRegister);
     auto operand2 = GetSourceOperandValue(registerBank, decodedInstruction);
-    CalculateDifference(operand1, operand2, registerBank);
+    CalculateDifferenceAndSetFlags(operand1, operand2, registerBank);
 }
 
-void InstructionCp::CalculateDifference(uint8_t operand1, uint8_t operand2, shared_ptr<RegisterBankInterface> registerBank)
+void InstructionCp::CalculateDifferenceAndSetFlags(uint8_t operand1, uint8_t operand2, shared_ptr<RegisterBankInterface> registerBank)
 {
     auto result = static_cast<uint8_t>(0x00);
     auto borrowIn = static_cast<uint8_t>(0x00);
@@ -67,6 +70,36 @@ inline void InstructionCp::DecodeCpRegisterMode(uint8_t opcode, DecodedInstructi
         .MemoryOperand2 = 0x00,
         .MemoryOperand3 = 0x00,
         .SourceRegister = source,
+        .DestinationRegister = Register::A,
+        .MemoryResult1 = 0x00
+    };
+}
+
+inline void InstructionCp::DecodeCpImmediateMode(DecodedInstruction& decodedInstruction)
+{
+    decodedInstruction =
+    {
+        .Opcode = OpcodeType::cp,
+        .AddressingMode = AddressingMode::Immediate,
+        .MemoryOperand1 = 0x00,
+        .MemoryOperand2 = 0x00,
+        .MemoryOperand3 = 0x00,
+        .SourceRegister = Register::NoRegiser,
+        .DestinationRegister = Register::A,
+        .MemoryResult1 = 0x00
+    };
+}
+
+inline void InstructionCp::DecodeCpRegisterIndirectMode(DecodedInstruction& decodedInstruction)
+{
+    decodedInstruction =
+    {
+        .Opcode = OpcodeType::cp,
+        .AddressingMode = AddressingMode::RegisterIndirectSource,
+        .MemoryOperand1 = 0x00,
+        .MemoryOperand2 = 0x00,
+        .MemoryOperand3 = 0x00,
+        .SourceRegister = Register::HL,
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00
     };

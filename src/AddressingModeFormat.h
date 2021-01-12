@@ -49,6 +49,7 @@ public:
     static AddressingModeFormat ImplicitImmediateDestinationAddressingMode;
     static AddressingModeFormat ImmediatePairAddressingMode;
     static AddressingModeFormat RegisterPairAddressingMode;
+    static AddressingModeFormat RegisterIndirectSourceAndDestinationAddressingMode;
 };
 
 }

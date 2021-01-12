@@ -15,6 +15,8 @@ enum class OpcodeType
     bitwiseor,
     bitwisexor,
     cp,
+    inc,
+    dec,
 };
 
 const uint8_t MemoryOperand = 0x06;

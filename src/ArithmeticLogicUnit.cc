@@ -77,6 +77,7 @@ AddressingModeFormat* ArithmeticLogicUnit::AcquireAddressingModeTraits()
         case AddressingMode::RegisterIndexedDestination: _currentAddressingMode = &AddressingModeTemplate::RegisterIndexedDestinationAddressingMode; break;
         case AddressingMode::RegisterIndirectSource: _currentAddressingMode = &AddressingModeTemplate::RegisterIndirectSourceAddressingMode; break;
         case AddressingMode::RegisterIndirectDestination: _currentAddressingMode = &AddressingModeTemplate::RegisterIndirectDestinationAddressingMode; break;
+        case AddressingMode::RegisterIndirectSourceAndDestination: _currentAddressingMode = &AddressingModeTemplate::RegisterIndirectSourceAndDestinationAddressingMode; break;
         case AddressingMode::ExtendedSource: _currentAddressingMode = &AddressingModeTemplate::RegisterExtendedSourceAddressingMode; break;
         case AddressingMode::ExtendedDestination: _currentAddressingMode = &AddressingModeTemplate::RegisterExtendedDestinationAddressingMode; break;
         case AddressingMode::ImmediateRegisterIndirect: _currentAddressingMode = &AddressingModeTemplate::ImmediateRegisterIndirectAddressingMode; break;

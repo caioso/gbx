@@ -12,6 +12,7 @@ enum class AddressingMode
     ImmediateRegisterIndirect,
     RegisterIndirectSource,
     RegisterIndirectDestination,
+    RegisterIndirectSourceAndDestination,
     RegisterIndirectSourceIncrement,
     RegisterIndirectDestinationIncrement,
     RegisterIndirectSourceDecrement,

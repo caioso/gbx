@@ -1,6 +1,5 @@
 #pragma once
 
-#include "InstructionAddBase.h"
 #include "../interfaces/InstructionInterface.h"
 
 namespace gbx

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "InstructionAddBase.h"
 #include "../interfaces/InstructionInterface.h"
 
 namespace gbx
@@ -17,8 +16,10 @@ public:
 
 private:
     inline void DecodeCpRegisterMode(uint8_t, interfaces::DecodedInstruction&);
+    inline void DecodeCpImmediateMode(interfaces::DecodedInstruction&);
+    inline void DecodeCpRegisterIndirectMode(interfaces::DecodedInstruction&);
     
-    inline void CalculateDifference(uint8_t, uint8_t, std::shared_ptr<interfaces::RegisterBankInterface>);
+    inline void CalculateDifferenceAndSetFlags(uint8_t, uint8_t, std::shared_ptr<interfaces::RegisterBankInterface>);
     inline uint8_t GetSourceOperandValue(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
 };
 

@@ -7,6 +7,8 @@
 #include "InstructionAdd.h"
 #include "InstructionAnd.h"
 #include "InstructionCp.h"
+#include "InstructionDec.h"
+#include "InstructionInc.h"
 #include "InstructionLd.h"
 #include "InstructionOr.h"
 #include "InstructionSub.h"
