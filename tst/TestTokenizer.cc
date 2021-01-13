@@ -126,3 +126,30 @@ TEST(TestTokenizer, CheckTokensLineNumber)
         EXPECT_EQ((*(begin(tokenList) + counter++)).Line, token.Line);
     }
 }
+
+
+TEST(TestTokenizer, CheckTokensLineNumberWithSpaces)
+{
+    const auto testString = static_cast<string>("\tthis          \n    text        \n   \n    has               \t \r\t\tstrange  \t\t\r\t\t         \n\t\r     formatting         \t\r           ... \t\t\t\r");
+    auto tokenList = 
+    { 
+        MakeToken("this", 1),
+        MakeToken("text", 2),
+        MakeToken("has", 4),
+        MakeToken("strange", 4),
+        MakeToken("formatting", 5),
+        MakeToken("...", 5),
+    };
+
+    auto tokenizer = make_shared<TokenizerDecorator>();
+    tokenizer->ToToken(testString);
+
+    auto extractedTokens = tokenizer->Tokens();
+
+    auto counter = 0;
+    for (auto token : extractedTokens)
+    {
+        EXPECT_EQ((*(begin(tokenList) + counter)).Token, token.Token);
+        EXPECT_EQ((*(begin(tokenList) + counter++)).Line, token.Line);
+    }
+}

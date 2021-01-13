@@ -5,7 +5,6 @@
 
 namespace gbxasm
 {
-
 struct Token
 {
     std::string Token;

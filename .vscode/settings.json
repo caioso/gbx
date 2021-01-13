@@ -2,6 +2,7 @@
     "files.associations": {
         "*.asm": "fsharp",
         "memory": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "string": "cpp"
     }
 }

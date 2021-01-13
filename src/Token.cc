@@ -7,7 +7,7 @@ namespace gbxasm
 
 Token MakeToken(std::string token, std::size_t line)
 {
-    return {token, line};
+    return {.Token = token, .Line = line};
 }
 
 }
