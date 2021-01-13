@@ -91,6 +91,7 @@ AddressingModeFormat* ArithmeticLogicUnit::AcquireAddressingModeTraits()
         case AddressingMode::ImmediateImplicitDestination: _currentAddressingMode = &AddressingModeTemplate::ImplicitImmediateDestinationAddressingMode; break;
         case AddressingMode::ImmediatePair: _currentAddressingMode = &AddressingModeTemplate::ImmediatePairAddressingMode; break;
         case AddressingMode::RegisterPair: _currentAddressingMode = &AddressingModeTemplate::RegisterPairAddressingMode; break;
+        case AddressingMode::RegisterIndirectDestinationPair: _currentAddressingMode = &AddressingModeTemplate::RegisterIndirectDestinationPair; break;
         default:
             throw ArithmeticLogicUnitException("invalid addressing mode");
     }
@@ -177,10 +178,20 @@ void ArithmeticLogicUnit::WriteBackAtImplicitRegisterAddress(shared_ptr<interfac
     memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 }
 
+void ArithmeticLogicUnit::WriteBackPairAtRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+{
+    auto operandMsb = _instructionData.MemoryResult1;
+    auto operandLsb = _instructionData.MemoryResult2;
+    auto stackPointer = _registers->ReadPair(Register::SP);
+    memoryController->Write(static_cast<uint8_t>(operandMsb), stackPointer);
+    memoryController->Write(static_cast<uint8_t>(operandLsb), stackPointer - 1);
+    _registers->WritePair(Register::SP, stackPointer - 2);
+}
+
 void ArithmeticLogicUnit::WriteBackAtImplicitImmediateAddress(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
-    volatile auto resultContent = _registers->Read(_instructionData.SourceRegister);
-    volatile auto resultAddress = static_cast<uint16_t>(0xFF << 8 | _instructionData.MemoryOperand1);
+    auto resultContent = _registers->Read(_instructionData.SourceRegister);
+    auto resultAddress = static_cast<uint16_t>(0xFF << 8 | _instructionData.MemoryOperand1);
     memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 }
 

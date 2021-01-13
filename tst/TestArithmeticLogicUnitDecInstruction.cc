@@ -138,7 +138,6 @@ TEST(TestInc, ExecuteDecRegisterIndirectMode)
 
         alu.Execute();
 
-        cout << "OPERAND VALUE: " << static_cast<size_t>(operandValue) << '\n';
         EXPECT_EQ(static_cast<uint8_t>(static_cast<uint8_t>(operandValue) - 1), alu.GetInstructionData().MemoryResult1);
         EXPECT_EQ((operandValue == 0x01? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
         EXPECT_EQ(1, registerBank->ReadFlag(Flag::N));

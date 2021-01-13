@@ -155,6 +155,32 @@ public:
                 throw RegisterBankException("invalid register pair");
         }
     }
+    
+    inline static uint8_t ToInstructionRegisterPushPair(interfaces::Register reg)
+    {
+        switch (reg)
+        {
+            case Register::BC: return 0;
+            case Register::DE: return 1;
+            case Register::HL: return 2;
+            case Register::AF: return 3;
+            default:
+                throw RegisterBankException("invalid register pair");
+        }
+    }
+
+    inline static interfaces::Register FromInstructionToPushPair(uint8_t reg)
+    {
+        switch (reg)
+        {
+            case 0: return Register::BC;
+            case 1: return Register::DE;
+            case 2: return Register::HL;
+            case 3: return Register::AF;
+            default:
+                throw RegisterBankException("invalid register pair");
+        }
+    }
 };
 
 }

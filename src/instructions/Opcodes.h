@@ -17,6 +17,7 @@ enum class OpcodeType
     cp,
     inc,
     dec,
+    push,
 };
 
 const uint8_t MemoryOperand = 0x06;

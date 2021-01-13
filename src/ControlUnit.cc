@@ -15,12 +15,12 @@ void ControlUnit::Initialize(shared_ptr<MemoryControllerInterface> memoryControl
 {
     _memoryController = memoryController;
     _alu = alu;
+
+    call_once(_flag, [&]() -> void { _alu->InitializeRegisters(); });
 }
 
 void ControlUnit::RunCycle()
-{
-    call_once(_flag, [&]() -> void { _alu->InitializeRegisters(); });
-    
+{  
     // 1 Fetch
     Fetch();
 
@@ -155,6 +155,8 @@ inline void ControlUnit::WriteBackResults()
         WriteBackAtImplicitRegisterAddress();
     else if (_currentAddressingMode->writeBackAtImplicitlyWithImmediateOperand)
         WriteBackAtImplicitImmediateAddress();
+    else if (_currentAddressingMode->writeBackPairAtRegisterAddress)
+        WriteBackPairAtRegisterAddress();
 }
 
 inline void ControlUnit::WriteBackAtOperandAddress()
@@ -180,6 +182,11 @@ inline void ControlUnit::WriteBackAtImplicitRegisterAddress()
 inline void ControlUnit::WriteBackAtImplicitImmediateAddress()
 {
     _alu->WriteBackAtImplicitImmediateAddress(_memoryController);
+}
+
+inline void ControlUnit::WriteBackPairAtRegisterAddress()
+{
+    _alu->WriteBackPairAtRegisterAddress(_memoryController);
 }
 
 }

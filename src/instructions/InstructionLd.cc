@@ -97,7 +97,8 @@ inline void InstructionLd::DecodeRegisterImmediateMove(uint8_t opcode, DecodedIn
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::NoRegiser,
         .DestinationRegister = destination,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -114,7 +115,8 @@ inline void InstructionLd::DecodeRegisterRegisterMove(uint8_t opcode, DecodedIns
         .MemoryOperand3 = 0x00,
         .SourceRegister = source,
         .DestinationRegister = destination,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -130,7 +132,8 @@ inline void InstructionLd::DecodeRegisterPointerMove(uint8_t opcode, DecodedInst
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::HL,
         .DestinationRegister = destination,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -147,7 +150,8 @@ inline void InstructionLd::DecodePointerRegisterMove(uint8_t opcode, DecodedInst
         .MemoryOperand3 = 0x00,
         .SourceRegister = source,
         .DestinationRegister = Register::HL,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -162,7 +166,8 @@ inline void InstructionLd::DecodePointerImmediateMove(DecodedInstruction& decode
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::NoRegiser,
         .DestinationRegister = Register::HL,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -178,7 +183,8 @@ inline void InstructionLd::DecodeAccumulatorSecondaryPointerMove(uint8_t opcode,
         .MemoryOperand3 = 0x00,
         .SourceRegister = source,
         .DestinationRegister = Register::A,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -193,7 +199,8 @@ inline void InstructionLd::DecodeAccumulatorRegisterImplicitMove(DecodedInstruct
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::C,
         .DestinationRegister = Register::A,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -208,7 +215,8 @@ inline void InstructionLd::DecodeRegisterImplicitAccumulatorMove(DecodedInstruct
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::A,
         .DestinationRegister = Register::C,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -223,7 +231,8 @@ inline void InstructionLd::DecodeAccumulatorImmediateImplicitMove(DecodedInstruc
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::NoRegiser,
         .DestinationRegister = Register::A,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -238,7 +247,8 @@ inline void InstructionLd::DecodeImmediateImplicitAccumulatorMove(DecodedInstruc
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::A,
         .DestinationRegister = Register::NoRegiser,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -253,7 +263,8 @@ inline void InstructionLd::DecodeAccumulatorExtendedImmediateMove(DecodedInstruc
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::NoRegiser,
         .DestinationRegister = Register::A,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -268,7 +279,8 @@ inline void InstructionLd::DecodeExtendedImmediateAccumulatorMove(DecodedInstruc
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::A,
         .DestinationRegister = Register::NoRegiser,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -283,7 +295,8 @@ inline void InstructionLd::DecodeAccumulatorPointerIncrementMove(DecodedInstruct
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::A,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -298,7 +311,8 @@ inline void InstructionLd::DecodeAccumulatorPointerDecrementMove(DecodedInstruct
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::A,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -314,7 +328,8 @@ inline void InstructionLd::DecodeSecondaryPointerAccumulatorMove(uint8_t opcode,
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::A,
         .DestinationRegister = destination,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -329,7 +344,8 @@ inline void InstructionLd::DecodePointerIncrementAccumulatorMove(DecodedInstruct
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::A,
         .DestinationRegister = Register::HL,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -344,7 +360,8 @@ inline void InstructionLd::DecodePointerDecrementAccumulatorMove(DecodedInstruct
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::A,
         .DestinationRegister = Register::HL,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -360,7 +377,8 @@ inline void InstructionLd::DecodeRegisterPairImmediateMove(uint8_t opcode, inter
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::NoRegiser,
         .DestinationRegister = destination,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -375,7 +393,8 @@ inline void InstructionLd::DecodeStackPointerPointerMove(DecodedInstruction& dec
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::SP,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -393,7 +412,8 @@ inline void InstructionLd::DecodeRegisterIndexedMove(uint8_t opcode, uint8_t pre
         .MemoryOperand3 = 0x00,
         .SourceRegister = source,
         .DestinationRegister = destination,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -411,7 +431,8 @@ inline void InstructionLd::DecodeIndexedRegisterMove(uint8_t opcode, uint8_t pre
         .MemoryOperand3 = 0x00,
         .SourceRegister = source,
         .DestinationRegister = destination,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 

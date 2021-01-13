@@ -24,6 +24,7 @@ struct DecodedInstruction
     Register SourceRegister;
     Register DestinationRegister;
     uint8_t MemoryResult1;
+    uint8_t MemoryResult2;
 };
 class InstructionConstants
 {
@@ -58,6 +59,7 @@ public:
     virtual void WriteBackAtComposedAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
     virtual void WriteBackAtImplicitRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
     virtual void WriteBackAtImplicitImmediateAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void WriteBackPairAtRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
 };
 
 

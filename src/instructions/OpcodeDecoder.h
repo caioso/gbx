@@ -11,6 +11,7 @@
 #include "InstructionInc.h"
 #include "InstructionLd.h"
 #include "InstructionOr.h"
+#include "InstructionPush.h"
 #include "InstructionSub.h"
 #include "InstructionSbc.h"
 #include "InstructionXor.h"

@@ -2,10 +2,10 @@
 #include <gmock/gmock.h>
 
 #include <cmath>
+#include <memory>
 #include <thread>
 #include <variant>
-
-#include <memory>
+#include <random>
 
 #include "../src/ArithmeticLogicUnit.h"
 #include "../src/ControlUnit.h"
@@ -1473,4 +1473,68 @@ TEST(TestControlUnit, TestDecRegisterIndirect)
     EXPECT_EQ(registers->ReadPair(Register::HL), 0x66A1);
     EXPECT_EQ(registers->ReadPair(Register::PC), 0x0002);
 
+}
+
+TEST(TestControlUnit, TestPush)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    // set stackPoiner
+    auto spValue = static_cast<uint16_t>(0x8000);
+    registers->WritePair(Register::SP, spValue);
+
+    auto instruction0 = (0x03 << 0x06) | (RegisterBank::ToInstructionRegisterPushPair(Register::BC)) << 0x04 | 0x05;
+    auto instruction1 = (0x03 << 0x06) | (RegisterBank::ToInstructionRegisterPushPair(Register::DE)) << 0x04 | 0x05;
+    auto instruction2 = (0x03 << 0x06) | (RegisterBank::ToInstructionRegisterPushPair(Register::HL)) << 0x04 | 0x05;
+    auto instruction3 = (0x03 << 0x06) | (RegisterBank::ToInstructionRegisterPushPair(Register::AF)) << 0x04 | 0x05;
+    registers->WritePair(Register::BC, 0x65DD);
+    registers->WritePair(Register::DE, 0xEE11);
+    registers->WritePair(Register::HL, 0x0814);
+    registers->WritePair(Register::AF, 0xAAB1);
+
+    auto pcValue = 0x0000;
+
+    for (auto i = 0; i < 1000; i++)
+    {
+        // First trigger to controlUnit. 
+        auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(pcValue++), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction0)));
+        EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0x65)), static_cast<uint16_t>(spValue)));
+        EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xDD)), static_cast<uint16_t>(spValue - 1)));
+
+        controlUnit->RunCycle();
+        spValue -= 2;
+        EXPECT_EQ(spValue, registers->ReadPair(Register::SP));
+
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(pcValue++), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction1)));
+        EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xEE)), static_cast<uint16_t>(spValue)));
+        EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0x11)), static_cast<uint16_t>(spValue - 1)));
+        
+        controlUnit->RunCycle();
+        spValue -= 2;
+        EXPECT_EQ(spValue, registers->ReadPair(Register::SP));
+
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(pcValue++), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction2)));
+        EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0x08)), static_cast<uint16_t>(spValue)));
+        EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0x14)), static_cast<uint16_t>(spValue - 1)));
+        
+        controlUnit->RunCycle();
+        spValue -= 2;
+        EXPECT_EQ(spValue, registers->ReadPair(Register::SP));
+
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(pcValue++), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction3)));
+        EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xAA)), static_cast<uint16_t>(spValue)));
+        EXPECT_CALL((*mockPointer), Write(std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xB1)), static_cast<uint16_t>(spValue - 1)));
+        
+        controlUnit->RunCycle();
+        spValue -= 2;
+        EXPECT_EQ(spValue, registers->ReadPair(Register::SP));
+    }
 }

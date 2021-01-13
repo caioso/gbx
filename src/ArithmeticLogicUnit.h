@@ -42,6 +42,7 @@ public:
     virtual void WriteBackAtComposedAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
     virtual void WriteBackAtImplicitRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
     virtual void WriteBackAtImplicitImmediateAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
+    virtual void WriteBackPairAtRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
 
 protected:
     inline uint8_t ReadAtRegister(interfaces::Register, std::shared_ptr<interfaces::MemoryControllerInterface>);

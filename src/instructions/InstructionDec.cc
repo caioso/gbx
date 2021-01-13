@@ -49,7 +49,8 @@ inline void InstructionDec::DecodeDecRegisterMode(uint8_t opcode, DecodedInstruc
         .MemoryOperand3 = 0x00,
         .SourceRegister = source,
         .DestinationRegister = source,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -64,7 +65,8 @@ inline void InstructionDec::DecodeDecRegisterIndirectMode(DecodedInstruction& de
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::HL,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 

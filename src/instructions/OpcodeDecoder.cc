@@ -96,6 +96,9 @@ shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithoutPreOpcod
              OpcodePatternMatcher::Match(opcode, // 00XX X101
              OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_X, b::_1, b::_0, b::_1)))
              return make_shared<InstructionDec>();
+    else if (OpcodePatternMatcher::Match(opcode, // 11XX 0101
+             OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_X, b::_X, b::_0, b::_1, b::_0, b::_1)))
+             return make_shared<InstructionPush>();
     else if (OpcodePatternMatcher::Match(opcode, // 00XX 0001
              OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_0, b::_0, b::_0, b::_1)) ||
              OpcodePatternMatcher::Match(opcode, // 0011 0110

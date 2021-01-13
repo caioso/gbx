@@ -18,8 +18,8 @@ void Z80X::Initialize(shared_ptr<ControlUnitInterface> controlUnit,
     _memoryController = memoryController;
     _registers = registers;
 
-    _controlUnit->Initialize(_memoryController, _alu);
     _alu->Initialize(_registers);
+    _controlUnit->Initialize(_memoryController, _alu);
 }
 
 void Z80X::Run()

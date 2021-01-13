@@ -38,7 +38,8 @@ inline void InstructionSub::DecodeSubRegisterMode(uint8_t opcode, DecodedInstruc
         .MemoryOperand3 = 0x00,
         .SourceRegister = source,
         .DestinationRegister = Register::A,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -53,7 +54,8 @@ inline void InstructionSub::DecodeSubImmediateMode(DecodedInstruction& decodedIn
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::NoRegiser,
         .DestinationRegister = Register::A,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -68,7 +70,8 @@ inline void InstructionSub::DecodeSubRegisterIndirectMode(DecodedInstruction& de
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::A,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 

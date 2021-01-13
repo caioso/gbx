@@ -50,7 +50,8 @@ protected:
     inline void IncrementRegisterPair(interfaces::Register);
     inline void DecrementRegisterPair(interfaces::Register);
     inline void WriteBackAtOperandAddress();
-    inline void WriteBackAtRegisterAddress(); 
+    inline void WriteBackAtRegisterAddress();
+    inline void WriteBackPairAtRegisterAddress(); 
     inline void WriteBackAtComposedAddress();
     inline void WriteBackAtImplicitRegisterAddress();
     inline void WriteBackAtImplicitImmediateAddress();

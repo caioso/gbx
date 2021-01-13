@@ -39,7 +39,8 @@ void InstructionAdc::DecodeAddRegisterMode(uint8_t opcode, interfaces::DecodedIn
         .MemoryOperand3 = 0x00,
         .SourceRegister = source,
         .DestinationRegister = Register::A,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00,
     };
 }
 
@@ -54,7 +55,8 @@ void InstructionAdc::DecodeAddImmediateMode(interfaces::DecodedInstruction& deco
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::NoRegiser,
         .DestinationRegister = Register::A,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 
@@ -69,7 +71,8 @@ void InstructionAdc::DecodeAddRegisterIndirectMode(interfaces::DecodedInstructio
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::A,
-        .MemoryResult1 = 0x00
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
     };
 }
 

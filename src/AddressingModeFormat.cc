@@ -23,6 +23,7 @@ AddressingModeFormat AddressingModeTemplate::NoAddressingMode
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::RegisterAddressingMode                          
@@ -45,6 +46,7 @@ AddressingModeFormat AddressingModeTemplate::RegisterAddressingMode
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::ImmediateAddressingMode                          
@@ -67,6 +69,7 @@ AddressingModeFormat AddressingModeTemplate::ImmediateAddressingMode
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::RegisterIndexedSourceAddressingMode                          
@@ -89,6 +92,7 @@ AddressingModeFormat AddressingModeTemplate::RegisterIndexedSourceAddressingMode
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::RegisterIndexedDestinationAddressingMode                          
@@ -111,6 +115,7 @@ AddressingModeFormat AddressingModeTemplate::RegisterIndexedDestinationAddressin
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::RegisterIndirectSourceAddressingMode                          
@@ -133,6 +138,7 @@ AddressingModeFormat AddressingModeTemplate::RegisterIndirectSourceAddressingMod
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::RegisterIndirectDestinationAddressingMode                          
@@ -155,6 +161,7 @@ AddressingModeFormat AddressingModeTemplate::RegisterIndirectDestinationAddressi
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::RegisterExtendedSourceAddressingMode                          
@@ -177,6 +184,7 @@ AddressingModeFormat AddressingModeTemplate::RegisterExtendedSourceAddressingMod
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::RegisterExtendedDestinationAddressingMode                          
@@ -199,6 +207,7 @@ AddressingModeFormat AddressingModeTemplate::RegisterExtendedDestinationAddressi
                                                                         .writeBackAtComposedOperandAddress = true,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectAddressingMode 
@@ -221,6 +230,7 @@ AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectAddressing
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
                                                                         
 AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectSourceIncrementAddressingMode                          
@@ -243,6 +253,7 @@ AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectSourceIncr
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectSourceDecrementAddressingMode                          
@@ -265,6 +276,7 @@ AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectSourceDecr
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectDestinationIncrementAddressingMode                          
@@ -287,6 +299,7 @@ AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectDestinatio
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectDestinationDecrementAddressingMode                          
@@ -309,6 +322,7 @@ AddressingModeFormat AddressingModeTemplate::ImmediateRegisterIndirectDestinatio
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
                                                                         
 
@@ -332,6 +346,7 @@ AddressingModeFormat AddressingModeTemplate::ImplicitRegisterSourceAddressingMod
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 
@@ -355,6 +370,7 @@ AddressingModeFormat AddressingModeTemplate::ImplicitRegisterDestinationAddressi
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = true,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::ImplicitImmediateSourceAddressingMode                          
@@ -377,6 +393,7 @@ AddressingModeFormat AddressingModeTemplate::ImplicitImmediateSourceAddressingMo
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::ImplicitImmediateDestinationAddressingMode
@@ -398,7 +415,8 @@ AddressingModeFormat AddressingModeTemplate::ImplicitImmediateDestinationAddress
                                                                         .writeBackAtRegisterAddress = false, 
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
-                                                                        .writeBackAtImplicitlyWithImmediateOperand = true
+                                                                        .writeBackAtImplicitlyWithImmediateOperand = true,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::ImmediatePairAddressingMode
@@ -420,7 +438,8 @@ AddressingModeFormat AddressingModeTemplate::ImmediatePairAddressingMode
                                                                         .writeBackAtRegisterAddress = false, 
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
-                                                                        .writeBackAtImplicitlyWithImmediateOperand = false
+                                                                        .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::RegisterPairAddressingMode
@@ -442,7 +461,8 @@ AddressingModeFormat AddressingModeTemplate::RegisterPairAddressingMode
                                                                         .writeBackAtRegisterAddress = false, 
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
-                                                                        .writeBackAtImplicitlyWithImmediateOperand = false
+                                                                        .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
 AddressingModeFormat AddressingModeTemplate::RegisterIndirectSourceAndDestinationAddressingMode                          
@@ -465,6 +485,29 @@ AddressingModeFormat AddressingModeTemplate::RegisterIndirectSourceAndDestinatio
                                                                         .writeBackAtComposedOperandAddress = false,
                                                                         .writeBackAtImplicitlyWithRegister = false,
                                                                         .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = false
                                                                         };
 
+AddressingModeFormat AddressingModeTemplate::RegisterIndirectDestinationPair
+                                                                    {.acquireOperand1 = false, 
+                                                                        .acquireOperand1FromPc = false, 
+                                                                        .acquireOperand1Directly = false, 
+                                                                        .incrementDestination = false,
+                                                                        .decrementDestination = false,
+                                                                        .incrementSource = false,
+                                                                        .decrementSource = false,
+                                                                        .acquireOperand1Implicitly = false,
+                                                                        .acquireOperand2 = false, 
+                                                                        .acquireOperand2FromPc = false, 
+                                                                        .acquireOperand2AtComposedAddress = false, 
+                                                                        .acquireOperand2Implicitly = false,
+                                                                        .acquireOperand3 = false, 
+                                                                        .writeBack = true, 
+                                                                        .writeBackAtOperandAddress = false, 
+                                                                        .writeBackAtRegisterAddress = false, 
+                                                                        .writeBackAtComposedOperandAddress = false,
+                                                                        .writeBackAtImplicitlyWithRegister = false,
+                                                                        .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = true
+                                                                        };
 }
