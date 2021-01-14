@@ -53,6 +53,7 @@ public:
     virtual void AcquireOperand2AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
     virtual void AcquireOperand2AtComposedAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
     virtual void AcquireOperand2Implicitly(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void AcquireOperand2Directly(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
     virtual void AcquireOperand3(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
     virtual void WriteBackAtOperandAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
     virtual void WriteBackAtRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;

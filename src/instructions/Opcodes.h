@@ -18,6 +18,8 @@ enum class OpcodeType
     inc,
     dec,
     push,
+    pop,
+    ldhl,
 };
 
 const uint8_t MemoryOperand = 0x06;

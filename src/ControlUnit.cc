@@ -76,6 +76,8 @@ inline void ControlUnit::AcquireOperand2()
         ReadOperand2AtComposedAddress();
     else if (_currentAddressingMode->acquireOperand2Implicitly)
         ReadOperand2Implicitly();
+    else if (_currentAddressingMode->acquireOperand2Directly)
+        ReadOperand2Directly();
 }
 
 inline void ControlUnit::AcquireOperand3()
@@ -136,6 +138,11 @@ inline void ControlUnit::ReadOperand2AtComposedAddress()
 inline void ControlUnit::ReadOperand2Implicitly()
 {
     _alu->AcquireOperand2Implicitly(_memoryController);
+}
+
+inline void ControlUnit::ReadOperand2Directly()
+{
+    _alu->AcquireOperand2Directly(_memoryController);
 }
 
 inline void ControlUnit::ExecuteInstruction()

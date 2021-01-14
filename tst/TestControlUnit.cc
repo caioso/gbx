@@ -1538,3 +1538,104 @@ TEST(TestControlUnit, TestPush)
         EXPECT_EQ(spValue, registers->ReadPair(Register::SP));
     }
 }
+
+
+TEST(TestControlUnit, TestPop)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    // set stackPoiner
+    auto spValue = static_cast<uint16_t>(0x8000);
+    registers->WritePair(Register::SP, spValue);
+
+    auto instruction0 = (0x03 << 0x06) | (RegisterBank::ToInstructionRegisterPushPair(Register::BC)) << 0x04 | 0x01;
+    auto instruction1 = (0x03 << 0x06) | (RegisterBank::ToInstructionRegisterPushPair(Register::DE)) << 0x04 | 0x01;
+    auto instruction2 = (0x03 << 0x06) | (RegisterBank::ToInstructionRegisterPushPair(Register::HL)) << 0x04 | 0x01;
+    auto instruction3 = (0x03 << 0x06) | (RegisterBank::ToInstructionRegisterPushPair(Register::AF)) << 0x04 | 0x01;
+
+    auto pcValue = 0x0000;
+
+    for (auto i = 0; i < 1000; i++)
+    {
+        random_device randomDevice;
+        mt19937 engine{randomDevice()};
+        uniform_int_distribution<uint16_t> distribution{0, 65535};
+
+        auto operandValue0 = distribution(engine);
+        auto operandValue1 = distribution(engine);
+        auto operandValue2 = distribution(engine);
+        auto operandValue3 = distribution(engine);
+
+        // First trigger to controlUnit. 
+        auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(pcValue++), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction0)));
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(spValue), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>((operandValue0 >> 0x08) & 0xFF)));
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(spValue + 1), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>((operandValue0 & 0xFF))));
+
+        controlUnit->RunCycle();
+        spValue += 2;
+        EXPECT_EQ(spValue, registers->ReadPair(Register::SP));
+        EXPECT_EQ(operandValue0, registers->ReadPair(Register::BC));
+
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(pcValue++), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction1)));
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(spValue), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>((operandValue1 >> 0x08) & 0xFF)));
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(spValue + 1), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>((operandValue1 & 0xFF))));
+
+        controlUnit->RunCycle();
+        spValue += 2;
+        EXPECT_EQ(spValue, registers->ReadPair(Register::SP));
+        EXPECT_EQ(operandValue1, registers->ReadPair(Register::DE));
+
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(pcValue++), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction2)));
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(spValue), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>((operandValue2 >> 0x08) & 0xFF)));
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(spValue + 1), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>((operandValue2 & 0xFF))));
+
+        controlUnit->RunCycle();
+        spValue += 2;
+        EXPECT_EQ(spValue, registers->ReadPair(Register::SP));
+        EXPECT_EQ(operandValue2, registers->ReadPair(Register::HL));
+
+
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(pcValue++), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction3)));
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(spValue), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>((operandValue3 >> 0x08) & 0xFF)));
+        EXPECT_CALL((*mockPointer), Read(static_cast<uint16_t>(spValue + 1), MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>((operandValue3 & 0xFF))));
+
+        controlUnit->RunCycle();
+        spValue += 2;
+        EXPECT_EQ(spValue, registers->ReadPair(Register::SP));
+        EXPECT_EQ(operandValue3, registers->ReadPair(Register::AF));
+    }
+}
+
+TEST(TestControlUnit, TestLdhlRegister)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    // INC H
+    registers->WritePair(Register::SP, 0x31DA);
+
+    auto instruction1 = 0xF8;
+
+    // First trigger to controlUnit. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(instruction1)));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x06)));
+    
+    controlUnit->RunCycle();
+
+    EXPECT_EQ(0x31E0, registers->ReadPair(Register::HL));
+}

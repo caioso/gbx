@@ -47,6 +47,7 @@ protected:
     inline void ReadOperand2AtPC();
     inline void ReadOperand2AtComposedAddress();
     inline void ReadOperand2Implicitly();
+    inline void ReadOperand2Directly();
     inline void IncrementRegisterPair(interfaces::Register);
     inline void DecrementRegisterPair(interfaces::Register);
     inline void WriteBackAtOperandAddress();

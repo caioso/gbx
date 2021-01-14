@@ -17,6 +17,8 @@ struct AddressingModeFormat
         bool acquireOperand2FromPc;
         bool acquireOperand2AtComposedAddress;
         bool acquireOperand2Implicitly;
+        bool acquireOperand2Directly;
+            bool incrementSourceOperand2;
     bool acquireOperand3;
     bool writeBack;
         bool writeBackAtOperandAddress;
@@ -52,6 +54,7 @@ public:
     static AddressingModeFormat RegisterPairAddressingMode;
     static AddressingModeFormat RegisterIndirectSourceAndDestinationAddressingMode;
     static AddressingModeFormat RegisterIndirectDestinationPair;
+    static AddressingModeFormat RegisterIndirectSourcePair;
 };
 
 }

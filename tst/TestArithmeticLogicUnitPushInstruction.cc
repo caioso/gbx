@@ -50,7 +50,7 @@ TEST(TestPush, DecodePushRegisterMode)
     }
 }
 
-TEST(TestInc, ExecutePushRegisterMode)
+TEST(TestPush, ExecutePushRegisterMode)
 {
     auto operandList = {Register::BC, Register::DE, Register::HL, Register::AF };
     auto registerBank = make_shared<RegisterBank>();

@@ -92,6 +92,7 @@ AddressingModeFormat* ArithmeticLogicUnit::AcquireAddressingModeTraits()
         case AddressingMode::ImmediatePair: _currentAddressingMode = &AddressingModeTemplate::ImmediatePairAddressingMode; break;
         case AddressingMode::RegisterPair: _currentAddressingMode = &AddressingModeTemplate::RegisterPairAddressingMode; break;
         case AddressingMode::RegisterIndirectDestinationPair: _currentAddressingMode = &AddressingModeTemplate::RegisterIndirectDestinationPair; break;
+        case AddressingMode::RegisterIndirectSourcePair: _currentAddressingMode = &AddressingModeTemplate::RegisterIndirectSourcePair; break;
         default:
             throw ArithmeticLogicUnitException("invalid addressing mode");
     }
@@ -137,6 +138,14 @@ void ArithmeticLogicUnit::AcquireOperand2Implicitly(__attribute__((unused)) shar
 {
     auto operandLocation = static_cast<uint16_t>(0xFF << 8 | _instructionData.MemoryOperand1);
     _instructionData.MemoryOperand2 = get<uint8_t>(memoryController->Read(operandLocation, MemoryAccessType::Byte));
+}
+
+void ArithmeticLogicUnit::AcquireOperand2Directly(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+{
+    _instructionData.MemoryOperand2 = ReadAtRegister(_instructionData.SourceRegister, memoryController);
+
+    if (_currentAddressingMode->incrementSourceOperand2)
+        IncrementRegisterPair(_instructionData.SourceRegister);
 }
 
 void ArithmeticLogicUnit::AcquireOperand3(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
