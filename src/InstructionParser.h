@@ -3,7 +3,9 @@
 #include <vector>
 
 #include "Token.h"
-#include "Symbol.h"
+#include "SymbolWrapper.h"
+#include "interfaces/BaseSymbol.h"
+#include "symbols/Label.h"
 
 namespace gbxasm
 {
@@ -18,7 +20,7 @@ protected:
     SymbolType DetectSymbolType(Token);
 
     std::vector<Token>& _tokens;
-    std::vector<Symbol> _symbolTable;
+    std::vector<SymbolWrapper> _symbolTable;
 };
 
 }

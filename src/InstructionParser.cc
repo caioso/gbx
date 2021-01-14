@@ -1,6 +1,8 @@
 #include "InstructionParser.h"
 
 using namespace std;
+using namespace gbxasm::interfaces;
+using namespace gbxasm::symbols;
 
 namespace gbxasm
 {
@@ -14,7 +16,10 @@ void InstructionParser::ParseTokens()
     for (auto token : _tokens)
     {
         auto type = DetectSymbolType(token);
-        _symbolTable.push_back(MakeSymbol(type, token.Line));
+        auto label = make_shared<Label>(token.Token, token.Line);
+             label->Process();
+
+        _symbolTable.push_back(MakeSymbol(type, static_pointer_cast<BaseSymbol>(label)));
     }
 }
 

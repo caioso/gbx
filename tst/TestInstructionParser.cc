@@ -7,8 +7,10 @@
 
 #include "../src/InstructionParser.h"
 #include "../src/Tokenizer.h"
+#include "../src/symbols/Label.h"
 
 using namespace gbxasm;
+using namespace gbxasm::symbols;
 using namespace std;
 
 class InstructionParserDecorator : public InstructionParser
@@ -17,7 +19,7 @@ public:
     InstructionParserDecorator(vector<Token>& tokens) : InstructionParser(tokens)
     {}
 
-    vector<Symbol>& GetSymbolTable()
+    vector<SymbolWrapper>& GetSymbolTable()
     {
         return _symbolTable;
     }
@@ -63,4 +65,24 @@ TEST(TestInstructionParser, DetectLabel)
          parser->ParseTokens();
 
     EXPECT_EQ(static_cast<size_t>(3), parser->GetSymbolTable().size());
+}
+
+TEST(TestInstructionParser, EvaluateSymbolMetadata)
+{
+    string assembly = 
+    "label:\n"
+    "label2:\n"
+    "label3:\n";
+
+    auto tokenizer = make_shared<Tokenizer>();
+         tokenizer->ToToken(assembly);
+    auto parser = make_shared<InstructionParserDecorator>(tokenizer->Tokens());
+         parser->ParseTokens();
+
+    auto metadataReference = static_pointer_cast<Label>(parser->GetSymbolTable()[0].Symbol);
+    EXPECT_FALSE(metadataReference == nullptr);
+
+    EXPECT_STREQ("label", metadataReference->Name().c_str());
+    EXPECT_STREQ("label:", metadataReference->RawToken().c_str());
+    EXPECT_EQ(static_cast<size_t>(1), metadataReference->LineNumber());
 }

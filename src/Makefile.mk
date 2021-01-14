@@ -4,7 +4,11 @@ CC := clang++
 OBJ_DIR := $(CURDIR)/../obj
 TARGET_DIR := $(CURDIR)/..
 SRC_FILES := $(wildcard ./*.cc)
+SRC_FILES := $(SRC_FILES) $(wildcard ./interfaces/*.cc)
+SRC_FILES := $(SRC_FILES) $(wildcard ./symbols/*.cc)
 OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
+OBJ_FILES := $(subst interfaces/,,$(OBJ_FILES))
+OBJ_FILES := $(subst symbols/,,$(OBJ_FILES))
 LDFLAGS := $(LDCOVERAGE_FLAGS)
 CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG
 TARGET := gbxasm
@@ -18,10 +22,16 @@ $(OBJ_DIR)/%.o: %.cc %.h
 $(OBJ_DIR)/%.o: %.cc
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
-$(OBJ_DIR)/%.o: ./instructions/%.cc
+$(OBJ_DIR)/%.o: ./interfaces/%.cc
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
-$(OBJ_DIR)/%.o: ./instructions/%.cc ./instructions/%.h
+$(OBJ_DIR)/%.o: ./interfaces/%.cc ./interfaces/%.h
+	$(CC) $(CPPFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./symbols/%.cc
+	$(CC) $(CPPFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./symbols/%.cc ./symbols/%.h
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
 clean:

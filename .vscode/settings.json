@@ -3,6 +3,7 @@
         "*.asm": "fsharp",
         "memory": "cpp",
         "iosfwd": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "stdexcept": "cpp"
     }
 }
