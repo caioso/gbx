@@ -4,6 +4,8 @@
 #include <sstream>
 #include <vector>
 
+#include <iostream>
+
 #include "Token.h"
 
 namespace gbxasm

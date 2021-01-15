@@ -16,7 +16,7 @@ void InstructionParser::ParseTokens()
     for (auto token : _tokens)
     {
         auto type = DetectSymbolType(token);
-        auto label = make_shared<Label>(token.Token, token.Line);
+        auto label = make_shared<Label>(token.Token, token.Line, token.Column);
              label->Process();
 
         _symbolTable.push_back(MakeSymbol(type, static_pointer_cast<BaseSymbol>(label)));

@@ -6,18 +6,20 @@ using namespace std;
 namespace gbxasm::symbols
 {
     
-Label::Label(string rawToken, size_t lineNumber)
-    : BaseSymbol(rawToken, lineNumber)
+Label::Label(string rawToken, size_t line, size_t column)
+    : BaseSymbol(rawToken, line, column)
 {}
 
 void Label::Process()
 {
-    _name = "label";
+    if (auto labelEnd = _rawToken.find(":");
+        labelEnd != string::npos)
+        _id = _rawToken.substr(0, labelEnd);
 }
 
-string Label::Name()
+string Label::Identifier()
 {
-    return _name;
+    return _id;
 }
 
 }

@@ -106,12 +106,12 @@ TEST(TestTokenizer, CheckTokensLineNumber)
     const auto testString = static_cast<string>("\tthis\ntext\n\nhas\tstrange\n\t\rformatting\r...");
     auto tokenList = 
     { 
-        MakeToken("this", 1),
-        MakeToken("text", 2),
-        MakeToken("has", 4),
-        MakeToken("strange", 4),
-        MakeToken("formatting", 5),
-        MakeToken("...", 5),
+        MakeToken("this", 1, 2),
+        MakeToken("text", 2, 1),
+        MakeToken("has", 4, 1),
+        MakeToken("strange", 4, 5),
+        MakeToken("formatting", 5, 3),
+        MakeToken("...", 5, 14),
     };
 
     auto tokenizer = make_shared<TokenizerDecorator>();
@@ -123,7 +123,8 @@ TEST(TestTokenizer, CheckTokensLineNumber)
     for (auto token : extractedTokens)
     {
         EXPECT_EQ((*(begin(tokenList) + counter)).Token, token.Token);
-        EXPECT_EQ((*(begin(tokenList) + counter++)).Line, token.Line);
+        EXPECT_EQ((*(begin(tokenList) + counter)).Line, token.Line);
+        EXPECT_EQ((*(begin(tokenList) + counter++)).Column, token.Column);
     }
 }
 
@@ -133,12 +134,12 @@ TEST(TestTokenizer, CheckTokensLineNumberWithSpaces)
     const auto testString = static_cast<string>("\tthis          \n    text        \n   \n    has               \t \r\t\tstrange  \t\t\r\t\t         \n\t\r     formatting         \t\r           ... \t\t\t\r");
     auto tokenList = 
     { 
-        MakeToken("this", 1),
-        MakeToken("text", 2),
-        MakeToken("has", 4),
-        MakeToken("strange", 4),
-        MakeToken("formatting", 5),
-        MakeToken("...", 5),
+        MakeToken("this", 1, 2),
+        MakeToken("text", 2, 5),
+        MakeToken("has", 4, 5),
+        MakeToken("strange", 4, 28),
+        MakeToken("formatting", 5, 8),
+        MakeToken("...", 5, 40),
     };
 
     auto tokenizer = make_shared<TokenizerDecorator>();
@@ -150,6 +151,7 @@ TEST(TestTokenizer, CheckTokensLineNumberWithSpaces)
     for (auto token : extractedTokens)
     {
         EXPECT_EQ((*(begin(tokenList) + counter)).Token, token.Token);
-        EXPECT_EQ((*(begin(tokenList) + counter++)).Line, token.Line);
+        EXPECT_EQ((*(begin(tokenList) + counter)).Line, token.Line);
+        EXPECT_EQ((*(begin(tokenList) + counter++)).Column, token.Column);
     }
 }

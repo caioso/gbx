@@ -5,9 +5,9 @@ using namespace std;
 namespace gbxasm
 {
 
-Token MakeToken(std::string token, std::size_t line)
+Token MakeToken(string token, size_t line, size_t column)
 {
-    return {.Token = token, .Line = line};
+    return {.Token = token, .Line = line, .Column = column};
 }
 
 }
