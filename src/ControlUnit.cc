@@ -164,6 +164,8 @@ inline void ControlUnit::WriteBackResults()
         WriteBackAtImplicitImmediateAddress();
     else if (_currentAddressingMode->writeBackPairAtRegisterAddress)
         WriteBackPairAtRegisterAddress();
+    else if (_currentAddressingMode->writeBackPairAtImmediateAddress)
+        WriteBackPairAtImmediateAddress();
 }
 
 inline void ControlUnit::WriteBackAtOperandAddress()
@@ -194,6 +196,11 @@ inline void ControlUnit::WriteBackAtImplicitImmediateAddress()
 inline void ControlUnit::WriteBackPairAtRegisterAddress()
 {
     _alu->WriteBackPairAtRegisterAddress(_memoryController);
+}
+
+inline void ControlUnit::WriteBackPairAtImmediateAddress()
+{
+    _alu->WriteBackPairAtImmediareAddress(_memoryController);
 }
 
 }

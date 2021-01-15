@@ -29,6 +29,8 @@ void InstructionLd::Decode(uint8_t opcode, std::optional<uint8_t> preOpcode, Dec
             DecodeAccumulatorExtendedImmediateMove(decodedInstruction);
         else if (opcode == 0xEA) // LD (nn), A
             DecodeExtendedImmediateAccumulatorMove(decodedInstruction);
+        else if (opcode == 0x08) // LD (nn), SP
+            DecodeExtendedImmediatePairMove(decodedInstruction);
         else if (opcode == 0x2A) // LD A, (HL+)
             DecodeAccumulatorPointerIncrementMove(decodedInstruction);
         else if (opcode == 0x3A) // LD A, (HL-)
@@ -60,10 +62,10 @@ void InstructionLd::Decode(uint8_t opcode, std::optional<uint8_t> preOpcode, Dec
 
 void InstructionLd::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
-    if (auto currentAddressingMode = decodedInstruction.AddressingMode;
-        InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::Immediate, 
-        AddressingMode::RegisterIndirectSource, AddressingMode::RegisterIndirectSourceDecrement,
-        AddressingMode::RegisterIndirectSourceIncrement, AddressingMode::RegisterImplicitSource))
+        if (auto currentAddressingMode = decodedInstruction.AddressingMode;
+            InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::Immediate, 
+            AddressingMode::RegisterIndirectSource, AddressingMode::RegisterIndirectSourceDecrement,
+            AddressingMode::RegisterIndirectSourceIncrement, AddressingMode::RegisterImplicitSource))
             ExecuteRegisterMemoryOperand1Transfer(registerBank, decodedInstruction);
         else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::ImmediatePair))
             ExecuteRegisterMemoryOperand1And2Transfer(registerBank, decodedInstruction);
@@ -83,6 +85,8 @@ void InstructionLd::Execute(shared_ptr<RegisterBankInterface> registerBank, Deco
             ExecuteMemoryOperand1MemoryTransfer(decodedInstruction);
         else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::RegisterPair))
             ExecuteRegisterPairRegisterPairTransfer(registerBank, decodedInstruction);
+        else if (InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::ExtendedDestinationPair))
+            ExecuteRegisterPairTransferToMemory(registerBank, decodedInstruction);
 }
 
 inline void InstructionLd::DecodeRegisterImmediateMove(uint8_t opcode, DecodedInstruction& decodedInstruction)
@@ -284,6 +288,22 @@ inline void InstructionLd::DecodeExtendedImmediateAccumulatorMove(DecodedInstruc
     };
 }
 
+inline void InstructionLd::DecodeExtendedImmediatePairMove(DecodedInstruction& decodedInstruction)
+{
+    decodedInstruction =
+    {
+        .Opcode = OpcodeType::ld,
+        .AddressingMode = AddressingMode::ExtendedDestinationPair,
+        .MemoryOperand1 = 0x00,
+        .MemoryOperand2 = 0x00,
+        .MemoryOperand3 = 0x00,
+        .SourceRegister = Register::SP,
+        .DestinationRegister = Register::NoRegiser,
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
+    };
+}
+
 inline void InstructionLd::DecodeAccumulatorPointerIncrementMove(DecodedInstruction& decodedInstruction)
 {
     decodedInstruction =
@@ -473,7 +493,14 @@ inline void InstructionLd::ExecuteMemoryOperand1MemoryTransfer(DecodedInstructio
     decodedInstruction.MemoryResult1 = decodedInstruction.MemoryOperand1;
 }
 
-inline void InstructionLd::ExecuteRegisterPairRegisterPairTransfer(std::shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLd::ExecuteRegisterPairTransferToMemory(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+{
+    auto value = registerBank->ReadPair(decodedInstruction.SourceRegister);
+    decodedInstruction.MemoryResult1 = value & 0xFF;
+    decodedInstruction.MemoryResult2 = (value >> 0x08) & 0xFF;
+}
+
+inline void InstructionLd::ExecuteRegisterPairRegisterPairTransfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     auto source = registerBank->ReadPair(decodedInstruction.SourceRegister);
     registerBank->WritePair(decodedInstruction.DestinationRegister, source);

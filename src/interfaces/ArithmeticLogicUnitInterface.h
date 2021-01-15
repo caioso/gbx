@@ -61,6 +61,7 @@ public:
     virtual void WriteBackAtImplicitRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
     virtual void WriteBackAtImplicitImmediateAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
     virtual void WriteBackPairAtRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void WriteBackPairAtImmediareAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
 };
 
 

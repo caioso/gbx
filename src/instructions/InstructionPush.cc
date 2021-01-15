@@ -26,8 +26,8 @@ void InstructionPush::Decode(uint8_t opcode, __attribute__((unused)) std::option
 void InstructionPush::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
 {
     auto sourceValue = registerBank->ReadPair(decodedInstruction.SourceRegister);
-    decodedInstruction.MemoryResult1 = (sourceValue >> 0x08) & 0xFF;
-    decodedInstruction.MemoryResult2 = (sourceValue) & 0xFF;
+    decodedInstruction.MemoryResult1 = (sourceValue) & 0xFF;
+    decodedInstruction.MemoryResult2 = (sourceValue >> 0x08) & 0xFF;
 }
 
 }

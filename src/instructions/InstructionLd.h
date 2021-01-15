@@ -28,6 +28,7 @@ private:
     inline void DecodeImmediateImplicitAccumulatorMove(interfaces::DecodedInstruction&);
     inline void DecodeAccumulatorExtendedImmediateMove(interfaces::DecodedInstruction&);
     inline void DecodeExtendedImmediateAccumulatorMove(interfaces::DecodedInstruction&);
+    inline void DecodeExtendedImmediatePairMove(interfaces::DecodedInstruction&);
     inline void DecodeAccumulatorPointerIncrementMove(interfaces::DecodedInstruction&);
     inline void DecodeAccumulatorPointerDecrementMove(interfaces::DecodedInstruction&);
     inline void DecodeSecondaryPointerAccumulatorMove(uint8_t, interfaces::DecodedInstruction&);
@@ -43,6 +44,7 @@ private:
     inline void ExecuteRegisterRegisterTransfer(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
     inline void ExecuteRegisterPairRegisterPairTransfer(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
     inline void ExecuteRegisterMemoryTransfer(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
+    inline void ExecuteRegisterPairTransferToMemory(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
     inline void ExecuteMemoryOperand1MemoryTransfer(interfaces::DecodedInstruction&);
     inline void DecodeRegisterIndexedMove(uint8_t, uint8_t, interfaces::DecodedInstruction&);
     inline void DecodeIndexedRegisterMove(uint8_t, uint8_t, interfaces::DecodedInstruction&);

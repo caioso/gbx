@@ -56,6 +56,7 @@ protected:
     inline void WriteBackAtComposedAddress();
     inline void WriteBackAtImplicitRegisterAddress();
     inline void WriteBackAtImplicitImmediateAddress();
+    inline void WriteBackPairAtImmediateAddress();
 
     std::shared_ptr<interfaces::ArithmeticLogicUnitInterface> _alu;
     std::optional<uint8_t> _preOpcode;

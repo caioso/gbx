@@ -801,3 +801,214 @@ TEST(TestAddAndAdc, ExecuteAdcRegisterIndirectMode)
     EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
     EXPECT_EQ(0x00, registerBank->Read(Register::A));
 }
+
+TEST(TestAddAndAdc, DecodeAddRegisterPairMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+    
+    ArithmeticLogicDecorator alu;
+    alu.Initialize(registerBank);
+    alu.InitializeRegisters();
+
+    auto binaryBase = 0x09;
+    auto sourceList = { Register::BC, Register::DE, Register::HL, Register::SP };
+
+    for (auto source : sourceList)
+    {
+        auto rawBinary = binaryBase | (RegisterBank::ToInstructionRegisterPair(source) << 4);
+        alu.DecodeInstruction(rawBinary, nullopt);
+
+        EXPECT_EQ(OpcodeType::add, alu.GetInstructionData().Opcode);
+        EXPECT_EQ(AddressingMode::RegisterPair, alu.GetInstructionData().AddressingMode);
+        EXPECT_EQ(source, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(Register::HL, alu.GetInstructionData().DestinationRegister);
+    }
+}
+
+TEST(TestAddAndAdc, ExecuteAddRegisterPairMode)
+{
+    auto sourceList = { Register::BC, Register::DE, Register::HL, Register::SP };
+    auto registerBank = make_shared<RegisterBank>();
+    
+    ArithmeticLogicDecorator alu;
+    alu.Initialize(registerBank);
+    alu.InitializeRegisters();
+
+    random_device randomDevice;
+    mt19937 engine{randomDevice()};
+    uniform_int_distribution<int16_t> distribution{-32768, 32767};
+    uniform_int_distribution<uint8_t> sourceRegisterDistribution {0, 3};
+
+    for (auto i = 0; i < 1000; i++)
+    {
+        auto hlValue = distribution(engine);
+        auto operandValue = distribution(engine);
+        auto result = static_cast<uint16_t>(0);
+
+        auto source = *(begin(sourceList) + sourceRegisterDistribution(engine));
+        auto rawBinary = 0x09 | (RegisterBank::ToInstructionRegisterPair(source) << 0x04);
+
+        alu.DecodeInstruction(rawBinary, nullopt);
+
+        if(source != Register::HL)
+        {
+            result = hlValue + operandValue;
+            registerBank->WritePair(Register::HL, hlValue);
+            registerBank->WritePair(source, operandValue);
+        }
+        else
+        {
+            result = hlValue + hlValue;
+            registerBank->WritePair(Register::HL, hlValue);
+        }
+
+        alu.Execute();
+
+        EXPECT_EQ(registerBank->ReadPair(Register::HL), static_cast<uint16_t>(result));
+    }
+
+    // Test Flags
+    auto rawBinary =  0x09 | (RegisterBank::ToInstructionRegisterPair(Register::DE) << 0x04);
+
+    alu.DecodeInstruction(rawBinary, nullopt);
+    registerBank->WritePair(Register::HL, 0x1FFF);
+    registerBank->WritePair(Register::DE, 0x0001);
+    alu.Execute();
+
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::H));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::Z));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
+    EXPECT_EQ(0x2000, registerBank->ReadPair(Register::HL));
+
+    alu.DecodeInstruction(rawBinary, nullopt);
+    registerBank->WritePair(Register::HL, 0xFFFF);
+    registerBank->WritePair(Register::DE, 0x0001);
+    alu.Execute();
+
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::H));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::Z));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
+    EXPECT_EQ(0x0000, registerBank->ReadPair(Register::HL));
+
+    alu.DecodeInstruction(rawBinary, nullopt);
+    registerBank->WritePair(Register::HL, 0xF000);
+    registerBank->WritePair(Register::DE, 0x1000);
+    alu.Execute();
+
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::Z));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
+    EXPECT_EQ(0x0000, registerBank->ReadPair(Register::HL));
+    
+    alu.DecodeInstruction(rawBinary, nullopt);
+    registerBank->WritePair(Register::HL, 0xFF88);
+    registerBank->WritePair(Register::DE, 0xFF89);
+    alu.Execute();
+
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::H));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::Z));
+    EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
+    EXPECT_EQ(0xFF11, registerBank->ReadPair(Register::HL));
+    
+    alu.DecodeInstruction(rawBinary, nullopt);
+    registerBank->WritePair(Register::HL, 0xFF88);
+    registerBank->WritePair(Register::DE, 0x0077);
+    alu.Execute();
+
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::Z));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
+    EXPECT_EQ(0xFFFF, registerBank->ReadPair(Register::HL));
+}
+
+TEST(TestAddAndAdc, DecodeAddToSPImmediaterMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+    
+    ArithmeticLogicDecorator alu;
+    alu.Initialize(registerBank);
+    alu.InitializeRegisters();
+
+    auto rawBinary = 0xE8;
+
+    alu.DecodeInstruction(rawBinary, nullopt);
+
+    EXPECT_EQ(OpcodeType::add, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::SingleImmediatePair, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::SP, alu.GetInstructionData().DestinationRegister);
+}
+
+TEST(TestAddAndAdc, ExecuteAddToSPImmediaterMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+    
+    ArithmeticLogicDecorator alu;
+    alu.Initialize(registerBank);
+    alu.InitializeRegisters();
+
+    random_device randomDevice;
+    mt19937 engine{randomDevice()};
+    uniform_int_distribution<uint16_t> distribution{0, 65535};
+    uniform_int_distribution<int8_t> distributionImmediate{-128, 127};
+
+    for (auto i = 0; i < 1000; i++)
+    {
+        auto SPValue = distribution(engine);
+        auto operandValue = distributionImmediate(engine);
+        auto result = static_cast<uint16_t>(0);
+
+        auto rawBinary = 0xE8;
+
+        alu.DecodeInstruction(rawBinary, nullopt);
+
+        result = SPValue + operandValue;
+        registerBank->WritePair(Register::SP, SPValue);
+        alu.GetInstructionData().MemoryOperand1 = operandValue;
+
+        alu.Execute();
+
+        EXPECT_EQ(registerBank->ReadPair(Register::SP), static_cast<uint16_t>(result));
+    }
+    // Test Flags
+    auto rawBinary =  0xE8;
+
+    alu.DecodeInstruction(rawBinary, nullopt);
+    registerBank->WritePair(Register::SP, 0x0000);
+    alu.GetInstructionData().MemoryOperand1 = 0x01;
+    alu.Execute();
+
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::Z));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
+    EXPECT_EQ(0x0001, registerBank->ReadPair(Register::SP));
+
+    // DOUBLE CHECK THESE FLAGS!
+    alu.DecodeInstruction(rawBinary, nullopt);
+    registerBank->WritePair(Register::SP, 0x0000);
+    alu.GetInstructionData().MemoryOperand1 = 0xFF;
+    alu.Execute();
+
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::Z));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
+    EXPECT_EQ(0xFFFF, registerBank->ReadPair(Register::SP));
+
+    alu.DecodeInstruction(rawBinary, nullopt);
+    registerBank->WritePair(Register::SP, 0x0001);
+    alu.GetInstructionData().MemoryOperand1 = 0xFE;
+    alu.Execute();
+
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::Z));
+    EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
+    EXPECT_EQ(0xFFFF, registerBank->ReadPair(Register::SP));
+}

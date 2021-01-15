@@ -15,7 +15,7 @@ void InstructionInc::Decode(uint8_t opcode, __attribute__((unused)) std::optiona
 
 void InstructionInc::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction) 
 {
-    auto operandValue = AcquireSourceOperandValue(registerBank, decodedInstruction);
+    auto operandValue = Acquire8BitSourceOperandValue(registerBank, decodedInstruction);
     auto carry = registerBank->ReadFlag(Flag::CY);
 
     registerBank->Write(Register::F, 0x00);
@@ -29,7 +29,7 @@ void InstructionInc::Execute(shared_ptr<RegisterBankInterface> registerBank, Dec
 
 inline void InstructionInc::SetDestinationOperandValue(uint8_t operandValue, shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
-    if (auto value = CalculateBinaryAdditionAndSetFlags(operandValue, 0x01, nullopt, registerBank);
+    if (auto value = Calculate8BitBinaryAdditionAndSetFlags(operandValue, 0x01, nullopt, registerBank);
         decodedInstruction.AddressingMode == AddressingMode::Register)
         registerBank->Write(decodedInstruction.DestinationRegister, value);
     else 

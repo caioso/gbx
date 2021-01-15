@@ -18,12 +18,12 @@ void InstructionAdc::Decode(uint8_t opcode, __attribute__((unused)) optional<uin
 
 void InstructionAdc::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
-    auto operand1 = AcquireSourceOperandValue(registerBank, decodedInstruction);
+    auto operand1 = Acquire8BitSourceOperandValue(registerBank, decodedInstruction);
     auto operand2  = registerBank->Read(decodedInstruction.DestinationRegister); // Always A
     auto carry  = registerBank->ReadFlag(Flag::CY);
     
     registerBank->Write(Register::F, 0x00);
-    auto result = CalculateBinaryAdditionAndSetFlags(operand1, operand2, carry, registerBank);
+    auto result = Calculate8BitBinaryAdditionAndSetFlags(operand1, operand2, carry, registerBank);
     registerBank->Write(decodedInstruction.DestinationRegister, static_cast<uint8_t>(result));
 }
 

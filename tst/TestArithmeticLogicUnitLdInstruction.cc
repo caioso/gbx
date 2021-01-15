@@ -467,6 +467,23 @@ TEST(TestLd, DecodeTransferToSP)
     EXPECT_EQ(Register::SP, alu.GetInstructionData().DestinationRegister);
 }
 
+TEST(TestLd, DecodeTransferSPToMemory)
+{
+    auto registerBank = make_shared<RegisterBank>();
+    
+    ArithmeticLogicDecorator alu;
+    alu.Initialize(registerBank);
+    alu.InitializeRegisters();
+
+    auto rawBinary = 0x08;
+    alu.DecodeInstruction(rawBinary, nullopt);
+
+    EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::ExtendedDestinationPair, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::SP, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().DestinationRegister);
+}
+
 TEST(TestLd, ExecuteImmediateAddressingMode)
 {
     auto registerBank = make_shared<RegisterBank>();
@@ -817,4 +834,22 @@ TEST(TestLd, ExecuteSPTransferAddressingMode)
     alu.Execute();
 
     EXPECT_EQ(0x97A3, registerBank->ReadPair(Register::SP));
+}
+
+TEST(TestLd, ExecuteSPTransferToMemoryMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+
+    ArithmeticLogicDecorator alu;
+    alu.Initialize(registerBank);
+    alu.InitializeRegisters();
+
+    auto rawBinary = 0x08;
+    registerBank->WritePair(Register::SP, 0x54D1);
+    alu.DecodeInstruction(rawBinary, nullopt);
+
+    alu.Execute();
+
+    EXPECT_EQ(static_cast<uint8_t>(0xD1), alu.GetInstructionData().MemoryResult1);
+    EXPECT_EQ(static_cast<uint8_t>(0x54), alu.GetInstructionData().MemoryResult2);
 }

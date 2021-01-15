@@ -27,6 +27,7 @@ struct AddressingModeFormat
         bool writeBackAtImplicitlyWithRegister;
         bool writeBackAtImplicitlyWithImmediateOperand;
         bool writeBackPairAtRegisterAddress;
+        bool writeBackPairAtImmediateAddress;
 };
 
 class AddressingModeTemplate
@@ -55,6 +56,8 @@ public:
     static AddressingModeFormat RegisterIndirectSourceAndDestinationAddressingMode;
     static AddressingModeFormat RegisterIndirectDestinationPair;
     static AddressingModeFormat RegisterIndirectSourcePair;
+    static AddressingModeFormat ExtendedDestinationPair;
+    static AddressingModeFormat SingleImmediatePairAddressingMode;
 };
 
 }

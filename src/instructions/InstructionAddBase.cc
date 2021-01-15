@@ -6,7 +6,7 @@ using namespace gbx::interfaces;
 namespace gbx
 {
 
-uint8_t InstructionAddBase::CalculateBinaryAdditionAndSetFlags(uint8_t operand1, uint8_t operand2, optional<uint8_t> carry, shared_ptr<RegisterBankInterface> registerBank)
+uint8_t InstructionAddBase::Calculate8BitBinaryAdditionAndSetFlags(uint8_t operand1, uint8_t operand2, optional<uint8_t> carry, shared_ptr<RegisterBankInterface> registerBank)
 {
     auto result = static_cast<uint8_t>(0x00);
     auto carryIn = carry.value_or(0x00);
@@ -33,12 +33,47 @@ uint8_t InstructionAddBase::CalculateBinaryAdditionAndSetFlags(uint8_t operand1,
     return result;
 }
 
-uint8_t InstructionAddBase::AcquireSourceOperandValue(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+uint16_t InstructionAddBase::Calculate16BitBinaryAdditionAndSetFlags(uint16_t operand1, uint16_t operand2, optional<uint8_t> carry, shared_ptr<RegisterBankInterface> registerBank)
+{
+    auto result = static_cast<uint16_t>(0x00);
+    auto carryIn = carry.value_or(0x00);
+
+    for (auto i = 0; i < 16; i++)
+    {
+        auto operand1Bit = (operand1 >> i) & 0x01;
+        auto operand2Bit = (operand2 >> i) & 0x01;
+        auto resultBit = (operand1Bit ^ operand2Bit) ^ carryIn;
+        carryIn = (operand1Bit & operand2Bit) | (carryIn & (operand1Bit ^ operand2Bit));
+
+        if (i == 11 && carryIn)
+            registerBank->SetFlag(Flag::H);
+        else if (i == 15 && carryIn)
+            registerBank->SetFlag(Flag::CY);
+
+        result |= (resultBit << i);
+    }
+
+    if (result == 0)
+        registerBank->SetFlag(Flag::Z);
+    registerBank->ClearFlag(Flag::N);
+
+    return result;
+}
+
+uint8_t InstructionAddBase::Acquire8BitSourceOperandValue(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.AddressingMode == AddressingMode::Register)
         return registerBank->Read(decodedInstruction.SourceRegister);
     else
         return decodedInstruction.MemoryOperand1;
+}
+
+uint16_t InstructionAddBase::Acquire16BitSourceOperandValue(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+{
+    if (decodedInstruction.AddressingMode == AddressingMode::RegisterPair)
+        return registerBank->ReadPair(decodedInstruction.SourceRegister);
+    else 
+        return static_cast<uint16_t>((decodedInstruction.MemoryOperand1 >> 7 != 0? 0xFF00 : 0x0000) | decodedInstruction.MemoryOperand1);
 }
 
 }

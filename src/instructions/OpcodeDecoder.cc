@@ -30,12 +30,16 @@ shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithPreOpcode(_
 shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithoutPreOpcode(uint8_t opcode)
 {
     // Add Instruction Opcodes
-    if (OpcodePatternMatcher::Match(opcode, // 1000 0110
+    if (OpcodePatternMatcher::Match(opcode, // 00XX 1001
+        OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_1, b::_0, b::_0, b::_1)) ||
+        OpcodePatternMatcher::Match(opcode, // 1000 0110
         OpcodePatternMatcher::Pattern(b::_1, b::_0, b::_0, b::_0, b::_0, b::_1, b::_1, b::_0)) ||
         OpcodePatternMatcher::Match(opcode, // 1000 0XXX
         OpcodePatternMatcher::Pattern(b::_1, b::_0, b::_0, b::_0, b::_0, b::_X, b::_X, b::_X)) ||
         OpcodePatternMatcher::Match(opcode, // 1100 0110
-        OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_0, b::_0, b::_0, b::_1, b::_1, b::_0)))
+        OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_0, b::_0, b::_0, b::_1, b::_1, b::_0)) ||
+        OpcodePatternMatcher::Match(opcode, // 1110 1000
+        OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_1, b::_0, b::_1, b::_0, b::_0, b::_0)))
         return make_shared<InstructionAdd>();
     else if (OpcodePatternMatcher::Match(opcode, // 1100 1110
              OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_0, b::_0, b::_1, b::_1, b::_1, b::_0)) ||
@@ -105,7 +109,9 @@ shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithoutPreOpcod
     else if (OpcodePatternMatcher::Match(opcode, // 11XX 0001
              OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_X, b::_X, b::_0, b::_0, b::_0, b::_1)))
              return make_shared<InstructionPop>();
-    else if (OpcodePatternMatcher::Match(opcode, // 00XX 0001
+    else if (OpcodePatternMatcher::Match(opcode, // 0000 1000
+             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_0, b::_1, b::_0, b::_0, b::_0)) ||
+             OpcodePatternMatcher::Match(opcode, // 00XX 0001
              OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_0, b::_0, b::_0, b::_1)) ||
              OpcodePatternMatcher::Match(opcode, // 0011 0110
              OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_1, b::_0, b::_1, b::_1, b::_0)) ||

@@ -73,6 +73,7 @@ AddressingModeFormat* ArithmeticLogicUnit::AcquireAddressingModeTraits()
     {
         case AddressingMode::Register: _currentAddressingMode = &AddressingModeTemplate::RegisterAddressingMode; break;
         case AddressingMode::Immediate: _currentAddressingMode = &AddressingModeTemplate::ImmediateAddressingMode; break;
+        case AddressingMode::SingleImmediatePair: _currentAddressingMode = &AddressingModeTemplate::SingleImmediatePairAddressingMode; break;
         case AddressingMode::RegisterIndexedSource: _currentAddressingMode = &AddressingModeTemplate::RegisterIndexedSourceAddressingMode; break;
         case AddressingMode::RegisterIndexedDestination: _currentAddressingMode = &AddressingModeTemplate::RegisterIndexedDestinationAddressingMode; break;
         case AddressingMode::RegisterIndirectSource: _currentAddressingMode = &AddressingModeTemplate::RegisterIndirectSourceAddressingMode; break;
@@ -93,6 +94,7 @@ AddressingModeFormat* ArithmeticLogicUnit::AcquireAddressingModeTraits()
         case AddressingMode::RegisterPair: _currentAddressingMode = &AddressingModeTemplate::RegisterPairAddressingMode; break;
         case AddressingMode::RegisterIndirectDestinationPair: _currentAddressingMode = &AddressingModeTemplate::RegisterIndirectDestinationPair; break;
         case AddressingMode::RegisterIndirectSourcePair: _currentAddressingMode = &AddressingModeTemplate::RegisterIndirectSourcePair; break;
+        case AddressingMode::ExtendedDestinationPair: _currentAddressingMode = &AddressingModeTemplate::ExtendedDestinationPair; break;
         default:
             throw ArithmeticLogicUnitException("invalid addressing mode");
     }
@@ -140,7 +142,7 @@ void ArithmeticLogicUnit::AcquireOperand2Implicitly(__attribute__((unused)) shar
     _instructionData.MemoryOperand2 = get<uint8_t>(memoryController->Read(operandLocation, MemoryAccessType::Byte));
 }
 
-void ArithmeticLogicUnit::AcquireOperand2Directly(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::AcquireOperand2Directly(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
     _instructionData.MemoryOperand2 = ReadAtRegister(_instructionData.SourceRegister, memoryController);
 
@@ -187,15 +189,25 @@ void ArithmeticLogicUnit::WriteBackAtImplicitRegisterAddress(shared_ptr<interfac
     memoryController->Write(static_cast<uint8_t>(resultContent), resultAddress);
 }
 
-void ArithmeticLogicUnit::WriteBackPairAtRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::WriteBackPairAtRegisterAddress(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
     auto operandMsb = _instructionData.MemoryResult1;
     auto operandLsb = _instructionData.MemoryResult2;
     auto stackPointer = _registers->ReadPair(Register::SP);
-    memoryController->Write(static_cast<uint8_t>(operandMsb), stackPointer);
-    memoryController->Write(static_cast<uint8_t>(operandLsb), stackPointer - 1);
+    memoryController->Write(static_cast<uint8_t>(operandLsb), stackPointer);
+    memoryController->Write(static_cast<uint8_t>(operandMsb), stackPointer - 1);
     _registers->WritePair(Register::SP, stackPointer - 2);
 }
+
+void ArithmeticLogicUnit::WriteBackPairAtImmediareAddress(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+{
+    auto operandLsb = _instructionData.MemoryResult1;
+    auto operandMsb = _instructionData.MemoryResult2;
+    auto address = static_cast<uint16_t>(_instructionData.MemoryOperand1 | (_instructionData.MemoryOperand2 << 0x08));
+    memoryController->Write(static_cast<uint8_t>(operandLsb), address);
+    memoryController->Write(static_cast<uint8_t>(operandMsb), address + 1);
+}
+
 
 void ArithmeticLogicUnit::WriteBackAtImplicitImmediateAddress(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
