@@ -43,13 +43,22 @@ void InstructionAdd::Add16Bit(shared_ptr<RegisterBankInterface> registerBank, De
 {
     auto operand1 = Acquire16BitSourceOperandValue(registerBank, decodedInstruction);
     auto operand2  = registerBank->ReadPair(decodedInstruction.DestinationRegister); // Always HL
-    
+    auto flagMode = DecideFlagMode(decodedInstruction);
+    auto zFlag = registerBank->ReadFlag(Flag::Z);    
+
     registerBank->Write(Register::F, 0x00);
-    auto result = Calculate16BitBinaryAdditionAndSetFlags(operand1, operand2, nullopt, registerBank);
+    auto result = Calculate16BitBinaryAdditionAndSetFlags(operand1, operand2, nullopt, registerBank, flagMode);
     registerBank->WritePair(decodedInstruction.DestinationRegister, static_cast<uint16_t>(result));
 
     if (decodedInstruction.AddressingMode == AddressingMode::SingleImmediatePair) // Valid for ADD SP, ss
         registerBank->ClearFlag(Flag::Z);
+    if (decodedInstruction.AddressingMode == AddressingMode::RegisterPair) // Valid for ADD HL, qq
+    {
+        if (zFlag == 1)
+            registerBank->SetFlag(Flag::Z);
+        else
+            registerBank->ClearFlag(Flag::Z);
+    }
 }
 
 inline void InstructionAdd::DecodeAddRegisterMode(uint8_t opcode, DecodedInstruction& decodedInstruction)

@@ -33,7 +33,7 @@ uint8_t InstructionAddBase::Calculate8BitBinaryAdditionAndSetFlags(uint8_t opera
     return result;
 }
 
-uint16_t InstructionAddBase::Calculate16BitBinaryAdditionAndSetFlags(uint16_t operand1, uint16_t operand2, optional<uint8_t> carry, shared_ptr<RegisterBankInterface> registerBank)
+uint16_t InstructionAddBase::Calculate16BitBinaryAdditionAndSetFlags(uint16_t operand1, uint16_t operand2, optional<uint8_t> carry, shared_ptr<RegisterBankInterface> registerBank, FlagMode mode)
 {
     auto result = static_cast<uint16_t>(0x00);
     auto carryIn = carry.value_or(0x00);
@@ -45,10 +45,20 @@ uint16_t InstructionAddBase::Calculate16BitBinaryAdditionAndSetFlags(uint16_t op
         auto resultBit = (operand1Bit ^ operand2Bit) ^ carryIn;
         carryIn = (operand1Bit & operand2Bit) | (carryIn & (operand1Bit ^ operand2Bit));
 
-        if (i == 11 && carryIn)
-            registerBank->SetFlag(Flag::H);
-        else if (i == 15 && carryIn)
-            registerBank->SetFlag(Flag::CY);
+        if (mode == FlagMode::Flag16BitMode)
+        {
+            if (i == 11 && carryIn)
+                registerBank->SetFlag(Flag::H);
+            else if (i == 15 && carryIn)
+                registerBank->SetFlag(Flag::CY);
+        }
+        else
+        {
+            if (i == 3 && carryIn)
+                registerBank->SetFlag(Flag::H);
+            else if (i == 7 && carryIn)
+                registerBank->SetFlag(Flag::CY);
+        }
 
         result |= (resultBit << i);
     }
@@ -58,6 +68,11 @@ uint16_t InstructionAddBase::Calculate16BitBinaryAdditionAndSetFlags(uint16_t op
     registerBank->ClearFlag(Flag::N);
 
     return result;
+}
+
+FlagMode InstructionAddBase::DecideFlagMode(interfaces::DecodedInstruction& decodedInstruction)
+{
+    return decodedInstruction.AddressingMode == AddressingMode::RegisterPair ? FlagMode::Flag16BitMode : FlagMode::Flag8BitMode;
 }
 
 uint8_t InstructionAddBase::Acquire8BitSourceOperandValue(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)

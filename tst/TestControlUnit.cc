@@ -1677,7 +1677,6 @@ TEST(TestControlUnit, TestSPImmediate)
     auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    // INC H
     registers->WritePair(Register::SP, 0xFFFE);
 
     auto instruction1 = 0xE8;
