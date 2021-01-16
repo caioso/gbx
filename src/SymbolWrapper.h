@@ -11,6 +11,7 @@ namespace gbxasm
 enum class SymbolType
 {
     Label,
+    Number,
     Unknown,
 };
 

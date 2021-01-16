@@ -106,12 +106,12 @@ TEST(TestTokenizer, CheckTokensLineNumber)
     const auto testString = static_cast<string>("\tthis\ntext\n\nhas\tstrange\n\t\rformatting\r...");
     auto tokenList = 
     { 
-        MakeToken("this", 1, 2),
-        MakeToken("text", 2, 1),
-        MakeToken("has", 4, 1),
-        MakeToken("strange", 4, 5),
-        MakeToken("formatting", 5, 3),
-        MakeToken("...", 5, 14),
+        TokenMaker::MakeToken("this", 1, 2),
+        TokenMaker::MakeToken("text", 2, 1),
+        TokenMaker::MakeToken("has", 4, 1),
+        TokenMaker::MakeToken("strange", 4, 5),
+        TokenMaker::MakeToken("formatting", 5, 3),
+        TokenMaker::MakeToken("...", 5, 14),
     };
 
     auto tokenizer = make_shared<TokenizerDecorator>();
@@ -128,18 +128,17 @@ TEST(TestTokenizer, CheckTokensLineNumber)
     }
 }
 
-
 TEST(TestTokenizer, CheckTokensLineNumberWithSpaces)
 {
     const auto testString = static_cast<string>("\tthis          \n    text        \n   \n    has               \t \r\t\tstrange  \t\t\r\t\t         \n\t\r     formatting         \t\r           ... \t\t\t\r");
     auto tokenList = 
     { 
-        MakeToken("this", 1, 2),
-        MakeToken("text", 2, 5),
-        MakeToken("has", 4, 5),
-        MakeToken("strange", 4, 28),
-        MakeToken("formatting", 5, 8),
-        MakeToken("...", 5, 40),
+        TokenMaker::MakeToken("this", 1, 2),
+        TokenMaker::MakeToken("text", 2, 5),
+        TokenMaker::MakeToken("has", 4, 5),
+        TokenMaker::MakeToken("strange", 4, 28),
+        TokenMaker::MakeToken("formatting", 5, 8),
+        TokenMaker::MakeToken("...", 5, 40),
     };
 
     auto tokenizer = make_shared<TokenizerDecorator>();
@@ -151,6 +150,106 @@ TEST(TestTokenizer, CheckTokensLineNumberWithSpaces)
     for (auto token : extractedTokens)
     {
         EXPECT_EQ((*(begin(tokenList) + counter)).Token, token.Token);
+        EXPECT_EQ((*(begin(tokenList) + counter)).Line, token.Line);
+        EXPECT_EQ((*(begin(tokenList) + counter++)).Column, token.Column);
+    }
+}
+
+TEST(TestTokenizer, DetectNumericTokens)
+{
+    const auto testString = static_cast<string>("0x1143 H'1245 Ob1111.0000 5412 H'4511.L");
+    auto tokenList = 
+    { 
+        TokenMaker::MakeToken("0x1143", 1, 1),
+        TokenMaker::MakeToken("H'1245", 1, 8),
+        TokenMaker::MakeToken("Ob1111.0000", 1, 15),
+        TokenMaker::MakeToken("5412", 1, 27),
+        TokenMaker::MakeToken("H'4511.L", 1, 32),
+    };
+
+    auto tokenizer = make_shared<TokenizerDecorator>();
+    tokenizer->ToToken(testString);
+
+    auto extractedTokens = tokenizer->Tokens();
+
+    auto counter = 0;
+    for (auto token : extractedTokens)
+    {
+        EXPECT_EQ((*(begin(tokenList) + counter)).Token, token.Token);
+        EXPECT_EQ((*(begin(tokenList) + counter)).Line, token.Line);
+        EXPECT_EQ((*(begin(tokenList) + counter++)).Column, token.Column);
+    }
+}
+
+TEST(TestTokenizer, TestDelimiterElimination)
+{
+    const auto testString = static_cast<string>("Token11, Token2; ;Token3 ,Token4 ,Token5, ;Token6, ,Token7; ;Token8;");
+    auto tokenList = 
+    { 
+        TokenMaker::MakeToken("Token11,", 1, 1),
+        TokenMaker::MakeToken("Token2;", 1, 10),
+        TokenMaker::MakeToken(";Token3", 1, 18),
+        TokenMaker::MakeToken(",Token4", 1, 26),
+        TokenMaker::MakeToken(",Token5,", 1, 34),
+        TokenMaker::MakeToken(";Token6,", 1, 43),
+        TokenMaker::MakeToken(",Token7;", 1, 52),
+        TokenMaker::MakeToken(";Token8;", 1, 61),
+    };
+
+    auto tokenListWithoutDelimiters = 
+    { 
+        TokenMaker::MakeToken("Token11", 1, 1),
+        TokenMaker::MakeToken("Token2", 1, 10),
+        TokenMaker::MakeToken("Token3", 1, 18),
+        TokenMaker::MakeToken("Token4", 1, 26),
+        TokenMaker::MakeToken("Token5", 1, 34),
+        TokenMaker::MakeToken("Token6", 1, 43),
+        TokenMaker::MakeToken("Token7", 1, 52),
+        TokenMaker::MakeToken("Token8", 1, 61),
+    };
+
+    auto tokenizer = make_shared<TokenizerDecorator>();
+    tokenizer->ToToken(testString);
+
+    auto extractedTokens = tokenizer->Tokens();
+
+    auto counter = 0;
+    for (auto token : extractedTokens)
+    {
+        EXPECT_EQ((*(begin(tokenList) + counter)).Token, token.Token);
+        EXPECT_EQ((*(begin(tokenListWithoutDelimiters) + counter)).Token, token.TokenWithoutDelimiter);
+        EXPECT_EQ((*(begin(tokenList) + counter)).Line, token.Line);
+        EXPECT_EQ((*(begin(tokenList) + counter++)).Column, token.Column);
+    }
+}
+
+TEST(TestTokenizer, TestMidWordDelimiter)
+{
+    const auto testString = static_cast<string>("Token.token,token2, token,1,token; ,token.,1;23token ");
+    auto tokenList = 
+    { 
+        TokenMaker::MakeToken("Token.token,token2,", 1, 1),
+        TokenMaker::MakeToken("token,1,token;", 1, 21),
+        TokenMaker::MakeToken(",token.,1;23token", 1, 36),
+    };
+
+    auto tokenListWithoutDelimiters = 
+    { 
+        TokenMaker::MakeToken("Token.token,token2", 1, 1),
+        TokenMaker::MakeToken("token,1,token", 1, 21),
+        TokenMaker::MakeToken("token.,1;23token", 1, 36),
+    };
+
+    auto tokenizer = make_shared<TokenizerDecorator>();
+    tokenizer->ToToken(testString);
+
+    auto extractedTokens = tokenizer->Tokens();
+
+    auto counter = 0;
+    for (auto token : extractedTokens)
+    {
+        EXPECT_EQ((*(begin(tokenList) + counter)).Token, token.Token);
+        EXPECT_EQ((*(begin(tokenListWithoutDelimiters) + counter)).Token, token.TokenWithoutDelimiter);
         EXPECT_EQ((*(begin(tokenList) + counter)).Line, token.Line);
         EXPECT_EQ((*(begin(tokenList) + counter++)).Column, token.Column);
     }

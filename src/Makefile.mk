@@ -6,9 +6,11 @@ TARGET_DIR := $(CURDIR)/..
 SRC_FILES := $(wildcard ./*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./interfaces/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./symbols/*.cc)
+SRC_FILES := $(SRC_FILES) $(wildcard ./utils/*.cc)
 OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
 OBJ_FILES := $(subst interfaces/,,$(OBJ_FILES))
 OBJ_FILES := $(subst symbols/,,$(OBJ_FILES))
+OBJ_FILES := $(subst utils/,,$(OBJ_FILES))
 LDFLAGS := $(LDCOVERAGE_FLAGS)
 CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG
 TARGET := gbxasm
@@ -33,6 +35,13 @@ $(OBJ_DIR)/%.o: ./symbols/%.cc
 
 $(OBJ_DIR)/%.o: ./symbols/%.cc ./symbols/%.h
 	$(CC) $(CPPFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./utils/%.cc
+	$(CC) $(CPPFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./utils/%.cc ./utils/%.h
+	$(CC) $(CPPFLAGS) -c -o $@ $<
+
 
 clean:
 	rm -rf *.o  *.so  *.stackdump  *.a  *.exe

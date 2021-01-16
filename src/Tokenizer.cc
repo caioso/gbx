@@ -25,12 +25,7 @@ void Tokenizer::ExtactTokens()
         while (stream >> word)
         {
             auto column = currentLine.find(word) + 1;
-            Token token = 
-            {
-                .Token = word,
-                .Line = line,
-                .Column = column,
-            };
+            Token token = TokenMaker::MakeToken(word, line, column);
             _tokens.push_back(token);
         }
 

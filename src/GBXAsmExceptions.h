@@ -24,4 +24,10 @@ public:
     ~InstructionParserException() = default;
 };
 
+class ParsedNumberException : public GBXAsmException
+{
+public:
+    ParsedNumberException(const std::string);
+    ~ParsedNumberException() = default;
+};
 }

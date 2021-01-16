@@ -13,6 +13,10 @@ InstructionParserException::InstructionParserException(const std::string message
     : GBXAsmException(message)
 {}
 
+ParsedNumberException::ParsedNumberException(const std::string message)
+    : GBXAsmException(message)
+{}
+
 const char* GBXAsmException::what() const noexcept
 {
     return _message.c_str();
