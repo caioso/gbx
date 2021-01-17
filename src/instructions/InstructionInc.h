@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "InstructionAddBase.h"
 #include "../interfaces/InstructionInterface.h"
 
@@ -17,8 +19,12 @@ public:
 
 private:
     inline void DecodeIncRegisterMode(uint8_t, interfaces::DecodedInstruction&);
+    inline void DecodeIncRegisterPairMode(uint8_t, interfaces::DecodedInstruction&);
     inline void DecodeIncRegisterIndirectMode(interfaces::DecodedInstruction&);
     
+    inline void Execute8bitIncrement(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
+    inline void Execute16bitIncrement(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
+
     inline void SetDestinationOperandValue(uint8_t, std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
 };
 

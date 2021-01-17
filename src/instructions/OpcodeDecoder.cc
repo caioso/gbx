@@ -96,12 +96,16 @@ shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithoutPreOpcod
     else if (OpcodePatternMatcher::Match(opcode, // 0011 0100
              OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_1, b::_0, b::_1, b::_0, b::_0)) ||
              OpcodePatternMatcher::Match(opcode, // 00XX X100
-             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_X, b::_1, b::_0, b::_0)))
+             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_X, b::_1, b::_0, b::_0)) ||
+             OpcodePatternMatcher::Match(opcode, // 00XX 0011
+             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_0, b::_0, b::_1, b::_1)))
              return make_shared<InstructionInc>();
     else if (OpcodePatternMatcher::Match(opcode, // 0011 0101
              OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_1, b::_0, b::_1, b::_0, b::_1)) ||
              OpcodePatternMatcher::Match(opcode, // 00XX X101
-             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_X, b::_1, b::_0, b::_1)))
+             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_X, b::_1, b::_0, b::_1)) ||
+             OpcodePatternMatcher::Match(opcode, // 00XX 1011
+             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_X, b::_X, b::_1, b::_0, b::_1, b::_1)))
              return make_shared<InstructionDec>();
     else if (OpcodePatternMatcher::Match(opcode, // 11XX 0101
              OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_X, b::_X, b::_0, b::_1, b::_0, b::_1)))

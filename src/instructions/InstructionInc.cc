@@ -11,9 +11,19 @@ void InstructionInc::Decode(uint8_t opcode, __attribute__((unused)) std::optiona
         DecodeIncRegisterIndirectMode(decodedInstruction);
     else if ((opcode >> 0x06) == 0x00 && (opcode & 0x07) == 0x04)
         DecodeIncRegisterMode(opcode, decodedInstruction);
+    else if ((opcode >> 0x06) == 0x00 && (opcode & 0x07) == 0x03)
+        DecodeIncRegisterPairMode(opcode, decodedInstruction);
 }
 
 void InstructionInc::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction) 
+{
+    if (decodedInstruction.AddressingMode == AddressingMode::RegisterPair)
+        Execute16bitIncrement(registerBank, decodedInstruction);
+    else 
+        Execute8bitIncrement(registerBank, decodedInstruction);
+}
+
+inline void InstructionInc::Execute8bitIncrement(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     auto operandValue = Acquire8BitSourceOperandValue(registerBank, decodedInstruction);
     auto carry = registerBank->ReadFlag(Flag::CY);
@@ -25,6 +35,12 @@ void InstructionInc::Execute(shared_ptr<RegisterBankInterface> registerBank, Dec
         registerBank->SetFlag(Flag::CY);
     else
         registerBank->ClearFlag(Flag::CY); 
+}
+
+inline void InstructionInc::Execute16bitIncrement(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+{
+    auto operandValue = Acquire16BitSourceOperandValue(registerBank, decodedInstruction);
+    registerBank->WritePair(decodedInstruction.DestinationRegister, operandValue + 1);
 }
 
 inline void InstructionInc::SetDestinationOperandValue(uint8_t operandValue, shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
@@ -43,6 +59,23 @@ inline void InstructionInc::DecodeIncRegisterMode(uint8_t opcode, DecodedInstruc
     {
         .Opcode = OpcodeType::inc,
         .AddressingMode = AddressingMode::Register,
+        .MemoryOperand1 = 0x00,
+        .MemoryOperand2 = 0x00,
+        .MemoryOperand3 = 0x00,
+        .SourceRegister = source,
+        .DestinationRegister = source,
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00
+    };
+}
+
+inline void InstructionInc::DecodeIncRegisterPairMode(uint8_t opcode, DecodedInstruction& decodedInstruction)
+{
+    auto source = RegisterBankInterface::FromInstructionToPair((opcode >> 0x04) & 0x03);
+    decodedInstruction =
+    {
+        .Opcode = OpcodeType::inc,
+        .AddressingMode = AddressingMode::RegisterPair,
         .MemoryOperand1 = 0x00,
         .MemoryOperand2 = 0x00,
         .MemoryOperand3 = 0x00,

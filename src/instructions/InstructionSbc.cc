@@ -19,7 +19,7 @@ void InstructionSbc::Decode(uint8_t opcode, __attribute__((unused)) optional<uin
 void InstructionSbc::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     auto operand1  = registerBank->Read(decodedInstruction.DestinationRegister); // Always A
-    auto operand2 = AcquireSourceOperandValue(registerBank, decodedInstruction);
+    auto operand2 = Acquire8bitSourceOperandValue(registerBank, decodedInstruction);
     auto borrow  = registerBank->ReadFlag(Flag::CY);
 
     registerBank->Write(Register::F, 0x00);

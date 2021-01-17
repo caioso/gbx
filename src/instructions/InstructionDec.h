@@ -17,8 +17,12 @@ public:
 
 private:
     inline void DecodeDecRegisterMode(uint8_t, interfaces::DecodedInstruction&);
+    inline void DecodeDecRegisterPairMode(uint8_t, interfaces::DecodedInstruction&);
     inline void DecodeDecRegisterIndirectMode(interfaces::DecodedInstruction&);
     
+    void Execute8bitDecrement(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
+    void Execute16bitDecrement(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
+
     inline void SetDestinationOperandValue(uint8_t, std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
 };
 
