@@ -20,6 +20,11 @@ enum class OpcodeType
     push,
     pop,
     ldhl,
+    rlca,
+    rla,
+    rrca,
+    rra,
+    rlc,
 };
 
 const uint8_t MemoryOperand = 0x06;

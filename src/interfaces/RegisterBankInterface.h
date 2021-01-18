@@ -62,9 +62,10 @@ public:
     virtual void Write(Register, std::uint8_t) = 0;
     virtual void WritePair(Register, std::uint16_t) = 0;
     
-    virtual inline void SetFlag(Flag flag) = 0;
-    virtual inline void ClearFlag(Flag flag) = 0;
-    virtual inline uint8_t ReadFlag(Flag flag) = 0;
+    virtual inline void SetFlag(Flag) = 0;
+    virtual inline void ClearFlag(Flag) = 0;
+    virtual inline uint8_t ReadFlag(Flag) = 0;
+    virtual inline void WriteFlag(Flag, uint8_t) = 0;
 
     inline static uint8_t ToInstructionSource(interfaces::Register reg)
     {

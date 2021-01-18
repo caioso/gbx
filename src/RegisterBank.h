@@ -38,6 +38,12 @@ public:
     {
         return ((_registers[static_cast<uint8_t>(interfaces::Register::F)] >> static_cast<uint8_t>(flag)) & 0x01);
     }
+
+    inline void WriteFlag(interfaces::Flag flag, uint8_t value)
+    {
+        _registers[static_cast<uint8_t>(interfaces::Register::F)] &= ~(1 << static_cast<uint8_t>(flag));
+        _registers[static_cast<uint8_t>(interfaces::Register::F)] |= value << static_cast<uint8_t>(flag);
+    }
     
 private:
     constexpr uint8_t RegisterToIndex(interfaces::Register);

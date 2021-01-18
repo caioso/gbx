@@ -225,4 +225,16 @@ TEST(TestRegisterBank, TestFlags)
 
     for (auto flag : flags)
         EXPECT_EQ(0x00, bank.ReadFlag(flag));
+
+    for (auto flag : flags)
+        bank.WriteFlag(flag, 0x00);
+
+    for (auto flag : flags)
+        EXPECT_EQ(0x00, bank.ReadFlag(flag));
+    
+    for (auto flag : flags)
+        bank.WriteFlag(flag, 0x01);
+
+    for (auto flag : flags)
+        EXPECT_EQ(0x01, bank.ReadFlag(flag));
 }
