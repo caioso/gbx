@@ -17,6 +17,8 @@ void Tokenizer::ExtactTokens()
     auto currentLine = static_cast<string>("");
     auto line = 1ull;
 
+    _tokens.clear();
+
     while(getline(lineStream, currentLine, '\n'))
     {
         stringstream stream(currentLine);

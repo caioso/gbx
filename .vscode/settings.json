@@ -72,6 +72,8 @@
         "unordered_set": "cpp",
         "utility": "cpp",
         "variant": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "regex": "cpp",
+        "random": "cpp"
     }
 }

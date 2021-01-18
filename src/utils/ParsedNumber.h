@@ -1,6 +1,8 @@
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
+#include <math.h>
 #include <regex>
 #include <sstream>
 
@@ -53,10 +55,16 @@ private:
     inline void ValidateDecimal(std::string);
     inline void ValidateOctal(std::string);
     inline void ValidateBinary(std::string);
+
     inline uint32_t ExtractNumericValue(std::string);
     inline uint32_t ExtractValueFromHexadecimal(std::string);
+    inline uint32_t ExtractValueFromOctal(std::string);
+    inline uint32_t ExtractValueFromDecimal(std::string);
+    inline uint32_t ExtractValueFromBinary(std::string);
 
     inline uint8_t CharToNumber(char);
+    inline std::string GetDecimalPrefixlessNumber(std::string);
+    inline std::string RemoveDecimalPoint(std::string);
 
     uint32_t _value;
     NumericBase _base;

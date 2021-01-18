@@ -80,22 +80,71 @@ uint32_t ParsedNumber::ExtractNumericValue(string token)
     switch (_base)
     {
         case NumericBase::Hexadecimal: return ExtractValueFromHexadecimal(token);
+        case NumericBase::Octal: return ExtractValueFromOctal(token);
+        case NumericBase::Decimal: return ExtractValueFromDecimal(token);
+        case NumericBase::Binary : return ExtractValueFromBinary(token);
     }
 }
 
 uint32_t ParsedNumber::ExtractValueFromHexadecimal(string token)
 {
     auto prefixlessNumber = token.substr(2, token.size() - 2);
-    auto counter = 0;
+    auto counter = prefixlessNumber.size() - 1;
     auto result = 0;
 
     for (const auto &nibble : prefixlessNumber)
-    {   
-        result |= CharToNumber(nibble) << ((prefixlessNumber.size() - 1) - (counter))*4;
-        counter++;
-    }
+        result |= CharToNumber(nibble) << (counter--)*4;
 
     return result;
+}
+
+uint32_t ParsedNumber::ExtractValueFromOctal(string token)
+{
+    auto prefixlessNumber = token.substr(2, token.size() - 2);
+    auto counter = prefixlessNumber.size() - 1;
+    auto result = 0;
+
+    for (const auto &digit : prefixlessNumber)
+        result |= CharToNumber(digit) << (counter--)*3;
+
+    return result;
+}
+
+uint32_t ParsedNumber::ExtractValueFromBinary(string token)
+{
+    auto prefixlessNumber = token.substr(2, token.size() - 2);
+    auto clearNumber = RemoveDecimalPoint(prefixlessNumber);
+    auto counter = clearNumber.size() - 1;;
+    auto result = 0;
+
+    for (const auto &digit : clearNumber)
+        result |= CharToNumber(digit) << counter--;
+
+    return result;
+}
+
+inline string ParsedNumber::RemoveDecimalPoint(string token)
+{
+    token.erase(std::remove(token.begin(), end(token), '.'), token.end());
+    return token;
+}
+
+uint32_t ParsedNumber::ExtractValueFromDecimal(string token)
+{
+    auto prefixlessNumber = GetDecimalPrefixlessNumber(token);
+    auto counter = (prefixlessNumber.size() - 1);
+    auto result = 0;
+
+    for (const auto &digit : prefixlessNumber)
+        result += CharToNumber(digit)*(pow(10, counter--));
+
+    return result;
+}
+
+inline string ParsedNumber::GetDecimalPrefixlessNumber(string token)
+{
+    auto prefix = token.substr(0, 2);
+    return IsDecimalPrefix(prefix) ? token.substr(2, token.size() - 2) : token;
 }
 
 inline uint8_t ParsedNumber::CharToNumber(char c)
@@ -124,6 +173,12 @@ inline uint8_t ParsedNumber::CharToNumber(char c)
         case 'e': return 0xe;
         case 'F': return 0xF;
         case 'f': return 0xf;
+        default:
+        {
+            stringstream ss;
+            ss << "Invalid character '" << c << "'found while parsing number";
+            throw ParsedNumberException(ss.str());
+        }
     }
 }
 
