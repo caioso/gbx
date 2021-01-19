@@ -137,18 +137,25 @@ TEST(TestRlcaRlaAndRlc, ExecuteRlaRegisterMode)
 TEST(TestRlcaRlaAndRlc, DecodeRlcRegisterMode)
 {
     auto registerBank = make_shared<RegisterBank>();
-    
+    auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
+
     ArithmeticLogicDecorator alu;
     alu.Initialize(registerBank);
     alu.InitializeRegisters();
 
-    auto rawBinary = 0xCB;
-    alu.DecodeInstruction(rawBinary, nullopt);
+    auto opcode = 0xCB;
 
-    EXPECT_EQ(OpcodeType::rlc, alu.GetInstructionData().Opcode);
-    EXPECT_EQ(AddressingMode::Immediate, alu.GetInstructionData().AddressingMode);
-    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
-    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().DestinationRegister);
+    for (auto operand : operandList)
+    {
+        auto complement = RegisterBankInterface::ToInstructionSource(operand);
+        cout << static_cast<size_t>(operand) << ' ' << static_cast<size_t>(complement) << '\n';
+        alu.DecodeInstruction(opcode, make_optional<uint8_t>(complement));
+
+        EXPECT_EQ(OpcodeType::rlc, alu.GetInstructionData().Opcode);
+        EXPECT_EQ(AddressingMode::Register, alu.GetInstructionData().AddressingMode);
+        EXPECT_EQ(operand, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(operand, alu.GetInstructionData().DestinationRegister);
+    }
 }
 
 TEST(TestRlcaRlaAndRlc, ExecuteRlcRegisterMode)
@@ -168,14 +175,15 @@ TEST(TestRlcaRlaAndRlc, ExecuteRlcRegisterMode)
 
     for (auto i = 0; i < 1000; i++)
     {
-        auto rawBinary = 0xCB;
+        auto opcode = 0xCB;
         auto operandValue = distribution(engine);
         auto zeroValue = static_cast<uint8_t>(zeroDistribution(engine) < 128 ? 0 : 1);
         auto operand = *(begin(operandList) + sourceDistribution(engine));
         auto operandValueMSBit = static_cast<uint8_t>((operandValue >> 7) & 0x01);
         auto result = static_cast<uint8_t>((operandValue << 1) | operandValueMSBit);
 
-        alu.DecodeInstruction(rawBinary, nullopt);
+        auto complement = RegisterBankInterface::ToInstructionSource(operand);
+        alu.DecodeInstruction(opcode, complement);
         registerBank->Write(operand, operandValue);
         registerBank->WriteFlag(Flag::Z, zeroValue); // Zero may not be changed by the instruction
         registerBank->WriteFlag(Flag::CY, operandValueMSBit);
@@ -191,3 +199,20 @@ TEST(TestRlcaRlaAndRlc, ExecuteRlcRegisterMode)
         EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
     }
 }
+/*
+TEST(TestRlcaRlaAndRlc, DecodeRlcRegisterIndirect)
+{
+    auto registerBank = make_shared<RegisterBank>();
+    
+    ArithmeticLogicDecorator alu;
+    alu.Initialize(registerBank);
+    alu.InitializeRegisters();
+
+    auto rawBinary = 0xCB;
+    alu.DecodeInstruction(rawBinary, nullopt);
+
+    EXPECT_EQ(OpcodeType::rlc, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::Immediate, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().DestinationRegister);
+}*/

@@ -51,12 +51,17 @@ protected:
     inline void IncrementRegisterPair(interfaces::Register);
     inline void DecrementRegisterPair(interfaces::Register);
     inline void IncrementPC();
+    inline bool IsComplementedInstruction(uint8_t);
+    inline bool IsSuffixedInstruction(uint8_t);
 
     interfaces::DecodedInstruction _instructionData;
     std::shared_ptr<interfaces::InstructionInterface> _currentInstruction;
     std::shared_ptr<interfaces::RegisterBankInterface> _registers;
     OpcodeDecoder _decoder;
     AddressingModeFormat* _currentAddressingMode;
+
+private:
+    const uint8_t RlcPreOpcode = 0xCB;
 };
 
 }
