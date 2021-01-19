@@ -20,6 +20,14 @@ enum class NumericBase
     Binary
 };
 
+enum class ModifierType
+{
+    HigherHalf,
+    LowerHalf,
+    Bit,
+    NoModifier,
+};
+
 enum class NumericType
 {
     Unsiged8Bits,
@@ -40,10 +48,12 @@ public:
     uint32_t Value();
     NumericBase Base();
     NumericType Type();
+    ModifierType Modifier();
 
 private:
     void ValidateToken(std::string);
     void EvaluatePrefixes(std::string);
+    void EvaluateSuffixes(std::string);
     void ValidateNumericBase(std::string);
 
     inline bool IsHexadecimalPrefix(std::string);
@@ -65,10 +75,15 @@ private:
     inline uint8_t CharToNumber(char);
     inline std::string GetDecimalPrefixlessNumber(std::string);
     inline std::string RemoveDecimalPoint(std::string);
+    inline std::string RemovePrefix(std::string);
+    inline std::string RemoveSuffix(std::string);
+    inline std::string ExtractSuffix(std::string);
+    inline void ParseModifier(std::string);
 
     uint32_t _value;
     NumericBase _base;
     NumericType _type;
+    ModifierType _modifier {ModifierType::NoModifier};
 
     const std::string hexadecimalPrefixC = "0x";
     const std::string hexadecimalPrefixCCaptal = "0X";
@@ -91,6 +106,10 @@ private:
     const std::string decimalRegex = "^((0d|0D|D\'|d\')?(([0123456789])+))$";
     const std::string octalRegex = "^((0o|0O|O\'|o\')?(([01234567])+))$";
     const std::string binaryRegex = "^((0b|0B|B\'|b\')?([01]+(\\.[01]+)*))$";
+    
+    const std::string higherHalfRegex = "^:(H(IGH)?|h(igh)?)$";
+    const std::string lowerHalfRegex = "^:(L(OW)?|l(ow)?)$";
+    const std::string bitIndexRegex = "^:(B(IT)?|b(it)?)(\\s)*(\\[)(\\d)*(\\])$";
 };
 
 }

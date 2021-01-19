@@ -9,8 +9,11 @@ void ParsedNumber::TryParse(Token token)
 {
     ValidateToken(token.TokenWithoutDelimiter);
     EvaluatePrefixes(token.TokenWithoutDelimiter);
-    ValidateNumericBase(token.TokenWithoutDelimiter);
-    _value = ExtractNumericValue(token.TokenWithoutDelimiter);
+    EvaluateSuffixes(token.TokenWithoutDelimiter);
+    
+    auto suffixlessToken = RemoveSuffix(token.TokenWithoutDelimiter);
+    ValidateNumericBase(suffixlessToken);
+    _value = ExtractNumericValue(suffixlessToken);
 }
 
 uint32_t ParsedNumber::Value()
@@ -28,6 +31,11 @@ NumericType ParsedNumber::Type()
     return _type;
 }
 
+ModifierType ParsedNumber::Modifier()
+{
+    return _modifier;
+}
+
 void ParsedNumber::ValidateToken(string token)
 {
     for (auto c : token)
@@ -40,7 +48,10 @@ void ParsedNumber::ValidateToken(string token)
             c != 'F' && c != 'f' && c != '.' && c != 'L' &&
             c != 'l' && c != 'L' && c != '[' && c != ']' &&
             c != 'o' && c != 'O' && c != 'h' && c != 'H' &&
-            c != 'c' && c != 'x' && c != 'X' && c != '\'' )
+            c != 'c' && c != 'x' && c != 'X' && c != '\'' &&
+            c != 'i' && c != 'I' && c != 'w' && c != 'W' && 
+            c != 'g' && c != 'G' && c != 't' && c != 'T' &&
+            c != ':')
         {
             stringstream ss;
             ss << "Invalid character '" << c << "' in numeric constant '" << token << "'";
@@ -62,6 +73,49 @@ void ParsedNumber::EvaluatePrefixes(string token)
              _base = NumericBase::Binary;
     else
         _base = NumericBase::Decimal;
+}
+
+void ParsedNumber::EvaluateSuffixes(string token)
+{
+    auto prefixlessNumber = RemovePrefix(token);
+    auto suffix = ExtractSuffix(token);    
+
+    if (suffix.size() == 0)
+        _modifier = ModifierType::NoModifier;
+    else
+        ParseModifier(suffix);
+}
+
+inline void ParsedNumber::ParseModifier(string suffix)
+{
+    if (regex highRegex(higherHalfRegex);
+        regex_match(suffix, highRegex))
+        _modifier = ModifierType::HigherHalf;
+    else if (regex lowRegex(lowerHalfRegex);
+             regex_match(suffix, lowRegex))
+        _modifier = ModifierType::LowerHalf;
+    else if (regex bitRegex(bitIndexRegex);
+             regex_match(suffix, bitRegex))
+        _modifier = ModifierType::Bit;
+}
+
+inline string ParsedNumber::ExtractSuffix(string token)
+{
+    auto suffixPosition = token.find(':');
+
+    if (suffixPosition == string::npos)
+        return "";
+    else 
+        return token.substr(suffixPosition, token.size() - suffixPosition);
+}
+
+inline string ParsedNumber::RemoveSuffix(string token)
+{
+    auto suffixPosition = token.find(':');
+    if (suffixPosition == string::npos)
+        return token;
+    else
+        return token.substr(0, suffixPosition);
 }
 
 void ParsedNumber::ValidateNumericBase(string token)
@@ -147,6 +201,15 @@ inline string ParsedNumber::GetDecimalPrefixlessNumber(string token)
     return IsDecimalPrefix(prefix) ? token.substr(2, token.size() - 2) : token;
 }
 
+inline string ParsedNumber::RemovePrefix(string token)
+{
+    auto prefix = token.substr(0, 2);
+    if (IsHexadecimalPrefix(prefix) || IsOctalPrefix(prefix) ||
+        IsDecimalPrefix(prefix) || IsBinaryPrefix(prefix))
+        return token.substr(2, token.size() - 2);
+    return token;
+}
+
 inline uint8_t ParsedNumber::CharToNumber(char c)
 {
     switch (c)
@@ -176,7 +239,7 @@ inline uint8_t ParsedNumber::CharToNumber(char c)
         default:
         {
             stringstream ss;
-            ss << "Invalid character '" << c << "'found while parsing number";
+            ss << "Invalid character '" << c << "' found while parsing number";
             throw ParsedNumberException(ss.str());
         }
     }

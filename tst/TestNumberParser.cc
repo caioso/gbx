@@ -24,10 +24,10 @@ try                                                                   \
 }                                                                     \
 catch( const EXCEPTION_TYPE& e )                                      \
 {                                                                     \
-    EXPECT_STREQ( MESSAGE, e.what() )                                    \
+    EXPECT_STREQ( MESSAGE, e.what() )                                 \
         << " exception message is incorrect. Expected the following " \
            "message:\n\n"                                             \
-        << e.what() << "\n";                                           \
+        << e.what() << "\n";                                          \
 }                                                                     \
 catch( ... )                                                          \
 {                                                                     \
@@ -119,6 +119,42 @@ TEST(TestNumberParser, ParserEvaluatePrefixes)
     }
 }
 
+TEST(TestNumberParser, ParserEvaluateSufixes)
+{
+    const auto stringContant = "H'ABCD, H'FF00:H, H'FF00:L, H'AADD:h, H'DDFF:l, "
+                               "H'0110:high, H'1AAD:HIGH, H'1AAD:LOW, H'2033:low, H'1223:b[1], H'5541:B[0], "
+                               "H'112A:bit[10], H'0001:BIT[0]";
+
+    ModifierType modiferList[] = 
+    {
+        ModifierType::NoModifier, ModifierType::HigherHalf, ModifierType::LowerHalf, ModifierType::HigherHalf, ModifierType::LowerHalf,
+        ModifierType::HigherHalf, ModifierType::HigherHalf, ModifierType::LowerHalf, ModifierType::LowerHalf,
+        ModifierType::Bit, ModifierType::Bit, ModifierType::Bit, ModifierType::Bit
+    };
+
+    auto numberString = static_cast<string>(stringContant);
+    auto tokenizer = make_shared<Tokenizer>();
+    auto numberParser = make_shared<ParsedNumber>();
+
+    tokenizer->ToToken(numberString);
+
+    auto counter = 0;
+    for (auto token : tokenizer->Tokens())
+    {
+        try
+        {
+            numberParser->TryParse(token);
+            EXPECT_EQ(modiferList[counter++], numberParser->Modifier());
+        }
+        catch (const ParsedNumberException& e)
+        {
+            cout << "Exception Message: " << e.what() << '\n';
+            FAIL();
+        }
+        
+    }
+}
+
 TEST(TestNumberParser, CheckParsedPrefixes)
 {
     const auto stringContant = "H'FFFF, h'ffff, 0XFFFF, 0xffff, "
@@ -148,6 +184,7 @@ TEST(TestNumberParser, CheckParsedPrefixes)
        numberParser->TryParse(token);
 
        EXPECT_EQ(*(begin(baseList) + counter++), numberParser->Base());        
+       EXPECT_EQ(ModifierType::NoModifier, numberParser->Modifier());        
     }
 }
 
