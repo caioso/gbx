@@ -5,6 +5,10 @@ using namespace std;
 namespace gbxasm::utils
 {
 
+ParsedNumber::ParsedNumber(vector<Token>::iterator tokenIterator)
+    : _tokenIterator(tokenIterator)
+{}
+
 void ParsedNumber::TryParse(Token token)
 {
     ValidateToken(token.TokenWithoutDelimiter);
@@ -13,12 +17,18 @@ void ParsedNumber::TryParse(Token token)
     
     auto suffixlessToken = RemoveSuffix(token.TokenWithoutDelimiter);
     ValidateNumericBase(suffixlessToken);
-    _value = ExtractNumericValue(suffixlessToken);
+    ExtractNumericValue(suffixlessToken);
+    EvaluateNumberType();
 }
 
 uint32_t ParsedNumber::Value()
 {
     return _value;
+}
+
+uint32_t ParsedNumber::ModifiedValue()
+{
+    return ApplyModifier();
 }
 
 NumericBase ParsedNumber::Base()
@@ -83,10 +93,10 @@ void ParsedNumber::EvaluateSuffixes(string token)
     if (suffix.size() == 0)
         _modifier = ModifierType::NoModifier;
     else
-        ParseModifier(suffix);
+        ParseModifier(suffix, token);
 }
 
-inline void ParsedNumber::ParseModifier(string suffix)
+inline void ParsedNumber::ParseModifier(string suffix, string token)
 {
     if (regex highRegex(higherHalfRegex);
         regex_match(suffix, highRegex))
@@ -96,7 +106,43 @@ inline void ParsedNumber::ParseModifier(string suffix)
         _modifier = ModifierType::LowerHalf;
     else if (regex bitRegex(bitIndexRegex);
              regex_match(suffix, bitRegex))
+    {
+        ParseBitSuffix(token);
         _modifier = ModifierType::Bit;
+    }
+}
+
+inline void ParsedNumber::ParseBitSuffix(string token)
+{
+    auto workignToken = token;
+    if (workignToken.find_first_of('[') == string::npos)
+    {
+        auto arrayStartToken = (*(++_tokenIterator)).Token;
+        if (arrayStartToken.compare("[") != 0)
+        {
+            stringstream ss;
+            ss << "invalid '" << arrayStartToken << "' found near '" << token << "'";
+            throw ParsedNumberException(ss.str());
+        }
+
+        workignToken += arrayStartToken;
+    }
+
+    // Accumulate strings up to the point the current index is closed
+    if (workignToken.find_last_of(']') == string::npos)
+    {
+            
+    }
+
+    auto indexToken = workignToken.substr(workignToken.find_first_of('[') + 1, workignToken.find_last_of(']') - (workignToken.find_first_of('[') + 1));
+    ParsedNumber indexNumber(_tokenIterator);
+    indexNumber.TryParse(TokenMaker::MakeToken(indexToken, 0, 0));
+    _bitSiffixIndex = indexNumber.ModifiedValue();    
+}
+
+string ParsedNumber::AcquireNextToken()
+{
+    return "";
 }
 
 inline string ParsedNumber::ExtractSuffix(string token)
@@ -129,15 +175,25 @@ void ParsedNumber::ValidateNumericBase(string token)
     }
 }
 
-uint32_t ParsedNumber::ExtractNumericValue(string token)
+void ParsedNumber::ExtractNumericValue(string token)
 {
     switch (_base)
     {
-        case NumericBase::Hexadecimal: return ExtractValueFromHexadecimal(token);
-        case NumericBase::Octal: return ExtractValueFromOctal(token);
-        case NumericBase::Decimal: return ExtractValueFromDecimal(token);
-        case NumericBase::Binary : return ExtractValueFromBinary(token);
+        case NumericBase::Hexadecimal: _value = ExtractValueFromHexadecimal(token); break;
+        case NumericBase::Octal: _value = ExtractValueFromOctal(token); break;
+        case NumericBase::Decimal: _value =ExtractValueFromDecimal(token); break;
+        case NumericBase::Binary : _value = ExtractValueFromBinary(token); break;
     }
+}
+
+void ParsedNumber::EvaluateNumberType()
+{
+    if (_value <= 0xFF)
+        _type = NumericType::Type8Bit;
+    else if (_value > 0xFF && _value <= 0xFFFF)
+        _type = NumericType::Type16Bit;
+    else
+        _type = NumericType::Type32Bit;
 }
 
 uint32_t ParsedNumber::ExtractValueFromHexadecimal(string token)
@@ -319,6 +375,61 @@ inline bool ParsedNumber::IsBinaryPrefix(string prefix)
            prefix.compare(BinaryPrefixCCaptal) == 0 ||
            prefix.compare(BinaryPrefixVerilog) == 0 ||
            prefix.compare(BinaryPrefixVerilogCaptal) == 0;
+}
+
+inline uint32_t ParsedNumber::ApplyModifier()
+{
+    switch (_modifier)
+    {
+        case ModifierType::HigherHalf: return ExtractHigherHalf();
+        case ModifierType::LowerHalf: return ExtractLowerHalf();
+        case ModifierType::Bit: return ExtractBitIndexValue();
+        case ModifierType::NoModifier: return _value;
+    }
+}
+
+inline uint32_t ParsedNumber::ExtractHigherHalf()
+{
+    if (_type == NumericType::Type8Bit)
+        return (_value >> 0x04) & 0x0F;
+    else if (_type == NumericType::Type16Bit)
+        return (_value >> 0x08) & 0xFF;
+    else
+        return (_value >> 0x10) & 0xFFFF;
+}
+
+inline uint32_t ParsedNumber::ExtractLowerHalf()
+{
+    if (_type == NumericType::Type8Bit)
+        return _value & 0x0F;
+    else if (_type == NumericType::Type16Bit)
+        return _value & 0xFF;
+    else
+        return _value & 0xFFFF;
+}
+
+inline uint32_t ParsedNumber::ExtractBitIndexValue()
+{
+    if (_type == NumericType::Type8Bit && _bitSiffixIndex >= 8)
+    {   
+        stringstream ss;
+        ss << "invalid bit index '"<<_bitSiffixIndex<<"' for 8-bit number";
+        throw ParsedNumberException(ss.str());
+    }
+    else if (_type == NumericType::Type16Bit && _bitSiffixIndex >= 16)
+    {   
+        stringstream ss;
+        ss << "invalid bit index '"<<_bitSiffixIndex<<"' for 16-bit number";
+        throw ParsedNumberException(ss.str());
+    }
+    else if (_type == NumericType::Type32Bit && _bitSiffixIndex >= 32)
+    {   
+        stringstream ss;
+        ss << "invalid bit index '"<<_bitSiffixIndex<<"' for 32-bit number";
+        throw ParsedNumberException(ss.str());
+    }
+
+    return (_value >> _bitSiffixIndex) & 0x01;
 }
 
 }

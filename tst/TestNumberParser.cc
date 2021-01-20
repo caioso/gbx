@@ -62,13 +62,14 @@ TEST(TestNumberParser, ParseDecimalNumbers)
 {
     auto numberString = static_cast<string>("    1234   ");
     auto tokenizer = make_shared<Tokenizer>();
-    auto numberParser = make_shared<ParsedNumber>();
+         tokenizer->ToToken(numberString);
 
-    tokenizer->ToToken(numberString);
+    auto iterator = begin(tokenizer->Tokens());
+    auto numberParser = make_shared<ParsedNumber>(iterator);
 
-    for (auto token : tokenizer->Tokens())
+    for (; iterator != end(tokenizer->Tokens()); ++iterator)
     {
-        numberParser->TryParse(token);
+        numberParser->TryParse(*iterator);
         EXPECT_EQ(static_cast<uint32_t>(1234), numberParser->Value());
         EXPECT_EQ(NumericBase::Decimal, numberParser->Base());
     }
@@ -78,13 +79,14 @@ TEST(TestNumberParser, ParseInvalidDecimalNumbers)
 {
     auto numberString = static_cast<string>("    &1234   ");
     auto tokenizer = make_shared<Tokenizer>();
-    auto numberParser = make_shared<ParsedNumber>();
+         tokenizer->ToToken(numberString);
+    
+    auto iterator = begin(tokenizer->Tokens());
+    auto numberParser = make_shared<ParsedNumber>(iterator);
 
-    tokenizer->ToToken(numberString);
-
-    for (auto token : tokenizer->Tokens())
+    for (; iterator != end(tokenizer->Tokens()); ++iterator)
     {
-        ASSERT_EXCEPTION( { numberParser->TryParse(token); }, 
+        ASSERT_EXCEPTION( { numberParser->TryParse(*iterator); }, 
                           ParsedNumberException, 
                           "Invalid character '&' in numeric constant '&1234'");
         
@@ -100,15 +102,57 @@ TEST(TestNumberParser, ParserEvaluatePrefixes)
                                "1234";
     auto numberString = static_cast<string>(stringContant);
     auto tokenizer = make_shared<Tokenizer>();
-    auto numberParser = make_shared<ParsedNumber>();
+         tokenizer->ToToken(numberString);
+    
+    auto iterator = begin(tokenizer->Tokens());
+    auto numberParser = make_shared<ParsedNumber>(iterator);
 
-    tokenizer->ToToken(numberString);
-
-    for (auto token : tokenizer->Tokens())
+    for (; iterator != end(tokenizer->Tokens()); ++iterator)
     {
         try
         {
-            numberParser->TryParse(token);
+            numberParser->TryParse(*iterator);
+        }
+        catch (const ParsedNumberException& e)
+        {
+            cout << "Exception Message: " << e.what() << '\n';
+            FAIL();
+        }
+        
+    }
+}
+
+TEST(TestNumberParser, ParserEvaluateNumericType)
+{
+    const auto stringContant = "H'FFFF, h'0011, 0xFF, 0xF12, 0X1FF, H'000000FFF, "
+                               "O'377, 0o400, O'77, 0O551, 0o0001,  0o00600, "
+                               "255, 1024, 0d000256, D'0000140, 00001,  003000, "
+                               "B'1111.0000.1111, b'0000000000.11111111, 0b0000.0001.0000.0000, 0B0000100, "
+                               "H'FFFFF, D'98523, O'1234561234, B'1111.1111.1111.1111.1111.0000.0000";
+    
+    auto numberString = static_cast<string>(stringContant);
+    auto tokenizer = make_shared<Tokenizer>();
+         tokenizer->ToToken(numberString);
+    
+    auto iterator = begin(tokenizer->Tokens());
+    auto numberParser = make_shared<ParsedNumber>(iterator);
+
+    NumericType numericTypeList[] = 
+    {
+        NumericType::Type16Bit, NumericType::Type8Bit, NumericType::Type8Bit, NumericType::Type16Bit, NumericType::Type16Bit, NumericType::Type16Bit, 
+        NumericType::Type8Bit,  NumericType::Type16Bit, NumericType::Type8Bit, NumericType::Type16Bit, NumericType::Type8Bit, NumericType::Type16Bit,
+        NumericType::Type8Bit, NumericType::Type16Bit, NumericType::Type16Bit, NumericType::Type8Bit, NumericType::Type8Bit, NumericType::Type16Bit,
+        NumericType::Type16Bit, NumericType::Type8Bit, NumericType::Type16Bit, NumericType::Type8Bit,
+        NumericType::Type32Bit, NumericType::Type32Bit, NumericType::Type32Bit, NumericType::Type32Bit,
+    };
+
+    auto counter = 0;
+    for (; iterator != end(tokenizer->Tokens()); ++iterator)
+    {
+        try
+        {
+            numberParser->TryParse(*iterator);
+            EXPECT_EQ(numericTypeList[counter++], numberParser->Type());
         }
         catch (const ParsedNumberException& e)
         {
@@ -121,30 +165,169 @@ TEST(TestNumberParser, ParserEvaluatePrefixes)
 
 TEST(TestNumberParser, ParserEvaluateSufixes)
 {
-    const auto stringContant = "H'ABCD, H'FF00:H, H'FF00:L, H'AADD:h, H'DDFF:l, "
-                               "H'0110:high, H'1AAD:HIGH, H'1AAD:LOW, H'2033:low, H'1223:b[1], H'5541:B[0], "
-                               "H'112A:bit[10], H'0001:BIT[0]";
+    const auto stringContant = "H'ABCD, H'F00:H, H'FF00:L, H'AADD:h, H'DFF:l, "
+                               "H'0110:high, H'1AAD:HIGH, H'1AAD:LOW, H'2033:low, H'E8:H, H'67:L, H'AABBCCDD:H, H'AABBCCDD:LOW";
 
     ModifierType modiferList[] = 
     {
         ModifierType::NoModifier, ModifierType::HigherHalf, ModifierType::LowerHalf, ModifierType::HigherHalf, ModifierType::LowerHalf,
         ModifierType::HigherHalf, ModifierType::HigherHalf, ModifierType::LowerHalf, ModifierType::LowerHalf,
-        ModifierType::Bit, ModifierType::Bit, ModifierType::Bit, ModifierType::Bit
+        ModifierType::HigherHalf, ModifierType::LowerHalf, 
+        ModifierType::HigherHalf, ModifierType::LowerHalf
+    };
+
+    uint32_t originalValue[] = 
+    {
+        0xABCD, 0x0F00, 0xFF00, 0xAADD, 0x0DFF, 0x0110, 0x1AAD, 0x1AAD, 0x2033,  0xE8, 0x67,
+        0xAABBCCDD, 0xAABBCCDD
+    };
+
+    uint16_t modifiedValue[] = 
+    {
+        0xABCD, 0x0F, 0x00, 0xAA, 0x0FF, 0x01, 0x1A, 0xAD, 0x33, 0x0E, 0x07, 0xAABB, 0xCCDD
     };
 
     auto numberString = static_cast<string>(stringContant);
     auto tokenizer = make_shared<Tokenizer>();
-    auto numberParser = make_shared<ParsedNumber>();
-
-    tokenizer->ToToken(numberString);
+         tokenizer->ToToken(numberString);
+    
+    auto iterator = begin(tokenizer->Tokens());
+    auto numberParser = make_shared<ParsedNumber>(iterator);
 
     auto counter = 0;
-    for (auto token : tokenizer->Tokens())
+    
+    for (; iterator != end(tokenizer->Tokens()); ++iterator)    
     {
         try
         {
-            numberParser->TryParse(token);
-            EXPECT_EQ(modiferList[counter++], numberParser->Modifier());
+            numberParser->TryParse(*iterator);
+            EXPECT_EQ(modiferList[counter], numberParser->Modifier());
+            EXPECT_EQ(originalValue[counter], numberParser->Value());
+            EXPECT_EQ(modifiedValue[counter++], numberParser->ModifiedValue());
+        }
+        catch (const ParsedNumberException& e)
+        {
+            cout << "Exception Message: " << e.what() << '\n';
+            FAIL();
+        }
+        
+    }
+}
+
+TEST(TestNumberParser, EvaluateBitSuffix)
+{
+    const auto stringContant = "H'AAAA:BIT[0], H'AAAA:BIT[1], H'AAAA:BIT[2], H'AAAA:BIT[3], "
+                               "H'AAAA:BIT[4], H'AAAA:BIT[5], H'AAAA:BIT[6], H'AAAA:BIT[7], "
+                               "H'AAAA:BIT[8], H'AAAA:BIT[9], H'AAAA:BIT[H'A], H'AAAA:BIT[O'13], "
+                               "H'AAAA:BIT[B'1100], H'AAAA:BIT[D'13], H'AAAA:BIT[0xE], H'AAAA:BIT[15], ";
+
+    uint16_t modifiedValue[] = 
+    {
+        0x00, 0x01, 0x00, 0x01,
+        0x00, 0x01, 0x00, 0x01,
+        0x00, 0x01, 0x00, 0x01,
+        0x00, 0x01, 0x00, 0x01
+    };
+
+    auto numberString = static_cast<string>(stringContant);
+    auto tokenizer = make_shared<Tokenizer>();
+         tokenizer->ToToken(numberString);
+    
+    auto iterator = begin(tokenizer->Tokens());
+    auto numberParser = make_shared<ParsedNumber>(iterator);
+
+    auto counter = 0;
+    for (; iterator != end(tokenizer->Tokens()); ++iterator)
+    {
+        try
+        {
+            numberParser->TryParse(*iterator);
+            EXPECT_EQ(ModifierType::Bit, numberParser->Modifier());
+            EXPECT_EQ(static_cast<uint32_t>(0xAAAA), numberParser->Value());
+            EXPECT_EQ(modifiedValue[counter++], numberParser->ModifiedValue());
+        }
+        catch (const ParsedNumberException& e)
+        {
+            cout << "Exception Message: " << e.what() << '\n';
+            FAIL();
+        }
+        
+    }
+}
+
+TEST(TestNumberParser, EvaluateComposedBitSuffix)
+{
+    const auto stringContant = "H'F411:BIT[H'0F:LOW], H'00100000:BIT[H'1400:HIGH], "
+                               "H'0002:BIT[H'0E:BIT[1]], H'FEFE:BIT[H'0100:BIT[H'0009FFFF:HIGH]] ";
+
+    uint32_t originalValue[] = 
+    {
+        0xF411, 0x00100000, 0x0002, 0xFEFE
+    };
+
+    uint16_t modifiedValue[] = 
+    {
+        0x01, 0x01, 0x01, 0x00
+    };
+
+    auto numberString = static_cast<string>(stringContant);
+    auto tokenizer = make_shared<Tokenizer>();
+         tokenizer->ToToken(numberString);
+    
+    auto iterator = begin(tokenizer->Tokens());
+    auto numberParser = make_shared<ParsedNumber>(iterator);
+
+    auto counter = 0;
+    for (; iterator != end(tokenizer->Tokens()); ++iterator)
+    {
+        try
+        {
+            numberParser->TryParse(*iterator);
+            cout << (*iterator).TokenWithoutDelimiter << '\n';
+            EXPECT_EQ(ModifierType::Bit, numberParser->Modifier());
+            EXPECT_EQ(originalValue[counter], numberParser->Value());
+            EXPECT_EQ(modifiedValue[counter++], numberParser->ModifiedValue());
+        }
+        catch (const ParsedNumberException& e)
+        {
+            cout << "Exception Message: " << e.what() << '\n';
+            FAIL();
+        }
+        
+    }
+}
+
+TEST(TestNumberParser, EvaluateComposedBitSuffixWithSpaces)
+{
+    const auto stringContant = "H'8881:BIT [ 0 ] ";
+
+    uint32_t originalValue[] = 
+    {
+        0x8881
+    };
+
+    uint16_t modifiedValue[] = 
+    {
+        0x01
+    };
+
+    auto numberString = static_cast<string>(stringContant);
+    auto tokenizer = make_shared<Tokenizer>();
+         tokenizer->ToToken(numberString);
+    
+    auto iterator = begin(tokenizer->Tokens());
+    auto numberParser = make_shared<ParsedNumber>(iterator);
+
+    auto counter = 0;
+    for (; iterator != end(tokenizer->Tokens()); ++iterator)
+    {
+        try
+        {
+            numberParser->TryParse(*iterator);
+            cout << (*iterator).TokenWithoutDelimiter << '\n';
+            EXPECT_EQ(ModifierType::Bit, numberParser->Modifier());
+            EXPECT_EQ(originalValue[counter], numberParser->Value());
+            EXPECT_EQ(modifiedValue[counter++], numberParser->ModifiedValue());
         }
         catch (const ParsedNumberException& e)
         {
@@ -174,14 +357,15 @@ TEST(TestNumberParser, CheckParsedPrefixes)
 
     auto numberString = static_cast<string>(stringContant);
     auto tokenizer = make_shared<Tokenizer>();
-    auto numberParser = make_shared<ParsedNumber>();
+         tokenizer->ToToken(numberString);
+    
+    auto iterator = begin(tokenizer->Tokens());
+    auto numberParser = make_shared<ParsedNumber>(iterator);
+
     auto counter = 0;
-
-    tokenizer->ToToken(numberString);
-
-    for (auto token : tokenizer->Tokens())
+    for (; iterator != end(tokenizer->Tokens()); ++iterator)
     {
-       numberParser->TryParse(token);
+       numberParser->TryParse(*iterator);
 
        EXPECT_EQ(*(begin(baseList) + counter++), numberParser->Base());        
        EXPECT_EQ(ModifierType::NoModifier, numberParser->Modifier());        
@@ -221,14 +405,15 @@ TEST(TestNumberParser, CheckForInvalidNumericBasesCharacters)
 
     auto numberString = static_cast<string>(stringContant);
     auto tokenizer = make_shared<Tokenizer>();
-    auto numberParser = make_shared<ParsedNumber>();
+         tokenizer->ToToken(numberString);
+    
     auto counter = 0;
+    auto iterator = begin(tokenizer->Tokens());
+    auto numberParser = make_shared<ParsedNumber>(iterator);
 
-    tokenizer->ToToken(numberString);
-
-    for (auto token : tokenizer->Tokens())
+    for (; iterator != end(tokenizer->Tokens()); ++iterator)
     {
-       ASSERT_EXCEPTION( { numberParser->TryParse(token); }, 
+       ASSERT_EXCEPTION( { numberParser->TryParse((*iterator)); }, 
                           ParsedNumberException, 
                           exceptionMessageList[counter++].c_str());    
     }
@@ -240,58 +425,60 @@ TEST(TestNumberParser, TestNumericValues)
                                "0b11110000, B'0101010101010101, b'1111, 0B110011001100, 0b1011.0001, B'1100.1100.1100.1100,"
                                " b'11110000.1110, 0B11110000.11";
     auto tokenizer = make_shared<Tokenizer>();
-    auto parsedNumber = make_shared<ParsedNumber>();
-    tokenizer->ToToken(stringContant);
+         tokenizer->ToToken(stringContant);
+    
+    auto iterator = begin(tokenizer->Tokens());
+    auto parsedNumber = make_shared<ParsedNumber>(iterator);
 
-    parsedNumber->TryParse(tokenizer->Tokens()[0]); // 0xFFFF
+    parsedNumber->TryParse(*iterator); // 0xFFFF
     EXPECT_EQ(static_cast<uint16_t>(0xFFFF), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[1]); // H'1234
+    parsedNumber->TryParse(*(iterator + 1)); // H'1234
     EXPECT_EQ(static_cast<uint16_t>(0x1234), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[2]); // h'Aa
+    parsedNumber->TryParse(*(iterator + 2)); // h'Aa
     EXPECT_EQ(static_cast<uint16_t>(0x00Aa), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[3]); // 0X00D1
+    parsedNumber->TryParse(*(iterator + 3)); // 0X00D1
     EXPECT_EQ(static_cast<uint16_t>(0x00D1), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[4]); // 0o6654
+    parsedNumber->TryParse(*(iterator + 4)); // 0o6654
     EXPECT_EQ(static_cast<uint16_t>(3500), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[5]); // 0o233
+    parsedNumber->TryParse(*(iterator + 5)); // 0o233
     EXPECT_EQ(static_cast<uint16_t>(155), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[6]); // o'1123
+    parsedNumber->TryParse(*(iterator + 6)); // o'1123
     EXPECT_EQ(static_cast<uint16_t>(595), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[7]); // 0O31
+    parsedNumber->TryParse(*(iterator + 7)); // 0O31
     EXPECT_EQ(static_cast<uint16_t>(25), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[8]); // 0d400
+    parsedNumber->TryParse(*(iterator + 8)); // 0d400
     EXPECT_EQ(static_cast<uint16_t>(400), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[9]); // D'1023
+    parsedNumber->TryParse(*(iterator + 9)); // D'1023
     EXPECT_EQ(static_cast<uint16_t>(1023), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[10]); // d'674
+    parsedNumber->TryParse(*(iterator + 10)); // d'674
     EXPECT_EQ(static_cast<uint16_t>(674), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[11]); // 0D5610
+    parsedNumber->TryParse(*(iterator + 11)); // 0D5610
     EXPECT_EQ(static_cast<uint16_t>(5610), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[12]); // 789
+    parsedNumber->TryParse(*(iterator + 12)); // 789
     EXPECT_EQ(static_cast<uint16_t>(789), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[13]); // 0b11110000
+    parsedNumber->TryParse(*(iterator + 13)); // 0b11110000
     EXPECT_EQ(static_cast<uint16_t>(240), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[14]); // B'0101010101010101
+    parsedNumber->TryParse(*(iterator + 14)); // B'0101010101010101
     EXPECT_EQ(static_cast<uint16_t>(21845), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[15]); // b'1111
+    parsedNumber->TryParse(*(iterator + 15)); // b'1111
     EXPECT_EQ(static_cast<uint16_t>(0x0F), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[16]); // 0B110011001100
+    parsedNumber->TryParse(*(iterator + 16)); // 0B110011001100
     EXPECT_EQ(static_cast<uint16_t>(3276), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[17]); // 0b1011.0001
+    parsedNumber->TryParse(*(iterator + 17)); // 0b1011.0001
     EXPECT_EQ(static_cast<uint16_t>(177), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[18]); // B'1100.1100.1100.1100
+    parsedNumber->TryParse(*(iterator + 18)); // B'1100.1100.1100.1100
     EXPECT_EQ(static_cast<uint16_t>(52428), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[19]); // b'11110000.1110
+    parsedNumber->TryParse(*(iterator + 19)); // b'11110000.1110
     EXPECT_EQ(static_cast<uint16_t>(3854), static_cast<uint16_t>(parsedNumber->Value()));
-    parsedNumber->TryParse(tokenizer->Tokens()[20]); // 0B11110000.11
+    parsedNumber->TryParse(*(iterator + 20)); // 0B11110000.11
     EXPECT_EQ(static_cast<uint16_t>(963), static_cast<uint16_t>(parsedNumber->Value()));
 }
 
 TEST(TestNumberParser, StressTest)
 {
+    return;
     auto numericConstant = string("");
     auto tokenizer = make_shared<Tokenizer>();
-    auto parsedNumber = make_shared<ParsedNumber>();
 
     for (uint32_t i = 0; i < numeric_limits<uint16_t>().max(); ++i)
     {
@@ -299,119 +486,153 @@ TEST(TestNumberParser, StressTest)
         ss << "0x" << hex << i; 
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
+        auto iterator = begin(tokenizer->Tokens());
+        auto parsedNumber = make_shared<ParsedNumber>(iterator);
+        parsedNumber->TryParse(*iterator);
         EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
 
         ss.str("");
         ss << "H'" << hex << i; 
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator2 = begin(tokenizer->Tokens());
+        auto parsedNumber2 = make_shared<ParsedNumber>(iterator2);
+        parsedNumber2->TryParse(*iterator2);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber2->Value()));
         
         ss.str("");
         ss << "0X" << hex << i; 
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator3 = begin(tokenizer->Tokens());
+        auto parsedNumber3 = make_shared<ParsedNumber>(iterator3);
+        parsedNumber3->TryParse(*iterator3);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber3->Value()));
         
         ss.str("");
         ss << "h'" << hex << i; 
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator4 = begin(tokenizer->Tokens());
+        auto parsedNumber4 = make_shared<ParsedNumber>(iterator4);
+        parsedNumber4->TryParse(*iterator4);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber4->Value()));
 
         ss.str("");
         ss << "0o" << oct << i; 
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator5 = begin(tokenizer->Tokens());
+        auto parsedNumber5 = make_shared<ParsedNumber>(iterator5);
+        parsedNumber5->TryParse(*iterator5);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber5->Value()));
 
         ss.str("");
         ss << "O'" << oct << i; 
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator17 = begin(tokenizer->Tokens());
+        auto parsedNumber17 = make_shared<ParsedNumber>(iterator17);
+        parsedNumber17->TryParse(*iterator17);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber17->Value()));
         
         ss.str("");
         ss << "0O" << oct << i; 
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator6 = begin(tokenizer->Tokens());
+        auto parsedNumber6 = make_shared<ParsedNumber>(iterator6);
+        parsedNumber6->TryParse(*iterator6);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber6->Value()));
         
         ss.str("");
         ss << "o'" << oct << i; 
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator7 = begin(tokenizer->Tokens());
+        auto parsedNumber7 = make_shared<ParsedNumber>(iterator7);
+        parsedNumber7->TryParse(*iterator7);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber7->Value()));
 
         ss.str("");
         ss << "0d" << dec << i; 
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator8 = begin(tokenizer->Tokens());
+        auto parsedNumber8 = make_shared<ParsedNumber>(iterator8);
+        parsedNumber8->TryParse(*iterator8);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber8->Value()));
 
         ss.str("");
         ss << "D'" << dec << i; 
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator9 = begin(tokenizer->Tokens());
+        auto parsedNumber9 = make_shared<ParsedNumber>(iterator9);
+        parsedNumber9->TryParse(*iterator9);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber9->Value()));
         
         ss.str("");
         ss << "0D" << dec << i; 
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator10 = begin(tokenizer->Tokens());
+        auto parsedNumber10 = make_shared<ParsedNumber>(iterator10);
+        parsedNumber10->TryParse(*iterator10);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber10->Value()));
         
         ss.str("");
         ss << "d'" << dec << i; 
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator11 = begin(tokenizer->Tokens());
+        auto parsedNumber11 = make_shared<ParsedNumber>(iterator11);
+        parsedNumber11->TryParse(*iterator11);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber11->Value()));
         
         ss.str("");
         ss << dec << i; 
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator12 = begin(tokenizer->Tokens());
+        auto parsedNumber12 = make_shared<ParsedNumber>(iterator12);
+        parsedNumber12->TryParse(*iterator12);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber12->Value()));
        
         ss.str("");
         ss << "0b" << ToBinary(i);
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator13 = begin(tokenizer->Tokens());
+        auto parsedNumber13 = make_shared<ParsedNumber>(iterator13);
+        parsedNumber13->TryParse(*iterator13);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber13->Value()));
 
         ss.str("");
         ss << "B'" << ToBinary(i);
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator14 = begin(tokenizer->Tokens());
+        auto parsedNumber14 = make_shared<ParsedNumber>(iterator14);
+        parsedNumber14->TryParse(*iterator14);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber14->Value()));
 
         ss.str("");
         ss << "0B" << ToBinary(i);
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator15 = begin(tokenizer->Tokens());
+        auto parsedNumber15 = make_shared<ParsedNumber>(iterator15);
+        parsedNumber15->TryParse(*iterator15);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber15->Value()));
 
         ss.str("");
         ss << "b'" << ToBinary(i);
         numericConstant = string(ss.str());
         tokenizer->ToToken(numericConstant);
-        parsedNumber->TryParse(tokenizer->Tokens()[0]);
-        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber->Value()));
+        auto iterator16 = begin(tokenizer->Tokens());
+        auto parsedNumber16 = make_shared<ParsedNumber>(iterator16);
+        parsedNumber16->TryParse(*iterator16);
+        EXPECT_EQ(static_cast<uint32_t>(i), static_cast<uint32_t>(parsedNumber16->Value()));
     }
 }
