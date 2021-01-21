@@ -31,6 +31,7 @@ class InstructionConstants
 public:
     const static uint16_t PreOpcode_DD = 0xDD;
     const static uint16_t PreOpcode_FD = 0xFD;
+    const static uint16_t PreOpcode_CB = 0xCB;
 };
 
 class ArithmeticLogicUnitInterface

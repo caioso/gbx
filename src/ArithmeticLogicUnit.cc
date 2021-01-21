@@ -28,7 +28,7 @@ void ArithmeticLogicUnit::Decode()
     {
         auto opcode = _registers->Read(Register::IR);
         auto complement = _registers->Read(Register::PIR);
-        auto preOpcode = IsSuffixedInstruction(complement)? make_optional<uint8_t>(complement) : (IsComplementedInstruction(opcode) ? make_optional<uint8_t>(complement) : nullopt);
+        auto preOpcode = IsSuffixedInstruction(complement)? make_optional<uint8_t>(complement) : nullopt;
         _currentInstruction = _decoder.DecodeOpcode(opcode, preOpcode);
         _currentInstruction->Decode(opcode, preOpcode, _instructionData);
     }
@@ -51,14 +51,6 @@ uint8_t ArithmeticLogicUnit::AcquireInstruction(shared_ptr<interfaces::MemoryCon
         _registers->Write(Register::PIR, instruction);
         _registers->Write(Register::IR, secondInstruction);
     }
-    else if (IsComplementedInstruction(instruction))
-    {
-        auto secondInstruction = ReadAtRegister(Register::PC, memoryController);
-        IncrementPC();
-
-        _registers->Write(Register::PIR, secondInstruction);
-        _registers->Write(Register::IR, instruction);
-    }
     else 
         _registers->Write(Register::IR, instruction);
 
@@ -66,14 +58,10 @@ uint8_t ArithmeticLogicUnit::AcquireInstruction(shared_ptr<interfaces::MemoryCon
     return instruction;
 }
 
-inline bool ArithmeticLogicUnit::IsComplementedInstruction(uint8_t instruction)
-{
-    return instruction == RlcPreOpcode;
-}
-
 inline bool ArithmeticLogicUnit::IsSuffixedInstruction(uint8_t instruction)
 {
-    return instruction == InstructionConstants::PreOpcode_DD || 
+    return instruction == InstructionConstants::PreOpcode_DD ||
+           instruction == InstructionConstants::PreOpcode_CB ||
            instruction == InstructionConstants::PreOpcode_FD;
 }
 

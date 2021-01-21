@@ -14,6 +14,7 @@
 #include "InstructionOr.h"
 #include "InstructionPop.h"
 #include "InstructionPush.h"
+#include "InstructionRl.h"
 #include "InstructionRla.h"
 #include "InstructionRlc.h"
 #include "InstructionRlca.h"
