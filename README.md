@@ -23,6 +23,16 @@ This is a *live-document* describing the language standards and features. The fi
 ### Revisions
 
 ## Features
+
+### Registers
+### Register Pairs
+### Flags Register
+### Special Registers
+### Variables
+### Functions
+#### Function Arguments
+#### Function Returns
+#### Abortable Functions
 ### Statements
 
 gbXpressive *ASM* attempts to improve traditional assembly languages readability by introducing several *high-level* programming language statements. Statements *may or may not* lead to code generation and are designed to both improve the overall code's readability as well as to simplify commonly recurring tasks implemented by programmers. 
@@ -31,9 +41,9 @@ Most statements introduce their own ***keywords*** and syntactic and semantic ru
 
 #### PACK
 
-`PACK` declares a data structure composed of one or more *identifiable* fields. Fundamentally, a `PACK` has two properties: an initial **address** and a **length**. A `PACK` is designed to simplify memory management in a syntactic level.
+`PACK` declares a data structure type composed of one or more *identifiable* fields. Fundamentally, a `PACK` has two properties: an initial **address** and a **length**. A `PACK` is designed to simplify memory management in a syntactic level.
 
-#####Syntax
+##### Syntax
 ``` language assembly
 PACK <PACK_TYPE_IDENTIFIER>:
     [{FIELD TYPE} {FIELD_IDENTIFIER}]+
@@ -41,7 +51,7 @@ END
 ```
 Each `PACK` must include an unique identifier and a non-empty list of fields. Fields are name-addressable memory locations, defined as bytes sequences of pre-defined size. Fields can be individually accessed by using the `PACK`'s *base-address* and an offset. The assembler is responsible to statically calculate the location of each field upon usage in the user's code. 
 
-#####Example
+##### Example
 ``` language assembly
 PACK SPRITE:
     BYTE TILE
@@ -52,9 +62,9 @@ PACK SPRITE:
 END
 ```
 
-The previous example depicts the declares a `PACK` called SPRITE, which consists of five fields: TILE, PALETTE, X, Y, and ATTRIBUTES. the first four fields have been declared as `BYTE` which means they will take one byte each, when the `PACK` is allocated. ATTRIBUTE is a `WORD` type which means it takes 2 bytes when the `PACK` is allocated. To access the 
+The previous example depicts the declares a `PACK` type called SPRITE, which consists of five fields: TILE, PALETTE, X, Y, and ATTRIBUTES. The first four fields have been declared as `BYTE` which means they will take one byte each, when the `PACK` is allocated. ATTRIBUTE is a `WORD` type which means it takes 2 bytes when the `PACK` is allocated. To access the 
 
-Once declared, a `PACK` creates an *instantiable-entity* that can be used with the `DECL`, `CONST`, `FREE` statements, `.` operand, initializer lists  and instructions, to identify data located in the Stack or the Heap. Instantiated `PACK` are referred to as struct-variables.
+Once declared, a `PACK` type is an *instantiable-entity* that can be used with the `DECL`, `CONST`, `FREE` statements, `.` operand, `AS` type cast construction, initializer lists and instructions. Instantiated `PACK` are referred to as struct-variables.
 
 ##### Syntax
 ###### Field Access
@@ -67,7 +77,7 @@ Once declared, a `PACK` creates an *instantiable-entity* that can be used with t
 ```
 ###### `PACK` Instantiation with Initializer List
 ``` language assembly
-DECL <PACK_IDENTIFIER> AS <PACK_TYPE_IDENTIFIER> @<ADDRESS_TYPE> [{[.<FIELD_IDENTIFIER>:<VALUE>]+}]*
+DECL <PACK_IDENTIFIER> AS <PACK_TYPE_IDENTIFIER> @<ADDRESS_TYPE> [[[.<FIELD_IDENTIFIER>:<VALUE>]+]]*
 ```
 ###### `PACK` Instance Deletion
 ``` language assembly
@@ -82,20 +92,28 @@ CONST <PACK_IDENTIFIER> AS <PACK_TYPE_IDENTIFIER> {[.<FIELD_IDENTIFIER>:<VALUE>]
 ``` language assembly
 OPCODE [<OPERAND>, ]* <PACK_IDENTIFIER>.<FIELD_IDENTIFIER> [, <OPERAND>]*
 ```
+###### `PACK` in Type Cast
+``` language assembly
+[OPCODE|STATEMENT|DIRECTIVE] ... {[REGISTER_PAIR] AS <PACK_IDENTIFIER>.<FIELD_IDENTIFIER>} ...
+```
 
-Note that, the instantiation of a `PACK` with initializer lists **with an struct-variable**, incur in extra code generation. Field accesses however, are resolved in assembly time without the need of extra code generation. When using `PACK` fields as an instruction operand, data size must be taken into account.
+Note that, the instantiation of a `PACK` with initializer lists **with an struct-variable**, incur in extra code generation. Field accesses however, are resolved in assembly time without the need of extra code generation. When using `PACK` fields as an instruction operand, data size must be taken into account. When using the `PACK` type in an Type Cast, extra code will be generated to correct the address of the register pairs.
 
 ##### Example
 ``` language assembly
-    DECL    MY_SPRITE AS SPRITE @{GLOBAL_VARIABLES} {.X:H'00, .Y:H'00}
+    ...
+    DECL    MY_SPRITE AS SPRITE @[GLOBAL_VARIABLES] {.X:H'00, .Y:H'00}
     LD      A, MY_SPRITE.X
     ADD     A, H'04
     LD      MY_SPRITE.X, A 
-    ...
     FREE    MY_SPRITE
+    ...
+    LD      A, DEFAULT_PALETTE_INDEX
+    LD      {HL AS SPRITE}.PALETTE, A
+    ...
 ```
 
-The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initializes two of its fields (X and Y). The instantiated struct-variable's X field is then loaded into the accumulator, which gets incremented by `H'04`. The accumulator is then written back to MY_SPRITE's field X. At the end, MY_SPRITE is freed, releasing its memory resources. 
+The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initializes two of its fields (X and Y). The instantiated struct-variable's X field is then loaded into the accumulator, which gets incremented by `H'04`. The accumulator is then written back to MY_SPRITE's field X. At the end, MY_SPRITE is freed, releasing its memory resources.  The second part of the example loads the accumulator with the constant DEFAULT_PALETTE_INDEX and then *casts* HL to the  `PACK` type SPRITE (more specifically, the assembler will interpret HL as the base address of a SPRITE  `PACK` type and will perform field access arithmetic by using the offsets derivable from `PACK` SPRITE structure).
 
 #### `END`
 #### `FUNC`
@@ -105,12 +123,16 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### `DWORD`
 #### `STRING`
 #### `AS`
+##### `AS` for Variable Instantiation
+##### `AS` for Type Cast
 #### `CONST`
 #### `FREE`
 #### `IF`, `THEN`, `ELSE`
 #### `CALL`
 #### `REPEAT`
 #### `TIMES`
+#### `WHEN`
+#### `IS`
 #### `WHILE`
 #### `ALIAS`
 #### `UNALIAS`
@@ -150,8 +172,10 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 ### Instructions
 
 ### Pseudo Instructions
+#### `STORE`
+#### `LOAD`
 #### `SWAP`
-
+#### `MOVE`
 ### Identifiers
 #### Hierarchy
 
@@ -163,13 +187,24 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### ASCII Encoded Bytes
 
 ### Directives
-#### `.INC`
+#### `.USE`
 #### `.ORG`
 #### `.PRINT`
 #### `.BREAK`
+#### `.BANK`
+#### `.CART`
+#### `.ADDON`
+
+#### `.ASSERT`
+#### `.FAIL`
+#### `.PASS`
 
 ### Other Language Structures
 #### Comments
 #### Labels
 #### Initializer Lists `{}`
 #### Array Index Subscript `[]`
+
+### Basic ABI
+#### Function Call Conventions
+#### Stack Usage
