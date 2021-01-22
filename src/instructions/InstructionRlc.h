@@ -17,7 +17,7 @@ public:
 private:
     inline void DecodeRlcRegisterMode(uint8_t, interfaces::DecodedInstruction&);
     inline void DecodeRlcRegisterIndirectMode(interfaces::DecodedInstruction&);
-    inline void SetFlags(std::shared_ptr<interfaces::RegisterBankInterface>, uint8_t);
+    inline void SetFlags(uint8_t, std::shared_ptr<interfaces::RegisterBankInterface>, uint8_t);
     inline uint8_t AcquireOperand(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
     inline void WriteResult(uint8_t, std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
 };

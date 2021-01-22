@@ -169,14 +169,12 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlcRegisterMode)
     random_device randomDevice;
     mt19937 engine{randomDevice()};
     uniform_int_distribution<uint8_t> distribution{0, 255};
-    uniform_int_distribution<uint8_t> zeroDistribution{0, 255};
     uniform_int_distribution<uint8_t> sourceDistribution{0, 6};
 
     for (auto i = 0; i < 1000; i++)
     {
         auto preOpcode = 0xCB;
         auto operandValue = distribution(engine);
-        auto zeroValue = static_cast<uint8_t>(zeroDistribution(engine) < 128 ? 0 : 1);
         auto operand = *(begin(operandList) + sourceDistribution(engine));
         auto operandValueMSBit = static_cast<uint8_t>((operandValue >> 7) & 0x01);
         auto result = static_cast<uint8_t>((operandValue << 1) | operandValueMSBit);
@@ -184,7 +182,6 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlcRegisterMode)
         auto opcode = RegisterBankInterface::ToInstructionSource(operand);
         alu.DecodeInstruction(opcode, preOpcode);
         registerBank->Write(operand, operandValue);
-        registerBank->WriteFlag(Flag::Z, zeroValue); // Zero may not be changed by the instruction
         registerBank->WriteFlag(Flag::CY, operandValueMSBit);
         alu.Execute();
 
@@ -192,7 +189,7 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlcRegisterMode)
 
         // Test Flags
         EXPECT_EQ(operandValueMSBit, registerBank->ReadFlag(Flag::CY));
-        EXPECT_EQ(zeroValue, registerBank->ReadFlag(Flag::Z));
+        EXPECT_EQ((result == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
         EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
         EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
     }
@@ -228,20 +225,17 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlcRegisterIndirectMode)
     random_device randomDevice;
     mt19937 engine{randomDevice()};
     uniform_int_distribution<uint8_t> distribution{0, 255};
-    uniform_int_distribution<uint8_t> zeroDistribution{0, 255};
 
     for (auto i = 0; i < 1000; i++)
     {
         auto preOpcode = 0xCB;
         auto operandValue = distribution(engine);
-        auto zeroValue = static_cast<uint8_t>(zeroDistribution(engine) < 128 ? 0 : 1);
         auto operandValueMSBit = static_cast<uint8_t>((operandValue >> 7) & 0x01);
         auto result = static_cast<uint8_t>((operandValue << 1) | operandValueMSBit);
 
         auto opcode = 0x06;
         alu.DecodeInstruction(opcode, preOpcode);
         
-        registerBank->WriteFlag(Flag::Z, zeroValue); // Zero may not be changed by the instruction
         registerBank->WriteFlag(Flag::CY, operandValueMSBit);
 
         alu.GetInstructionData().MemoryOperand1 = operandValue;
@@ -251,7 +245,7 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlcRegisterIndirectMode)
 
         // Test Flags
         EXPECT_EQ(operandValueMSBit, registerBank->ReadFlag(Flag::CY));
-        EXPECT_EQ(zeroValue, registerBank->ReadFlag(Flag::Z));
+        EXPECT_EQ((result == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
         EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
         EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
     }
@@ -318,7 +312,7 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlRegisterMode)
         EXPECT_EQ(operandValueMSBit, registerBank->ReadFlag(Flag::CY));
         EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
         EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
-        EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::Z));
+        EXPECT_EQ((result == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
     }
 }
 
@@ -353,13 +347,11 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlRegisterIndirectMode)
     mt19937 engine{randomDevice()};
     uniform_int_distribution<uint8_t> distribution{0, 255};
     uniform_int_distribution<uint8_t> carryDistribution{0, 255};
-    uniform_int_distribution<uint8_t> zeroDistribution{0, 255};
 
     for (auto i = 0; i < 1000; i++)
     {
         auto preOpcode = 0xCB;
         auto operandValue = distribution(engine);
-        auto zeroValue = static_cast<uint8_t>(zeroDistribution(engine) < 128 ? 0 : 1);
         auto carryValue = static_cast<uint8_t>(carryDistribution(engine) < 128 ? 0 : 1);
         auto operandValueMSBit = static_cast<uint8_t>((operandValue >> 7) & 0x01);
         auto result = static_cast<uint8_t>((operandValue << 1) | carryValue);
@@ -367,7 +359,6 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlRegisterIndirectMode)
         auto opcode = 0x16;
         alu.DecodeInstruction(opcode, preOpcode);
         
-        registerBank->WriteFlag(Flag::Z, zeroValue); // Zero may not be changed by the instruction
         registerBank->WriteFlag(Flag::CY, carryValue);
 
         alu.GetInstructionData().MemoryOperand1 = operandValue;
@@ -377,7 +368,7 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlRegisterIndirectMode)
 
         // Test Flags
         EXPECT_EQ(operandValueMSBit, registerBank->ReadFlag(Flag::CY));
-        EXPECT_EQ(zeroValue, registerBank->ReadFlag(Flag::Z));
+        EXPECT_EQ((result == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
         EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
         EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
     }

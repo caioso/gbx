@@ -20,13 +20,13 @@ void InstructionRlc::Execute(shared_ptr<RegisterBankInterface> registerBank, Dec
     auto valueMSbit = static_cast<uint8_t>((value >> 7) & 0x01);
     auto result = static_cast<uint8_t>((value << 1) | valueMSbit);
 
-    SetFlags(registerBank, valueMSbit);
+    SetFlags(result, registerBank, valueMSbit);
     WriteResult(result, registerBank, decodedInstruction);
 }
 
-inline void InstructionRlc::DecodeRlcRegisterMode(uint8_t complement, interfaces::DecodedInstruction& decodedInstruction)
+inline void InstructionRlc::DecodeRlcRegisterMode(uint8_t opcode, interfaces::DecodedInstruction& decodedInstruction)
 {
-    auto source = RegisterBankInterface::FromInstructionSource(complement);
+    auto source = RegisterBankInterface::FromInstructionSource(opcode);
     decodedInstruction =
     {
         .Opcode = OpcodeType::rlc,
@@ -73,9 +73,10 @@ inline uint8_t InstructionRlc::AcquireOperand(shared_ptr<RegisterBankInterface> 
         return decodedInstruction.MemoryOperand1;
 }
 
-inline void InstructionRlc::SetFlags(shared_ptr<RegisterBankInterface> registerBank, uint8_t flagValue)
+inline void InstructionRlc::SetFlags(uint8_t result, shared_ptr<RegisterBankInterface> registerBank, uint8_t flagValue)
 {
     registerBank->WriteFlag(Flag::CY, flagValue);
+    registerBank->WriteFlag(Flag::Z, (result == 0? 0x01 : 0x00));
     registerBank->ClearFlag(Flag::H);
     registerBank->ClearFlag(Flag::N);
 }

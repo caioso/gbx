@@ -21,7 +21,7 @@ void InstructionRl::Execute(shared_ptr<RegisterBankInterface> registerBank, Deco
     auto carry = registerBank->ReadFlag(Flag::CY);
     auto result = static_cast<uint8_t>((value << 1) | carry);
 
-    SetFlags(registerBank, valueMSbit);
+    SetFlags(result, registerBank, valueMSbit);
     WriteResult(result, registerBank, decodedInstruction);
 }
 
@@ -74,9 +74,10 @@ inline uint8_t InstructionRl::AcquireOperand(shared_ptr<RegisterBankInterface> r
         return decodedInstruction.MemoryOperand1;
 }
 
-inline void InstructionRl::SetFlags(shared_ptr<RegisterBankInterface> registerBank, uint8_t flagValue)
+inline void InstructionRl::SetFlags(uint8_t result, shared_ptr<RegisterBankInterface> registerBank, uint8_t flagValue)
 {
     registerBank->WriteFlag(Flag::CY, flagValue);
+    registerBank->WriteFlag(Flag::Z, (result == 0? 0x01 : 0x00));
     registerBank->ClearFlag(Flag::H);
     registerBank->ClearFlag(Flag::N);
 }
