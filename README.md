@@ -1,7 +1,5 @@
 # GAME BOY X EXPRESSSIVE ASSEMBLY LANGUAGE
 
-----
-
 **GAME BOY X EXPRESSIVE ASSEMBLY LANGUAGE** (gbXpressive *ASM*) is a assembly programming language compatible with Nintendo's GAME BOY, GAME BOY Color, Super GAME BOY and the GAME BOY X video game platforms. 
 
 The language is syntactically compatible with Z80's assembly (along with GAME BOY X extended mode instructions) and can be translated into executable code for any Z80-compliant hardware platform.
@@ -17,8 +15,8 @@ This is a *live-document* describing the language standards and features. The fi
     - [Revisions](#revisions)
 
 - [Features](#features)
-    -[Statements](#statements)
-        -[`PACK`](#pack)
+  - [Statements](#statements)
+    - [`PACK`](#pack)
 
 ## Introduction
 ### Conventions
@@ -58,7 +56,7 @@ The previous example depicts the declares a `PACK` called SPRITE, which consists
 
 Once declared, a `PACK` creates an *instantiable-entity* that can be used with the `DECL`, `CONST`, `FREE` statements, `.` operand, initializer lists  and instructions, to identify data located in the Stack or the Heap. Instantiated `PACK` are referred to as struct-variables.
 
-#####Syntax
+##### Syntax
 ###### Field Access
 ``` language assembly
 <PACK_IDENTIFIER>.<FIELD_IDENTIFIER>
@@ -87,7 +85,7 @@ OPCODE [<OPERAND>, ]* <PACK_IDENTIFIER>.<FIELD_IDENTIFIER> [, <OPERAND>]*
 
 Note that, the instantiation of a `PACK` with initializer lists **with an struct-variable**, incur in extra code generation. Field accesses however, are resolved in assembly time without the need of extra code generation. When using `PACK` fields as an instruction operand, data size must be taken into account.
 
-#####Example
+##### Example
 ``` language assembly
     DECL    MY_SPRITE AS SPRITE @{GLOBAL_VARIABLES} {.X:H'00, .Y:H'00}
     LD      A, MY_SPRITE.X
