@@ -8,9 +8,7 @@ LDFLAGS := -lgtest -lgmock $(LDCOVERAGE_FLAGS)
 CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O0 -g -DDEBUG
 TARGET := gbxasmTest
 TARGET_DIR := $(CURDIR)/..
-DEPENDECIES := $(OBJ_DIR)/Tokenizer.o $(OBJ_DIR)/Token.o $(OBJ_DIR)/InstructionParser.o \
-			   $(OBJ_DIR)/GBXAsmExceptions.o $(OBJ_DIR)/SymbolWrapper.o $(OBJ_DIR)/BaseSymbol.o \
-			   $(OBJ_DIR)/Label.o $(OBJ_DIR)/ParsedNumber.o $(OBJ_DIR)/Number.o
+DEPENDECIES := $(OBJ_DIR)/GBXAsmExceptions.o $(OBJ_DIR)/Lexer.o
 		
 $(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
 	$(CC) -o $@ $^ $(DEPENDECIES) $(LDFLAGS)
