@@ -27,7 +27,9 @@ enum class OpcodeType
     rlc,
     rl,
     rrc,
-    rr
+    rr,
+    sla,
+    sra
 };
 
 const uint8_t MemoryOperand = 0x06;

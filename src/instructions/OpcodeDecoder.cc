@@ -36,6 +36,12 @@ shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithPreOpcode(u
     else if (OpcodePatternMatcher::Match(opcode, // 0001 1XXX
              OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_1, b::_1, b::_X, b::_X, b::_X)))
              return make_shared<InstructionRr>();
+    else if (OpcodePatternMatcher::Match(opcode, // 0010 0XXX
+             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_0, b::_0, b::_X, b::_X, b::_X)))
+             return make_shared<InstructionSla>();
+    else if (OpcodePatternMatcher::Match(opcode, // 0010 1XXX
+             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_0, b::_1, b::_X, b::_X, b::_X)))
+             return make_shared<InstructionSra>();
     
     throw InstructionException("unknown instruction");
 }

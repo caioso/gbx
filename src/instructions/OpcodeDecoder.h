@@ -24,6 +24,8 @@
 #include "InstructionRrca.h"
 #include "InstructionSub.h"
 #include "InstructionSbc.h"
+#include "InstructionSla.h"
+#include "InstructionSra.h"
 #include "InstructionXor.h"
 
 #include "../GBXExceptions.h"

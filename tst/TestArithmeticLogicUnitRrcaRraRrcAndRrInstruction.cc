@@ -355,9 +355,9 @@ TEST(TestRrcaRraRrcAndRr, ExecuteRrRegisterIndirectMode)
     for (auto i  = 0; i < 1000; i++)
     {
         auto randomOperandValue = distribution(engine);
-        auto randomCarryValue = carryDistribution(engine) % 2;
-        auto lSBit = randomOperandValue & 0x01;
-        auto result = (randomOperandValue >> 1) | (randomCarryValue << 7);
+        auto randomCarryValue = static_cast<uint8_t>(carryDistribution(engine) % 2);
+        auto lSBit = static_cast<uint8_t>(randomOperandValue & 0x01);
+        auto result = static_cast<uint8_t>((randomOperandValue >> 1) | (randomCarryValue << 7));
 
         auto preOpcode = 0xCB;
         auto opcode = 0x1E;
@@ -365,6 +365,7 @@ TEST(TestRrcaRraRrcAndRr, ExecuteRrRegisterIndirectMode)
         alu.DecodeInstruction(opcode, preOpcode);
 
         alu.GetInstructionData().MemoryOperand1 = randomOperandValue;
+        registerBank->WriteFlag(Flag::CY, randomCarryValue);
 
         alu.Execute();
 

@@ -18,8 +18,8 @@ void InstructionRr::Execute(shared_ptr<RegisterBankInterface> registerBank, Deco
 {
     auto operandValue = AcquireOperand(registerBank, decodedInstruction);
     auto carry = registerBank->ReadFlag(Flag::CY);
-    auto lsBit = operandValue & 0x01;
-    auto result = (operandValue >> 1) | (carry << 7);
+    auto lsBit = static_cast<uint8_t>(operandValue & 0x01);
+    auto result = static_cast<uint8_t>((operandValue >> 1) | (carry << 7));
 
     SetFlags(result, registerBank, lsBit);
     WriteResult(result, registerBank, decodedInstruction);
