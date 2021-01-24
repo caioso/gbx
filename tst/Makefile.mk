@@ -1,6 +1,6 @@
 CC := clang++
-#CCCOVERAGE_FLAGS = -fprofile-instr-generate -fcoverage-mapping
-#LDCOVERAGE_FLAGS = -fprofile-instr-generate
+CCCOVERAGE_FLAGS = -fprofile-instr-generate -fcoverage-mapping
+LDCOVERAGE_FLAGS = -fprofile-instr-generate
 OBJ_DIR := $(CURDIR)/../obj
 SRC_FILES := $(wildcard ./*.cc)
 OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))

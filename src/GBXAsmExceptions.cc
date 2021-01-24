@@ -9,13 +9,10 @@ GBXAsmException::GBXAsmException(const std::string message)
     : _message(message)
 {}
 
-InstructionParserException::InstructionParserException(const std::string message)
+LexerException::LexerException(const std::string message)
     : GBXAsmException(message)
 {}
 
-ParsedNumberException::ParsedNumberException(const std::string message)
-    : GBXAsmException(message)
-{}
 
 const char* GBXAsmException::what() const noexcept
 {

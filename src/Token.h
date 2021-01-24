@@ -10,12 +10,20 @@ enum class TokenType
     // Keywords
     KeywordPACK,
 
-
     // Operators
     OperatorASSIGNMENT,
     OperatorEQUAL,
     OperatorPLUS,
     OperatorTHREEWAYCOMPARISON,
+
+    // Separators
+    SeparatorCOMMA,
+    SeparatorOPENPARENTHESIS,
+    SeparatorCLOSEPARENTHESIS,
+    SeparatorOPENCURLYBRACKETS,
+    SeparatorCLOSECURLYBRACKETS,
+    SeparatorOPENBRACKETS,
+    SeparatorCLOSEBRACKETS,
 
     // Unknown
     UnknownToken
