@@ -8,8 +8,14 @@ namespace gbxasm
 class Lexemes
 {
 public:
-    inline const static std::string KeywordPack = "PACK";
-    inline const static std::string OperatorPlus = "+";
+    // Keywords
+    inline const static std::string LexemeKeywordPACK = "PACK";
+
+    // Operators
+    inline const static std::string LexemeOperatorASSIGNMENT = "=";
+    inline const static std::string LexemeOperatorEQUAL = "==";
+    inline const static std::string LexemeOperatorPLUS = "+";
+    inline const static std::string LexemeOperatorTRHEEWAYCOMPARISON = "<=>";
 };
 
 }

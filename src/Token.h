@@ -12,7 +12,10 @@ enum class TokenType
 
 
     // Operators
+    OperatorASSIGNMENT,
+    OperatorEQUAL,
     OperatorPLUS,
+    OperatorTHREEWAYCOMPARISON,
 
     // Unknown
     UnknownToken
