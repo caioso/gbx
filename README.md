@@ -176,7 +176,7 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 ### Pseudo Instructions
 #### `STORE`
 #### `LOAD`
-#### `SWAP`
+#### `EXCH`
 #### `MOVE`
 ### Identifiers
 #### Hierarchy
