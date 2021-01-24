@@ -77,7 +77,7 @@ Once declared, a `PACK` type is an *instantiable-entity* that can be used with t
 ```
 ###### `PACK` Instantiation with Initializer List
 ``` language assembly
-DECL <PACK_IDENTIFIER> AS <PACK_TYPE_IDENTIFIER> @<ADDRESS_TYPE> [[[.<FIELD_IDENTIFIER>:<VALUE>]+]]*
+DECL <PACK_IDENTIFIER> AS <PACK_TYPE_IDENTIFIER> @<ADDRESS_TYPE> [[[.<FIELD_IDENTIFIER> = <VALUE>]+]]*
 ```
 ###### `PACK` Instance Deletion
 ``` language assembly
@@ -85,7 +85,7 @@ FREE <PACK_IDENTIFIER>
 ```
 ###### `PACK` Constant definition with Initializer List
 ``` language assembly
-CONST <PACK_IDENTIFIER> AS <PACK_TYPE_IDENTIFIER> {[.<FIELD_IDENTIFIER>:<VALUE>]+}
+CONST <PACK_IDENTIFIER> AS <PACK_TYPE_IDENTIFIER> {[.<FIELD_IDENTIFIER> = <VALUE>]+}
 ```
 
 ###### `PACK` Usage with Instruction
@@ -102,7 +102,7 @@ Note that, the instantiation of a `PACK` with initializer lists **with an struct
 ##### Example
 ``` language assembly
     ...
-    DECL    MY_SPRITE AS SPRITE @[GLOBAL_VARIABLES] {.X:H'00, .Y:H'00}
+    DECL    MY_SPRITE AS SPRITE @[GLOBAL_VARIABLES] {.X = H'00, .Y = H'00}
     LD      A, MY_SPRITE.X
     ADD     A, H'04
     LD      MY_SPRITE.X, A 
