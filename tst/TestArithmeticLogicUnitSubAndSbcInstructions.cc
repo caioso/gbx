@@ -63,7 +63,7 @@ TEST(TestSubAndSbc, DecodeSubImmediateMode)
 
     EXPECT_EQ(OpcodeType::sub, alu.GetInstructionData().Opcode);
     EXPECT_EQ(AddressingMode::Immediate, alu.GetInstructionData().AddressingMode);
-    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::NoRegister, alu.GetInstructionData().SourceRegister);
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
@@ -118,7 +118,7 @@ TEST(TestSubAndSbc, DecodeSbcImmediateMode)
 
     EXPECT_EQ(OpcodeType::sbc, alu.GetInstructionData().Opcode);
     EXPECT_EQ(AddressingMode::Immediate, alu.GetInstructionData().AddressingMode);
-    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::NoRegister, alu.GetInstructionData().SourceRegister);
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 

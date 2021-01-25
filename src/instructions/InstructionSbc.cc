@@ -40,7 +40,8 @@ inline void InstructionSbc::DecodeSbcRegisterMode(uint8_t opcode, DecodedInstruc
         .SourceRegister = source,
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -53,10 +54,11 @@ inline void InstructionSbc::DecodeSbcImmediateMode(DecodedInstruction& decodedIn
         .MemoryOperand1 = 0x00,
         .MemoryOperand2 = 0x00,
         .MemoryOperand3 = 0x00,
-        .SourceRegister = Register::NoRegiser,
+        .SourceRegister = Register::NoRegister,
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -72,7 +74,8 @@ inline void InstructionSbc::DecodeSbcRegisterIndirectMode(DecodedInstruction& de
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 

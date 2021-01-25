@@ -52,7 +52,8 @@ inline void InstructionOr::DecodeOrRegisterMode(uint8_t opcode, DecodedInstructi
         .SourceRegister = source,
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -65,10 +66,11 @@ inline void InstructionOr::DecodeOrImmediateMode(DecodedInstruction& decodedInst
         .MemoryOperand1 = 0x00,
         .MemoryOperand2 = 0x00,
         .MemoryOperand3 = 0x00,
-        .SourceRegister = Register::NoRegiser,
+        .SourceRegister = Register::NoRegister,
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -84,7 +86,8 @@ inline void InstructionOr::DecodeOrRegisterIndirectMode(DecodedInstruction& deco
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 

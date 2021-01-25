@@ -37,7 +37,8 @@ inline void InstructionRlc::DecodeRlcRegisterMode(uint8_t opcode, interfaces::De
         .SourceRegister = source,
         .DestinationRegister = source,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -53,7 +54,8 @@ inline void InstructionRlc::DecodeRlcRegisterIndirectMode(interfaces::DecodedIns
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::HL,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 

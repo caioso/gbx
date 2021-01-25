@@ -53,7 +53,8 @@ inline void InstructionSwap::DecodeSwapRegisterMode(uint8_t opcode, interfaces::
         .SourceRegister = operand,
         .DestinationRegister = operand,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };    
 }
 
@@ -69,7 +70,8 @@ inline void InstructionSwap::DecodeSwapRegisterIndirectMode(interfaces::DecodedI
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::HL,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 

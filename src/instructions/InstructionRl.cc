@@ -38,7 +38,8 @@ inline void InstructionRl::DecodeRlRegisterMode(uint8_t complement, interfaces::
         .SourceRegister = source,
         .DestinationRegister = source,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -54,7 +55,8 @@ inline void InstructionRl::DecodeRlRegisterIndirectMode(interfaces::DecodedInstr
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::HL,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 

@@ -18,7 +18,8 @@ void InstructionRlca::Decode(__attribute__((unused)) uint8_t opcode, __attribute
         .SourceRegister = Register::A,
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };    
 }
 

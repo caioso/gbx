@@ -72,7 +72,8 @@ inline void InstructionCp::DecodeCpRegisterMode(uint8_t opcode, DecodedInstructi
         .SourceRegister = source,
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -85,10 +86,11 @@ inline void InstructionCp::DecodeCpImmediateMode(DecodedInstruction& decodedInst
         .MemoryOperand1 = 0x00,
         .MemoryOperand2 = 0x00,
         .MemoryOperand3 = 0x00,
-        .SourceRegister = Register::NoRegiser,
+        .SourceRegister = Register::NoRegister,
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -104,7 +106,8 @@ inline void InstructionCp::DecodeCpRegisterIndirectMode(DecodedInstruction& deco
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 

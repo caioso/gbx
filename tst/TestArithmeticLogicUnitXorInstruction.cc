@@ -111,7 +111,7 @@ TEST(TestOr, DecodeXorImmediateMode)
 
     EXPECT_EQ(OpcodeType::bitwisexor, alu.GetInstructionData().Opcode);
     EXPECT_EQ(AddressingMode::Immediate, alu.GetInstructionData().AddressingMode);
-    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::NoRegister, alu.GetInstructionData().SourceRegister);
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 

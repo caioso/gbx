@@ -113,7 +113,7 @@ TEST(TestLd, DecodeImmediateAddressingMode)
 
         EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
         EXPECT_EQ(AddressingMode::Immediate, alu.GetInstructionData().AddressingMode);
-        EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(Register::NoRegister, alu.GetInstructionData().SourceRegister);
         EXPECT_EQ(destination, alu.GetInstructionData().DestinationRegister);
     }
 }
@@ -295,7 +295,7 @@ TEST(TestLd, DecodeExtendedAddressingMode)
 
     EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
     EXPECT_EQ(AddressingMode::ExtendedSource, alu.GetInstructionData().AddressingMode);
-    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::NoRegister, alu.GetInstructionData().SourceRegister);
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 
     rawBinary = 0xEA;
@@ -304,7 +304,7 @@ TEST(TestLd, DecodeExtendedAddressingMode)
     EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
     EXPECT_EQ(AddressingMode::ExtendedDestination, alu.GetInstructionData().AddressingMode);
     EXPECT_EQ(Register::A, alu.GetInstructionData().SourceRegister);
-    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().DestinationRegister);
+    EXPECT_EQ(Register::NoRegister, alu.GetInstructionData().DestinationRegister);
 }
 
 
@@ -321,7 +321,7 @@ TEST(TestLd, DecodeImmediateRegisterIndirect)
 
     EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
     EXPECT_EQ(AddressingMode::ImmediateRegisterIndirect, alu.GetInstructionData().AddressingMode);
-    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::NoRegister, alu.GetInstructionData().SourceRegister);
     EXPECT_EQ(Register::HL, alu.GetInstructionData().DestinationRegister);
 }
 
@@ -413,7 +413,7 @@ TEST(TestLd, DecodeImmediateImplicitAddressingMode)
 
     EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
     EXPECT_EQ(AddressingMode::ImmediateImplicitSource, alu.GetInstructionData().AddressingMode);
-    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::NoRegister, alu.GetInstructionData().SourceRegister);
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 
     rawBinary = 0xE0;
@@ -422,7 +422,7 @@ TEST(TestLd, DecodeImmediateImplicitAddressingMode)
     EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
     EXPECT_EQ(AddressingMode::ImmediateImplicitDestination, alu.GetInstructionData().AddressingMode);
     EXPECT_EQ(Register::A, alu.GetInstructionData().SourceRegister);
-    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().DestinationRegister);
+    EXPECT_EQ(Register::NoRegister, alu.GetInstructionData().DestinationRegister);
 }
 
 TEST(TestLd, DecodeImmediateRegisterPairAddressingMode)
@@ -445,7 +445,7 @@ TEST(TestLd, DecodeImmediateRegisterPairAddressingMode)
 
         EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
         EXPECT_EQ(AddressingMode::ImmediatePair, alu.GetInstructionData().AddressingMode);
-        EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().SourceRegister);
+        EXPECT_EQ(Register::NoRegister, alu.GetInstructionData().SourceRegister);
         EXPECT_EQ(destination, alu.GetInstructionData().DestinationRegister);
     }
 }
@@ -481,7 +481,7 @@ TEST(TestLd, DecodeTransferSPToMemory)
     EXPECT_EQ(OpcodeType::ld, alu.GetInstructionData().Opcode);
     EXPECT_EQ(AddressingMode::ExtendedDestinationPair, alu.GetInstructionData().AddressingMode);
     EXPECT_EQ(Register::SP, alu.GetInstructionData().SourceRegister);
-    EXPECT_EQ(Register::NoRegiser, alu.GetInstructionData().DestinationRegister);
+    EXPECT_EQ(Register::NoRegister, alu.GetInstructionData().DestinationRegister);
 }
 
 TEST(TestLd, ExecuteImmediateAddressingMode)

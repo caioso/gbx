@@ -25,6 +25,7 @@ struct DecodedInstruction
     Register DestinationRegister;
     uint8_t MemoryResult1;
     uint8_t MemoryResult2;
+    uint8_t InstructionExtraOperand;
 };
 class InstructionConstants
 {

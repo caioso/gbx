@@ -19,7 +19,8 @@ void InstructionPop::Decode(uint8_t opcode, __attribute__((unused)) std::optiona
         .SourceRegister = Register::SP,
         .DestinationRegister = destination,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 

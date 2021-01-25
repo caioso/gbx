@@ -74,7 +74,8 @@ inline void InstructionAdd::DecodeAddRegisterMode(uint8_t opcode, DecodedInstruc
         .SourceRegister = source,
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -91,7 +92,8 @@ inline void InstructionAdd::DecodeAddRegisterPairMode(uint8_t opcode, DecodedIns
         .SourceRegister = source,
         .DestinationRegister = Register::HL,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -104,10 +106,11 @@ inline void InstructionAdd::DecodeAddImmediateMode(DecodedInstruction& decodedIn
         .MemoryOperand1 = 0x00,
         .MemoryOperand2 = 0x00,
         .MemoryOperand3 = 0x00,
-        .SourceRegister = Register::NoRegiser, 
+        .SourceRegister = Register::NoRegister, 
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -120,10 +123,11 @@ inline void InstructionAdd::DecodeAddImmediatePairMode(DecodedInstruction& decod
         .MemoryOperand1 = 0x00,
         .MemoryOperand2 = 0x00,
         .MemoryOperand3 = 0x00,
-        .SourceRegister = Register::NoRegiser, 
+        .SourceRegister = Register::NoRegister, 
         .DestinationRegister = Register::SP,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -139,7 +143,8 @@ inline void InstructionAdd::DecodeAddPointerMode(interfaces::DecodedInstruction&
         .SourceRegister = Register::HL, 
         .DestinationRegister = Register::A,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 

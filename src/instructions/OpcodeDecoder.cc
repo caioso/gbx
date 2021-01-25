@@ -17,37 +17,47 @@ shared_ptr<InstructionInterface> OpcodeDecoder::DecodeOpcode(uint8_t opcode, opt
         return DecodeInstructionWithoutPreOpcode(opcode);
 }
 
-shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithPreOpcode(uint8_t opcode,__attribute__((unused)) std::optional<uint8_t> preOpcode)
+shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithPreOpcode(uint8_t opcode, std::optional<uint8_t> preOpcode)
 {
-    if (OpcodePatternMatcher::Match(opcode, // 01XX X110
-        OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_X, b::_X, b::_X, b::_1, b::_1, b::_0)) ||
-        OpcodePatternMatcher::Match(opcode, // 0111 0XXX
-        OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_1, b::_1, b::_0, b::_X, b::_X, b::_X)))
-        return make_shared<InstructionLd>();
-    else if (OpcodePatternMatcher::Match(opcode, // 0000 0XXX
-             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_0, b::_0, b::_X, b::_X, b::_X)))
-             return make_shared<InstructionRlc>();
-    else if (OpcodePatternMatcher::Match(opcode, // 0001 0XXX
-             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_1, b::_0, b::_X, b::_X, b::_X)))
-             return make_shared<InstructionRl>();
-    else if (OpcodePatternMatcher::Match(opcode, // 0000 1XXX
-             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_0, b::_1, b::_X, b::_X, b::_X)))
-             return make_shared<InstructionRrc>();
-    else if (OpcodePatternMatcher::Match(opcode, // 0001 1XXX
-             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_1, b::_1, b::_X, b::_X, b::_X)))
-             return make_shared<InstructionRr>();
-    else if (OpcodePatternMatcher::Match(opcode, // 0010 0XXX
-             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_0, b::_0, b::_X, b::_X, b::_X)))
-             return make_shared<InstructionSla>();
-    else if (OpcodePatternMatcher::Match(opcode, // 0010 1XXX
-             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_0, b::_1, b::_X, b::_X, b::_X)))
-             return make_shared<InstructionSra>();
-    else if (OpcodePatternMatcher::Match(opcode, // 0011 1XXX
-             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_1, b::_1, b::_X, b::_X, b::_X)))
-             return make_shared<InstructionSrl>();
-    else if (OpcodePatternMatcher::Match(opcode, // 0011 0XXX
-             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_1, b::_0, b::_X, b::_X, b::_X)))
-             return make_shared<InstructionSwap>();
+    if (preOpcode.value() == InstructionConstants::PreOpcode_CB)
+    {
+        if (OpcodePatternMatcher::Match(opcode, // 01XX XXXX
+            OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_X, b::_X, b::_X, b::_X, b::_X, b::_X)))
+            return make_shared<InstructionBit>();
+        else if (OpcodePatternMatcher::Match(opcode, // 0000 0XXX
+                OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_0, b::_0, b::_X, b::_X, b::_X)))
+                return make_shared<InstructionRlc>();
+        else if (OpcodePatternMatcher::Match(opcode, // 0001 0XXX
+                OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_1, b::_0, b::_X, b::_X, b::_X)))
+                return make_shared<InstructionRl>();
+        else if (OpcodePatternMatcher::Match(opcode, // 0000 1XXX
+                OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_0, b::_1, b::_X, b::_X, b::_X)))
+                return make_shared<InstructionRrc>();
+        else if (OpcodePatternMatcher::Match(opcode, // 0001 1XXX
+                OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_1, b::_1, b::_X, b::_X, b::_X)))
+                return make_shared<InstructionRr>();
+        else if (OpcodePatternMatcher::Match(opcode, // 0010 0XXX
+                OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_0, b::_0, b::_X, b::_X, b::_X)))
+                return make_shared<InstructionSla>();
+        else if (OpcodePatternMatcher::Match(opcode, // 0010 1XXX
+                OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_0, b::_1, b::_X, b::_X, b::_X)))
+                return make_shared<InstructionSra>();
+        else if (OpcodePatternMatcher::Match(opcode, // 0011 1XXX
+                OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_1, b::_1, b::_X, b::_X, b::_X)))
+                return make_shared<InstructionSrl>();
+        else if (OpcodePatternMatcher::Match(opcode, // 0011 0XXX
+                OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_1, b::_0, b::_X, b::_X, b::_X)))
+                return make_shared<InstructionSwap>();
+    }
+    else if (preOpcode.value() == InstructionConstants::PreOpcode_DD ||
+             preOpcode.value() == InstructionConstants::PreOpcode_FD)
+    {
+        if (OpcodePatternMatcher::Match(opcode, // 01XX X110
+            OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_X, b::_X, b::_X, b::_1, b::_1, b::_0)) ||
+            OpcodePatternMatcher::Match(opcode, // 0111 0XXX
+            OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_1, b::_1, b::_0, b::_X, b::_X, b::_X)))
+            return make_shared<InstructionLd>();
+    }
     
     throw InstructionException("unknown instruction");
 }

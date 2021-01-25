@@ -18,7 +18,8 @@ void InstructionLdhl::Decode(__attribute__((unused)) uint8_t opcode, __attribute
         .SourceRegister = Register::SP, 
         .DestinationRegister = Register::HL,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 

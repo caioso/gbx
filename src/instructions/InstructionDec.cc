@@ -65,7 +65,8 @@ inline void InstructionDec::DecodeDecRegisterMode(uint8_t opcode, DecodedInstruc
         .SourceRegister = source,
         .DestinationRegister = source,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -82,7 +83,8 @@ inline void InstructionDec::DecodeDecRegisterPairMode(uint8_t opcode, DecodedIns
         .SourceRegister = source,
         .DestinationRegister = source,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 
@@ -98,7 +100,8 @@ inline void InstructionDec::DecodeDecRegisterIndirectMode(DecodedInstruction& de
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::HL,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 

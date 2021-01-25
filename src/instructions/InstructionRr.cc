@@ -54,7 +54,8 @@ inline void InstructionRr::DecodeRrRegisterMode(uint8_t opcode, interfaces::Deco
         .SourceRegister = operand,
         .DestinationRegister = operand,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };    
 }
 
@@ -70,7 +71,8 @@ inline void InstructionRr::DecodeRrRegisterIndirectMode(interfaces::DecodedInstr
         .SourceRegister = Register::HL,
         .DestinationRegister = Register::HL,
         .MemoryResult1 = 0x00,
-        .MemoryResult2 = 0x00
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0x00
     };
 }
 

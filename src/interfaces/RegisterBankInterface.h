@@ -35,7 +35,7 @@ enum class Register
     IR = 8,
 
     // Special Registers
-    PIR = 9, // Not Defautl Register -> It holds the pre-opcode of the current instruction.
+    PIR = 9, // Not Default Register -> It holds the pre-opcode of the current instruction.
     R = 10,
     PC = 11,
     SP = 13,
@@ -50,7 +50,7 @@ enum class Register
     DE = 21,
     AF = 22,
 
-    NoRegiser
+    NoRegister
 };
 
 class RegisterBankInterface 
