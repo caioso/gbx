@@ -9,6 +9,24 @@ enum class TokenType
 {
     // Keywords
     KeywordPACK,
+    KeywordFUNC,
+    KeywordEND,
+    KeywordDECL,
+    KeywordBOOL,
+    KeywordCHAR,
+    KeywordBYTE,
+    KeywordWORD,
+    KeywordDWORD,
+    KeywordSTR,
+    KeywordAS,
+    KeywordCONST,
+    KeywordFREE,
+    KeywordIF,
+    KeywordTHEN,
+    KeywordELSE,
+    KeywordCALL,
+    KeywordRET,
+    KeywordREPT,
 
     // Operators
     OperatorASSIGNMENT,

@@ -276,3 +276,52 @@ TEST(TestLexer, TestUnknownSeparator)
     EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
     EXPECT_EQ(static_cast<size_t>(7), tokens[1].Column);
 }
+
+TEST(TestLexer, EvaluateAllKeywords)
+{
+    const string program = "PACK\n"
+                           "FUNC\n"
+                           "END\n"
+                           "DECL\n"
+                           "BOOL\n"
+                           "CHAR\n"
+                           "BYTE\n"
+                           "WORD\n"
+                           "DWORD\n"
+                           "STR\n"
+                           "AS\n"
+                           "CONST\n"
+                           "FREE\n"
+                           "IF\n"
+                           "THEN\n"
+                           "ELSE\n"
+                           "CALL\n"
+                           "RET\n"
+                           "REPT\n";
+
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    auto keywordsString = {Lexemes::KeywordPACK, Lexemes::KeywordFUNC, Lexemes::KeywordEND, Lexemes::KeywordDECL,
+                           Lexemes::KeywordBOOL, Lexemes::KeywordCHAR, Lexemes::KeywordBYTE, Lexemes::KeywordWORD,
+                           Lexemes::KeywordDWORD, Lexemes::KeywordSTR, Lexemes::KeywordAS, Lexemes::KeywordCONST,
+                           Lexemes::KeywordFREE, Lexemes::KeywordIF, Lexemes::KeywordTHEN, Lexemes::KeywordELSE,
+                           Lexemes::KeywordCALL, Lexemes::KeywordRET, Lexemes::KeywordREPT};
+
+    auto keywordsTokens = {TokenType::KeywordPACK, TokenType::KeywordFUNC, TokenType::KeywordEND, TokenType::KeywordDECL,
+                           TokenType::KeywordBOOL, TokenType::KeywordCHAR, TokenType::KeywordBYTE, TokenType::KeywordWORD, 
+                           TokenType::KeywordDWORD, TokenType::KeywordSTR, TokenType::KeywordAS, TokenType::KeywordCONST,
+                           TokenType::KeywordFREE, TokenType::KeywordIF, TokenType::KeywordTHEN, TokenType::KeywordELSE,
+                           TokenType::KeywordCALL, TokenType::KeywordRET, TokenType::KeywordREPT};
+
+    auto counter = 0;
+
+    for (auto i = static_cast<size_t>(0); i < keywordsString.size(); ++i)
+    {
+        EXPECT_STREQ((*(begin(keywordsString) + i)).c_str(), tokens[counter].Lexeme.c_str());
+        EXPECT_EQ(*(begin(keywordsTokens) + i), tokens[counter].Type);
+        EXPECT_EQ(static_cast<size_t>(counter + 1), tokens[counter].Line);
+        EXPECT_EQ(static_cast<size_t>(1), tokens[counter++].Column);
+    }
+}

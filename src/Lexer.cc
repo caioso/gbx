@@ -62,6 +62,42 @@ vector<Token> Lexer::EvaluateLexeme(string lexeme, size_t column)
         // Keywords        
         if (lexeme.first.compare(Lexemes::KeywordPACK) == 0)
             token.Type = TokenType::KeywordPACK;
+        else if (lexeme.first.compare(Lexemes::KeywordFUNC) == 0)
+            token.Type = TokenType::KeywordFUNC;
+        else if (lexeme.first.compare(Lexemes::KeywordEND) == 0)
+            token.Type = TokenType::KeywordEND;
+        else if (lexeme.first.compare(Lexemes::KeywordDECL) == 0)
+            token.Type = TokenType::KeywordDECL;
+        else if (lexeme.first.compare(Lexemes::KeywordBOOL) == 0)
+            token.Type = TokenType::KeywordBOOL;
+        else if (lexeme.first.compare(Lexemes::KeywordCHAR) == 0)
+            token.Type = TokenType::KeywordCHAR;
+        else if (lexeme.first.compare(Lexemes::KeywordBYTE) == 0)
+            token.Type = TokenType::KeywordBYTE;
+        else if (lexeme.first.compare(Lexemes::KeywordWORD) == 0)
+            token.Type = TokenType::KeywordWORD;
+        else if (lexeme.first.compare(Lexemes::KeywordDWORD) == 0)
+            token.Type = TokenType::KeywordDWORD;
+        else if (lexeme.first.compare(Lexemes::KeywordSTR) == 0)
+            token.Type = TokenType::KeywordSTR;
+        else if (lexeme.first.compare(Lexemes::KeywordAS) == 0)
+            token.Type = TokenType::KeywordAS;
+        else if (lexeme.first.compare(Lexemes::KeywordCONST) == 0)
+            token.Type = TokenType::KeywordCONST;
+        else if (lexeme.first.compare(Lexemes::KeywordFREE) == 0)
+            token.Type = TokenType::KeywordFREE;
+        else if (lexeme.first.compare(Lexemes::KeywordIF) == 0)
+            token.Type = TokenType::KeywordIF;
+        else if (lexeme.first.compare(Lexemes::KeywordTHEN) == 0)
+            token.Type = TokenType::KeywordTHEN;
+        else if (lexeme.first.compare(Lexemes::KeywordELSE) == 0)
+            token.Type = TokenType::KeywordELSE;
+        else if (lexeme.first.compare(Lexemes::KeywordCALL) == 0)
+            token.Type = TokenType::KeywordCALL;
+        else if (lexeme.first.compare(Lexemes::KeywordRET) == 0)
+            token.Type = TokenType::KeywordRET;
+        else if (lexeme.first.compare(Lexemes::KeywordREPT) == 0)
+            token.Type = TokenType::KeywordREPT;
         // Operators
         else if (lexeme.first.compare(Lexemes::OperatorASSIGNMENT) == 0)
             token.Type = TokenType::OperatorASSIGNMENT;
