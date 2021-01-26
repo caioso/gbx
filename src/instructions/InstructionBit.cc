@@ -21,14 +21,6 @@ void InstructionBit::Execute(shared_ptr<RegisterBankInterface> registerBank, Dec
     SetFlags(result, registerBank);
 }
 
-inline void InstructionBit::WriteResult(uint8_t result, shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
-{
-    if (decodedInstruction.AddressingMode == AddressingMode::Register)
-        registerBank->Write(decodedInstruction.DestinationRegister, result);
-    else
-        decodedInstruction.MemoryResult1 = result;
-}
-
 inline uint8_t InstructionBit::AcquireOperand(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.AddressingMode == AddressingMode::Register)

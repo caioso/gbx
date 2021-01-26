@@ -24,6 +24,12 @@ shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithPreOpcode(u
         if (OpcodePatternMatcher::Match(opcode, // 01XX XXXX
             OpcodePatternMatcher::Pattern(b::_0, b::_1, b::_X, b::_X, b::_X, b::_X, b::_X, b::_X)))
             return make_shared<InstructionBit>();
+        else if (OpcodePatternMatcher::Match(opcode, // 10XX XXXX
+                OpcodePatternMatcher::Pattern(b::_1, b::_0, b::_X, b::_X, b::_X, b::_X, b::_X, b::_X)))
+                return make_shared<InstructionRes>();
+        else if (OpcodePatternMatcher::Match(opcode, // 11XX XXXX
+                OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_X, b::_X, b::_X, b::_X, b::_X, b::_X)))
+                return make_shared<InstructionSet>();
         else if (OpcodePatternMatcher::Match(opcode, // 0000 0XXX
                 OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_0, b::_0, b::_X, b::_X, b::_X)))
                 return make_shared<InstructionRlc>();

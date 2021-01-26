@@ -19,7 +19,6 @@ private:
     inline void DecodeBitRegisterIndirectMode(uint8_t, interfaces::DecodedInstruction&);
     inline void SetFlags(uint8_t, std::shared_ptr<interfaces::RegisterBankInterface>);
     inline uint8_t AcquireOperand(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
-    inline void WriteResult(uint8_t, std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
 };
 
 }

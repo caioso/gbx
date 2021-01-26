@@ -32,7 +32,9 @@ enum class OpcodeType
     sra,
     srl,
     swap,
-    bit
+    bit,
+    set,
+    res
 };
 
 const uint8_t MemoryOperand = 0x06;

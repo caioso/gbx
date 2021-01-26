@@ -38,18 +38,20 @@ TEST(TestBit, DecodeBitRegisterMode)
     alu.Initialize(registerBank);
     alu.InitializeRegisters();
 
-    auto bitCounter = static_cast<uint8_t>(0);
-    for (auto operand : operandList)
+    for (uint8_t bitCounter = 0; bitCounter < 8; bitCounter++)
     {
-        auto preOpcode = 0xCB;
-        auto opcode = 0x40 | ((bitCounter++) << 0x03) | RegisterBankInterface::ToInstructionSource(operand);
-        alu.DecodeInstruction(opcode, preOpcode);
+        for (auto operand : operandList)
+        {
+            auto preOpcode = 0xCB;
+            auto opcode = 0x40 | ((bitCounter) << 0x03) | RegisterBankInterface::ToInstructionSource(operand);
+            alu.DecodeInstruction(opcode, preOpcode);
 
-        EXPECT_EQ(OpcodeType::bit, alu.GetInstructionData().Opcode);
-        EXPECT_EQ(AddressingMode::Register, alu.GetInstructionData().AddressingMode);
-        EXPECT_EQ(bitCounter - 1, alu.GetInstructionData().InstructionExtraOperand);
-        EXPECT_EQ(operand, alu.GetInstructionData().SourceRegister);
-        EXPECT_EQ(operand, alu.GetInstructionData().DestinationRegister);
+            EXPECT_EQ(OpcodeType::bit, alu.GetInstructionData().Opcode);
+            EXPECT_EQ(AddressingMode::Register, alu.GetInstructionData().AddressingMode);
+            EXPECT_EQ(bitCounter, alu.GetInstructionData().InstructionExtraOperand);
+            EXPECT_EQ(operand, alu.GetInstructionData().SourceRegister);
+            EXPECT_EQ(operand, alu.GetInstructionData().DestinationRegister);
+        }
     }
 }
 
