@@ -143,12 +143,11 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### `IS`
 #### `WHILE`
 #### `ALIAS`
-#### `UNALIAS`
 #### `TRY`
 #### `CATCH`
 #### `ABORT`
 #### `TEST`
-
+#### `MACRO`
 ### Operators
 #### Operator Precedence
 #### Arithmetic, Logic and Bit-wise Operators
@@ -156,7 +155,6 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### `-` Operator
 #### `/` Operator
 #### `*` Operator
-#### `+` Operator
 #### `&` Operator
 #### `|` Operator
 #### `~` Operator
@@ -176,7 +174,6 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### Special Operators
 #### `@` Operator
 #### `:` Operator
-#### `""` String constant Marker
 ### Instructions
 
 ### Pseudo Instructions
@@ -195,6 +192,7 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 ##### `0o` Numric Prefix
 #### ASCII Encoded Bytes
 ##### `''` Character Marker
+#### `""` String Marker
 #### Numeric Modifiers
 ##### `HIGH`, `H`
 ##### `LOW`, `L`
