@@ -25,15 +25,44 @@ public:
     inline const static std::string KeywordIF = "IF";
     inline const static std::string KeywordTHEN = "THEN";
     inline const static std::string KeywordELSE = "ELSE";
-    inline const static std::string KeywordCALL = "CALL";
-    inline const static std::string KeywordRET = "RET";
+    inline const static std::string KeywordWITH = "WITH";
     inline const static std::string KeywordREPT = "REPT";
+    inline const static std::string KeywordTIMES = "TIMES";
+    inline const static std::string KeywordNEXT = "NEXT";
+    inline const static std::string KeywordEXIT = "EXIT";
+    inline const static std::string KeywordWHEN = "WHEN";
+    inline const static std::string KeywordIS = "IS";
+    inline const static std::string KeywordWHILE = "WHILE";
+    inline const static std::string KeywordALIAS = "ALIAS";
+    inline const static std::string KeywordTRY = "TRY";
+    inline const static std::string KeywordCATCH = "CATCH";
+    inline const static std::string KeywordABORT = "ABORT";
+    inline const static std::string KeywordTEST = "TEST";
+    inline const static std::string KeywordMACRO = "MACRO";
 
     // Operators
     inline const static std::string OperatorASSIGNMENT = "=";
     inline const static std::string OperatorEQUAL = "==";
     inline const static std::string OperatorPLUS = "+";
     inline const static std::string OperatorTRHEEWAYCOMPARISON = "<=>";
+    inline const static std::string OperatorMINUS = "-";
+    inline const static std::string OperatorMULTIPLICATION = "*";
+    inline const static std::string OperatorBITWISEAND = "&";
+    inline const static std::string OperatorBITWISEOR = "|";
+    inline const static std::string OperatorBITWISENOT = "~";
+    inline const static std::string OperatorBITWISEXOR = "^";
+    inline const static std::string OperatorLEFTSHIFT = "<<";
+    inline const static std::string OperatorRIGHTSHIFT = ">>";
+    inline const static std::string OperatorDIFFERENT = "!=";
+    inline const static std::string OperatorLOGICAND = "&&";
+    inline const static std::string OperatorLOGICOR = "||";
+    inline const static std::string OperatorLESSTHAN = "<";
+    inline const static std::string OperatorGREATERTHAN = ">";
+    inline const static std::string OperatorLESSTHANOREQUALTO = "<=";
+    inline const static std::string OperatorGREATERTHANOREQUALTO = ">=";
+    inline const static std::string OperatorLOGICNOT = "!";
+    inline const static std::string OperatorAT = "@";
+    inline const static std::string OperatorSEMICOLON = ":";
 
     // Separators
     inline const static std::string SeparatorCOMMA = ",";

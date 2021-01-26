@@ -295,9 +295,20 @@ TEST(TestLexer, EvaluateAllKeywords)
                            "IF\n"
                            "THEN\n"
                            "ELSE\n"
-                           "CALL\n"
-                           "RET\n"
-                           "REPT\n";
+                           "WITH\n"
+                           "REPT\n"
+                           "TIMES\n"
+                           "NEXT\n"
+                           "EXIT\n"
+                           "WHEN\n"
+                           "IS\n"
+                           "WHILE\n"
+                           "ALIAS\n"
+                           "TRY\n"
+                           "CATCH\n"
+                           "ABORT\n"
+                           "TEST\n"
+                           "MACRO\n";
 
     auto lexer = make_shared<Lexer>();
     lexer->Tokenize(program);
@@ -307,20 +318,78 @@ TEST(TestLexer, EvaluateAllKeywords)
                            Lexemes::KeywordBOOL, Lexemes::KeywordCHAR, Lexemes::KeywordBYTE, Lexemes::KeywordWORD,
                            Lexemes::KeywordDWORD, Lexemes::KeywordSTR, Lexemes::KeywordAS, Lexemes::KeywordCONST,
                            Lexemes::KeywordFREE, Lexemes::KeywordIF, Lexemes::KeywordTHEN, Lexemes::KeywordELSE,
-                           Lexemes::KeywordCALL, Lexemes::KeywordRET, Lexemes::KeywordREPT};
+                           Lexemes::KeywordWITH, Lexemes::KeywordREPT, Lexemes::KeywordTIMES, Lexemes::KeywordNEXT,
+                           Lexemes::KeywordEXIT, Lexemes::KeywordWHEN, Lexemes::KeywordIS, Lexemes::KeywordWHILE, 
+                           Lexemes::KeywordALIAS, Lexemes::KeywordTRY, Lexemes::KeywordCATCH, Lexemes::KeywordABORT, 
+                           Lexemes::KeywordTEST, Lexemes::KeywordMACRO};
 
     auto keywordsTokens = {TokenType::KeywordPACK, TokenType::KeywordFUNC, TokenType::KeywordEND, TokenType::KeywordDECL,
                            TokenType::KeywordBOOL, TokenType::KeywordCHAR, TokenType::KeywordBYTE, TokenType::KeywordWORD, 
                            TokenType::KeywordDWORD, TokenType::KeywordSTR, TokenType::KeywordAS, TokenType::KeywordCONST,
                            TokenType::KeywordFREE, TokenType::KeywordIF, TokenType::KeywordTHEN, TokenType::KeywordELSE,
-                           TokenType::KeywordCALL, TokenType::KeywordRET, TokenType::KeywordREPT};
+                           TokenType::KeywordWITH, TokenType::KeywordREPT, TokenType::KeywordTIMES, TokenType::KeywordNEXT,
+                           TokenType::KeywordEXIT, TokenType::KeywordWHEN, TokenType::KeywordIS, TokenType::KeywordWHILE,
+                           TokenType::KeywordALIAS, TokenType::KeywordTRY, TokenType::KeywordCATCH, TokenType::KeywordABORT,
+                           TokenType::KeywordTEST, TokenType::KeywordMACRO};
 
     auto counter = 0;
-
     for (auto i = static_cast<size_t>(0); i < keywordsString.size(); ++i)
     {
         EXPECT_STREQ((*(begin(keywordsString) + i)).c_str(), tokens[counter].Lexeme.c_str());
         EXPECT_EQ(*(begin(keywordsTokens) + i), tokens[counter].Type);
+        EXPECT_EQ(static_cast<size_t>(counter + 1), tokens[counter].Line);
+        EXPECT_EQ(static_cast<size_t>(1), tokens[counter++].Column);
+    }
+}
+
+TEST(TestLexer, EvaluateAllOperators)
+{
+    const string program = "=\n"
+                           "==\n"
+                           "+\n"
+                           "<=>\n"
+                           "-\n"
+                           "*\n"
+                           "&\n"
+                           "|\n"
+                           "~\n"
+                           "^\n"
+                           "<<\n"
+                           ">>\n"
+                           "!=\n"
+                           "&&\n"
+                           "||\n"
+                           "<\n"
+                           ">\n"
+                           "<=\n"
+                           ">=\n"
+                           "!\n"
+                           "@\n"
+                           ":\n";
+
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    auto operatorString = {Lexemes::OperatorASSIGNMENT, Lexemes::OperatorEQUAL, Lexemes::OperatorPLUS, Lexemes::OperatorTRHEEWAYCOMPARISON,
+                           Lexemes::OperatorMINUS, Lexemes::OperatorMULTIPLICATION, Lexemes::OperatorBITWISEAND, Lexemes::OperatorBITWISEOR,
+                           Lexemes::OperatorBITWISENOT, Lexemes::OperatorBITWISEXOR, Lexemes::OperatorLEFTSHIFT, Lexemes::OperatorRIGHTSHIFT,
+                           Lexemes::OperatorDIFFERENT, Lexemes::OperatorLOGICAND, Lexemes::OperatorLOGICOR, Lexemes::OperatorLESSTHAN,
+                           Lexemes::OperatorGREATERTHAN, Lexemes::OperatorLESSTHANOREQUALTO, Lexemes::OperatorGREATERTHANOREQUALTO,
+                           Lexemes::OperatorLOGICNOT, Lexemes::OperatorAT, Lexemes::OperatorSEMICOLON};
+    
+    auto operatorTokens = {TokenType::OperatorASSIGNMENT, TokenType::OperatorEQUAL, TokenType::OperatorPLUS, TokenType::OperatorTHREEWAYCOMPARISON,
+                           TokenType::OperatorMINUS, TokenType::OperatorMULTIPLICATION, TokenType::OperatorBITWISEAND, TokenType::OperatorBITWISEOR,
+                           TokenType::OperatorBITWISENOT, TokenType::OperatorBITWISEXOR, TokenType::OperatorLEFTSHIFT, TokenType::OperatorRIGHTSHIFT, 
+                           TokenType::OperatorDIFFERENT, TokenType::OperatorLOGICAND, TokenType::OperatorLOGICOR, TokenType::OperatorLESSTHAN,
+                           TokenType::OperatorGREATERTHAN, TokenType::OperatorLESSTHANOREQUALTO, TokenType::OperatorGREATERTHANOREQUALTO,
+                           TokenType::OperatorLOGICNOT, TokenType::OperatorAT, TokenType::OperatorSEMICOLON};
+
+    auto counter = 0;
+    for (auto i = static_cast<size_t>(0); i < operatorString.size(); ++i)
+    {
+        EXPECT_STREQ((*(begin(operatorString) + i)).c_str(), tokens[counter].Lexeme.c_str());
+        EXPECT_EQ(*(begin(operatorTokens) + i), tokens[counter].Type);
         EXPECT_EQ(static_cast<size_t>(counter + 1), tokens[counter].Line);
         EXPECT_EQ(static_cast<size_t>(1), tokens[counter++].Column);
     }

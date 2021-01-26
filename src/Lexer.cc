@@ -92,12 +92,34 @@ vector<Token> Lexer::EvaluateLexeme(string lexeme, size_t column)
             token.Type = TokenType::KeywordTHEN;
         else if (lexeme.first.compare(Lexemes::KeywordELSE) == 0)
             token.Type = TokenType::KeywordELSE;
-        else if (lexeme.first.compare(Lexemes::KeywordCALL) == 0)
-            token.Type = TokenType::KeywordCALL;
-        else if (lexeme.first.compare(Lexemes::KeywordRET) == 0)
-            token.Type = TokenType::KeywordRET;
+        else if (lexeme.first.compare(Lexemes::KeywordWITH) == 0)
+            token.Type = TokenType::KeywordWITH;
         else if (lexeme.first.compare(Lexemes::KeywordREPT) == 0)
             token.Type = TokenType::KeywordREPT;
+        else if (lexeme.first.compare(Lexemes::KeywordTIMES) == 0)
+            token.Type = TokenType::KeywordTIMES;
+        else if (lexeme.first.compare(Lexemes::KeywordNEXT) == 0)
+            token.Type = TokenType::KeywordNEXT;
+        else if (lexeme.first.compare(Lexemes::KeywordEXIT) == 0)
+            token.Type = TokenType::KeywordEXIT;
+        else if (lexeme.first.compare(Lexemes::KeywordWHEN) == 0)
+            token.Type = TokenType::KeywordWHEN;
+        else if (lexeme.first.compare(Lexemes::KeywordIS) == 0)
+            token.Type = TokenType::KeywordIS;
+        else if (lexeme.first.compare(Lexemes::KeywordWHILE) == 0)
+            token.Type = TokenType::KeywordWHILE;
+        else if (lexeme.first.compare(Lexemes::KeywordALIAS) == 0)
+            token.Type = TokenType::KeywordALIAS;
+        else if (lexeme.first.compare(Lexemes::KeywordTRY) == 0)
+            token.Type = TokenType::KeywordTRY;
+        else if (lexeme.first.compare(Lexemes::KeywordCATCH) == 0)
+            token.Type = TokenType::KeywordCATCH;
+        else if (lexeme.first.compare(Lexemes::KeywordABORT) == 0)
+            token.Type = TokenType::KeywordABORT;
+        else if (lexeme.first.compare(Lexemes::KeywordTEST) == 0)
+            token.Type = TokenType::KeywordTEST;
+        else if (lexeme.first.compare(Lexemes::KeywordMACRO) == 0)
+            token.Type = TokenType::KeywordMACRO;
         // Operators
         else if (lexeme.first.compare(Lexemes::OperatorASSIGNMENT) == 0)
             token.Type = TokenType::OperatorASSIGNMENT;
@@ -107,6 +129,42 @@ vector<Token> Lexer::EvaluateLexeme(string lexeme, size_t column)
             token.Type = TokenType::OperatorPLUS;
         else if (lexeme.first.compare(Lexemes::OperatorTRHEEWAYCOMPARISON) == 0)
             token.Type = TokenType::OperatorTHREEWAYCOMPARISON;
+        else if (lexeme.first.compare(Lexemes::OperatorMINUS) == 0)
+            token.Type = TokenType::OperatorMINUS;
+        else if (lexeme.first.compare(Lexemes::OperatorMULTIPLICATION) == 0)
+            token.Type = TokenType::OperatorMULTIPLICATION;
+        else if (lexeme.first.compare(Lexemes::OperatorBITWISEAND) == 0)
+            token.Type = TokenType::OperatorBITWISEAND;
+        else if (lexeme.first.compare(Lexemes::OperatorBITWISEOR) == 0)
+            token.Type = TokenType::OperatorBITWISEOR;
+        else if (lexeme.first.compare(Lexemes::OperatorBITWISENOT) == 0)
+            token.Type = TokenType::OperatorBITWISENOT;
+        else if (lexeme.first.compare(Lexemes::OperatorBITWISEXOR) == 0)
+            token.Type = TokenType::OperatorBITWISEXOR;
+        else if (lexeme.first.compare(Lexemes::OperatorLEFTSHIFT) == 0)
+            token.Type = TokenType::OperatorLEFTSHIFT;
+        else if (lexeme.first.compare(Lexemes::OperatorRIGHTSHIFT) == 0)
+            token.Type = TokenType::OperatorRIGHTSHIFT;
+        else if (lexeme.first.compare(Lexemes::OperatorDIFFERENT) == 0)
+            token.Type = TokenType::OperatorDIFFERENT;
+        else if (lexeme.first.compare(Lexemes::OperatorLOGICAND) == 0)
+            token.Type = TokenType::OperatorLOGICAND;
+        else if (lexeme.first.compare(Lexemes::OperatorLOGICOR) == 0)
+            token.Type = TokenType::OperatorLOGICOR;
+        else if (lexeme.first.compare(Lexemes::OperatorLESSTHAN) == 0)
+            token.Type = TokenType::OperatorLESSTHAN;
+        else if (lexeme.first.compare(Lexemes::OperatorGREATERTHAN) == 0)
+            token.Type = TokenType::OperatorGREATERTHAN;
+        else if (lexeme.first.compare(Lexemes::OperatorLESSTHANOREQUALTO) == 0)
+            token.Type = TokenType::OperatorLESSTHANOREQUALTO;
+        else if (lexeme.first.compare(Lexemes::OperatorGREATERTHANOREQUALTO) == 0)
+            token.Type = TokenType::OperatorGREATERTHANOREQUALTO;
+        else if (lexeme.first.compare(Lexemes::OperatorLOGICNOT) == 0)
+            token.Type = TokenType::OperatorLOGICNOT;
+        else if (lexeme.first.compare(Lexemes::OperatorAT) == 0)
+            token.Type = TokenType::OperatorAT;
+        else if (lexeme.first.compare(Lexemes::OperatorSEMICOLON) == 0)
+            token.Type = TokenType::OperatorSEMICOLON;
         // Separators
         else if (lexeme.first.compare(Lexemes::SeparatorCOMMA) == 0)
             token.Type = TokenType::SeparatorCOMMA;
@@ -214,7 +272,10 @@ inline string Lexer::ExtractSeparator(string candidate, size_t column)
 
 bool Lexer::IsPossibleOperator(string candidate, size_t position)
 {
-    if (candidate[position] == '+' || candidate[position] == '=' || candidate[position] == '<' || candidate[position] == '>')
+    if (candidate[position] == '+' || candidate[position] == '=' || candidate[position] == '<' || candidate[position] == '>' ||
+        candidate[position] == '/' || candidate[position] == '*' || candidate[position] == '&' || candidate[position] == '|' ||
+        candidate[position] == '!' || candidate[position] == '~' || candidate[position] == '^' || candidate[position] == '-' ||
+        candidate[position] == '@' || candidate[position] == ':')
         return true;
 
     return false;
