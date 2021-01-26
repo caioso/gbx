@@ -123,23 +123,29 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### `BYTE`
 #### `WORD`
 #### `DWORD`
-#### `STRING`
+#### `STR`
 #### `AS`
 ##### `AS` for Variable Instantiation
 ##### `AS` for Type Cast
 #### `CONST`
 #### `FREE`
-#### `IF`, `THEN`, `ELSE`
-#### `CALL`
-#### `REPEAT`
+#### `IF` 
+#### `THEN` 
+#### `ELSE`
+#### `WITH`
+##### `WITH` for Function calls
+##### `WITH` for Function return
+#### `REPT`
 #### `TIMES`
+#### `NEXT`
+#### `EXIT`
 #### `WHEN`
 #### `IS`
 #### `WHILE`
 #### `ALIAS`
 #### `UNALIAS`
 #### `TRY`
-#### `SOLVE`
+#### `CATCH`
 #### `ABORT`
 #### `TEST`
 
@@ -174,9 +180,6 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 ### Instructions
 
 ### Pseudo Instructions
-#### `STORE`
-#### `LOAD`
-#### `EXCH`
 #### `MOVE`
 ### Identifiers
 #### Hierarchy
