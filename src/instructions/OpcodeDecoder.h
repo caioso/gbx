@@ -10,6 +10,7 @@
 #include "InstructionCp.h"
 #include "InstructionDec.h"
 #include "InstructionInc.h"
+#include "InstructionJp.h"
 #include "InstructionLd.h"
 #include "InstructionLdhl.h"
 #include "InstructionOr.h"

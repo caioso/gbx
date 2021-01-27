@@ -2648,3 +2648,74 @@ TEST(TestControlUnit, TestResRegisterIndirect)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::N));
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::Z));
 }
+
+TEST(TestControlUnit, TestJpUnconditional)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    auto opcode = 0xC3;
+    // Multiple jumps unconditional will be performed in this test
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    // JP 0xFF00
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(opcode)));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x00)));
+    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xFF)));
+    // JP 0xEE12
+    EXPECT_CALL((*mockPointer), Read(0xFF00, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(opcode)));
+    EXPECT_CALL((*mockPointer), Read(0xFF01, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x12)));
+    EXPECT_CALL((*mockPointer), Read(0xFF02, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xEE)));
+    // JP 0x8732
+    EXPECT_CALL((*mockPointer), Read(0xEE12, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(opcode)));
+    EXPECT_CALL((*mockPointer), Read(0xEE13, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x32)));
+    EXPECT_CALL((*mockPointer), Read(0xEE14, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x87)));
+    // JP 0x0E00
+    EXPECT_CALL((*mockPointer), Read(0x8732, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(opcode)));
+    EXPECT_CALL((*mockPointer), Read(0x8733, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x00)));
+    EXPECT_CALL((*mockPointer), Read(0x8734, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x0E)));
+
+    controlUnit->RunCycle();
+    controlUnit->RunCycle();
+    controlUnit->RunCycle();
+    controlUnit->RunCycle();
+
+    EXPECT_EQ(0x0E00, registers->ReadPair(Register::PC));
+}
+
+TEST(TestControlUnit, TestJpConditional)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    // LD A, 0x01  -> 0x7E
+    //             -> 0x01
+    // DEC A       -> 0x3D
+    // JP.Z 0x8000 -> 0xCA
+    //             -> 0x00
+    //             -> 0x80
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x3E)));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x01)));
+    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x3D)));
+    EXPECT_CALL((*mockPointer), Read(0x0003, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xCA)));
+    EXPECT_CALL((*mockPointer), Read(0x0004, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x00)));
+    EXPECT_CALL((*mockPointer), Read(0x0005, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x80)));
+
+    controlUnit->RunCycle();
+    controlUnit->RunCycle();
+    controlUnit->RunCycle();
+
+    //EXPECT_EQ(0x8000, registers->ReadPair(Register::PC));
+}
