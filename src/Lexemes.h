@@ -39,6 +39,9 @@ public:
     inline const static std::string KeywordABORT = "ABORT";
     inline const static std::string KeywordTEST = "TEST";
     inline const static std::string KeywordMACRO = "MACRO";
+    inline const static std::string KeywordMOVE = "MOVE";
+    inline const static std::string KeywordHIGH = "HIGH";
+    inline const static std::string KeywordLOW = "LOW";
 
     // Operators
     inline const static std::string OperatorASSIGNMENT = "=";

@@ -308,7 +308,10 @@ TEST(TestLexer, EvaluateAllKeywords)
                            "CATCH\n"
                            "ABORT\n"
                            "TEST\n"
-                           "MACRO\n";
+                           "MACRO\n"
+                           "MOVE\n"
+                           "HIGH\n"
+                           "LOW\n";
 
     auto lexer = make_shared<Lexer>();
     lexer->Tokenize(program);
@@ -321,7 +324,8 @@ TEST(TestLexer, EvaluateAllKeywords)
                            Lexemes::KeywordWITH, Lexemes::KeywordREPT, Lexemes::KeywordTIMES, Lexemes::KeywordNEXT,
                            Lexemes::KeywordEXIT, Lexemes::KeywordWHEN, Lexemes::KeywordIS, Lexemes::KeywordWHILE, 
                            Lexemes::KeywordALIAS, Lexemes::KeywordTRY, Lexemes::KeywordCATCH, Lexemes::KeywordABORT, 
-                           Lexemes::KeywordTEST, Lexemes::KeywordMACRO};
+                           Lexemes::KeywordTEST, Lexemes::KeywordMACRO, Lexemes::KeywordMOVE, Lexemes::KeywordHIGH,
+                           Lexemes::KeywordLOW};
 
     auto keywordsTokens = {TokenType::KeywordPACK, TokenType::KeywordFUNC, TokenType::KeywordEND, TokenType::KeywordDECL,
                            TokenType::KeywordBOOL, TokenType::KeywordCHAR, TokenType::KeywordBYTE, TokenType::KeywordWORD, 
@@ -330,7 +334,8 @@ TEST(TestLexer, EvaluateAllKeywords)
                            TokenType::KeywordWITH, TokenType::KeywordREPT, TokenType::KeywordTIMES, TokenType::KeywordNEXT,
                            TokenType::KeywordEXIT, TokenType::KeywordWHEN, TokenType::KeywordIS, TokenType::KeywordWHILE,
                            TokenType::KeywordALIAS, TokenType::KeywordTRY, TokenType::KeywordCATCH, TokenType::KeywordABORT,
-                           TokenType::KeywordTEST, TokenType::KeywordMACRO};
+                           TokenType::KeywordTEST, TokenType::KeywordMACRO, TokenType::KeywordMOVE, TokenType::KeywordHIGH,
+                           TokenType::KeywordLOW};
 
     auto counter = 0;
     for (auto i = static_cast<size_t>(0); i < keywordsString.size(); ++i)

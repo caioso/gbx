@@ -120,6 +120,12 @@ vector<Token> Lexer::EvaluateLexeme(string lexeme, size_t column)
             token.Type = TokenType::KeywordTEST;
         else if (lexeme.first.compare(Lexemes::KeywordMACRO) == 0)
             token.Type = TokenType::KeywordMACRO;
+        else if (lexeme.first.compare(Lexemes::KeywordMOVE) == 0)
+            token.Type = TokenType::KeywordMOVE;
+        else if (lexeme.first.compare(Lexemes::KeywordHIGH) == 0)
+            token.Type = TokenType::KeywordHIGH;
+        else if (lexeme.first.compare(Lexemes::KeywordLOW) == 0)
+            token.Type = TokenType::KeywordLOW;
         // Operators
         else if (lexeme.first.compare(Lexemes::OperatorASSIGNMENT) == 0)
             token.Type = TokenType::OperatorASSIGNMENT;

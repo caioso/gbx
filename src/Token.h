@@ -38,6 +38,9 @@ enum class TokenType
     KeywordABORT,
     KeywordTEST,
     KeywordMACRO,
+    KeywordMOVE,
+    KeywordHIGH,
+    KeywordLOW,
 
     // Operators
     OperatorASSIGNMENT,
