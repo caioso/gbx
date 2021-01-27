@@ -194,9 +194,8 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 ##### `''` Character Marker
 #### `""` String Marker
 #### Numeric Modifiers
-##### `HIGH`, `H`
-##### `LOW`, `L`
-##### `BIT`, `B`
+##### `HIGH`
+##### `LOW`
 #### Boolean Constants `TRUE` and `FALSE`
 
 ### Directives
