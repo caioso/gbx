@@ -46,9 +46,9 @@ void Lexer::ExtractTokens(string_view input)
     }
 }
 
-vector<Token> Lexer::EvaluateLexeme(string lexeme, size_t column)
+vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column)
 {
-    auto subLexemes = FindSubLexemes(lexeme, column);
+    auto subLexemes = FindSubLexemes(originalLexeme, column);
     vector<Token> tokens;
 
     for (auto lexeme : subLexemes)
@@ -59,8 +59,12 @@ vector<Token> Lexer::EvaluateLexeme(string lexeme, size_t column)
             .Column = lexeme.second
         };
 
+        // Numeric Literals
+        if (IsNumericLiteral(lexeme.first))
+            token.Type = IdentifyNumericLiteral(lexeme.first);
+
         // Keywords        
-        if (lexeme.first.compare(Lexemes::KeywordPACK) == 0)
+        else if (lexeme.first.compare(Lexemes::KeywordPACK) == 0)
             token.Type = TokenType::KeywordPACK;
         else if (lexeme.first.compare(Lexemes::KeywordFUNC) == 0)
             token.Type = TokenType::KeywordFUNC;
@@ -126,6 +130,8 @@ vector<Token> Lexer::EvaluateLexeme(string lexeme, size_t column)
             token.Type = TokenType::KeywordHIGH;
         else if (lexeme.first.compare(Lexemes::KeywordLOW) == 0)
             token.Type = TokenType::KeywordLOW;
+        else if (lexeme.first.compare(Lexemes::KeywordBIT) == 0)
+            token.Type = TokenType::KeywordBIT;
         // Operators
         else if (lexeme.first.compare(Lexemes::OperatorASSIGNMENT) == 0)
             token.Type = TokenType::OperatorASSIGNMENT;
@@ -171,6 +177,8 @@ vector<Token> Lexer::EvaluateLexeme(string lexeme, size_t column)
             token.Type = TokenType::OperatorAT;
         else if (lexeme.first.compare(Lexemes::OperatorSEMICOLON) == 0)
             token.Type = TokenType::OperatorSEMICOLON;
+        else if (lexeme.first.compare(Lexemes::OperatorDOT) == 0)
+            token.Type = TokenType::OperatorDOT;
         // Separators
         else if (lexeme.first.compare(Lexemes::SeparatorCOMMA) == 0)
             token.Type = TokenType::SeparatorCOMMA;
@@ -193,6 +201,119 @@ vector<Token> Lexer::EvaluateLexeme(string lexeme, size_t column)
     }
 
     return tokens;
+}
+
+inline bool Lexer::IsNumericLiteral(string_view lexeme)
+{
+    if (!IsInitialDigit(lexeme, 0))
+        return false;
+
+    for (auto i = static_cast<size_t>(1); i < lexeme.size(); i++)
+        if (!IsDigit(lexeme, i))
+        {
+            stringstream ss;
+            ss << "Invalid character '" << lexeme[i] << "' near numeric literal '" << lexeme <<"'";
+            throw LexerException(ss.str());
+        }
+
+    return true;
+}
+
+inline TokenType Lexer::IdentifyNumericLiteral(string_view candidate)
+{
+    if(candidate[0] == '0')
+    {
+        auto prefix = candidate.substr(0, 2);
+        
+        if (prefix.compare(Lexemes::LiteralNumericHEXADECIMALBASE) == 0)
+            // Invalid hexadecimal values will be caught when evaluating the token's charactets
+            return TokenType::LiteralNumericHEXADECIMAL;
+        else if (prefix.compare(Lexemes::LiteralNumericDECIMALBASE) == 0)
+        {
+            ValidateDecimalLiteral(candidate.substr(2, candidate.size() - 2));
+            return TokenType::LiteralNumericDECIMAL;
+        }
+        else if (prefix.compare(Lexemes::LiteralNumericOCTALBASE) == 0)
+        {
+            ValidateOctalLiteral(candidate.substr(2, candidate.size() - 2));
+            return TokenType::LiteralNumericOCTAL;
+        }
+        else if (prefix.compare(Lexemes::LiteralNumericBINARYBASE) == 0)
+        {
+            ValidateBinaryLiteral(candidate.substr(2, candidate.size() - 2));
+            return TokenType::LiteralNumericBINARY;
+        }
+        else
+        {
+            ValidateDecimalLiteral(candidate);
+            return TokenType::LiteralNumericDECIMAL;
+        }
+    }
+    else
+    {
+        ValidateDecimalLiteral(candidate);
+        return TokenType::LiteralNumericDECIMAL;
+    }
+}
+
+inline void Lexer::ValidateDecimalLiteral(string_view candidate)
+{
+    for (auto character : candidate)
+        if (character != '1' && character != '2' && character != '3' && character != '4' &&
+            character != '5' && character != '6' && character != '7' && character != '8' &&
+            character != '9' && character != '0')
+        {
+            stringstream ss;
+            ss << "Invalid decimal numeric literal '" << candidate << "'";
+            throw LexerException(ss.str());
+        }
+}
+
+inline void Lexer::ValidateOctalLiteral(string_view candidate)
+{
+    for (auto character : candidate)
+        if (character != '1' && character != '2' && character != '3' && character != '4' &&
+            character != '5' && character != '6' && character != '7' && character != '0')
+        {
+            stringstream ss;
+            ss << "Invalid octal numeric literal '" << candidate << "'";
+            throw LexerException(ss.str());
+        }
+}
+
+inline void Lexer::ValidateBinaryLiteral(string_view candidate)
+{
+    for (auto character : candidate)
+        if (character != '1' && character != '0')
+        {
+            stringstream ss;
+            ss << "Invalid binary numeric literal '" << candidate << "'";
+            throw LexerException(ss.str());
+        }
+}
+
+inline bool Lexer::IsDigit(string_view candidate, size_t position)
+{
+    if (candidate[position] == '1' || candidate[position] == '2' || candidate[position] == '3' || candidate[position] == '4' ||
+        candidate[position] == '5' || candidate[position] == '6' || candidate[position] == '7' || candidate[position] == '8' ||
+        candidate[position] == '9' || candidate[position] == '0' || candidate[position] == 'A' || candidate[position] == 'B' ||
+        candidate[position] == 'C' || candidate[position] == 'D' || candidate[position] == 'E' || candidate[position] == 'F' ||
+        candidate[position] == 'a' || candidate[position] == 'b' || candidate[position] == 'c' || candidate[position] == 'd' || 
+        candidate[position] == 'e' || candidate[position] == 'f' || candidate[position] == 'X' || candidate[position] == 'x' ||
+        candidate[position] == 'o' || candidate[position] == 'O')
+        return true;
+
+    return false;
+}
+
+inline bool Lexer::IsInitialDigit(string_view candidate, size_t position)
+{
+    if (candidate[position] == '1' || candidate[position] == '2' || candidate[position] == '3' || candidate[position] == '4' ||
+        candidate[position] == '5' || candidate[position] == '6' || candidate[position] == '7' || candidate[position] == '8' ||
+        candidate[position] == '9' || candidate[position] == '0')
+        return true;
+
+    return false;
 }
 
 vector<pair<string, size_t> > Lexer::FindSubLexemes(string lexeme, size_t column)
@@ -229,7 +350,7 @@ inline void Lexer::SaveSubLexeme(string token, size_t column, std::vector<std::p
     columnCounter += token.size();
 }
 
-inline bool Lexer::IsSeparatorOrOperator(string lexeme, size_t position)
+inline bool Lexer::IsSeparatorOrOperator(string_view lexeme, size_t position)
 {
     return IsPossibleOperator(lexeme, position) || IsPossibleSeparator(lexeme, position);
 }
@@ -276,18 +397,18 @@ inline string Lexer::ExtractSeparator(string candidate, size_t column)
     return accumulator;
 }
 
-bool Lexer::IsPossibleOperator(string candidate, size_t position)
+bool Lexer::IsPossibleOperator(string_view candidate, size_t position)
 {
     if (candidate[position] == '+' || candidate[position] == '=' || candidate[position] == '<' || candidate[position] == '>' ||
         candidate[position] == '/' || candidate[position] == '*' || candidate[position] == '&' || candidate[position] == '|' ||
         candidate[position] == '!' || candidate[position] == '~' || candidate[position] == '^' || candidate[position] == '-' ||
-        candidate[position] == '@' || candidate[position] == ':')
+        candidate[position] == '@' || candidate[position] == ':' || candidate[position] == '.')
         return true;
 
     return false;
 }
 
-bool Lexer::IsPossibleSeparator(string candidate, size_t position)
+bool Lexer::IsPossibleSeparator(string_view candidate, size_t position)
 {
     if (candidate[position] == '{' || candidate[position] == '}' || candidate[position] == '(' || candidate[position] == ')' ||
         candidate[position] == '[' || candidate[position] == ']' || candidate[position] == ':' || candidate[position] == '\"' ||

@@ -7,6 +7,12 @@ namespace gbxasm
 
 enum class TokenType
 {
+    // Numeric Constants
+    LiteralNumericHEXADECIMAL,
+    LiteralNumericDECIMAL,
+    LiteralNumericOCTAL,
+    LiteralNumericBINARY,
+
     // Keywords
     KeywordPACK,
     KeywordFUNC,
@@ -41,6 +47,7 @@ enum class TokenType
     KeywordMOVE,
     KeywordHIGH,
     KeywordLOW,
+    KeywordBIT,
 
     // Operators
     OperatorASSIGNMENT,
@@ -65,6 +72,7 @@ enum class TokenType
     OperatorLOGICNOT,
     OperatorAT,
     OperatorSEMICOLON,
+    OperatorDOT,
 
     // Separators
     SeparatorCOMMA,

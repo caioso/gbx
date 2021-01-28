@@ -42,6 +42,7 @@ public:
     inline const static std::string KeywordMOVE = "MOVE";
     inline const static std::string KeywordHIGH = "HIGH";
     inline const static std::string KeywordLOW = "LOW";
+    inline const static std::string KeywordBIT = "BIT";
 
     // Operators
     inline const static std::string OperatorASSIGNMENT = "=";
@@ -66,6 +67,7 @@ public:
     inline const static std::string OperatorLOGICNOT = "!";
     inline const static std::string OperatorAT = "@";
     inline const static std::string OperatorSEMICOLON = ":";
+    inline const static std::string OperatorDOT = ".";
 
     // Separators
     inline const static std::string SeparatorCOMMA = ",";
@@ -75,6 +77,12 @@ public:
     inline const static std::string SeparatorCLOSECURLYBRACKETS = "}";
     inline const static std::string SeparatorOPENBRACKETS = "[";
     inline const static std::string SeparatorCLOSEBRACKETS = "]";
+
+    // Literals
+    inline const static std::string LiteralNumericHEXADECIMALBASE = "0x";
+    inline const static std::string LiteralNumericDECIMALBASE = "0d";
+    inline const static std::string LiteralNumericOCTALBASE = "0o";
+    inline const static std::string LiteralNumericBINARYBASE = "0b";
 };
 
 }

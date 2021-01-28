@@ -10,6 +10,26 @@
 using namespace gbxasm;
 using namespace std;
 
+#define ASSERT_EXCEPTION( TRY_BLOCK, EXCEPTION_TYPE, MESSAGE )        \
+try                                                                   \
+{                                                                     \
+    TRY_BLOCK                                                         \
+    FAIL() << "exception '" << MESSAGE << "' not thrown";             \
+}                                                                     \
+catch( const EXCEPTION_TYPE& e )                                      \
+{                                                                     \
+    EXPECT_STREQ( MESSAGE, e.what() )                                 \
+        << " exception message is incorrect. Expected the following " \
+           "message:\n\n"                                             \
+        << e.what() << "\n";                                          \
+}                                                                     \
+catch( ... )                                                          \
+{                                                                     \
+    FAIL() << "exception '" << MESSAGE                                \
+           << "' not thrown with expected type '" << #EXCEPTION_TYPE  \
+           << "'!";                                                   \
+}
+
 TEST(TestLexer, Construction)
 {
     auto lexer = make_shared<Lexer>();
@@ -258,7 +278,6 @@ TEST(TestLexer, TestNestedSeparatorsAndOperators)
     EXPECT_EQ(static_cast<size_t>(15), tokens[8].Column);
 }
 
-
 TEST(TestLexer, TestUnknownSeparator)
 {
     const string program = "PACK? \\";
@@ -311,7 +330,8 @@ TEST(TestLexer, EvaluateAllKeywords)
                            "MACRO\n"
                            "MOVE\n"
                            "HIGH\n"
-                           "LOW\n";
+                           "LOW\n"
+                           "BIT\n";
 
     auto lexer = make_shared<Lexer>();
     lexer->Tokenize(program);
@@ -325,7 +345,7 @@ TEST(TestLexer, EvaluateAllKeywords)
                            Lexemes::KeywordEXIT, Lexemes::KeywordWHEN, Lexemes::KeywordIS, Lexemes::KeywordWHILE, 
                            Lexemes::KeywordALIAS, Lexemes::KeywordTRY, Lexemes::KeywordCATCH, Lexemes::KeywordABORT, 
                            Lexemes::KeywordTEST, Lexemes::KeywordMACRO, Lexemes::KeywordMOVE, Lexemes::KeywordHIGH,
-                           Lexemes::KeywordLOW};
+                           Lexemes::KeywordLOW, Lexemes::KeywordBIT};
 
     auto keywordsTokens = {TokenType::KeywordPACK, TokenType::KeywordFUNC, TokenType::KeywordEND, TokenType::KeywordDECL,
                            TokenType::KeywordBOOL, TokenType::KeywordCHAR, TokenType::KeywordBYTE, TokenType::KeywordWORD, 
@@ -335,7 +355,7 @@ TEST(TestLexer, EvaluateAllKeywords)
                            TokenType::KeywordEXIT, TokenType::KeywordWHEN, TokenType::KeywordIS, TokenType::KeywordWHILE,
                            TokenType::KeywordALIAS, TokenType::KeywordTRY, TokenType::KeywordCATCH, TokenType::KeywordABORT,
                            TokenType::KeywordTEST, TokenType::KeywordMACRO, TokenType::KeywordMOVE, TokenType::KeywordHIGH,
-                           TokenType::KeywordLOW};
+                           TokenType::KeywordLOW, TokenType::KeywordBIT};
 
     auto counter = 0;
     for (auto i = static_cast<size_t>(0); i < keywordsString.size(); ++i)
@@ -370,7 +390,8 @@ TEST(TestLexer, EvaluateAllOperators)
                            ">=\n"
                            "!\n"
                            "@\n"
-                           ":\n";
+                           ":\n"
+                           ".\n";
 
     auto lexer = make_shared<Lexer>();
     lexer->Tokenize(program);
@@ -381,14 +402,14 @@ TEST(TestLexer, EvaluateAllOperators)
                            Lexemes::OperatorBITWISENOT, Lexemes::OperatorBITWISEXOR, Lexemes::OperatorLEFTSHIFT, Lexemes::OperatorRIGHTSHIFT,
                            Lexemes::OperatorDIFFERENT, Lexemes::OperatorLOGICAND, Lexemes::OperatorLOGICOR, Lexemes::OperatorLESSTHAN,
                            Lexemes::OperatorGREATERTHAN, Lexemes::OperatorLESSTHANOREQUALTO, Lexemes::OperatorGREATERTHANOREQUALTO,
-                           Lexemes::OperatorLOGICNOT, Lexemes::OperatorAT, Lexemes::OperatorSEMICOLON};
+                           Lexemes::OperatorLOGICNOT, Lexemes::OperatorAT, Lexemes::OperatorSEMICOLON, Lexemes::OperatorDOT};
     
     auto operatorTokens = {TokenType::OperatorASSIGNMENT, TokenType::OperatorEQUAL, TokenType::OperatorPLUS, TokenType::OperatorTHREEWAYCOMPARISON,
                            TokenType::OperatorMINUS, TokenType::OperatorMULTIPLICATION, TokenType::OperatorBITWISEAND, TokenType::OperatorBITWISEOR,
                            TokenType::OperatorBITWISENOT, TokenType::OperatorBITWISEXOR, TokenType::OperatorLEFTSHIFT, TokenType::OperatorRIGHTSHIFT, 
                            TokenType::OperatorDIFFERENT, TokenType::OperatorLOGICAND, TokenType::OperatorLOGICOR, TokenType::OperatorLESSTHAN,
                            TokenType::OperatorGREATERTHAN, TokenType::OperatorLESSTHANOREQUALTO, TokenType::OperatorGREATERTHANOREQUALTO,
-                           TokenType::OperatorLOGICNOT, TokenType::OperatorAT, TokenType::OperatorSEMICOLON};
+                           TokenType::OperatorLOGICNOT, TokenType::OperatorAT, TokenType::OperatorSEMICOLON, TokenType::OperatorDOT};
 
     auto counter = 0;
     for (auto i = static_cast<size_t>(0); i < operatorString.size(); ++i)
@@ -398,4 +419,291 @@ TEST(TestLexer, EvaluateAllOperators)
         EXPECT_EQ(static_cast<size_t>(counter + 1), tokens[counter].Line);
         EXPECT_EQ(static_cast<size_t>(1), tokens[counter++].Column);
     }
+}
+
+TEST(TestLexer, EvaluateNumericLiterals)
+{
+    const string program = "0x12AB\n"
+                           "0d1289\n"
+                           "0o1267\n"
+                           "0b10110001\n"
+                           "4509\n"
+                           "00098\n";
+
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_STREQ("0x12AB", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericHEXADECIMAL, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ("0d1289", tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericDECIMAL, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Column);
+    
+    EXPECT_STREQ("0o1267", tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericOCTAL, tokens[2].Type);
+    EXPECT_EQ(static_cast<size_t>(3), tokens[2].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[2].Column);
+    
+    EXPECT_STREQ("0b10110001", tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericBINARY, tokens[3].Type);
+    EXPECT_EQ(static_cast<size_t>(4), tokens[3].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[3].Column);
+    
+    EXPECT_STREQ("4509", tokens[4].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericDECIMAL, tokens[4].Type);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[4].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[4].Column);
+    
+    EXPECT_STREQ("00098", tokens[5].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericDECIMAL, tokens[5].Type);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[5].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[5].Column);
+}
+
+TEST(TestLexer, EvaluateNumericLiteralsWithModifier)
+{
+    const string program = "0xFFFF.LOW\n"
+                           "0d456.HIGH\n"
+                           "0o66511.BIT[49]\n"
+                           "0b01110101.HIGH\n"
+                           "23.BIT[0x0001]\n"
+                           "-0x91\n"
+                           "+0o655\n";
+
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_STREQ("0xFFFF", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericHEXADECIMAL, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorDOT.c_str(), tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorDOT, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[1].Column);
+    
+    EXPECT_STREQ(Lexemes::KeywordLOW.c_str(), tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::KeywordLOW, tokens[2].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
+    EXPECT_EQ(static_cast<size_t>(8), tokens[2].Column);
+    
+    EXPECT_STREQ("0d456", tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericDECIMAL, tokens[3].Type);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[3].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[3].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorDOT.c_str(), tokens[4].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorDOT, tokens[4].Type);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[4].Line);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[4].Column);
+    
+    EXPECT_STREQ(Lexemes::KeywordHIGH.c_str(), tokens[5].Lexeme.c_str());
+    EXPECT_EQ(TokenType::KeywordHIGH, tokens[5].Type);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[5].Line);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[5].Column);
+    
+    EXPECT_STREQ("0o66511", tokens[6].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericOCTAL, tokens[6].Type);
+    EXPECT_EQ(static_cast<size_t>(3), tokens[6].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[6].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorDOT.c_str(), tokens[7].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorDOT, tokens[7].Type);
+    EXPECT_EQ(static_cast<size_t>(3), tokens[7].Line);
+    EXPECT_EQ(static_cast<size_t>(8), tokens[7].Column);
+    
+    EXPECT_STREQ(Lexemes::KeywordBIT.c_str(), tokens[8].Lexeme.c_str());
+    EXPECT_EQ(TokenType::KeywordBIT, tokens[8].Type);
+    EXPECT_EQ(static_cast<size_t>(3), tokens[8].Line);
+    EXPECT_EQ(static_cast<size_t>(9), tokens[8].Column);
+    
+    EXPECT_STREQ(Lexemes::SeparatorOPENBRACKETS.c_str(), tokens[9].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorOPENBRACKETS, tokens[9].Type);
+    EXPECT_EQ(static_cast<size_t>(3), tokens[9].Line);
+    EXPECT_EQ(static_cast<size_t>(12), tokens[9].Column);
+
+    EXPECT_STREQ("49", tokens[10].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericDECIMAL, tokens[10].Type);
+    EXPECT_EQ(static_cast<size_t>(3), tokens[10].Line);
+    EXPECT_EQ(static_cast<size_t>(13), tokens[10].Column);
+
+    EXPECT_STREQ(Lexemes::SeparatorCLOSEBRACKETS.c_str(), tokens[11].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorCLOSEBRACKETS, tokens[11].Type);
+    EXPECT_EQ(static_cast<size_t>(3), tokens[11].Line);
+    EXPECT_EQ(static_cast<size_t>(15), tokens[11].Column);
+
+    EXPECT_STREQ("0b01110101", tokens[12].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericBINARY, tokens[12].Type);
+    EXPECT_EQ(static_cast<size_t>(4), tokens[12].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[12].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorDOT.c_str(), tokens[13].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorDOT, tokens[13].Type);
+    EXPECT_EQ(static_cast<size_t>(4), tokens[13].Line);
+    EXPECT_EQ(static_cast<size_t>(11), tokens[13].Column);
+    
+    EXPECT_STREQ(Lexemes::KeywordHIGH.c_str(), tokens[14].Lexeme.c_str());
+    EXPECT_EQ(TokenType::KeywordHIGH, tokens[14].Type);
+    EXPECT_EQ(static_cast<size_t>(4), tokens[14].Line);
+    EXPECT_EQ(static_cast<size_t>(12), tokens[14].Column);
+    
+    EXPECT_STREQ("23", tokens[15].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericDECIMAL, tokens[15].Type);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[15].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[15].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorDOT.c_str(), tokens[16].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorDOT, tokens[16].Type);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[16].Line);
+    EXPECT_EQ(static_cast<size_t>(3), tokens[16].Column);
+    
+    EXPECT_STREQ(Lexemes::KeywordBIT.c_str(), tokens[17].Lexeme.c_str());
+    EXPECT_EQ(TokenType::KeywordBIT, tokens[17].Type);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[17].Line);
+    EXPECT_EQ(static_cast<size_t>(4), tokens[17].Column);
+    
+    EXPECT_STREQ(Lexemes::SeparatorOPENBRACKETS.c_str(), tokens[18].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorOPENBRACKETS, tokens[18].Type);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[18].Line);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[18].Column);
+    
+    EXPECT_STREQ("0x0001", tokens[19].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericHEXADECIMAL, tokens[19].Type);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[19].Line);
+    EXPECT_EQ(static_cast<size_t>(8), tokens[19].Column);
+
+    EXPECT_STREQ(Lexemes::SeparatorCLOSEBRACKETS.c_str(), tokens[20].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorCLOSEBRACKETS, tokens[20].Type);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[20].Line);
+    EXPECT_EQ(static_cast<size_t>(14), tokens[20].Column);
+
+    EXPECT_STREQ(Lexemes::OperatorMINUS.c_str(), tokens[21].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorMINUS, tokens[21].Type);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[21].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[21].Column);
+    
+    EXPECT_STREQ("0x91", tokens[22].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericHEXADECIMAL, tokens[22].Type);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[22].Line);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[22].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorPLUS.c_str(), tokens[23].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorPLUS, tokens[23].Type);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[23].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[23].Column);
+    
+    EXPECT_STREQ("0o655", tokens[24].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericOCTAL, tokens[24].Type);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[24].Line);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[24].Column);
+}
+
+TEST(TestLexer, InvalidHexadecimalLiterals)
+{
+    const string number1 = "0x889y";
+    const string number2 = "F7AA"; // This is an IDENTIFIER (variable name etc.);
+    const string number3 = "0dFF41";
+    const string number4 = "0oA5001";
+    const string number5 = "0b987FA";
+    const string number6 = "84FF'"; // Note that ' will not cause an error.
+
+    auto lexer = make_shared<Lexer>();
+
+    ASSERT_EXCEPTION( { lexer->Tokenize(number1); }, 
+                      LexerException, 
+                      "Invalid character 'y' near numeric literal '0x889y'");
+    
+    // No Exception Expected (not for number, This will be considered an identifier)
+    lexer->Tokenize(number2);
+
+    ASSERT_EXCEPTION( { lexer->Tokenize(number3); }, 
+                      LexerException, 
+                      "Invalid decimal numeric literal 'FF41'");
+    
+    ASSERT_EXCEPTION( { lexer->Tokenize(number4); }, 
+                      LexerException, 
+                      "Invalid octal numeric literal 'A5001'");
+    
+    ASSERT_EXCEPTION( { lexer->Tokenize(number5); }, 
+                      LexerException, 
+                      "Invalid binary numeric literal '987FA'");
+    
+    ASSERT_EXCEPTION( { lexer->Tokenize(number6); }, 
+                      LexerException, 
+                      "Invalid decimal numeric literal '84FF'");
+}
+
+TEST(TestLexer, InvalidDecimalLiterals)
+{
+    const string number1 = "0d889Tj";
+    const string number2 = "231p";
+    const string number3 = "0dFF51";
+    const string number4 = "12FF51";
+
+    auto lexer = make_shared<Lexer>();
+
+    ASSERT_EXCEPTION( { lexer->Tokenize(number1); }, 
+                      LexerException, 
+                      "Invalid character 'T' near numeric literal '0d889Tj'");
+    
+    ASSERT_EXCEPTION( { lexer->Tokenize(number2); }, 
+                      LexerException, 
+                      "Invalid character 'p' near numeric literal '231p'");
+
+    ASSERT_EXCEPTION( { lexer->Tokenize(number3); }, 
+                      LexerException, 
+                      "Invalid decimal numeric literal 'FF51'");
+    
+    ASSERT_EXCEPTION( { lexer->Tokenize(number4); }, 
+                      LexerException, 
+                      "Invalid decimal numeric literal '12FF51'");
+}
+
+TEST(TestLexer, InvalidOctalLiterals)
+{
+    const string number1 = "0o4511k";
+    const string number2 = "0o99999";
+    const string number3 = "0oABCDEF";
+
+    auto lexer = make_shared<Lexer>();
+
+    ASSERT_EXCEPTION( { lexer->Tokenize(number1); }, 
+                      LexerException, 
+                      "Invalid character 'k' near numeric literal '0o4511k'");
+                      
+    ASSERT_EXCEPTION( { lexer->Tokenize(number2); }, 
+                      LexerException, 
+                      "Invalid octal numeric literal '99999'");
+    
+    ASSERT_EXCEPTION( { lexer->Tokenize(number3); }, 
+                      LexerException, 
+                      "Invalid octal numeric literal 'ABCDEF'");
+}
+
+TEST(TestLexer, InvalidBinaryLiterals)
+{
+    const string number1 = "0b11110877r";
+    const string number2 = "0b23456789";
+    const string number3 = "0bABCDEF";
+
+    auto lexer = make_shared<Lexer>();
+
+    ASSERT_EXCEPTION( { lexer->Tokenize(number1); }, 
+                      LexerException, 
+                      "Invalid character 'r' near numeric literal '0b11110877r'");
+    
+    ASSERT_EXCEPTION( { lexer->Tokenize(number2); }, 
+                      LexerException, 
+                      "Invalid binary numeric literal '23456789'");
+    
+    ASSERT_EXCEPTION( { lexer->Tokenize(number3); }, 
+                      LexerException, 
+                      "Invalid binary numeric literal 'ABCDEF'");
 }
