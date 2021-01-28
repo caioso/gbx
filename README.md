@@ -174,6 +174,7 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### Special Operators
 #### `@` Operator
 #### `:` Operator
+#### `.` Operator
 ### Instructions
 
 ### Pseudo Instructions
@@ -196,6 +197,7 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### Numeric Modifiers
 ##### `HIGH`
 ##### `LOW`
+##### `BIT`
 #### Boolean Constants `TRUE` and `FALSE`
 
 ### Directives
