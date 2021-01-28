@@ -11,6 +11,7 @@
 #include "InstructionDec.h"
 #include "InstructionInc.h"
 #include "InstructionJp.h"
+#include "InstructionJr.h"
 #include "InstructionLd.h"
 #include "InstructionLdhl.h"
 #include "InstructionOr.h"
