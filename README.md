@@ -146,8 +146,13 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### `TRY`
 #### `CATCH`
 #### `ABORT`
-#### `TEST`
 #### `MACRO`
+#### `TEST`
+#### `CHECK`
+#### `ASSRT`
+#### `PASS`
+#### `FAIL`
+
 ### Operators
 #### Operator Precedence
 #### Arithmetic, Logic and Bit-wise Operators
@@ -180,9 +185,10 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 ### Pseudo Instructions
 #### `MOVE`
 ### Identifiers
-#### Hierarchy
 
-### Numeric Representation
+
+### Literals
+### Numeric Literals
 #### Decimal Numbers
 ##### `0d` Numric Prefix
 #### Hexadecimal Numbers
@@ -191,14 +197,25 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 ##### `0b` Numric Prefix
 #### Octal Numbers
 ##### `0o` Numric Prefix
-#### ASCII Encoded Bytes
-##### `''` Character Marker
-#### `""` String Marker
+
 #### Numeric Modifiers
 ##### `HIGH`
 ##### `LOW`
 ##### `BIT`
-#### Boolean Constants `TRUE` and `FALSE`
+
+### Boolean Literals
+#### `TRUE`
+#### `FALSE`
+### String and Character literals
+#### `''` Character Marker
+#### `""` String Marker
+
+### Seperators
+#### `()`
+
+#### `{}`
+#### `[]`
+#### `,`
 
 ### Directives
 #### `.USE`
@@ -208,22 +225,18 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### `.BANK`
 #### `.CART`
 #### `.ADDON`
-#### `.ASSERT`
-#### `.FAIL`
-#### `.PASS`
 #### `.ROM`
 #### `.RAM`
 #### `.SRAM`
 #### `.VRAM`
 #### `.BANK`
+#### `.TEST`
 
 ### Macros
 
 ### Other Language Structures
 #### Comments
 #### Labels
-#### Initializer Lists `{}`
-#### Array Index Subscript `[]`
 
 ### Basic ABI
 #### Function Call Conventions
