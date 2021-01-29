@@ -7,11 +7,18 @@ namespace gbxasm
 
 enum class TokenType
 {
-    // Numeric Constants
+    // Numeric Literals
     LiteralNumericHEXADECIMAL,
     LiteralNumericDECIMAL,
     LiteralNumericOCTAL,
     LiteralNumericBINARY,
+
+    // Boolean Literals
+    LiteralBooleanTRUE,
+    LiteralBooleanFALSE,
+
+    // String Literals
+    LiteralSTRING,
 
     // Keywords
     KeywordPACK,
@@ -48,6 +55,10 @@ enum class TokenType
     KeywordHIGH,
     KeywordLOW,
     KeywordBIT,
+    KeywordCHECK,
+    KeywordASSRT,
+    KeywordPASS,
+    KeywordFAIL,
 
     // Operators
     OperatorASSIGNMENT,

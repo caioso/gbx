@@ -43,6 +43,10 @@ public:
     inline const static std::string KeywordHIGH = "HIGH";
     inline const static std::string KeywordLOW = "LOW";
     inline const static std::string KeywordBIT = "BIT";
+    inline const static std::string KeywordCHECK = "CHECK";
+    inline const static std::string KeywordASSRT = "ASSRT";
+    inline const static std::string KeywordPASS = "PASS";
+    inline const static std::string KeywordFAIL = "FAIL";
 
     // Operators
     inline const static std::string OperatorASSIGNMENT = "=";
@@ -83,6 +87,8 @@ public:
     inline const static std::string LiteralNumericDECIMALBASE = "0d";
     inline const static std::string LiteralNumericOCTALBASE = "0o";
     inline const static std::string LiteralNumericBINARYBASE = "0b";
+    inline const static std::string LiteralBooleanTRUE = "TRUE";
+    inline const static std::string LiteralBooleanFALSE = "FALSE";
 };
 
 }

@@ -331,7 +331,11 @@ TEST(TestLexer, EvaluateAllKeywords)
                            "MOVE\n"
                            "HIGH\n"
                            "LOW\n"
-                           "BIT\n";
+                           "BIT\n"
+                           "CHECK\n"
+                           "ASSRT\n"
+                           "PASS\n"
+                           "FAIL\n";
 
     auto lexer = make_shared<Lexer>();
     lexer->Tokenize(program);
@@ -345,7 +349,8 @@ TEST(TestLexer, EvaluateAllKeywords)
                            Lexemes::KeywordEXIT, Lexemes::KeywordWHEN, Lexemes::KeywordIS, Lexemes::KeywordWHILE, 
                            Lexemes::KeywordALIAS, Lexemes::KeywordTRY, Lexemes::KeywordCATCH, Lexemes::KeywordABORT, 
                            Lexemes::KeywordTEST, Lexemes::KeywordMACRO, Lexemes::KeywordMOVE, Lexemes::KeywordHIGH,
-                           Lexemes::KeywordLOW, Lexemes::KeywordBIT};
+                           Lexemes::KeywordLOW, Lexemes::KeywordBIT, Lexemes::KeywordCHECK, Lexemes::KeywordASSRT, 
+                           Lexemes::KeywordPASS, Lexemes::KeywordFAIL};
 
     auto keywordsTokens = {TokenType::KeywordPACK, TokenType::KeywordFUNC, TokenType::KeywordEND, TokenType::KeywordDECL,
                            TokenType::KeywordBOOL, TokenType::KeywordCHAR, TokenType::KeywordBYTE, TokenType::KeywordWORD, 
@@ -355,7 +360,8 @@ TEST(TestLexer, EvaluateAllKeywords)
                            TokenType::KeywordEXIT, TokenType::KeywordWHEN, TokenType::KeywordIS, TokenType::KeywordWHILE,
                            TokenType::KeywordALIAS, TokenType::KeywordTRY, TokenType::KeywordCATCH, TokenType::KeywordABORT,
                            TokenType::KeywordTEST, TokenType::KeywordMACRO, TokenType::KeywordMOVE, TokenType::KeywordHIGH,
-                           TokenType::KeywordLOW, TokenType::KeywordBIT};
+                           TokenType::KeywordLOW, TokenType::KeywordBIT, TokenType::KeywordCHECK, TokenType::KeywordASSRT,
+                           TokenType::KeywordPASS, TokenType::KeywordFAIL};
 
     auto counter = 0;
     for (auto i = static_cast<size_t>(0); i < keywordsString.size(); ++i)
@@ -612,7 +618,7 @@ TEST(TestLexer, InvalidHexadecimalLiterals)
     const string number3 = "0dFF41";
     const string number4 = "0oA5001";
     const string number5 = "0b987FA";
-    const string number6 = "84FF'"; // Note that ' will not cause an error.
+    const string number6 = "84FF,"; // Note that , will not cause an error.
 
     auto lexer = make_shared<Lexer>();
 
@@ -706,4 +712,42 @@ TEST(TestLexer, InvalidBinaryLiterals)
     ASSERT_EXCEPTION( { lexer->Tokenize(number3); }, 
                       LexerException, 
                       "Invalid binary numeric literal 'ABCDEF'");
+}
+
+TEST(TestLexer, EvaluateBooleanLiterals)
+{
+    const string program = "TRUE\n"
+                           "FALSE\n";
+
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_STREQ(Lexemes::LiteralBooleanTRUE.c_str(), tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralBooleanTRUE, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ(Lexemes::LiteralBooleanFALSE.c_str(), tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralBooleanFALSE, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Column);
+}
+
+
+TEST(TestLexer, EvaluateStringLiteral)
+{
+    const string program = "0x89\"test\"\n";
+
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    cout << '\t' << tokens[0].Lexeme << '\n';
+    cout << '\t' << tokens[1].Lexeme << '\n';
+
+    EXPECT_STREQ("\"test\"", tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[1].Column);
 }

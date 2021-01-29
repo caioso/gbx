@@ -63,6 +63,16 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column)
         if (IsNumericLiteral(lexeme.first))
             token.Type = IdentifyNumericLiteral(lexeme.first);
 
+        // String Literals
+        else if (IsStringLiteral(lexeme.first))
+            token.Type = ParseStringLiteral(lexeme.first);
+
+        // Boolean Literals
+        else if (lexeme.first.compare(Lexemes::LiteralBooleanTRUE) == 0)
+            token.Type = TokenType::LiteralBooleanTRUE;
+        else if (lexeme.first.compare(Lexemes::LiteralBooleanFALSE) == 0)
+            token.Type = TokenType::LiteralBooleanFALSE;
+
         // Keywords        
         else if (lexeme.first.compare(Lexemes::KeywordPACK) == 0)
             token.Type = TokenType::KeywordPACK;
@@ -132,6 +142,14 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column)
             token.Type = TokenType::KeywordLOW;
         else if (lexeme.first.compare(Lexemes::KeywordBIT) == 0)
             token.Type = TokenType::KeywordBIT;
+        else if (lexeme.first.compare(Lexemes::KeywordCHECK) == 0)
+            token.Type = TokenType::KeywordCHECK;
+        else if (lexeme.first.compare(Lexemes::KeywordASSRT) == 0)
+            token.Type = TokenType::KeywordASSRT;
+        else if (lexeme.first.compare(Lexemes::KeywordPASS) == 0)
+            token.Type = TokenType::KeywordPASS;
+        else if (lexeme.first.compare(Lexemes::KeywordFAIL) == 0)
+            token.Type = TokenType::KeywordFAIL;
         // Operators
         else if (lexeme.first.compare(Lexemes::OperatorASSIGNMENT) == 0)
             token.Type = TokenType::OperatorASSIGNMENT;
@@ -201,6 +219,18 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column)
     }
 
     return tokens;
+}
+
+inline bool Lexer::IsStringLiteral (string_view lexeme)
+{
+    if (lexeme[0] == '\"' || lexeme[0] == '\'' )
+        return true;
+    return false;
+}
+
+inline TokenType Lexer::ParseStringLiteral(string_view lexeme)
+{
+    return TokenType::LiteralSTRING;
 }
 
 inline bool Lexer::IsNumericLiteral(string_view lexeme)
@@ -324,7 +354,7 @@ vector<pair<string, size_t> > Lexer::FindSubLexemes(string lexeme, size_t column
 
     for (auto i = size_t(0); i < lexeme.size(); ++i)
     {
-        if (IsSeparatorOrOperator(lexeme, i))
+        if (IsSeparatorOrOperator(lexeme, i) || IsPossibleLiteralMarker(lexeme, i))
         {
             if (accumulator.size() != 0)
                 SaveSubLexeme(accumulator, column, subLexemes, columnCounter);
@@ -365,7 +395,7 @@ inline string Lexer::ExtractOperatorOrSeparator(string candidate, size_t column)
 {
     if (IsPossibleOperator(candidate, column))
         return ExtractOperator(candidate, column);
-    else
+    else 
         return ExtractSeparator(candidate, column);
 }
 
@@ -411,8 +441,15 @@ bool Lexer::IsPossibleOperator(string_view candidate, size_t position)
 bool Lexer::IsPossibleSeparator(string_view candidate, size_t position)
 {
     if (candidate[position] == '{' || candidate[position] == '}' || candidate[position] == '(' || candidate[position] == ')' ||
-        candidate[position] == '[' || candidate[position] == ']' || candidate[position] == ':' || candidate[position] == '\"' ||
-        candidate[position] == '\'' || candidate[position] == ',')
+        candidate[position] == '[' || candidate[position] == ']' || candidate[position] == ':' || candidate[position] == ',')
+        return true;
+
+    return false;
+}
+
+bool Lexer::IsPossibleLiteralMarker(string_view candidate, size_t position)
+{
+    if (candidate[position] == '\"' || candidate[position] == '\'')
         return true;
 
     return false;
