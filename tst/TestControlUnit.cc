@@ -2699,7 +2699,7 @@ TEST(TestControlUnit, TestJpConditional)
     auto controlUnit = make_shared<ControlUnitDecorator>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
-    // LD A, 0x01  -> 0x7E
+    // LD A, 0x01  -> 0x3E
     //             -> 0x01
     // DEC A       -> 0x3D
     // JP.Z 0x8000 -> 0xCA
@@ -2717,5 +2717,93 @@ TEST(TestControlUnit, TestJpConditional)
     controlUnit->RunCycle();
     controlUnit->RunCycle();
 
-    //EXPECT_EQ(0x8000, registers->ReadPair(Register::PC));
+    EXPECT_EQ(0x8000, registers->ReadPair(Register::PC));
+}
+
+TEST(TestControlUnit, TestJrUnconditional)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    auto opcode = 0x18;
+    // Multiple relative jumps unconditional will be performed in this test
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(opcode)));
+    // Note: The assembler will decrement 2 from the offset, so the original assembly instruction for this Jump is:
+    // JR 0x72 (offest = 114 -> binary will become offset = 112).
+    // Thats because the addition of the offser is done after the PC has been incremented (after acquiring the 1-byte immediate)
+    // so the sum is made with PC + 2.
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x70)));
+    
+    controlUnit->RunCycle();
+    EXPECT_EQ(0x0072, registers->ReadPair(Register::PC));
+
+    EXPECT_CALL((*mockPointer), Read(0x0072, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(opcode)));
+    // Note: The assembler will decrement 2 from the offset, so the original assembly instruction for this Jump is:
+    // JR 0xD8 (offest = -40 -> binary will become offset = -38).
+    // Thats because the addition of the offser is done after the PC has been incremented (after acquiring the 1-byte immediate)
+    // so the sum is made with PC + 2.
+    EXPECT_CALL((*mockPointer), Read(0x0073, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xD6)));
+
+    controlUnit->RunCycle();
+    EXPECT_EQ(0x004A, registers->ReadPair(Register::PC));
+
+    EXPECT_CALL((*mockPointer), Read(0x004A, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(opcode)));
+    // Note: The assembler will decrement 2 from the offset, so the original assembly instruction for this Jump is:
+    // JR 0x02 (offest = 2 -> binary will become offset = 2).
+    // Thats because the addition of the offser is done after the PC has been incremented (after acquiring the 1-byte immediate)
+    // so the sum is made with PC + 2.
+    EXPECT_CALL((*mockPointer), Read(0x004B, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x00)));
+
+    controlUnit->RunCycle();
+    EXPECT_EQ(0x004C, registers->ReadPair(Register::PC));
+
+    EXPECT_CALL((*mockPointer), Read(0x004C, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(opcode)));
+    // Note: The assembler will decrement 2 from the offset, so the original assembly instruction for this Jump is:
+    // JR 0xB4 (offest = -76 -> binary will become offset = -74).
+    // Thats because the addition of the offser is done after the PC has been incremented (after acquiring the 1-byte immediate)
+    // so the sum is made with PC + 2.
+    EXPECT_CALL((*mockPointer), Read(0x004D, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xB2)));
+
+    controlUnit->RunCycle();
+    EXPECT_EQ(0x0000, registers->ReadPair(Register::PC));
+}
+
+
+TEST(TestControlUnit, TestJrConditional)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    // LD A, 0x80  -> 0x3E
+    //             -> 0x80
+    // BIT 7, A    -> 0xCB
+    //             -> 0xFF
+    // JR Z, 0x10  -> 0x28
+    //             -> 0x0E
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x3E)));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x80)));
+    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xCB)));
+    EXPECT_CALL((*mockPointer), Read(0x0003, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xFF)));
+    EXPECT_CALL((*mockPointer), Read(0x0004, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x28)));
+    EXPECT_CALL((*mockPointer), Read(0x0005, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x0E)));
+
+    controlUnit->RunCycle();
+    controlUnit->RunCycle();
+    controlUnit->RunCycle();
+
+    EXPECT_EQ(0x0006, registers->ReadPair(Register::PC));
 }

@@ -21,7 +21,6 @@ void InstructionJp::Execute(std::shared_ptr<interfaces::RegisterBankInterface> r
         ExecuteUnconditionalJp(registerBank, decodedInstruction);
     else
         ExecuteConditionalJp(registerBank, decodedInstruction);
-    
 }
 
 void InstructionJp::ExecuteConditionalJp(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction) 

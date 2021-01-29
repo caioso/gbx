@@ -77,7 +77,9 @@ shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithoutPreOpcod
              OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_1, b::_0, b::_1, b::_1, b::_1)))
              return make_shared<InstructionRla>();
     else if (OpcodePatternMatcher::Match(opcode, // 0001 1000
-             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_1, b::_1, b::_0, b::_0, b::_0)))
+             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_0, b::_1, b::_1, b::_0, b::_0, b::_0)) ||
+             OpcodePatternMatcher::Match(opcode, // 001X X000
+             OpcodePatternMatcher::Pattern(b::_0, b::_0, b::_1, b::_X, b::_X, b::_0, b::_0, b::_0)))
              return make_shared<InstructionJr>();
     else if (OpcodePatternMatcher::Match(opcode, // 110X X01X
              OpcodePatternMatcher::Pattern(b::_1, b::_1, b::_0, b::_X, b::_X, b::_0, b::_1, b::_X)))

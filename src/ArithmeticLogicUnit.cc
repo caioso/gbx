@@ -52,7 +52,10 @@ uint8_t ArithmeticLogicUnit::AcquireInstruction(shared_ptr<interfaces::MemoryCon
         _registers->Write(Register::IR, secondInstruction);
     }
     else 
+    {
+        _registers->Write(Register::PIR, 0x00);
         _registers->Write(Register::IR, instruction);
+    }
 
     
     return instruction;
