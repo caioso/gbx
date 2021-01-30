@@ -19,6 +19,7 @@ enum class TokenType
 
     // String Literals
     LiteralSTRING,
+    LiteralSTRINGCONTENT,
 
     // Keywords
     KeywordPACK,
@@ -102,6 +103,7 @@ struct Token
 {
     size_t Line;
     size_t Column;
+    size_t GlobalPosition;
     std::string Lexeme;
     TokenType Type;
 };
