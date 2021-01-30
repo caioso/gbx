@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <limits>
 #include <vector>
 #include <sstream>
 #include <string_view>
@@ -53,6 +54,12 @@ private:
     inline void ValidateDecimalLiteral(std::string_view);
     inline void ValidateOctalLiteral(std::string_view);
     inline void ValidateBinaryLiteral(std::string_view);
+    inline void EvaluateStringLimits(std::string, size_t);
+    inline void ExtractStringTokenIfNeeded(std::string_view);
+    
+    inline size_t FindTokenByType(TokenType, size_t);
+    inline Token GenerateStringToken(size_t, size_t, std::string_view);
+    inline void ClearStringLimitFlags();
 
     std::vector<Token> _tokens;
     bool _stringLiteralAccumulationStarted;

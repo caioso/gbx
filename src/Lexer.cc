@@ -25,7 +25,6 @@ void Lexer::ExtractTokens(string_view input)
     auto currentLine = static_cast<string>("");
     auto line = static_cast<size_t>(1);
     auto globalCounter = 0;
-    auto lineLocalCounter = 0;
 
     _stringLiteralAccumulationStarted = false;
     _stringLiteralAccumulationEnded = false;    
@@ -34,13 +33,12 @@ void Lexer::ExtractTokens(string_view input)
     {
         shared_ptr<stringstream> stream = make_shared<stringstream>(currentLine);
         auto lexeme = static_cast<string>("");
-        lineLocalCounter = 0;
-        
+        auto column = 0;
+
         while ((*stream) >> lexeme)
         {
-            auto column = lineLocalCounter + currentLine.substr(lineLocalCounter, currentLine.size() - lineLocalCounter).find(lexeme) + 1;  
-            lineLocalCounter += column;
-            auto tokens = EvaluateLexeme(lexeme, column, globalCounter);
+            column = currentLine.find(lexeme, column);  
+            auto tokens = EvaluateLexeme(lexeme, column + 1, globalCounter);
             
             for (auto token : tokens)
             {
@@ -48,52 +46,7 @@ void Lexer::ExtractTokens(string_view input)
                 _tokens.push_back(token);
             }
 
-            if (_stringLiteralAccumulationStarted && _stringLiteralAccumulationEnded)
-            {
-                _stringLiteralAccumulationStarted = false;
-                _stringLiteralAccumulationEnded = false;
-
-                // Find Start
-                auto startIndex = 0;
-                auto endIndex = 0;
-
-                for (auto i = static_cast<int>(_tokens.size() - 1); i >= 0; --i)
-                    if (_tokens[i].Type == TokenType::LiteralSTRING)
-                    {
-                        endIndex = i;
-                        break;
-                    }
-
-                for (auto i = static_cast<int>(endIndex - 1); i >= 0; --i)
-                    if (_tokens[i].Type == TokenType::LiteralSTRING)
-                    {
-                        startIndex = i;
-                        break;
-                    }            
-
-                cout << "start index: " << startIndex << " end index: " << endIndex << '\n'; 
-                cout << "start: " << _tokens[startIndex].GlobalPosition << " end: " << _tokens[endIndex].GlobalPosition << '\n'; 
-                cout << "string: " << input.substr(_tokens[startIndex].GlobalPosition, (_tokens[endIndex].GlobalPosition - _tokens[startIndex].GlobalPosition + 1)) << '\n'; 
-
-                // Recombine string
-                auto stringLiteral = string(input.substr(_tokens[startIndex].GlobalPosition, (_tokens[endIndex].GlobalPosition - _tokens[startIndex].GlobalPosition + 1)));
-                auto startLine = _tokens[startIndex].Line;
-                auto startColumn = _tokens[startIndex].Column;
-                auto startGlobalPosition = _tokens[startIndex].GlobalPosition;
-                
-                _tokens.erase(begin(_tokens) + startIndex, begin(_tokens) + endIndex + 1);
-                
-                Token stringLiteralToken = 
-                {
-                    .Lexeme = stringLiteral,
-                    .Line = startLine,
-                    .Column = startColumn,
-                    .Type = TokenType::LiteralSTRING,
-                    .GlobalPosition = startGlobalPosition
-                };
-
-                _tokens.push_back(stringLiteralToken);
-            }
+            ExtractStringTokenIfNeeded(input);
         }
 
         globalCounter += currentLine.size() + 1;
@@ -115,174 +68,161 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
             .GlobalPosition = (lexeme.second - 1) + globalCounter,
         };
 
-        // If accumulating a string literal, simply consider everything as part of the literal
-        if (_stringLiteralAccumulationStarted)
-        {
-            cout << "Literal Column: " << token.GlobalPosition << '\n';
-            // String Literals
-            if (IsStringLiteral(lexeme.first))
-                token.Type = TokenType::LiteralSTRING;
-            else
-                token.Type = TokenType::LiteralSTRINGCONTENT;
-        }
+        // Numeric Literals
+        if (IsNumericLiteral(lexeme.first))
+            token.Type = IdentifyNumericLiteral(lexeme.first);
+
+        // String Literals
+        else if (IsStringLiteral(lexeme.first))
+            token.Type = TokenType::LiteralSTRING;
+
+        // Boolean Literals
+        else if (lexeme.first.compare(Lexemes::LiteralBooleanTRUE) == 0)
+            token.Type = TokenType::LiteralBooleanTRUE;
+        else if (lexeme.first.compare(Lexemes::LiteralBooleanFALSE) == 0)
+            token.Type = TokenType::LiteralBooleanFALSE;
+
+        // Keywords        
+        else if (lexeme.first.compare(Lexemes::KeywordPACK) == 0)
+            token.Type = TokenType::KeywordPACK;
+        else if (lexeme.first.compare(Lexemes::KeywordFUNC) == 0)
+            token.Type = TokenType::KeywordFUNC;
+        else if (lexeme.first.compare(Lexemes::KeywordEND) == 0)
+            token.Type = TokenType::KeywordEND;
+        else if (lexeme.first.compare(Lexemes::KeywordDECL) == 0)
+            token.Type = TokenType::KeywordDECL;
+        else if (lexeme.first.compare(Lexemes::KeywordBOOL) == 0)
+            token.Type = TokenType::KeywordBOOL;
+        else if (lexeme.first.compare(Lexemes::KeywordCHAR) == 0)
+            token.Type = TokenType::KeywordCHAR;
+        else if (lexeme.first.compare(Lexemes::KeywordBYTE) == 0)
+            token.Type = TokenType::KeywordBYTE;
+        else if (lexeme.first.compare(Lexemes::KeywordWORD) == 0)
+            token.Type = TokenType::KeywordWORD;
+        else if (lexeme.first.compare(Lexemes::KeywordDWORD) == 0)
+            token.Type = TokenType::KeywordDWORD;
+        else if (lexeme.first.compare(Lexemes::KeywordSTR) == 0)
+            token.Type = TokenType::KeywordSTR;
+        else if (lexeme.first.compare(Lexemes::KeywordAS) == 0)
+            token.Type = TokenType::KeywordAS;
+        else if (lexeme.first.compare(Lexemes::KeywordCONST) == 0)
+            token.Type = TokenType::KeywordCONST;
+        else if (lexeme.first.compare(Lexemes::KeywordFREE) == 0)
+            token.Type = TokenType::KeywordFREE;
+        else if (lexeme.first.compare(Lexemes::KeywordIF) == 0)
+            token.Type = TokenType::KeywordIF;
+        else if (lexeme.first.compare(Lexemes::KeywordTHEN) == 0)
+            token.Type = TokenType::KeywordTHEN;
+        else if (lexeme.first.compare(Lexemes::KeywordELSE) == 0)
+            token.Type = TokenType::KeywordELSE;
+        else if (lexeme.first.compare(Lexemes::KeywordWITH) == 0)
+            token.Type = TokenType::KeywordWITH;
+        else if (lexeme.first.compare(Lexemes::KeywordREPT) == 0)
+            token.Type = TokenType::KeywordREPT;
+        else if (lexeme.first.compare(Lexemes::KeywordTIMES) == 0)
+            token.Type = TokenType::KeywordTIMES;
+        else if (lexeme.first.compare(Lexemes::KeywordNEXT) == 0)
+            token.Type = TokenType::KeywordNEXT;
+        else if (lexeme.first.compare(Lexemes::KeywordEXIT) == 0)
+            token.Type = TokenType::KeywordEXIT;
+        else if (lexeme.first.compare(Lexemes::KeywordWHEN) == 0)
+            token.Type = TokenType::KeywordWHEN;
+        else if (lexeme.first.compare(Lexemes::KeywordIS) == 0)
+            token.Type = TokenType::KeywordIS;
+        else if (lexeme.first.compare(Lexemes::KeywordWHILE) == 0)
+            token.Type = TokenType::KeywordWHILE;
+        else if (lexeme.first.compare(Lexemes::KeywordALIAS) == 0)
+            token.Type = TokenType::KeywordALIAS;
+        else if (lexeme.first.compare(Lexemes::KeywordTRY) == 0)
+            token.Type = TokenType::KeywordTRY;
+        else if (lexeme.first.compare(Lexemes::KeywordCATCH) == 0)
+            token.Type = TokenType::KeywordCATCH;
+        else if (lexeme.first.compare(Lexemes::KeywordABORT) == 0)
+            token.Type = TokenType::KeywordABORT;
+        else if (lexeme.first.compare(Lexemes::KeywordTEST) == 0)
+            token.Type = TokenType::KeywordTEST;
+        else if (lexeme.first.compare(Lexemes::KeywordMACRO) == 0)
+            token.Type = TokenType::KeywordMACRO;
+        else if (lexeme.first.compare(Lexemes::KeywordMOVE) == 0)
+            token.Type = TokenType::KeywordMOVE;
+        else if (lexeme.first.compare(Lexemes::KeywordHIGH) == 0)
+            token.Type = TokenType::KeywordHIGH;
+        else if (lexeme.first.compare(Lexemes::KeywordLOW) == 0)
+            token.Type = TokenType::KeywordLOW;
+        else if (lexeme.first.compare(Lexemes::KeywordBIT) == 0)
+            token.Type = TokenType::KeywordBIT;
+        else if (lexeme.first.compare(Lexemes::KeywordCHECK) == 0)
+            token.Type = TokenType::KeywordCHECK;
+        else if (lexeme.first.compare(Lexemes::KeywordASSRT) == 0)
+            token.Type = TokenType::KeywordASSRT;
+        else if (lexeme.first.compare(Lexemes::KeywordPASS) == 0)
+            token.Type = TokenType::KeywordPASS;
+        else if (lexeme.first.compare(Lexemes::KeywordFAIL) == 0)
+            token.Type = TokenType::KeywordFAIL;
+        // Operators
+        else if (lexeme.first.compare(Lexemes::OperatorASSIGNMENT) == 0)
+            token.Type = TokenType::OperatorASSIGNMENT;
+        else if (lexeme.first.compare(Lexemes::OperatorEQUAL) == 0)
+            token.Type = TokenType::OperatorEQUAL;
+        else if (lexeme.first.compare(Lexemes::OperatorPLUS) == 0)
+            token.Type = TokenType::OperatorPLUS;
+        else if (lexeme.first.compare(Lexemes::OperatorTRHEEWAYCOMPARISON) == 0)
+            token.Type = TokenType::OperatorTHREEWAYCOMPARISON;
+        else if (lexeme.first.compare(Lexemes::OperatorMINUS) == 0)
+            token.Type = TokenType::OperatorMINUS;
+        else if (lexeme.first.compare(Lexemes::OperatorMULTIPLICATION) == 0)
+            token.Type = TokenType::OperatorMULTIPLICATION;
+        else if (lexeme.first.compare(Lexemes::OperatorBITWISEAND) == 0)
+            token.Type = TokenType::OperatorBITWISEAND;
+        else if (lexeme.first.compare(Lexemes::OperatorBITWISEOR) == 0)
+            token.Type = TokenType::OperatorBITWISEOR;
+        else if (lexeme.first.compare(Lexemes::OperatorBITWISENOT) == 0)
+            token.Type = TokenType::OperatorBITWISENOT;
+        else if (lexeme.first.compare(Lexemes::OperatorBITWISEXOR) == 0)
+            token.Type = TokenType::OperatorBITWISEXOR;
+        else if (lexeme.first.compare(Lexemes::OperatorLEFTSHIFT) == 0)
+            token.Type = TokenType::OperatorLEFTSHIFT;
+        else if (lexeme.first.compare(Lexemes::OperatorRIGHTSHIFT) == 0)
+            token.Type = TokenType::OperatorRIGHTSHIFT;
+        else if (lexeme.first.compare(Lexemes::OperatorDIFFERENT) == 0)
+            token.Type = TokenType::OperatorDIFFERENT;
+        else if (lexeme.first.compare(Lexemes::OperatorLOGICAND) == 0)
+            token.Type = TokenType::OperatorLOGICAND;
+        else if (lexeme.first.compare(Lexemes::OperatorLOGICOR) == 0)
+            token.Type = TokenType::OperatorLOGICOR;
+        else if (lexeme.first.compare(Lexemes::OperatorLESSTHAN) == 0)
+            token.Type = TokenType::OperatorLESSTHAN;
+        else if (lexeme.first.compare(Lexemes::OperatorGREATERTHAN) == 0)
+            token.Type = TokenType::OperatorGREATERTHAN;
+        else if (lexeme.first.compare(Lexemes::OperatorLESSTHANOREQUALTO) == 0)
+            token.Type = TokenType::OperatorLESSTHANOREQUALTO;
+        else if (lexeme.first.compare(Lexemes::OperatorGREATERTHANOREQUALTO) == 0)
+            token.Type = TokenType::OperatorGREATERTHANOREQUALTO;
+        else if (lexeme.first.compare(Lexemes::OperatorLOGICNOT) == 0)
+            token.Type = TokenType::OperatorLOGICNOT;
+        else if (lexeme.first.compare(Lexemes::OperatorAT) == 0)
+            token.Type = TokenType::OperatorAT;
+        else if (lexeme.first.compare(Lexemes::OperatorSEMICOLON) == 0)
+            token.Type = TokenType::OperatorSEMICOLON;
+        else if (lexeme.first.compare(Lexemes::OperatorDOT) == 0)
+            token.Type = TokenType::OperatorDOT;
+        // Separators
+        else if (lexeme.first.compare(Lexemes::SeparatorCOMMA) == 0)
+            token.Type = TokenType::SeparatorCOMMA;
+        else if (lexeme.first.compare(Lexemes::SeparatorOPENPARENTHESIS) == 0)
+            token.Type = TokenType::SeparatorOPENPARENTHESIS;
+        else if (lexeme.first.compare(Lexemes::SeparatorCLOSEPARENTHESIS) == 0)
+            token.Type = TokenType::SeparatorCLOSEPARENTHESIS;
+        else if (lexeme.first.compare(Lexemes::SeparatorOPENBRACKETS) == 0)
+            token.Type = TokenType::SeparatorOPENBRACKETS;
+        else if (lexeme.first.compare(Lexemes::SeparatorCLOSEBRACKETS) == 0)
+            token.Type = TokenType::SeparatorCLOSEBRACKETS;
+        else if (lexeme.first.compare(Lexemes::SeparatorOPENCURLYBRACKETS) == 0)
+            token.Type = TokenType::SeparatorOPENCURLYBRACKETS;
+        else if (lexeme.first.compare(Lexemes::SeparatorCLOSECURLYBRACKETS) == 0)
+            token.Type = TokenType::SeparatorCLOSECURLYBRACKETS;
         else
-        {
-            // Numeric Literals
-            if (IsNumericLiteral(lexeme.first))
-                token.Type = IdentifyNumericLiteral(lexeme.first);
-
-            // String Literals
-            else if (IsStringLiteral(lexeme.first))
-                token.Type = TokenType::LiteralSTRING;
-
-            // Boolean Literals
-            else if (lexeme.first.compare(Lexemes::LiteralBooleanTRUE) == 0)
-                token.Type = TokenType::LiteralBooleanTRUE;
-            else if (lexeme.first.compare(Lexemes::LiteralBooleanFALSE) == 0)
-                token.Type = TokenType::LiteralBooleanFALSE;
-
-            // Keywords        
-            else if (lexeme.first.compare(Lexemes::KeywordPACK) == 0)
-                token.Type = TokenType::KeywordPACK;
-            else if (lexeme.first.compare(Lexemes::KeywordFUNC) == 0)
-                token.Type = TokenType::KeywordFUNC;
-            else if (lexeme.first.compare(Lexemes::KeywordEND) == 0)
-                token.Type = TokenType::KeywordEND;
-            else if (lexeme.first.compare(Lexemes::KeywordDECL) == 0)
-                token.Type = TokenType::KeywordDECL;
-            else if (lexeme.first.compare(Lexemes::KeywordBOOL) == 0)
-                token.Type = TokenType::KeywordBOOL;
-            else if (lexeme.first.compare(Lexemes::KeywordCHAR) == 0)
-                token.Type = TokenType::KeywordCHAR;
-            else if (lexeme.first.compare(Lexemes::KeywordBYTE) == 0)
-                token.Type = TokenType::KeywordBYTE;
-            else if (lexeme.first.compare(Lexemes::KeywordWORD) == 0)
-                token.Type = TokenType::KeywordWORD;
-            else if (lexeme.first.compare(Lexemes::KeywordDWORD) == 0)
-                token.Type = TokenType::KeywordDWORD;
-            else if (lexeme.first.compare(Lexemes::KeywordSTR) == 0)
-                token.Type = TokenType::KeywordSTR;
-            else if (lexeme.first.compare(Lexemes::KeywordAS) == 0)
-                token.Type = TokenType::KeywordAS;
-            else if (lexeme.first.compare(Lexemes::KeywordCONST) == 0)
-                token.Type = TokenType::KeywordCONST;
-            else if (lexeme.first.compare(Lexemes::KeywordFREE) == 0)
-                token.Type = TokenType::KeywordFREE;
-            else if (lexeme.first.compare(Lexemes::KeywordIF) == 0)
-                token.Type = TokenType::KeywordIF;
-            else if (lexeme.first.compare(Lexemes::KeywordTHEN) == 0)
-                token.Type = TokenType::KeywordTHEN;
-            else if (lexeme.first.compare(Lexemes::KeywordELSE) == 0)
-                token.Type = TokenType::KeywordELSE;
-            else if (lexeme.first.compare(Lexemes::KeywordWITH) == 0)
-                token.Type = TokenType::KeywordWITH;
-            else if (lexeme.first.compare(Lexemes::KeywordREPT) == 0)
-                token.Type = TokenType::KeywordREPT;
-            else if (lexeme.first.compare(Lexemes::KeywordTIMES) == 0)
-                token.Type = TokenType::KeywordTIMES;
-            else if (lexeme.first.compare(Lexemes::KeywordNEXT) == 0)
-                token.Type = TokenType::KeywordNEXT;
-            else if (lexeme.first.compare(Lexemes::KeywordEXIT) == 0)
-                token.Type = TokenType::KeywordEXIT;
-            else if (lexeme.first.compare(Lexemes::KeywordWHEN) == 0)
-                token.Type = TokenType::KeywordWHEN;
-            else if (lexeme.first.compare(Lexemes::KeywordIS) == 0)
-                token.Type = TokenType::KeywordIS;
-            else if (lexeme.first.compare(Lexemes::KeywordWHILE) == 0)
-                token.Type = TokenType::KeywordWHILE;
-            else if (lexeme.first.compare(Lexemes::KeywordALIAS) == 0)
-                token.Type = TokenType::KeywordALIAS;
-            else if (lexeme.first.compare(Lexemes::KeywordTRY) == 0)
-                token.Type = TokenType::KeywordTRY;
-            else if (lexeme.first.compare(Lexemes::KeywordCATCH) == 0)
-                token.Type = TokenType::KeywordCATCH;
-            else if (lexeme.first.compare(Lexemes::KeywordABORT) == 0)
-                token.Type = TokenType::KeywordABORT;
-            else if (lexeme.first.compare(Lexemes::KeywordTEST) == 0)
-                token.Type = TokenType::KeywordTEST;
-            else if (lexeme.first.compare(Lexemes::KeywordMACRO) == 0)
-                token.Type = TokenType::KeywordMACRO;
-            else if (lexeme.first.compare(Lexemes::KeywordMOVE) == 0)
-                token.Type = TokenType::KeywordMOVE;
-            else if (lexeme.first.compare(Lexemes::KeywordHIGH) == 0)
-                token.Type = TokenType::KeywordHIGH;
-            else if (lexeme.first.compare(Lexemes::KeywordLOW) == 0)
-                token.Type = TokenType::KeywordLOW;
-            else if (lexeme.first.compare(Lexemes::KeywordBIT) == 0)
-                token.Type = TokenType::KeywordBIT;
-            else if (lexeme.first.compare(Lexemes::KeywordCHECK) == 0)
-                token.Type = TokenType::KeywordCHECK;
-            else if (lexeme.first.compare(Lexemes::KeywordASSRT) == 0)
-                token.Type = TokenType::KeywordASSRT;
-            else if (lexeme.first.compare(Lexemes::KeywordPASS) == 0)
-                token.Type = TokenType::KeywordPASS;
-            else if (lexeme.first.compare(Lexemes::KeywordFAIL) == 0)
-                token.Type = TokenType::KeywordFAIL;
-            // Operators
-            else if (lexeme.first.compare(Lexemes::OperatorASSIGNMENT) == 0)
-                token.Type = TokenType::OperatorASSIGNMENT;
-            else if (lexeme.first.compare(Lexemes::OperatorEQUAL) == 0)
-                token.Type = TokenType::OperatorEQUAL;
-            else if (lexeme.first.compare(Lexemes::OperatorPLUS) == 0)
-                token.Type = TokenType::OperatorPLUS;
-            else if (lexeme.first.compare(Lexemes::OperatorTRHEEWAYCOMPARISON) == 0)
-                token.Type = TokenType::OperatorTHREEWAYCOMPARISON;
-            else if (lexeme.first.compare(Lexemes::OperatorMINUS) == 0)
-                token.Type = TokenType::OperatorMINUS;
-            else if (lexeme.first.compare(Lexemes::OperatorMULTIPLICATION) == 0)
-                token.Type = TokenType::OperatorMULTIPLICATION;
-            else if (lexeme.first.compare(Lexemes::OperatorBITWISEAND) == 0)
-                token.Type = TokenType::OperatorBITWISEAND;
-            else if (lexeme.first.compare(Lexemes::OperatorBITWISEOR) == 0)
-                token.Type = TokenType::OperatorBITWISEOR;
-            else if (lexeme.first.compare(Lexemes::OperatorBITWISENOT) == 0)
-                token.Type = TokenType::OperatorBITWISENOT;
-            else if (lexeme.first.compare(Lexemes::OperatorBITWISEXOR) == 0)
-                token.Type = TokenType::OperatorBITWISEXOR;
-            else if (lexeme.first.compare(Lexemes::OperatorLEFTSHIFT) == 0)
-                token.Type = TokenType::OperatorLEFTSHIFT;
-            else if (lexeme.first.compare(Lexemes::OperatorRIGHTSHIFT) == 0)
-                token.Type = TokenType::OperatorRIGHTSHIFT;
-            else if (lexeme.first.compare(Lexemes::OperatorDIFFERENT) == 0)
-                token.Type = TokenType::OperatorDIFFERENT;
-            else if (lexeme.first.compare(Lexemes::OperatorLOGICAND) == 0)
-                token.Type = TokenType::OperatorLOGICAND;
-            else if (lexeme.first.compare(Lexemes::OperatorLOGICOR) == 0)
-                token.Type = TokenType::OperatorLOGICOR;
-            else if (lexeme.first.compare(Lexemes::OperatorLESSTHAN) == 0)
-                token.Type = TokenType::OperatorLESSTHAN;
-            else if (lexeme.first.compare(Lexemes::OperatorGREATERTHAN) == 0)
-                token.Type = TokenType::OperatorGREATERTHAN;
-            else if (lexeme.first.compare(Lexemes::OperatorLESSTHANOREQUALTO) == 0)
-                token.Type = TokenType::OperatorLESSTHANOREQUALTO;
-            else if (lexeme.first.compare(Lexemes::OperatorGREATERTHANOREQUALTO) == 0)
-                token.Type = TokenType::OperatorGREATERTHANOREQUALTO;
-            else if (lexeme.first.compare(Lexemes::OperatorLOGICNOT) == 0)
-                token.Type = TokenType::OperatorLOGICNOT;
-            else if (lexeme.first.compare(Lexemes::OperatorAT) == 0)
-                token.Type = TokenType::OperatorAT;
-            else if (lexeme.first.compare(Lexemes::OperatorSEMICOLON) == 0)
-                token.Type = TokenType::OperatorSEMICOLON;
-            else if (lexeme.first.compare(Lexemes::OperatorDOT) == 0)
-                token.Type = TokenType::OperatorDOT;
-            // Separators
-            else if (lexeme.first.compare(Lexemes::SeparatorCOMMA) == 0)
-                token.Type = TokenType::SeparatorCOMMA;
-            else if (lexeme.first.compare(Lexemes::SeparatorOPENPARENTHESIS) == 0)
-                token.Type = TokenType::SeparatorOPENPARENTHESIS;
-            else if (lexeme.first.compare(Lexemes::SeparatorCLOSEPARENTHESIS) == 0)
-                token.Type = TokenType::SeparatorCLOSEPARENTHESIS;
-            else if (lexeme.first.compare(Lexemes::SeparatorOPENBRACKETS) == 0)
-                token.Type = TokenType::SeparatorOPENBRACKETS;
-            else if (lexeme.first.compare(Lexemes::SeparatorCLOSEBRACKETS) == 0)
-                token.Type = TokenType::SeparatorCLOSEBRACKETS;
-            else if (lexeme.first.compare(Lexemes::SeparatorOPENCURLYBRACKETS) == 0)
-                token.Type = TokenType::SeparatorOPENCURLYBRACKETS;
-            else if (lexeme.first.compare(Lexemes::SeparatorCLOSECURLYBRACKETS) == 0)
-                token.Type = TokenType::SeparatorCLOSECURLYBRACKETS;
-            else
-                token.Type = TokenType::UnknownToken;
-        }
+            token.Type = TokenType::UnknownToken;
 
         tokens.push_back(token);
     }
@@ -425,15 +365,9 @@ vector<pair<string, size_t> > Lexer::FindSubLexemes(string lexeme, size_t column
           
             SaveSubLexeme(ExtractOperatorSeparatorOrMarker(lexeme, i), column, subLexemes, columnCounter);
             CorrectLoopIndex(subLexemes, i);
+            EvaluateStringLimits(lexeme, i);
+            
             accumulator = "";
-
-            if (IsPossibleLiteralMarker(lexeme, i))
-            {
-                if (!_stringLiteralAccumulationStarted)
-                    _stringLiteralAccumulationStarted = true;
-                else
-                    _stringLiteralAccumulationEnded = true;
-            }
         }
         else
             accumulator += lexeme[i];
@@ -444,6 +378,17 @@ vector<pair<string, size_t> > Lexer::FindSubLexemes(string lexeme, size_t column
         subLexemes.push_back(make_pair(accumulator, column + columnCounter));
 
     return subLexemes;
+}
+
+inline void Lexer::EvaluateStringLimits(string lexeme, size_t column)
+{
+    if (IsPossibleLiteralMarker(lexeme, column))
+    {
+        if (!_stringLiteralAccumulationStarted)
+            _stringLiteralAccumulationStarted = true;
+        else
+            _stringLiteralAccumulationEnded = true;
+    }
 }
 
 inline void Lexer::SaveSubLexeme(string token, size_t column, std::vector<std::pair<std::string, size_t> >& subLexemes, size_t& columnCounter)
@@ -538,6 +483,56 @@ bool Lexer::IsPossibleLiteralMarker(string_view candidate, size_t position)
         return true;
 
     return false;
+}
+
+
+inline void Lexer::ExtractStringTokenIfNeeded(string_view input)
+{
+    if (_stringLiteralAccumulationStarted && _stringLiteralAccumulationEnded)
+    {
+        auto endIndex = FindTokenByType(TokenType::LiteralSTRING, _tokens.size() - 1);
+        auto startIndex = FindTokenByType(TokenType::LiteralSTRING, endIndex - 1);
+        auto stringToken = GenerateStringToken(startIndex, endIndex, input);
+        
+        _tokens.insert(begin(_tokens) + startIndex, stringToken);
+        ClearStringLimitFlags();
+    }
+}
+
+inline Token Lexer::GenerateStringToken(size_t startIndex, size_t endIndex, string_view input)
+{
+    auto stringLiteral = string(input.substr(_tokens[startIndex].GlobalPosition, (_tokens[endIndex].GlobalPosition - _tokens[startIndex].GlobalPosition + 1)));
+    auto startLine = _tokens[startIndex].Line;
+    auto startColumn = _tokens[startIndex].Column;
+    auto startGlobalPosition = _tokens[startIndex].GlobalPosition;
+    
+    _tokens.erase(begin(_tokens) + startIndex, begin(_tokens) + endIndex + 1);
+    
+    Token stringLiteralToken = 
+    {
+        .Lexeme = stringLiteral,
+        .Line = startLine,
+        .Column = startColumn,
+        .Type = TokenType::LiteralSTRING,
+        .GlobalPosition = startGlobalPosition
+    };
+
+    return stringLiteralToken;
+}
+
+inline void Lexer::ClearStringLimitFlags()
+{
+    _stringLiteralAccumulationStarted = false;
+    _stringLiteralAccumulationEnded = false;
+}
+
+inline size_t Lexer::FindTokenByType(TokenType type, size_t startIndex)
+{
+    for (auto i = startIndex; i >= 0; --i)
+        if (_tokens[i].Type == type)
+            return i;
+
+    return numeric_limits<size_t>().max();
 }
 
 void Lexer::ClearTokens()

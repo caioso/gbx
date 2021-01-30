@@ -734,17 +734,11 @@ TEST(TestLexer, EvaluateBooleanLiterals)
     EXPECT_EQ(static_cast<size_t>(1), tokens[1].Column);
 }
 
-
 TEST(TestLexer, EvaluateStringLiteral)
 {
-    const string string1 = "\"basic-test\"";
-    const string string2 = "\" basic test \"";
-    const string string3 = "\"\nbasic\ntest\n\"";
-    const string string4 = "CONST MY_STRING {\"my-string\"}";
-    const string string5 = "PACK\n\"\tmessy   string\"(A + 1)";
-
+    const string string = "\"basic-test\"";
     auto lexer = make_shared<Lexer>();
-    lexer->Tokenize(string1);
+    lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
 
     EXPECT_EQ(static_cast<size_t>(1), tokens.size());
@@ -752,9 +746,14 @@ TEST(TestLexer, EvaluateStringLiteral)
     EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
-    
-    lexer->Tokenize(string2);
-    tokens = lexer->Tokens();
+}
+
+TEST(TestLexer, EvaluateStringLiteral2)
+{
+    const string string = "\" basic test \"";
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(string);
+    auto tokens = lexer->Tokens();
 
     EXPECT_EQ(static_cast<size_t>(1), tokens.size());
     EXPECT_STREQ("\" basic test \"", tokens[0].Lexeme.c_str());
@@ -762,30 +761,196 @@ TEST(TestLexer, EvaluateStringLiteral)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
     
-    lexer->Tokenize(string3);
-    tokens = lexer->Tokens();
+}
+
+TEST(TestLexer, EvaluateStringLiteral3)
+{
+    const string string = "\"\nbasic\ntest\n\"";
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(string);
+    auto tokens = lexer->Tokens();
 
     EXPECT_EQ(static_cast<size_t>(1), tokens.size());
     EXPECT_STREQ("\"\nbasic\ntest\n\"", tokens[0].Lexeme.c_str());
     EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
-    
-    lexer->Tokenize(string4);
-    tokens = lexer->Tokens();
+}
+
+TEST(TestLexer, EvaluateStringLiteral4)
+{
+    const string string = "CONST MY_STRING {\"my-string\"}";
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(string);
+    auto tokens = lexer->Tokens();
 
     EXPECT_EQ(static_cast<size_t>(5), tokens.size());
-    EXPECT_STREQ("\"my-string\"", tokens[4].Lexeme.c_str());
-    EXPECT_EQ(TokenType::LiteralSTRING, tokens[4].Type);
-    EXPECT_EQ(static_cast<size_t>(1), tokens[4].Line);
-    EXPECT_EQ(static_cast<size_t>(18), tokens[4].Column);
-
-    lexer->Tokenize(string5);
-    tokens = lexer->Tokens();
-
-    EXPECT_EQ(static_cast<size_t>(7), tokens.size());
-    EXPECT_STREQ("\"\tmessy   string\"", tokens[1].Lexeme.c_str());
-    EXPECT_EQ(TokenType::LiteralSTRING, tokens[1].Type);
+    EXPECT_STREQ(Lexemes::KeywordCONST.c_str(), tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::KeywordCONST, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ("MY_STRING", tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::UnknownToken, tokens[1].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
     EXPECT_EQ(static_cast<size_t>(7), tokens[1].Column);
+    
+    EXPECT_STREQ(Lexemes::SeparatorOPENCURLYBRACKETS.c_str(), tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorOPENCURLYBRACKETS, tokens[2].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
+    EXPECT_EQ(static_cast<size_t>(17), tokens[2].Column);
+    
+    EXPECT_STREQ("\"my-string\"", tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[3].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
+    EXPECT_EQ(static_cast<size_t>(18), tokens[3].Column);
+
+    EXPECT_STREQ(Lexemes::SeparatorCLOSECURLYBRACKETS.c_str(), tokens[4].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorCLOSECURLYBRACKETS, tokens[4].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[4].Line);
+    EXPECT_EQ(static_cast<size_t>(29), tokens[4].Column);
+}
+
+TEST(TestLexer, EvaluateStringLiteral5)
+{
+    const string string = "PACK\n\"\tmessy   string\"(A + 1)";
+
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(string);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(7), tokens.size());
+    
+    EXPECT_STREQ(Lexemes::KeywordPACK.c_str(), tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::KeywordPACK, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ("\"\tmessy   string\"", tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Column);
+    
+    EXPECT_STREQ(Lexemes::SeparatorOPENPARENTHESIS.c_str(), tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorOPENPARENTHESIS, tokens[2].Type);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[2].Line);
+    EXPECT_EQ(static_cast<size_t>(18), tokens[2].Column);
+    
+    EXPECT_STREQ("A", tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::UnknownToken, tokens[3].Type);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[3].Line);
+    EXPECT_EQ(static_cast<size_t>(19), tokens[3].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorPLUS.c_str(), tokens[4].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorPLUS, tokens[4].Type);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[4].Line);
+    EXPECT_EQ(static_cast<size_t>(21), tokens[4].Column);
+    
+    EXPECT_STREQ("1", tokens[5].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericDECIMAL, tokens[5].Type);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[5].Line);
+    EXPECT_EQ(static_cast<size_t>(23), tokens[5].Column);
+
+    EXPECT_STREQ(Lexemes::SeparatorCLOSEPARENTHESIS.c_str(), tokens[6].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorCLOSEPARENTHESIS, tokens[6].Type);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[6].Line);
+    EXPECT_EQ(static_cast<size_t>(24), tokens[6].Column);
+}
+
+TEST(TestLexer, EvaluateStringLiteral6)
+{
+    const string string = "\"\"";
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(string);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(1), tokens.size());
+    EXPECT_STREQ("\"\"", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+}
+
+TEST(TestLexer, EvaluateStringLiteral7)
+{
+    const string string = "\n\n\n\n\n\n\n\n\n\"sfjfashkjfhdjkfshdjkdashfkajshfjasfhakjsdhfakjsfhajskfhsjkdfheiwuyuscbvmrijeurhaBSXASJDNEN\"";
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(string);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(1), tokens.size());
+    EXPECT_STREQ("\"sfjfashkjfhdjkfshdjkdashfkajshfjasfhakjsdhfakjsfhajskfhsjkdfheiwuyuscbvmrijeurhaBSXASJDNEN\"", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(10), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+}
+
+TEST(TestLexer, EvaluateStringLiteral8)
+{
+    const string text = "\"basic test \"";
+    const string text2 = "\" basic test\"";
+    const string text3 = "\"basic test\"";
+
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(text);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(1), tokens.size());
+    EXPECT_STREQ("\"basic test \"", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    lexer->Tokenize(text2);
+    tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(1), tokens.size());
+    EXPECT_STREQ("\" basic test\"", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+
+    lexer->Tokenize(text3);
+    tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(1), tokens.size());
+    EXPECT_STREQ("\"basic test\"", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);   
+}
+
+TEST(TestLexer, EvaluateStringLiteral9)
+{
+    const string string = "0x67{\"\":}";
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(string);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(5), tokens.size());
+    
+    EXPECT_STREQ("0x67", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericHEXADECIMAL, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ(Lexemes::SeparatorOPENCURLYBRACKETS.c_str(), tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorOPENCURLYBRACKETS, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[1].Column);
+    
+    EXPECT_STREQ("\"\"", tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[2].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[2].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorSEMICOLON.c_str(), tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorSEMICOLON, tokens[3].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
+    EXPECT_EQ(static_cast<size_t>(8), tokens[3].Column);
+
+    EXPECT_STREQ(Lexemes::SeparatorCLOSECURLYBRACKETS.c_str(), tokens[4].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorCLOSECURLYBRACKETS, tokens[4].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[4].Line);
+    EXPECT_EQ(static_cast<size_t>(9), tokens[4].Column);
 }
