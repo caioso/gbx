@@ -19,7 +19,9 @@ enum class TokenType
 
     // String Literals
     LiteralSTRING,
-    LiteralSTRINGCONTENT,
+    
+    // Char Literals
+    LiteralCHAR,
 
     // Keywords
     KeywordPACK,

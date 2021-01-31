@@ -31,17 +31,20 @@ private:
     inline std::string ExtractOperatorSeparatorOrMarker(std::string, size_t);
     inline std::string ExtractOperator(std::string, size_t);
     inline std::string ExtractSeparator(std::string, size_t);
-    inline std::string ExtractLiteralMarker(std::string, size_t);
+    inline std::string ExtractStringLiteralMarker(std::string, size_t);
+    inline std::string ExtractCharLiteralMarker(std::string);
     
     void ClearTokens();
     void ExtractTokens(std::string_view);
 
     inline bool IsPossibleOperator(std::string_view, size_t);
     inline bool IsPossibleSeparator(std::string_view, size_t);
-    inline bool IsPossibleLiteralMarker(std::string_view, size_t);
+    inline bool IsPossibleStringLiteralMarker(std::string_view, size_t);
+    inline bool IsPossibleCharLiteralMarker(std::string_view, size_t);
     inline bool IsSeparatorOrOperator(std::string_view, size_t);
     inline bool IsNumericLiteral(std::string_view);
     inline bool IsStringLiteral(std::string_view);
+    inline bool IsCharLiteral(std::string_view);
     inline bool IsDigit(std::string_view, size_t);
     inline bool IsInitialDigit(std::string_view, size_t);
 
@@ -60,6 +63,10 @@ private:
     inline size_t FindTokenByType(TokenType, size_t);
     inline Token GenerateStringToken(size_t, size_t, std::string_view);
     inline void ClearStringLimitFlags();
+    inline void EvaluateCharLiteralSize(std::string);
+    inline std::string AccumulateFirstSeparatorOfCharLiteral(std::string, size_t&);
+    inline std::string AccumulateContentOfCharLiteral(std::string, size_t&);
+    inline std::string AccumulateSecondSeparatorOfCharLiteral(std::string, size_t&);
 
     std::vector<Token> _tokens;
     bool _stringLiteralAccumulationStarted;

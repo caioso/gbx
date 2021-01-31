@@ -52,6 +52,9 @@ void Lexer::ExtractTokens(string_view input)
         globalCounter += currentLine.size() + 1;
         line++;
     }
+
+    if (_stringLiteralAccumulationStarted || _stringLiteralAccumulationEnded)
+        throw LexerException("Non-terminated string literal found");
 }
 
 vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t globalCounter)
@@ -75,6 +78,10 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
         // String Literals
         else if (IsStringLiteral(lexeme.first))
             token.Type = TokenType::LiteralSTRING;
+        
+        // String Literals
+        else if (IsCharLiteral(lexeme.first))
+            token.Type = TokenType::LiteralCHAR;
 
         // Boolean Literals
         else if (lexeme.first.compare(Lexemes::LiteralBooleanTRUE) == 0)
@@ -232,7 +239,14 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
 
 inline bool Lexer::IsStringLiteral (string_view lexeme)
 {
-    if (lexeme[0] == '\"' || lexeme[0] == '\'' )
+    if (lexeme[0] == '\"')
+        return true;
+    return false;
+}
+
+inline bool Lexer::IsCharLiteral (string_view lexeme)
+{
+    if (lexeme[0] == '\'')
         return true;
     return false;
 }
@@ -358,7 +372,7 @@ vector<pair<string, size_t> > Lexer::FindSubLexemes(string lexeme, size_t column
 
     for (auto i = size_t(0); i < lexeme.size(); ++i)
     {
-        if (IsSeparatorOrOperator(lexeme, i) || IsPossibleLiteralMarker(lexeme, i))
+        if (IsSeparatorOrOperator(lexeme, i) || IsPossibleStringLiteralMarker(lexeme, i) || IsPossibleCharLiteralMarker(lexeme, i))
         {
             if (accumulator.size() != 0)
                 SaveSubLexeme(accumulator, column, subLexemes, columnCounter);
@@ -382,7 +396,7 @@ vector<pair<string, size_t> > Lexer::FindSubLexemes(string lexeme, size_t column
 
 inline void Lexer::EvaluateStringLimits(string lexeme, size_t column)
 {
-    if (IsPossibleLiteralMarker(lexeme, column))
+    if (IsPossibleStringLiteralMarker(lexeme, column))
     {
         if (!_stringLiteralAccumulationStarted)
             _stringLiteralAccumulationStarted = true;
@@ -412,8 +426,10 @@ inline string Lexer::ExtractOperatorSeparatorOrMarker(string candidate, size_t c
 {
     if (IsPossibleOperator(candidate, column))
         return ExtractOperator(candidate, column);
-    else if (IsPossibleLiteralMarker(candidate, column))
-        return ExtractLiteralMarker(candidate, column);
+    else if (IsPossibleStringLiteralMarker(candidate, column))
+        return ExtractStringLiteralMarker(candidate, column);
+    else if (IsPossibleCharLiteralMarker(candidate, column))
+        return ExtractCharLiteralMarker(candidate);
     else 
         return ExtractSeparator(candidate, column);
 }
@@ -446,15 +462,77 @@ inline string Lexer::ExtractSeparator(string candidate, size_t column)
     return accumulator;
 }
 
-inline string Lexer::ExtractLiteralMarker(string candidate, size_t column)
+inline string Lexer::ExtractStringLiteralMarker(string candidate, size_t column)
 {
     // Important note: Separators are *ALWAYS* one character only. That's why they are not accumulated like for Operators.
     string accumulator = "";
     
-    if(IsPossibleLiteralMarker(candidate, column)) 
+    if(IsPossibleStringLiteralMarker(candidate, column)) 
         accumulator += candidate[column];
 
     return accumulator;
+}
+
+inline string Lexer::ExtractCharLiteralMarker(string candidate)
+{
+    // Important note: Separators are *ALWAYS* one character only. That's why they are not accumulated like for Operators.
+    string accumulator = "";
+    auto counter = static_cast<size_t>(0);
+
+    EvaluateCharLiteralSize(candidate);    
+    accumulator += AccumulateFirstSeparatorOfCharLiteral(candidate, counter);
+    accumulator += AccumulateContentOfCharLiteral(candidate, counter);
+    accumulator += AccumulateSecondSeparatorOfCharLiteral(candidate, counter);
+    
+    return accumulator;
+}
+
+inline string Lexer::AccumulateFirstSeparatorOfCharLiteral(string candidate, size_t& column)
+{
+    auto accumulator = string("");
+    if(IsPossibleCharLiteralMarker(candidate, column)) 
+        accumulator += candidate[column++];
+
+    return accumulator;
+}
+
+inline string Lexer::AccumulateContentOfCharLiteral(string candidate, size_t& column)
+{
+    auto accumulator = string("");
+    if (candidate[column] == '\\')
+    {
+        accumulator += candidate[column++];
+        accumulator += candidate[column++];
+    }
+    else
+        accumulator += candidate[column++];
+
+    return accumulator;
+}   
+inline string Lexer::AccumulateSecondSeparatorOfCharLiteral(string candidate, size_t& column)
+{
+    auto accumulator = string("");
+    if(IsPossibleCharLiteralMarker(candidate, column)) 
+        accumulator += candidate[column++];
+    else
+        throw LexerException("char literals must be one or two characters long");
+
+    return accumulator;
+}
+
+inline void Lexer::EvaluateCharLiteralSize(string candidate)
+{
+    if (candidate.size() != 3 && candidate.size() != 4)
+    {
+        if (candidate.size() == 2 || candidate.size() == 1)
+            throw LexerException("Non-terminated char literal found");
+        else
+        {
+            stringstream ss;
+            ss << "invalid char literal found (" << candidate << ")";
+            throw LexerException(ss.str());    
+        }
+    }
 }
 
 bool Lexer::IsPossibleOperator(string_view candidate, size_t position)
@@ -477,9 +555,17 @@ bool Lexer::IsPossibleSeparator(string_view candidate, size_t position)
     return false;
 }
 
-bool Lexer::IsPossibleLiteralMarker(string_view candidate, size_t position)
+bool Lexer::IsPossibleStringLiteralMarker(string_view candidate, size_t position)
 {
-    if (candidate[position] == '\"' || candidate[position] == '\'')
+    if (candidate[position] == '\"')
+        return true;
+
+    return false;
+}
+
+bool Lexer::IsPossibleCharLiteralMarker(string_view candidate, size_t position)
+{
+    if (candidate[position] == '\'')
         return true;
 
     return false;
