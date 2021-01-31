@@ -2807,3 +2807,29 @@ TEST(TestControlUnit, TestJrConditional)
 
     EXPECT_EQ(0x0006, registers->ReadPair(Register::PC));
 }
+
+TEST(TestControlUnit, TestJpUnconditionalRegisterIndirect)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnitDecorator>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    // JP (HL) -> HL = 0x40FF,  (0x40FF) = 0x6755;
+    auto opcode = 0xE9;
+
+    registers->WritePair(Register::HL, 0x40FF);
+
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(opcode)));
+    EXPECT_CALL((*mockPointer), Read(0x40FF, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x55)));
+    EXPECT_CALL((*mockPointer), Read(0x4100, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x67)));
+    
+    controlUnit->RunCycle();
+
+    EXPECT_EQ(0x6755, registers->ReadPair(Register::PC));
+}

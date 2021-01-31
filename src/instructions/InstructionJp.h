@@ -15,9 +15,11 @@ public:
     virtual void Execute(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&) override;
 
 private:
-    inline void DecodeUnconditionalJp(interfaces::DecodedInstruction&);
+    inline void DecodeUnconditionalJpRegisterIndirect(interfaces::DecodedInstruction&);
+    inline void DecodeUnconditionalJpImmediate(interfaces::DecodedInstruction&);
     inline void DecodeConditionalJp(uint8_t, interfaces::DecodedInstruction&);
     inline void ExecuteUnconditionalJp(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
+    inline void ExecuteUnconditionalJpRegisterIndirect(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
     inline void ExecuteConditionalJp(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
 };
 

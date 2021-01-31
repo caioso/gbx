@@ -150,3 +150,48 @@ TEST(TestJp, ExecuteConditionalJpImmediateMode)
         }
     }
 }
+
+TEST(TestJp, DecodeUnconditionalJpRegisterIndirectMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+    
+    ArithmeticLogicDecorator alu;
+    alu.Initialize(registerBank);
+    alu.InitializeRegisters();
+    
+    auto opcode = 0xE9;
+    alu.DecodeInstruction(opcode, nullopt);
+
+    EXPECT_EQ(OpcodeType::jp, alu.GetInstructionData().Opcode);
+    EXPECT_EQ(AddressingMode::RegisterIndirectSourcePair, alu.GetInstructionData().AddressingMode);
+    EXPECT_EQ(Register::HL, alu.GetInstructionData().SourceRegister);
+    EXPECT_EQ(Register::PC, alu.GetInstructionData().DestinationRegister);
+    EXPECT_EQ(0xFF, alu.GetInstructionData().InstructionExtraOperand);
+}
+
+TEST(TestJp, ExecuteUnconditionalJpRegisterIndirectMode)
+{
+    auto registerBank = make_shared<RegisterBank>();
+    
+    ArithmeticLogicDecorator alu;
+    alu.Initialize(registerBank);
+    alu.InitializeRegisters();
+
+    random_device randomDevice;
+    mt19937 engine{randomDevice()};
+    uniform_int_distribution<uint16_t> distribution{0x0000, 0xFFFF};
+
+    for (auto i = 0; i < 0xFFF; i++)
+    {
+        auto opcode = 0xE9;
+        alu.DecodeInstruction(opcode, nullopt);
+
+        auto targetPCAddress = distribution(engine);
+        alu.GetInstructionData().MemoryOperand1 = targetPCAddress & 0xFF;
+        alu.GetInstructionData().MemoryOperand2 = (targetPCAddress >> 0x08) & 0xFF;
+
+        alu.Execute();
+
+        EXPECT_EQ(targetPCAddress, registerBank->ReadPair(Register::PC));
+    }
+}

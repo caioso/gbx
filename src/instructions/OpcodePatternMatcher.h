@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 namespace gbx
 {
@@ -12,6 +13,16 @@ typedef enum class BitPattern_t
     _X,
 }
 b;
+
+constexpr b operator "" _b(char b)
+{
+    if (b == '0')
+        return b::_0;
+    else if (b == '1')
+        return b::_1;
+    else
+        return b::_X;
+}
 
 typedef struct OpcodePattern_t
 {

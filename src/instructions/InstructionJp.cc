@@ -8,8 +8,10 @@ namespace gbx
 
 void InstructionJp::Decode(__attribute__((unused)) uint8_t opcode, __attribute__((unused)) std::optional<uint8_t> preOpcode, interfaces::DecodedInstruction& decodedInstruction)
 {
-    if ((opcode & 0x03) == 0x03)
-        DecodeUnconditionalJp(decodedInstruction);
+    if (opcode == 0xE9)
+        DecodeUnconditionalJpRegisterIndirect(decodedInstruction);
+    else if ((opcode & 0x03) == 0x03)
+        DecodeUnconditionalJpImmediate(decodedInstruction);
     else if ((opcode & 0x03) == 0x02)
         DecodeConditionalJp(opcode, decodedInstruction);
 }
@@ -19,6 +21,8 @@ void InstructionJp::Execute(std::shared_ptr<interfaces::RegisterBankInterface> r
     // Flag to indicate which jump typ it is
     if (decodedInstruction.InstructionExtraOperand == 0xFF)
         ExecuteUnconditionalJp(registerBank, decodedInstruction);
+    else if (decodedInstruction.InstructionExtraOperand == 0xFE)
+        ExecuteUnconditionalJpRegisterIndirect(registerBank, decodedInstruction);
     else
         ExecuteConditionalJp(registerBank, decodedInstruction);
 }
@@ -41,7 +45,14 @@ void InstructionJp::ExecuteUnconditionalJp(std::shared_ptr<interfaces::RegisterB
     registerBank->WritePair(Register::PC, lsByte | (msByte << 0x08));
 }
 
-void InstructionJp::DecodeUnconditionalJp(interfaces::DecodedInstruction& decodedInstruction)
+void InstructionJp::ExecuteUnconditionalJpRegisterIndirect(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction) 
+{
+    auto lsByte = decodedInstruction.MemoryResult1;
+    auto msByte = decodedInstruction.MemoryResult2;
+    registerBank->WritePair(Register::PC, lsByte | (msByte << 0x08));
+}
+
+void InstructionJp::DecodeUnconditionalJpImmediate(interfaces::DecodedInstruction& decodedInstruction)
 {
     decodedInstruction =
     {
@@ -51,6 +62,23 @@ void InstructionJp::DecodeUnconditionalJp(interfaces::DecodedInstruction& decode
         .MemoryOperand2 = 0x00,
         .MemoryOperand3 = 0x00,
         .SourceRegister = Register::NoRegister,
+        .DestinationRegister = Register::PC,
+        .MemoryResult1 = 0x00,
+        .MemoryResult2 = 0x00,
+        .InstructionExtraOperand = 0xFF
+    };    
+}
+
+void InstructionJp::DecodeUnconditionalJpRegisterIndirect(interfaces::DecodedInstruction& decodedInstruction)
+{
+    decodedInstruction =
+    {
+        .Opcode = OpcodeType::jp,
+        .AddressingMode = AddressingMode::RegisterIndirectSourcePair,
+        .MemoryOperand1 = 0x00,
+        .MemoryOperand2 = 0x00,
+        .MemoryOperand3 = 0x00,
+        .SourceRegister = Register::HL,
         .DestinationRegister = Register::PC,
         .MemoryResult1 = 0x00,
         .MemoryResult2 = 0x00,
