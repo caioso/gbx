@@ -991,6 +991,26 @@ TEST(TestLexer, EvaluateStringLiteral10)
     EXPECT_EQ(static_cast<size_t>(18), tokens[4].Column);
 }
 
+TEST(TestLexer, EvaluateStringLiteral11)
+{
+    const string string = "\"string1\"\"string2\"";
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(string);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(2), tokens.size());
+    
+    EXPECT_STREQ("\"string1\"", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+
+    EXPECT_STREQ("\"string2\"", tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(10), tokens[1].Column);
+}
+
 TEST(TestLexer, EvaluateUnterminatedString)
 {
     const string string = "\"never-ending string";
@@ -1040,7 +1060,6 @@ TEST(TestLexer, EvaluateCharLiteral)
     EXPECT_EQ(static_cast<size_t>(13), tokens[3].Column);
 }
 
-
 TEST(TestLexer, EvaluateNotClosedCharLiteral)
 {
     const string program = "'a' '";
@@ -1083,4 +1102,101 @@ TEST(TestLexer, EvaluateInvalidCharLiteral3)
     ASSERT_EXCEPTION( { lexer->Tokenize(program); }, 
                       LexerException, 
                       "invalid char literal found ('\\ra')");
+}
+
+TEST(TestLexer, EvaluateValidCharLiteral)
+{
+    const string program = "'\\s' '!' '\\\"' '#'"
+                           "'$' '%' '&' '\\''"
+                           "'(' ')' '*' '+'"
+                           "',' '-' '.' '/'"
+                           "'0' '1' '2' '3'"
+                           "'4' '5' '6' '7'"
+                           "'8' '9' ':' ';'"
+                           "'<' '=' '>' '?'"
+                           "'@' 'A' 'B' 'C'"
+                           "'D' 'E' 'F' 'G'"
+                           "'H' 'I' 'J' 'K'"
+                           "'L' 'M' 'N' 'O'"
+                           "'P' 'Q' 'R' 'S'"
+                           "'T' 'U' 'V' 'W'"
+                           "'X' 'Y' 'Z' '['"
+                           "']' '\\' '^' '_'"
+                           "'`' 'a' 'b' 'c'"
+                           "'d' 'e' 'f' 'g'"
+                           "'h' 'i' 'j' 'k'"
+                           "'l' 'm' 'n' 'o'"
+                           "'p' 'q' 'r' 's'"
+                           "'t' 'u' 'v' 'w'"
+                           "'x' 'y' 'z' '{'"
+                           "'|' '}' '~' '\\n'"
+                           "'\\a' '\\b' '\\f' '\\r'"
+                           "'\\t' '\\v'";
+
+    auto expectedChars = 
+    { 
+        "' '",  "'!'",  "'\"'",  "'#'",
+        "'$'",  "'%'",  "'&'",  "'''",
+        "'('",  "')'",  "'*'",  "'+'",
+        "','",  "'-'",  "'.'",  "'/'",
+        "'0'",  "'1'",  "'2'",  "'3'",
+        "'4'",  "'5'",  "'6'",  "'7'",
+        "'8'",  "'9'",  "':'",  "';'",
+        "'<'",  "'='",  "'>'",  "'?'",
+        "'@'",  "'A'",  "'B'",  "'C'",
+        "'D'",  "'E'",  "'F'",  "'G'",
+        "'H'",  "'I'",  "'J'",  "'K'",
+        "'L'",  "'M'",  "'N'",  "'O'",
+        "'P'",  "'Q'",  "'R'",  "'S'",
+        "'T'",  "'U'",  "'V'",  "'W'",
+        "'X'",  "'Y'",  "'Z'",  "'['",
+        "']'",  "'\\'",  "'^'",  "'_'",
+        "'`'",  "'a'",  "'b'",  "'c'",
+        "'d'",  "'e'",  "'f'",  "'g'",
+        "'h'",  "'i'",  "'j'",  "'k'",
+        "'l'",  "'m'",  "'n'",  "'o'",
+        "'p'",  "'q'",  "'r'",  "'s'",
+        "'t'",  "'u'",  "'v'",  "'w'",
+        "'x'",  "'y'",  "'z'",  "'{'",
+        "'|'",  "'}'",  "'~'",  "'\n'",
+        "'\a'",  "'\b'",  "'\f'",  "'\r'",
+        "'\t'",  "'\v'"
+        };
+
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    auto tokenCounter = 0;
+    for (auto token : tokens)
+    {
+        EXPECT_STREQ(*(begin(expectedChars) + tokenCounter++), token.Lexeme.c_str());
+        EXPECT_EQ(TokenType::LiteralCHAR, token.Type);
+    }
+}
+
+TEST(TestLexer, InvalidScapedCharLiterals)
+{
+    const string sequence1 = "'\\w'";
+    const string sequence2 = "'\\0'";
+    const string sequence3 = "'±'";
+    const string sequence4 = "'€'";
+
+    auto lexer = make_shared<Lexer>();
+
+    ASSERT_EXCEPTION( { lexer->Tokenize(sequence1); }, 
+                      LexerException, 
+                      "Unknown char literal '\\w'");
+
+    ASSERT_EXCEPTION( { lexer->Tokenize(sequence2); }, 
+                      LexerException, 
+                      "Unknown char literal '\\0'");
+
+    ASSERT_EXCEPTION( { lexer->Tokenize(sequence3); }, 
+                      LexerException, 
+                      "Unknown char literal '\xC2\xB1'");
+
+    ASSERT_EXCEPTION( { lexer->Tokenize(sequence4); }, 
+                      LexerException, 
+                      "invalid char literal found ('€')");
 }

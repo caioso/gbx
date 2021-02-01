@@ -96,6 +96,7 @@ enum class TokenType
     SeparatorCLOSECURLYBRACKETS,
     SeparatorOPENBRACKETS,
     SeparatorCLOSEBRACKETS,
+    SeparatorDOUBLEQUOTES,
 
     // Unknown
     UnknownToken

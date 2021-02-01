@@ -46,7 +46,7 @@ void Lexer::ExtractTokens(string_view input)
                 _tokens.push_back(token);
             }
 
-            ExtractStringTokenIfNeeded(input);
+            ExtractAllStringTokenIfNeeded(input);
         }
 
         globalCounter += currentLine.size() + 1;
@@ -77,7 +77,7 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
 
         // String Literals
         else if (IsStringLiteral(lexeme.first))
-            token.Type = TokenType::LiteralSTRING;
+            token.Type = TokenType::SeparatorDOUBLEQUOTES;
         
         // String Literals
         else if (IsCharLiteral(lexeme.first))
@@ -375,13 +375,14 @@ vector<pair<string, size_t> > Lexer::FindSubLexemes(string lexeme, size_t column
         if (IsSeparatorOrOperator(lexeme, i) || IsPossibleStringLiteralMarker(lexeme, i) || IsPossibleCharLiteralMarker(lexeme, i))
         {
             if (accumulator.size() != 0)
+            {
                 SaveSubLexeme(accumulator, column, subLexemes, columnCounter);
+                accumulator = "";
+            }
           
             SaveSubLexeme(ExtractOperatorSeparatorOrMarker(lexeme, i), column, subLexemes, columnCounter);
             CorrectLoopIndex(subLexemes, i);
             EvaluateStringLimits(lexeme, i);
-            
-            accumulator = "";
         }
         else
             accumulator += lexeme[i];
@@ -391,7 +392,16 @@ vector<pair<string, size_t> > Lexer::FindSubLexemes(string lexeme, size_t column
     if (accumulator.size() != 0)
         subLexemes.push_back(make_pair(accumulator, column + columnCounter));
 
+    ConvertCharLiteral(subLexemes);    
+
     return subLexemes;
+}
+
+inline void Lexer::ConvertCharLiteral(std::vector<std::pair<std::string, size_t> >& subLexemes)
+{
+    for (auto i = static_cast<size_t>(0x00); i < subLexemes.size(); ++i)
+        if (IsPossibleCharLiteralMarker(subLexemes[i].first, 0))
+            subLexemes[i] = make_pair(EvaluateAndConvertChar(subLexemes[i].first), subLexemes[i].second);
 }
 
 inline void Lexer::EvaluateStringLimits(string lexeme, size_t column)
@@ -429,7 +439,7 @@ inline string Lexer::ExtractOperatorSeparatorOrMarker(string candidate, size_t c
     else if (IsPossibleStringLiteralMarker(candidate, column))
         return ExtractStringLiteralMarker(candidate, column);
     else if (IsPossibleCharLiteralMarker(candidate, column))
-        return ExtractCharLiteralMarker(candidate);
+        return ExtractCharLiteralFromCandidate(candidate, column);
     else 
         return ExtractSeparator(candidate, column);
 }
@@ -473,17 +483,41 @@ inline string Lexer::ExtractStringLiteralMarker(string candidate, size_t column)
     return accumulator;
 }
 
-inline string Lexer::ExtractCharLiteralMarker(string candidate)
+inline string Lexer::ExtractCharLiteralFromCandidate(string candidate, size_t column)
 {
     // Important note: Separators are *ALWAYS* one character only. That's why they are not accumulated like for Operators.
     string accumulator = "";
     auto counter = static_cast<size_t>(0);
+    auto extracted = ExtractPossibleSubCharLiteral(candidate, column);
 
-    EvaluateCharLiteralSize(candidate);    
-    accumulator += AccumulateFirstSeparatorOfCharLiteral(candidate, counter);
-    accumulator += AccumulateContentOfCharLiteral(candidate, counter);
-    accumulator += AccumulateSecondSeparatorOfCharLiteral(candidate, counter);
-    
+    EvaluateCharLiteralSize(extracted);    
+    accumulator += AccumulateFirstSeparatorOfCharLiteral(extracted, counter);
+    accumulator += AccumulateContentOfCharLiteral(extracted, counter);
+    accumulator += AccumulateSecondSeparatorOfCharLiteral(extracted, counter);
+
+    return accumulator;
+}
+
+inline string Lexer::ExtractPossibleSubCharLiteral(string candidate, size_t column)
+{
+    auto substring = candidate.substr(column, candidate.size() - column);
+    auto accumulator = string("");
+    auto previous = static_cast<char>(0x00);
+    auto started = false;
+    for (auto c : substring)
+    {
+        accumulator += c;
+        if (!started && c == '\'')
+            started = true;
+        else if (started && c == '\'')
+        {
+            if (previous != '\\')
+                return accumulator;
+        }
+
+        previous = c;
+    }   
+
     return accumulator;
 }
 
@@ -499,7 +533,7 @@ inline string Lexer::AccumulateFirstSeparatorOfCharLiteral(string candidate, siz
 inline string Lexer::AccumulateContentOfCharLiteral(string candidate, size_t& column)
 {
     auto accumulator = string("");
-    if (candidate[column] == '\\')
+    if (candidate.size() == 0x04)
     {
         accumulator += candidate[column++];
         accumulator += candidate[column++];
@@ -572,17 +606,30 @@ bool Lexer::IsPossibleCharLiteralMarker(string_view candidate, size_t position)
 }
 
 
-inline void Lexer::ExtractStringTokenIfNeeded(string_view input)
+inline void Lexer::ExtractAllStringTokenIfNeeded(string_view input)
 {
     if (_stringLiteralAccumulationStarted && _stringLiteralAccumulationEnded)
     {
-        auto endIndex = FindTokenByType(TokenType::LiteralSTRING, _tokens.size() - 1);
-        auto startIndex = FindTokenByType(TokenType::LiteralSTRING, endIndex - 1);
-        auto stringToken = GenerateStringToken(startIndex, endIndex, input);
-        
-        _tokens.insert(begin(_tokens) + startIndex, stringToken);
+        while(HasUnmergedStrings())
+        {
+            auto endIndex = FindTokenByType(TokenType::SeparatorDOUBLEQUOTES, _tokens.size() - 1);
+            auto startIndex = FindTokenByType(TokenType::SeparatorDOUBLEQUOTES, endIndex - 1);
+            auto stringToken = GenerateStringToken(startIndex, endIndex, input);
+
+            _tokens.insert(begin(_tokens) + startIndex, stringToken);
+        }
+
         ClearStringLimitFlags();
     }
+}
+
+inline bool Lexer::HasUnmergedStrings()
+{
+    for (auto token : _tokens)
+        if (token.Type == TokenType::SeparatorDOUBLEQUOTES)
+            return true;
+
+    return false;
 }
 
 inline Token Lexer::GenerateStringToken(size_t startIndex, size_t endIndex, string_view input)
@@ -619,6 +666,218 @@ inline size_t Lexer::FindTokenByType(TokenType type, size_t startIndex)
             return i;
 
     return numeric_limits<size_t>().max();
+}
+
+inline std::string Lexer::EvaluateAndConvertChar(std::string_view originalChar)
+{
+    if (originalChar.compare("'\\s'") == 0)
+        return "' '";
+    else if (originalChar.compare("'!'") == 0)
+        return "'!'";
+    else if (originalChar.compare("'\\\"'") == 0)
+        return "'\"'";
+    else if (originalChar.compare("'#'") == 0)
+        return "'#'";
+    else if (originalChar.compare("'$'") == 0)
+        return "'$'";
+    else if (originalChar.compare("'%'") == 0)
+        return "'%'";
+    else if (originalChar.compare("'&'") == 0)
+        return "'&'";
+    else if (originalChar.compare("'\\''") == 0)
+        return "'''";
+    else if (originalChar.compare("'('") == 0)
+        return "'('";
+    else if (originalChar.compare("')'") == 0)
+        return "')'";
+    else if (originalChar.compare("'*'") == 0)
+        return "'*'";
+    else if (originalChar.compare("'+'") == 0)
+        return "'+'";
+    else if (originalChar.compare("','") == 0)
+        return "','";
+    else if (originalChar.compare("'-'") == 0)
+        return "'-'";
+    else if (originalChar.compare("'.'") == 0)
+        return "'.'";
+    else if (originalChar.compare("'/'") == 0)
+        return "'/'"; 
+    else if (originalChar.compare("'0'") == 0)
+        return "'0'";
+    else if (originalChar.compare("'1'") == 0)
+        return "'1'";
+    else if (originalChar.compare("'2'") == 0)
+        return "'2'";
+    else if (originalChar.compare("'3'") == 0)
+        return "'3'";
+    else if (originalChar.compare("'4'") == 0)
+        return "'4'";
+    else if (originalChar.compare("'5'") == 0)
+        return "'5'";
+    else if (originalChar.compare("'6'") == 0)
+        return "'6'";
+    else if (originalChar.compare("'7'") == 0)
+        return "'7'";
+    else if (originalChar.compare("'8'") == 0)
+        return "'8'";
+    else if (originalChar.compare("'9'") == 0)
+        return "'9'";
+    else if (originalChar.compare("':'") == 0)
+        return "':'";
+    else if (originalChar.compare("';'") == 0)
+        return "';'";
+    else if (originalChar.compare("'<'") == 0)
+        return "'<'";
+    else if (originalChar.compare("'='") == 0)
+        return "'='";
+    else if (originalChar.compare("'>'") == 0)
+        return "'>'";
+    else if (originalChar.compare("'?'") == 0)
+        return "'?'";
+    else if (originalChar.compare("'@'") == 0)
+        return "'@'";
+    else if (originalChar.compare("'A'") == 0)
+        return "'A'";
+    else if (originalChar.compare("'B'") == 0)
+        return "'B'";
+    else if (originalChar.compare("'C'") == 0)
+        return "'C'";
+    else if (originalChar.compare("'D'") == 0)
+        return "'D'";
+    else if (originalChar.compare("'E'") == 0)
+        return "'E'";
+    else if (originalChar.compare("'F'") == 0)
+        return "'F'";
+    else if (originalChar.compare("'G'") == 0)
+        return "'G'";
+    else if (originalChar.compare("'H'") == 0)
+        return "'H'";
+    else if (originalChar.compare("'I'") == 0)
+        return "'I'";
+    else if (originalChar.compare("'J'") == 0)
+        return "'J'";
+    else if (originalChar.compare("'K'") == 0)
+        return "'K'";
+    else if (originalChar.compare("'L'") == 0)
+        return "'L'";
+    else if (originalChar.compare("'M'") == 0)
+        return "'M'";
+    else if (originalChar.compare("'N'") == 0)
+        return "'N'";
+    else if (originalChar.compare("'O'") == 0)
+        return "'O'";
+    else if (originalChar.compare("'P'") == 0)
+        return "'P'";
+    else if (originalChar.compare("'Q'") == 0)
+        return "'Q'";
+    else if (originalChar.compare("'R'") == 0)
+        return "'R'";
+    else if (originalChar.compare("'S'") == 0)
+        return "'S'";
+    else if (originalChar.compare("'T'") == 0)
+        return "'T'";
+    else if (originalChar.compare("'U'") == 0)
+        return "'U'";
+    else if (originalChar.compare("'V'") == 0)
+        return "'V'";
+    else if (originalChar.compare("'W'") == 0)
+        return "'W'";
+    else if (originalChar.compare("'X'") == 0)
+        return "'X'";
+    else if (originalChar.compare("'Y'") == 0)
+        return "'Y'";
+    else if (originalChar.compare("'Z'") == 0)
+        return "'Z'";
+    else if (originalChar.compare("'['") == 0)
+        return "'['";
+    else if (originalChar.compare("']'") == 0)
+        return "']'";
+    else if (originalChar.compare("'\\'") == 0)
+        return "'\\'";
+    else if (originalChar.compare("'^'") == 0)
+        return "'^'";
+    else if (originalChar.compare("'_'") == 0)
+        return "'_'";
+    else if (originalChar.compare("'`'") == 0)
+        return "'`'";
+    else if (originalChar.compare("'a'") == 0)
+        return "'a'";
+    else if (originalChar.compare("'b'") == 0)
+        return "'b'";
+    else if (originalChar.compare("'c'") == 0)
+        return "'c'";
+    else if (originalChar.compare("'d'") == 0)
+        return "'d'";
+    else if (originalChar.compare("'e'") == 0)
+        return "'e'";
+    else if (originalChar.compare("'f'") == 0)
+        return "'f'";
+    else if (originalChar.compare("'g'") == 0)
+        return "'g'";
+    else if (originalChar.compare("'h'") == 0)
+        return "'h'";
+    else if (originalChar.compare("'i'") == 0)
+        return "'i'";
+    else if (originalChar.compare("'j'") == 0)
+        return "'j'";
+    else if (originalChar.compare("'k'") == 0)
+        return "'k'";
+    else if (originalChar.compare("'l'") == 0)
+        return "'l'";
+    else if (originalChar.compare("'m'") == 0)
+        return "'m'";
+    else if (originalChar.compare("'n'") == 0)
+        return "'n'";
+    else if (originalChar.compare("'o'") == 0)
+        return "'o'";
+    else if (originalChar.compare("'p'") == 0)
+        return "'p'";
+    else if (originalChar.compare("'q'") == 0)
+        return "'q'";
+    else if (originalChar.compare("'r'") == 0)
+        return "'r'";
+    else if (originalChar.compare("'s'") == 0)
+        return "'s'";
+    else if (originalChar.compare("'t'") == 0)
+        return "'t'";
+    else if (originalChar.compare("'u'") == 0)
+        return "'u'";
+    else if (originalChar.compare("'v'") == 0)
+        return "'v'";
+    else if (originalChar.compare("'w'") == 0)
+        return "'w'";
+    else if (originalChar.compare("'x'") == 0)
+        return "'x'";
+    else if (originalChar.compare("'y'") == 0)
+        return "'y'";
+    else if (originalChar.compare("'z'") == 0)
+        return "'z'";
+    else if (originalChar.compare("'{'") == 0)
+        return "'{'";
+    else if (originalChar.compare("'|'") == 0)
+        return "'|'";
+    else if (originalChar.compare("'}'") == 0)
+        return "'}'";
+    else if (originalChar.compare("'~'") == 0)
+        return "'~'";
+    else if (originalChar.compare("'\\n'") == 0)
+        return "'\n'";
+    else if (originalChar.compare("'\\a'") == 0)
+        return "'\a'";
+    else if (originalChar.compare("'\\b'") == 0)
+        return "'\b'";
+    else if (originalChar.compare("'\\f'") == 0)
+        return "'\f'";
+    else if (originalChar.compare("'\\r'") == 0)
+        return "'\r'";
+    else if (originalChar.compare("'\\t'") == 0)
+        return "'\t'";
+    else if (originalChar.compare("'\\v'") == 0)
+        return "'\v'";
+
+    stringstream ss;
+    ss << "Unknown char literal " << originalChar;
+    throw LexerException(ss.str());
 }
 
 void Lexer::ClearTokens()

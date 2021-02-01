@@ -32,7 +32,7 @@ private:
     inline std::string ExtractOperator(std::string, size_t);
     inline std::string ExtractSeparator(std::string, size_t);
     inline std::string ExtractStringLiteralMarker(std::string, size_t);
-    inline std::string ExtractCharLiteralMarker(std::string);
+    inline std::string ExtractCharLiteralFromCandidate(std::string, size_t);
     
     void ClearTokens();
     void ExtractTokens(std::string_view);
@@ -47,26 +47,31 @@ private:
     inline bool IsCharLiteral(std::string_view);
     inline bool IsDigit(std::string_view, size_t);
     inline bool IsInitialDigit(std::string_view, size_t);
+    inline bool HasUnmergedStrings();
 
     inline TokenType IdentifyNumericLiteral(std::string_view);
     inline TokenType ParseStringLiteral(std::string_view);
     
+    inline Token GenerateStringToken(size_t, size_t, std::string_view);
+    
     inline void SaveSubLexeme(std::string, size_t, std::vector<std::pair<std::string, size_t> >&, size_t&);
     inline void CorrectLoopIndex(std::vector<std::pair<std::string, size_t> >&, size_t&); 
-
     inline void ValidateDecimalLiteral(std::string_view);
     inline void ValidateOctalLiteral(std::string_view);
     inline void ValidateBinaryLiteral(std::string_view);
     inline void EvaluateStringLimits(std::string, size_t);
-    inline void ExtractStringTokenIfNeeded(std::string_view);
-    
-    inline size_t FindTokenByType(TokenType, size_t);
-    inline Token GenerateStringToken(size_t, size_t, std::string_view);
+    inline void ExtractAllStringTokenIfNeeded(std::string_view);
     inline void ClearStringLimitFlags();
     inline void EvaluateCharLiteralSize(std::string);
+    inline void ConvertCharLiteral(std::vector<std::pair<std::string, size_t> >&);
+    
+    inline size_t FindTokenByType(TokenType, size_t);
+    
     inline std::string AccumulateFirstSeparatorOfCharLiteral(std::string, size_t&);
     inline std::string AccumulateContentOfCharLiteral(std::string, size_t&);
     inline std::string AccumulateSecondSeparatorOfCharLiteral(std::string, size_t&);
+    inline std::string ExtractPossibleSubCharLiteral(std::string, size_t);
+    inline std::string EvaluateAndConvertChar(std::string_view);
 
     std::vector<Token> _tokens;
     bool _stringLiteralAccumulationStarted;
