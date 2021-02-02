@@ -75,7 +75,7 @@ TEST(TestPush, ExecutePushRegisterMode)
 
         alu.Execute();
 
-        EXPECT_EQ(alu.GetInstructionData().MemoryResult1, (static_cast<uint8_t>(operandValue) & 0xFF));
-        EXPECT_EQ(alu.GetInstructionData().MemoryResult2, (static_cast<uint8_t>(operandValue>>8) & 0xFF));
+        EXPECT_EQ(alu.GetInstructionData().MemoryResult1, (static_cast<uint8_t>(operandValue>>8) & 0xFF));
+        EXPECT_EQ(alu.GetInstructionData().MemoryResult2, (static_cast<uint8_t>(operandValue) & 0xFF));
     }
 }

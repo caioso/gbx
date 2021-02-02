@@ -72,8 +72,8 @@ TEST(TestPop, ExecutePopRegisterMode)
 
         alu.DecodeInstruction(rawBinary, nullopt);
         
-        alu.GetInstructionData().MemoryOperand1 = static_cast<uint8_t>((operandValue >> 0x08) & 0xFF);
-        alu.GetInstructionData().MemoryOperand2 = static_cast<uint8_t>((operandValue) & 0xFF);
+        alu.GetInstructionData().MemoryOperand1 = static_cast<uint8_t>((operandValue) & 0xFF);
+        alu.GetInstructionData().MemoryOperand2 = static_cast<uint8_t>((operandValue >> 0x08) & 0xFF);
 
         alu.Execute();
 

@@ -36,7 +36,8 @@ enum class OpcodeType
     set,
     res,
     jp,
-    jr
+    jr,
+    call
 };
 
 const uint8_t MemoryOperand = 0x06;

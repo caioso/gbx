@@ -58,6 +58,7 @@ public:
     static AddressingModeFormat RegisterIndirectSourcePair;
     static AddressingModeFormat ExtendedDestinationPair;
     static AddressingModeFormat SingleImmediatePairAddressingMode;
+    static AddressingModeFormat SubRoutineCallMode;
 };
 
 }

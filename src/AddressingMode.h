@@ -29,7 +29,8 @@ enum class AddressingMode
     RegisterImplicitSource,
     RegisterImplicitDestination,
     ImmediateImplicitSource,
-    ImmediateImplicitDestination
+    ImmediateImplicitDestination,
+    SubRoutineCall,
 };
 
 }

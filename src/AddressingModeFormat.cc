@@ -653,4 +653,30 @@ AddressingModeFormat AddressingModeTemplate::ExtendedDestinationPair
                                                                         .writeBackPairAtRegisterAddress = false,
                                                                         .writeBackPairAtImmediateAddress = true
                                                                         };
+
+AddressingModeFormat AddressingModeTemplate::SubRoutineCallMode 
+                                                                    {.acquireOperand1 = true, 
+                                                                        .acquireOperand1FromPc = true, 
+                                                                        .acquireOperand1Directly = false, 
+                                                                        .incrementDestination = false,
+                                                                        .decrementDestination = false,
+                                                                        .incrementSource = false,
+                                                                        .decrementSource = false,
+                                                                        .acquireOperand1Implicitly = false,
+                                                                        .acquireOperand2 = true, 
+                                                                        .acquireOperand2FromPc = true, 
+                                                                        .acquireOperand2AtComposedAddress = false, 
+                                                                        .acquireOperand2Implicitly = false,
+                                                                        .acquireOperand2Directly = false,
+                                                                        .incrementSourceOperand2 = false,
+                                                                        .acquireOperand3 = false, 
+                                                                        .writeBack = true, 
+                                                                        .writeBackAtOperandAddress = false, 
+                                                                        .writeBackAtRegisterAddress = false, 
+                                                                        .writeBackAtComposedOperandAddress = false,
+                                                                        .writeBackAtImplicitlyWithRegister = false,
+                                                                        .writeBackAtImplicitlyWithImmediateOperand = false,
+                                                                        .writeBackPairAtRegisterAddress = true,
+                                                                        .writeBackPairAtImmediateAddress = false
+                                                                        };                                                    
 }

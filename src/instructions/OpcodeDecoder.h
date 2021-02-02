@@ -7,6 +7,7 @@
 #include "InstructionAdd.h"
 #include "InstructionAnd.h"
 #include "InstructionBit.h"
+#include "InstructionCall.h"
 #include "InstructionCp.h"
 #include "InstructionDec.h"
 #include "InstructionInc.h"

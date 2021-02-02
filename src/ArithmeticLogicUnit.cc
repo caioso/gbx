@@ -104,6 +104,7 @@ AddressingModeFormat* ArithmeticLogicUnit::AcquireAddressingModeTraits()
         case AddressingMode::RegisterIndirectDestinationPair: _currentAddressingMode = &AddressingModeTemplate::RegisterIndirectDestinationPair; break;
         case AddressingMode::RegisterIndirectSourcePair: _currentAddressingMode = &AddressingModeTemplate::RegisterIndirectSourcePair; break;
         case AddressingMode::ExtendedDestinationPair: _currentAddressingMode = &AddressingModeTemplate::ExtendedDestinationPair; break;
+        case AddressingMode::SubRoutineCall: _currentAddressingMode = &AddressingModeTemplate::SubRoutineCallMode; break;
         default:
             throw ArithmeticLogicUnitException("invalid addressing mode");
     }
@@ -203,8 +204,8 @@ void ArithmeticLogicUnit::WriteBackPairAtRegisterAddress(shared_ptr<interfaces::
     auto operandMsb = _instructionData.MemoryResult1;
     auto operandLsb = _instructionData.MemoryResult2;
     auto stackPointer = _registers->ReadPair(Register::SP);
-    memoryController->Write(static_cast<uint8_t>(operandLsb), stackPointer);
     memoryController->Write(static_cast<uint8_t>(operandMsb), stackPointer - 1);
+    memoryController->Write(static_cast<uint8_t>(operandLsb), stackPointer - 2);
     _registers->WritePair(Register::SP, stackPointer - 2);
 }
 
