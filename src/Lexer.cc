@@ -213,6 +213,7 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
             token.Type = TokenType::OperatorSEMICOLON;
         else if (lexeme.first.compare(Lexemes::OperatorDOT) == 0)
             token.Type = TokenType::OperatorDOT;
+
         // Separators
         else if (lexeme.first.compare(Lexemes::SeparatorCOMMA) == 0)
             token.Type = TokenType::SeparatorCOMMA;
@@ -228,6 +229,50 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
             token.Type = TokenType::SeparatorOPENCURLYBRACKETS;
         else if (lexeme.first.compare(Lexemes::SeparatorCLOSECURLYBRACKETS) == 0)
             token.Type = TokenType::SeparatorCLOSECURLYBRACKETS;
+
+        // Instruction Mnemonics
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicNOP) == 0)
+            token.Type = TokenType::InstructionMnemonicNOP;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicLD) == 0)
+            token.Type = TokenType::InstructionMnemonicLD;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicINC) == 0)
+            token.Type = TokenType::InstructionMnemonicINC;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicDEC) == 0)
+            token.Type = TokenType::InstructionMnemonicDEC;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicRLCA) == 0)
+            token.Type = TokenType::InstructionMnemonicRLCA;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicADD) == 0)
+            token.Type = TokenType::InstructionMnemonicADD;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicRRCA) == 0)
+            token.Type = TokenType::InstructionMnemonicRRCA;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicSTOP) == 0)
+            token.Type = TokenType::InstructionMnemonicSTOP;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicRLA) == 0)
+            token.Type = TokenType::InstructionMnemonicRLA;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicJR) == 0)
+            token.Type = TokenType::InstructionMnemonicJR;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicRRA) == 0)
+            token.Type = TokenType::InstructionMnemonicRRA;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicDAA) == 0)
+            token.Type = TokenType::InstructionMnemonicDAA;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicCPL) == 0)
+            token.Type = TokenType::InstructionMnemonicCPL;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicSCF) == 0)
+            token.Type = TokenType::InstructionMnemonicSCF;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicCCF) == 0)
+            token.Type = TokenType::InstructionMnemonicCCF;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicHALT) == 0)
+            token.Type = TokenType::InstructionMnemonicHALT;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicADC) == 0)
+            token.Type = TokenType::InstructionMnemonicADC;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicSUB) == 0)
+            token.Type = TokenType::InstructionMnemonicSUB;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicSBC) == 0)
+            token.Type = TokenType::InstructionMnemonicSBC;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicAND) == 0)
+            token.Type = TokenType::InstructionMnemonicAND;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicXOR) == 0)
+            token.Type = TokenType::InstructionMnemonicXOR;
         else
             token.Type = TokenType::UnknownToken;
 

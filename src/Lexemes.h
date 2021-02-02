@@ -89,6 +89,29 @@ public:
     inline const static std::string LiteralNumericBINARYBASE = "0b";
     inline const static std::string LiteralBooleanTRUE = "TRUE";
     inline const static std::string LiteralBooleanFALSE = "FALSE";
+
+    // Instructions Mnemonics
+    inline const static std::string InstructionMnemonicNOP = "NOP";
+    inline const static std::string InstructionMnemonicLD = "LD";
+    inline const static std::string InstructionMnemonicINC = "INC";
+    inline const static std::string InstructionMnemonicDEC = "DEC";
+    inline const static std::string InstructionMnemonicRLCA = "RLCA";
+    inline const static std::string InstructionMnemonicADD = "ADD";
+    inline const static std::string InstructionMnemonicRRCA = "RRCA";
+    inline const static std::string InstructionMnemonicSTOP = "STOP";
+    inline const static std::string InstructionMnemonicRLA = "RLA";
+    inline const static std::string InstructionMnemonicJR = "JR";
+    inline const static std::string InstructionMnemonicRRA = "RRA";
+    inline const static std::string InstructionMnemonicDAA = "DAA";
+    inline const static std::string InstructionMnemonicCPL = "CPL";
+    inline const static std::string InstructionMnemonicSCF = "SCF";
+    inline const static std::string InstructionMnemonicCCF = "CCF";
+    inline const static std::string InstructionMnemonicHALT = "HALT";
+    inline const static std::string InstructionMnemonicADC = "ADC";
+    inline const static std::string InstructionMnemonicSUB = "SUB";
+    inline const static std::string InstructionMnemonicSBC = "SBC";
+    inline const static std::string InstructionMnemonicAND = "AND";
+    inline const static std::string InstructionMnemonicXOR = "XOR";
 };
 
 }

@@ -98,6 +98,29 @@ enum class TokenType
     SeparatorCLOSEBRACKETS,
     SeparatorDOUBLEQUOTES,
 
+    // Instructions Mnemonics
+    InstructionMnemonicNOP,
+    InstructionMnemonicLD,
+    InstructionMnemonicINC,
+    InstructionMnemonicDEC,
+    InstructionMnemonicRLCA,
+    InstructionMnemonicADD,
+    InstructionMnemonicRRCA,
+    InstructionMnemonicSTOP,
+    InstructionMnemonicRLA,
+    InstructionMnemonicJR,
+    InstructionMnemonicRRA,
+    InstructionMnemonicDAA,
+    InstructionMnemonicCPL,
+    InstructionMnemonicSCF,
+    InstructionMnemonicCCF,
+    InstructionMnemonicHALT,
+    InstructionMnemonicADC,
+    InstructionMnemonicSUB,
+    InstructionMnemonicSBC,
+    InstructionMnemonicAND,
+    InstructionMnemonicXOR,
+
     // Unknown
     UnknownToken
 };

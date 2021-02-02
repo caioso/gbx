@@ -1200,3 +1200,57 @@ TEST(TestLexer, InvalidScapedCharLiterals)
                       LexerException, 
                       "invalid char literal found ('€')");
 }
+
+TEST(TestLexer, EvaluateAllInstructionMnemonics)
+{
+    const string program = "NOP\n"
+                           "LD\n"
+                           "INC\n"
+                           "DEC\n"
+                           "RLCA\n"
+                           "ADD\n"
+                           "RRCA\n"
+                           "STOP\n"
+                           "RLA\n"
+                           "JR\n"
+                           "RRA\n"
+                           "DAA\n"
+                           "CPL\n"
+                           "SCF\n"
+                           "CCF\n"
+                           "HALT\n"
+                           "ADC\n"
+                           "SUB\n"
+                           "SBC\n"
+                           "AND\n"
+                           "XOR\n";
+
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    auto mnemonicString = {Lexemes::InstructionMnemonicNOP, Lexemes::InstructionMnemonicLD, Lexemes::InstructionMnemonicINC,
+                           Lexemes::InstructionMnemonicDEC, Lexemes::InstructionMnemonicRLCA, Lexemes::InstructionMnemonicADD,
+                           Lexemes::InstructionMnemonicRRCA, Lexemes::InstructionMnemonicSTOP, Lexemes::InstructionMnemonicRLA,
+                           Lexemes::InstructionMnemonicJR, Lexemes::InstructionMnemonicRRA, Lexemes::InstructionMnemonicDAA,
+                           Lexemes::InstructionMnemonicCPL, Lexemes::InstructionMnemonicSCF, Lexemes::InstructionMnemonicCCF,
+                           Lexemes::InstructionMnemonicHALT, Lexemes::InstructionMnemonicADC, Lexemes::InstructionMnemonicSUB,
+                           Lexemes::InstructionMnemonicSBC, Lexemes::InstructionMnemonicAND, Lexemes::InstructionMnemonicXOR};
+
+    auto mnemonicToken = {TokenType::InstructionMnemonicNOP, TokenType::InstructionMnemonicLD, TokenType::InstructionMnemonicINC, 
+                          TokenType::InstructionMnemonicDEC, TokenType::InstructionMnemonicRLCA, TokenType::InstructionMnemonicADD,
+                          TokenType::InstructionMnemonicRRCA, TokenType::InstructionMnemonicSTOP, TokenType::InstructionMnemonicRLA, 
+                          TokenType::InstructionMnemonicJR, TokenType::InstructionMnemonicRRA, TokenType::InstructionMnemonicDAA,
+                          TokenType::InstructionMnemonicCPL, TokenType::InstructionMnemonicSCF, TokenType::InstructionMnemonicCCF,
+                          TokenType::InstructionMnemonicHALT, TokenType::InstructionMnemonicADC, TokenType::InstructionMnemonicSUB, 
+                          TokenType::InstructionMnemonicSBC, TokenType::InstructionMnemonicAND, TokenType::InstructionMnemonicXOR};
+
+    auto counter = 0;
+    for (auto i = static_cast<size_t>(0); i < mnemonicString.size(); ++i)
+    {
+        EXPECT_STREQ((*(begin(mnemonicString) + i)).c_str(), tokens[counter].Lexeme.c_str());
+        EXPECT_EQ(*(begin(mnemonicToken) + i), tokens[counter].Type);
+        EXPECT_EQ(static_cast<size_t>(counter + 1), tokens[counter].Line);
+        EXPECT_EQ(static_cast<size_t>(1), tokens[counter++].Column);
+    }
+}
