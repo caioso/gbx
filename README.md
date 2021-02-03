@@ -181,7 +181,48 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### `:` Operator
 #### `.` Operator
 ### Instructions
-
+#### `NOP`
+#### `LD`
+#### `INC`
+#### `DEC`
+#### `RLCA`
+#### `ADD`
+#### `RRCA`
+#### `STOP`
+#### `RLA`
+#### `JR`
+#### `RRA`
+#### `DAA`
+#### `CPL`
+#### `SCF`
+#### `CCF`
+#### `HALT`
+#### `ADC`
+#### `SUB`
+#### `SBC`
+#### `AND`
+#### `XOR`
+#### `OR`
+#### `CP`
+#### `RET`
+#### `POP`
+#### `JP`
+#### `PUSH`
+#### `CALL`
+#### `RST`
+#### `EI`
+#### `DI`
+#### `RLC`
+#### `RRC`
+#### `RL`
+#### `RR`
+#### `SLA`
+#### `SRA`
+#### `SWAP`
+#### `SRL`
+#### `BIT`
+#### `RES`
+#### `SET`
 ### Pseudo Instructions
 #### `MOVE`
 ### Identifiers
@@ -201,7 +242,7 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### Numeric Modifiers
 ##### `HIGH`
 ##### `LOW`
-##### `BIT`
+##### `[]`
 
 ### Boolean Literals
 #### `TRUE`
