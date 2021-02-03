@@ -42,7 +42,6 @@ public:
     inline const static std::string KeywordMOVE = "MOVE";
     inline const static std::string KeywordHIGH = "HIGH";
     inline const static std::string KeywordLOW = "LOW";
-    inline const static std::string KeywordBIT = "BIT";
     inline const static std::string KeywordCHECK = "CHECK";
     inline const static std::string KeywordASSRT = "ASSRT";
     inline const static std::string KeywordPASS = "PASS";
@@ -112,6 +111,27 @@ public:
     inline const static std::string InstructionMnemonicSBC = "SBC";
     inline const static std::string InstructionMnemonicAND = "AND";
     inline const static std::string InstructionMnemonicXOR = "XOR";
+    inline const static std::string InstructionMnemonicOR = "OR";
+    inline const static std::string InstructionMnemonicCP = "CP";
+    inline const static std::string InstructionMnemonicRET = "RET";
+    inline const static std::string InstructionMnemonicPOP = "POP";
+    inline const static std::string InstructionMnemonicJP = "JP";
+    inline const static std::string InstructionMnemonicPUSH = "PUSH";
+    inline const static std::string InstructionMnemonicCALL = "CALL";
+    inline const static std::string InstructionMnemonicRST = "RST";
+    inline const static std::string InstructionMnemonicEI = "EI";
+    inline const static std::string InstructionMnemonicDI = "DI";
+    inline const static std::string InstructionMnemonicRLC = "RLC";
+    inline const static std::string InstructionMnemonicRRC = "RRC";
+    inline const static std::string InstructionMnemonicRL = "RL";
+    inline const static std::string InstructionMnemonicRR = "RR";
+    inline const static std::string InstructionMnemonicSLA = "SLA";
+    inline const static std::string InstructionMnemonicSRA = "SRA";
+    inline const static std::string InstructionMnemonicSWAP = "SWAP";
+    inline const static std::string InstructionMnemonicSRL = "SRL";
+    inline const static std::string InstructionMnemonicBIT = "BIT";
+    inline const static std::string InstructionMnemonicRES = "RES";
+    inline const static std::string InstructionMnemonicSET = "SET";
 };
 
 }

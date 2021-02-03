@@ -53,29 +53,31 @@ private:
     inline TokenType ParseStringLiteral(std::string_view);
     
     inline Token GenerateStringToken(size_t, size_t, std::string_view);
-    
-    inline void SaveSubLexeme(std::string, size_t, std::vector<std::pair<std::string, size_t> >&, size_t&);
-    inline void CorrectLoopIndex(std::vector<std::pair<std::string, size_t> >&, size_t&); 
     inline void ValidateDecimalLiteral(std::string_view);
     inline void ValidateOctalLiteral(std::string_view);
     inline void ValidateBinaryLiteral(std::string_view);
     inline void EvaluateStringLimits(std::string, size_t);
     inline void ExtractAllStringTokenIfNeeded(std::string_view);
     inline void ClearStringLimitFlags();
-    inline void EvaluateCharLiteralSize(std::string);
+    
     inline void ConvertCharLiteral(std::vector<std::pair<std::string, size_t> >&);
     
     inline size_t FindTokenByType(TokenType, size_t);
     
     inline std::string AccumulateFirstSeparatorOfCharLiteral(std::string, size_t&);
-    inline std::string AccumulateContentOfCharLiteral(std::string, size_t&);
     inline std::string AccumulateSecondSeparatorOfCharLiteral(std::string, size_t&);
-    inline std::string ExtractPossibleSubCharLiteral(std::string, size_t);
-    inline std::string EvaluateAndConvertChar(std::string_view);
+    
+    inline static void SaveSubLexeme(std::string, size_t, std::vector<std::pair<std::string, size_t> >&, size_t&);
+    inline static void CorrectLoopIndex(std::vector<std::pair<std::string, size_t> >&, size_t&); 
+    inline static void EvaluateCharLiteralSize(std::string);
+
+    inline static std::string AccumulateContentOfCharLiteral(std::string, size_t&);
+    inline static std::string ExtractPossibleSubCharLiteral(std::string, size_t);
+    inline static std::string EvaluateAndConvertChar(std::string_view);
 
     std::vector<Token> _tokens;
-    bool _stringLiteralAccumulationStarted;
-    bool _stringLiteralAccumulationEnded;
+    bool _stringLiteralAccumulationStarted{};
+    bool _stringLiteralAccumulationEnded{};
 };
 
 }

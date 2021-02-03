@@ -331,7 +331,6 @@ TEST(TestLexer, EvaluateAllKeywords)
                            "MOVE\n"
                            "HIGH\n"
                            "LOW\n"
-                           "BIT\n"
                            "CHECK\n"
                            "ASSRT\n"
                            "PASS\n"
@@ -349,8 +348,8 @@ TEST(TestLexer, EvaluateAllKeywords)
                            Lexemes::KeywordEXIT, Lexemes::KeywordWHEN, Lexemes::KeywordIS, Lexemes::KeywordWHILE, 
                            Lexemes::KeywordALIAS, Lexemes::KeywordTRY, Lexemes::KeywordCATCH, Lexemes::KeywordABORT, 
                            Lexemes::KeywordTEST, Lexemes::KeywordMACRO, Lexemes::KeywordMOVE, Lexemes::KeywordHIGH,
-                           Lexemes::KeywordLOW, Lexemes::KeywordBIT, Lexemes::KeywordCHECK, Lexemes::KeywordASSRT, 
-                           Lexemes::KeywordPASS, Lexemes::KeywordFAIL};
+                           Lexemes::KeywordLOW, Lexemes::KeywordCHECK, Lexemes::KeywordASSRT, Lexemes::KeywordPASS, 
+                           Lexemes::KeywordFAIL};
 
     auto keywordsTokens = {TokenType::KeywordPACK, TokenType::KeywordFUNC, TokenType::KeywordEND, TokenType::KeywordDECL,
                            TokenType::KeywordBOOL, TokenType::KeywordCHAR, TokenType::KeywordBYTE, TokenType::KeywordWORD, 
@@ -360,8 +359,8 @@ TEST(TestLexer, EvaluateAllKeywords)
                            TokenType::KeywordEXIT, TokenType::KeywordWHEN, TokenType::KeywordIS, TokenType::KeywordWHILE,
                            TokenType::KeywordALIAS, TokenType::KeywordTRY, TokenType::KeywordCATCH, TokenType::KeywordABORT,
                            TokenType::KeywordTEST, TokenType::KeywordMACRO, TokenType::KeywordMOVE, TokenType::KeywordHIGH,
-                           TokenType::KeywordLOW, TokenType::KeywordBIT, TokenType::KeywordCHECK, TokenType::KeywordASSRT,
-                           TokenType::KeywordPASS, TokenType::KeywordFAIL};
+                           TokenType::KeywordLOW, TokenType::KeywordCHECK, TokenType::KeywordASSRT, TokenType::KeywordPASS, 
+                           TokenType::KeywordFAIL};
 
     auto counter = 0;
     for (auto i = static_cast<size_t>(0); i < keywordsString.size(); ++i)
@@ -475,9 +474,9 @@ TEST(TestLexer, EvaluateNumericLiteralsWithModifier)
 {
     const string program = "0xFFFF.LOW\n"
                            "0d456.HIGH\n"
-                           "0o66511.BIT[49]\n"
+                           "0o66511[49]\n"
                            "0b01110101.HIGH\n"
-                           "23.BIT[0x0001]\n"
+                           "23[0x0001]\n"
                            "-0x91\n"
                            "+0o655\n";
 
@@ -520,95 +519,75 @@ TEST(TestLexer, EvaluateNumericLiteralsWithModifier)
     EXPECT_EQ(static_cast<size_t>(3), tokens[6].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[6].Column);
     
-    EXPECT_STREQ(Lexemes::OperatorDOT.c_str(), tokens[7].Lexeme.c_str());
-    EXPECT_EQ(TokenType::OperatorDOT, tokens[7].Type);
+    EXPECT_STREQ(Lexemes::SeparatorOPENBRACKETS.c_str(), tokens[7].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorOPENBRACKETS, tokens[7].Type);
     EXPECT_EQ(static_cast<size_t>(3), tokens[7].Line);
     EXPECT_EQ(static_cast<size_t>(8), tokens[7].Column);
-    
-    EXPECT_STREQ(Lexemes::KeywordBIT.c_str(), tokens[8].Lexeme.c_str());
-    EXPECT_EQ(TokenType::KeywordBIT, tokens[8].Type);
+
+    EXPECT_STREQ("49", tokens[8].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericDECIMAL, tokens[8].Type);
     EXPECT_EQ(static_cast<size_t>(3), tokens[8].Line);
     EXPECT_EQ(static_cast<size_t>(9), tokens[8].Column);
-    
-    EXPECT_STREQ(Lexemes::SeparatorOPENBRACKETS.c_str(), tokens[9].Lexeme.c_str());
-    EXPECT_EQ(TokenType::SeparatorOPENBRACKETS, tokens[9].Type);
+
+    EXPECT_STREQ(Lexemes::SeparatorCLOSEBRACKETS.c_str(), tokens[9].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorCLOSEBRACKETS, tokens[9].Type);
     EXPECT_EQ(static_cast<size_t>(3), tokens[9].Line);
-    EXPECT_EQ(static_cast<size_t>(12), tokens[9].Column);
+    EXPECT_EQ(static_cast<size_t>(11), tokens[9].Column);
 
-    EXPECT_STREQ("49", tokens[10].Lexeme.c_str());
-    EXPECT_EQ(TokenType::LiteralNumericDECIMAL, tokens[10].Type);
-    EXPECT_EQ(static_cast<size_t>(3), tokens[10].Line);
-    EXPECT_EQ(static_cast<size_t>(13), tokens[10].Column);
-
-    EXPECT_STREQ(Lexemes::SeparatorCLOSEBRACKETS.c_str(), tokens[11].Lexeme.c_str());
-    EXPECT_EQ(TokenType::SeparatorCLOSEBRACKETS, tokens[11].Type);
-    EXPECT_EQ(static_cast<size_t>(3), tokens[11].Line);
-    EXPECT_EQ(static_cast<size_t>(15), tokens[11].Column);
-
-    EXPECT_STREQ("0b01110101", tokens[12].Lexeme.c_str());
-    EXPECT_EQ(TokenType::LiteralNumericBINARY, tokens[12].Type);
+    EXPECT_STREQ("0b01110101", tokens[10].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericBINARY, tokens[10].Type);
+    EXPECT_EQ(static_cast<size_t>(4), tokens[10].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[10].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorDOT.c_str(), tokens[11].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorDOT, tokens[11].Type);
+    EXPECT_EQ(static_cast<size_t>(4), tokens[11].Line);
+    EXPECT_EQ(static_cast<size_t>(11), tokens[11].Column);
+    
+    EXPECT_STREQ(Lexemes::KeywordHIGH.c_str(), tokens[12].Lexeme.c_str());
+    EXPECT_EQ(TokenType::KeywordHIGH, tokens[12].Type);
     EXPECT_EQ(static_cast<size_t>(4), tokens[12].Line);
-    EXPECT_EQ(static_cast<size_t>(1), tokens[12].Column);
+    EXPECT_EQ(static_cast<size_t>(12), tokens[12].Column);
     
-    EXPECT_STREQ(Lexemes::OperatorDOT.c_str(), tokens[13].Lexeme.c_str());
-    EXPECT_EQ(TokenType::OperatorDOT, tokens[13].Type);
-    EXPECT_EQ(static_cast<size_t>(4), tokens[13].Line);
-    EXPECT_EQ(static_cast<size_t>(11), tokens[13].Column);
+    EXPECT_STREQ("23", tokens[13].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericDECIMAL, tokens[13].Type);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[13].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[13].Column);
     
-    EXPECT_STREQ(Lexemes::KeywordHIGH.c_str(), tokens[14].Lexeme.c_str());
-    EXPECT_EQ(TokenType::KeywordHIGH, tokens[14].Type);
-    EXPECT_EQ(static_cast<size_t>(4), tokens[14].Line);
-    EXPECT_EQ(static_cast<size_t>(12), tokens[14].Column);
+    EXPECT_STREQ(Lexemes::SeparatorOPENBRACKETS.c_str(), tokens[14].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorOPENBRACKETS, tokens[14].Type);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[14].Line);
+    EXPECT_EQ(static_cast<size_t>(3), tokens[14].Column);
     
-    EXPECT_STREQ("23", tokens[15].Lexeme.c_str());
-    EXPECT_EQ(TokenType::LiteralNumericDECIMAL, tokens[15].Type);
+    EXPECT_STREQ("0x0001", tokens[15].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericHEXADECIMAL, tokens[15].Type);
     EXPECT_EQ(static_cast<size_t>(5), tokens[15].Line);
-    EXPECT_EQ(static_cast<size_t>(1), tokens[15].Column);
-    
-    EXPECT_STREQ(Lexemes::OperatorDOT.c_str(), tokens[16].Lexeme.c_str());
-    EXPECT_EQ(TokenType::OperatorDOT, tokens[16].Type);
+    EXPECT_EQ(static_cast<size_t>(4), tokens[15].Column);
+
+    EXPECT_STREQ(Lexemes::SeparatorCLOSEBRACKETS.c_str(), tokens[16].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorCLOSEBRACKETS, tokens[16].Type);
     EXPECT_EQ(static_cast<size_t>(5), tokens[16].Line);
-    EXPECT_EQ(static_cast<size_t>(3), tokens[16].Column);
-    
-    EXPECT_STREQ(Lexemes::KeywordBIT.c_str(), tokens[17].Lexeme.c_str());
-    EXPECT_EQ(TokenType::KeywordBIT, tokens[17].Type);
-    EXPECT_EQ(static_cast<size_t>(5), tokens[17].Line);
-    EXPECT_EQ(static_cast<size_t>(4), tokens[17].Column);
-    
-    EXPECT_STREQ(Lexemes::SeparatorOPENBRACKETS.c_str(), tokens[18].Lexeme.c_str());
-    EXPECT_EQ(TokenType::SeparatorOPENBRACKETS, tokens[18].Type);
-    EXPECT_EQ(static_cast<size_t>(5), tokens[18].Line);
-    EXPECT_EQ(static_cast<size_t>(7), tokens[18].Column);
-    
-    EXPECT_STREQ("0x0001", tokens[19].Lexeme.c_str());
-    EXPECT_EQ(TokenType::LiteralNumericHEXADECIMAL, tokens[19].Type);
-    EXPECT_EQ(static_cast<size_t>(5), tokens[19].Line);
-    EXPECT_EQ(static_cast<size_t>(8), tokens[19].Column);
+    EXPECT_EQ(static_cast<size_t>(10), tokens[16].Column);
 
-    EXPECT_STREQ(Lexemes::SeparatorCLOSEBRACKETS.c_str(), tokens[20].Lexeme.c_str());
-    EXPECT_EQ(TokenType::SeparatorCLOSEBRACKETS, tokens[20].Type);
-    EXPECT_EQ(static_cast<size_t>(5), tokens[20].Line);
-    EXPECT_EQ(static_cast<size_t>(14), tokens[20].Column);
-
-    EXPECT_STREQ(Lexemes::OperatorMINUS.c_str(), tokens[21].Lexeme.c_str());
-    EXPECT_EQ(TokenType::OperatorMINUS, tokens[21].Type);
-    EXPECT_EQ(static_cast<size_t>(6), tokens[21].Line);
-    EXPECT_EQ(static_cast<size_t>(1), tokens[21].Column);
+    EXPECT_STREQ(Lexemes::OperatorMINUS.c_str(), tokens[17].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorMINUS, tokens[17].Type);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[17].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[17].Column);
     
-    EXPECT_STREQ("0x91", tokens[22].Lexeme.c_str());
-    EXPECT_EQ(TokenType::LiteralNumericHEXADECIMAL, tokens[22].Type);
-    EXPECT_EQ(static_cast<size_t>(6), tokens[22].Line);
-    EXPECT_EQ(static_cast<size_t>(2), tokens[22].Column);
+    EXPECT_STREQ("0x91", tokens[18].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericHEXADECIMAL, tokens[18].Type);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[18].Line);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[18].Column);
     
-    EXPECT_STREQ(Lexemes::OperatorPLUS.c_str(), tokens[23].Lexeme.c_str());
-    EXPECT_EQ(TokenType::OperatorPLUS, tokens[23].Type);
-    EXPECT_EQ(static_cast<size_t>(7), tokens[23].Line);
-    EXPECT_EQ(static_cast<size_t>(1), tokens[23].Column);
+    EXPECT_STREQ(Lexemes::OperatorPLUS.c_str(), tokens[19].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorPLUS, tokens[19].Type);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[19].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[19].Column);
     
-    EXPECT_STREQ("0o655", tokens[24].Lexeme.c_str());
-    EXPECT_EQ(TokenType::LiteralNumericOCTAL, tokens[24].Type);
-    EXPECT_EQ(static_cast<size_t>(7), tokens[24].Line);
-    EXPECT_EQ(static_cast<size_t>(2), tokens[24].Column);
+    EXPECT_STREQ("0o655", tokens[20].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericOCTAL, tokens[20].Type);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[20].Line);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[20].Column);
 }
 
 TEST(TestLexer, InvalidHexadecimalLiterals)
@@ -1223,7 +1202,28 @@ TEST(TestLexer, EvaluateAllInstructionMnemonics)
                            "SUB\n"
                            "SBC\n"
                            "AND\n"
-                           "XOR\n";
+                           "XOR\n"
+                           "OR\n"
+                           "CP\n"
+                           "RET\n"
+                           "POP\n"
+                           "JP\n"
+                           "PUSH\n"
+                           "CALL\n"
+                           "RST\n"
+                           "EI\n"
+                           "DI\n"
+                           "RLC\n"
+                           "RRC\n"
+                           "RL\n"
+                           "RR\n"
+                           "SLA\n"
+                           "SRA\n"
+                           "SWAP\n"
+                           "SRL\n"
+                           "BIT\n"
+                           "RES\n"
+                           "SET\n";
 
     auto lexer = make_shared<Lexer>();
     lexer->Tokenize(program);
@@ -1235,7 +1235,14 @@ TEST(TestLexer, EvaluateAllInstructionMnemonics)
                            Lexemes::InstructionMnemonicJR, Lexemes::InstructionMnemonicRRA, Lexemes::InstructionMnemonicDAA,
                            Lexemes::InstructionMnemonicCPL, Lexemes::InstructionMnemonicSCF, Lexemes::InstructionMnemonicCCF,
                            Lexemes::InstructionMnemonicHALT, Lexemes::InstructionMnemonicADC, Lexemes::InstructionMnemonicSUB,
-                           Lexemes::InstructionMnemonicSBC, Lexemes::InstructionMnemonicAND, Lexemes::InstructionMnemonicXOR};
+                           Lexemes::InstructionMnemonicSBC, Lexemes::InstructionMnemonicAND, Lexemes::InstructionMnemonicXOR,
+                           Lexemes::InstructionMnemonicOR, Lexemes::InstructionMnemonicCP, Lexemes::InstructionMnemonicRET,
+                           Lexemes::InstructionMnemonicPOP, Lexemes::InstructionMnemonicJP, Lexemes::InstructionMnemonicPUSH, 
+                           Lexemes::InstructionMnemonicCALL, Lexemes::InstructionMnemonicRST, Lexemes::InstructionMnemonicEI,
+                           Lexemes::InstructionMnemonicDI, Lexemes::InstructionMnemonicRLC, Lexemes::InstructionMnemonicRRC,
+                           Lexemes::InstructionMnemonicRL, Lexemes::InstructionMnemonicRR, Lexemes::InstructionMnemonicSLA,
+                           Lexemes::InstructionMnemonicSRA, Lexemes::InstructionMnemonicSWAP, Lexemes::InstructionMnemonicSRL,
+                           Lexemes::InstructionMnemonicBIT, Lexemes::InstructionMnemonicRES, Lexemes::InstructionMnemonicSET};
 
     auto mnemonicToken = {TokenType::InstructionMnemonicNOP, TokenType::InstructionMnemonicLD, TokenType::InstructionMnemonicINC, 
                           TokenType::InstructionMnemonicDEC, TokenType::InstructionMnemonicRLCA, TokenType::InstructionMnemonicADD,
@@ -1243,7 +1250,14 @@ TEST(TestLexer, EvaluateAllInstructionMnemonics)
                           TokenType::InstructionMnemonicJR, TokenType::InstructionMnemonicRRA, TokenType::InstructionMnemonicDAA,
                           TokenType::InstructionMnemonicCPL, TokenType::InstructionMnemonicSCF, TokenType::InstructionMnemonicCCF,
                           TokenType::InstructionMnemonicHALT, TokenType::InstructionMnemonicADC, TokenType::InstructionMnemonicSUB, 
-                          TokenType::InstructionMnemonicSBC, TokenType::InstructionMnemonicAND, TokenType::InstructionMnemonicXOR};
+                          TokenType::InstructionMnemonicSBC, TokenType::InstructionMnemonicAND, TokenType::InstructionMnemonicXOR,
+                          TokenType::InstructionMnemonicOR, TokenType::InstructionMnemonicCP, TokenType::InstructionMnemonicRET,
+                          TokenType::InstructionMnemonicPOP, TokenType::InstructionMnemonicJP, TokenType::InstructionMnemonicPUSH, 
+                          TokenType::InstructionMnemonicCALL, TokenType::InstructionMnemonicRST, TokenType::InstructionMnemonicEI,
+                          TokenType::InstructionMnemonicDI, TokenType::InstructionMnemonicRLC, TokenType::InstructionMnemonicRRC,
+                          TokenType::InstructionMnemonicRL, TokenType::InstructionMnemonicRR, TokenType::InstructionMnemonicSLA,
+                          TokenType::InstructionMnemonicSRA, TokenType::InstructionMnemonicSWAP, TokenType::InstructionMnemonicSRL,
+                          TokenType::InstructionMnemonicBIT, TokenType::InstructionMnemonicRES, TokenType::InstructionMnemonicSET};
 
     auto counter = 0;
     for (auto i = static_cast<size_t>(0); i < mnemonicString.size(); ++i)
