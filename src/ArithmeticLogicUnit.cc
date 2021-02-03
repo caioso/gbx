@@ -38,7 +38,7 @@ void ArithmeticLogicUnit::Decode()
     }
 }
 
-uint8_t ArithmeticLogicUnit::AcquireInstruction(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::AcquireInstruction(shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
     auto instruction = ReadAtRegister(Register::PC, memoryController);
     IncrementPC();
@@ -56,9 +56,6 @@ uint8_t ArithmeticLogicUnit::AcquireInstruction(shared_ptr<interfaces::MemoryCon
         _registers->Write(Register::PIR, 0x00);
         _registers->Write(Register::IR, instruction);
     }
-
-    
-    return instruction;
 }
 
 inline bool ArithmeticLogicUnit::IsSuffixedInstruction(uint8_t instruction)
@@ -71,9 +68,10 @@ inline bool ArithmeticLogicUnit::IsSuffixedInstruction(uint8_t instruction)
 void ArithmeticLogicUnit::Execute()
 {
     if (_currentInstruction == nullptr)
-        throw InstructionException("tried to execute an andecoded instruction");
+        throw InstructionException("tried to execute an and e coded instruction");
 
-    _currentInstruction->Execute(_registers, _instructionData);     
+    _writeBackAborted = false;
+    _currentInstruction->Execute(_registers, _instructionData, _writeBackAborted);     
 }
 
 AddressingModeFormat* ArithmeticLogicUnit::AcquireAddressingModeTraits()
@@ -248,6 +246,11 @@ inline void ArithmeticLogicUnit::IncrementPC()
 {
     auto programCounter = _registers->ReadPair(Register::PC);
     _registers->WritePair(Register::PC, programCounter + 1);
+}
+
+bool ArithmeticLogicUnit::IsWriteBackAborted()
+{
+    return _writeBackAborted;
 }
 
 }

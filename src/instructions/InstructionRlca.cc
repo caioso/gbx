@@ -23,7 +23,7 @@ void InstructionRlca::Decode(__attribute__((unused)) uint8_t opcode, __attribute
     };    
 }
 
-void InstructionRlca::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+void InstructionRlca::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
 {
     auto value = registerBank->Read(decodedInstruction.SourceRegister);
     auto valueMSbit = static_cast<uint8_t>((value >> 7) & 0x01);

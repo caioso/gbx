@@ -31,6 +31,9 @@ debug:
 run:
 	./$(TARGET)
 
+lint:
+	cppcheck --std=c++20 --enable=all --inconclusive -v  ./src  --output-file=./check/result.txt
+
 coverage:
 	xcrun llvm-profdata merge -o gbxTestCoverage default.profraw
 	xcrun llvm-cov report gbxTest -instr-profile=gbxTestCoverage -use-color --ignore-filename-regex="(gtest|gmock)" --ignore-filename-regex="(Test(.*)\.cc)"

@@ -23,7 +23,7 @@ void InstructionRla::Decode(__attribute__((unused)) uint8_t opcode, __attribute_
     };    
 }
 
-void InstructionRla::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionRla::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
 {
     auto value = registerBank->Read(decodedInstruction.SourceRegister);
     auto currentCarry = registerBank->ReadFlag(Flag::CY);

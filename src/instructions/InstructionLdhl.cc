@@ -23,7 +23,7 @@ void InstructionLdhl::Decode(__attribute__((unused)) uint8_t opcode, __attribute
     };
 }
 
-void InstructionLdhl::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+void InstructionLdhl::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
 {   
     registerBank->Write(Register::F, 0x00);
 

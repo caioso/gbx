@@ -14,7 +14,7 @@ void InstructionSwap::Decode(uint8_t opcode, __attribute__((unused)) optional<ui
         DecodeSwapRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionSwap::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionSwap::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
 {
     auto operandValue = AcquireOperand(registerBank, decodedInstruction);
     auto lowerNibble = operandValue & 0x0F;

@@ -24,7 +24,7 @@ void InstructionPop::Decode(uint8_t opcode, __attribute__((unused)) std::optiona
     };
 }
 
-void InstructionPop::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+void InstructionPop::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
 {
     auto value = static_cast<uint16_t>(decodedInstruction.MemoryOperand1 | decodedInstruction.MemoryOperand2 << 0x08);
     registerBank->WritePair(decodedInstruction.DestinationRegister, value);

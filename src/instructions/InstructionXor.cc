@@ -15,7 +15,7 @@ void InstructionXor::Decode(uint8_t opcode, __attribute__((unused)) std::optiona
         DecodeXorRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionXor::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction) 
+void InstructionXor::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted) 
 {
     auto operand1 = GetSourceOperandValue(registerBank, decodedInstruction);
     auto operand2 = registerBank->Read(decodedInstruction.DestinationRegister);

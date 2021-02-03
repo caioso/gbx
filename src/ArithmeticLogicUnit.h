@@ -27,7 +27,9 @@ public:
     virtual void Decode() override;
     virtual void Execute() override;
 
-    virtual uint8_t AcquireInstruction(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController) override;
+    virtual void AcquireInstruction(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController) override;
+
+    [[nodiscard]] virtual bool IsWriteBackAborted() override;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() override;
     virtual void AcquireOperand1AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
@@ -58,7 +60,7 @@ protected:
     std::shared_ptr<interfaces::RegisterBankInterface> _registers;
     OpcodeDecoder _decoder;
     AddressingModeFormat* _currentAddressingMode;
-
+    bool _writeBackAborted{};
 };
 
 }

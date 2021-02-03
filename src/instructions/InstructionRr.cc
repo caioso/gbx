@@ -14,7 +14,7 @@ void InstructionRr::Decode(uint8_t opcode, __attribute__((unused)) optional<uint
         DecodeRrRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionRr::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionRr::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
 {
     auto operandValue = AcquireOperand(registerBank, decodedInstruction);
     auto carry = registerBank->ReadFlag(Flag::CY);

@@ -19,6 +19,7 @@
 #include "InstructionPop.h"
 #include "InstructionPush.h"
 #include "InstructionRes.h"
+#include "InstructionRet.h"
 #include "InstructionRl.h"
 #include "InstructionRla.h"
 #include "InstructionRlc.h"

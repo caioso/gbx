@@ -21,6 +21,9 @@ void ControlUnit::Initialize(shared_ptr<MemoryControllerInterface> memoryControl
 
 void ControlUnit::RunCycle()
 {  
+    // 0 Prepare Cycle
+    PrepareCycle();
+
     // 1 Fetch
     Fetch();
 
@@ -43,8 +46,13 @@ void ControlUnit::RunCycle()
     Execute();
 
     // 4 WriteBack
-    if (_currentAddressingMode->writeBack)
+    if (_currentAddressingMode->writeBack && !_writeBackAborted)
         WriteBack();
+}
+
+inline void ControlUnit::PrepareCycle()
+{
+    _writeBackAborted = false;
 }
 
 inline void ControlUnit::Fetch()
@@ -88,6 +96,7 @@ inline void ControlUnit::AcquireOperand3()
 inline void ControlUnit::Execute()
 {
     ExecuteInstruction();
+    _writeBackAborted = IsWriteBackAborted();
 }
 
 inline void ControlUnit::WriteBack()
@@ -201,6 +210,11 @@ inline void ControlUnit::WriteBackPairAtRegisterAddress()
 inline void ControlUnit::WriteBackPairAtImmediateAddress()
 {
     _alu->WriteBackPairAtImmediareAddress(_memoryController);
+}
+
+inline bool ControlUnit::IsWriteBackAborted()
+{
+    return _alu->IsWriteBackAborted();
 }
 
 }

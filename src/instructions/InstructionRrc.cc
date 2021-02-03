@@ -14,7 +14,7 @@ void InstructionRrc::Decode(uint8_t opcode, __attribute__((unused)) optional<uin
         DecodeRrcRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionRrc::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionRrc::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
 {
     auto operandValue = AcquireOperand(registerBank, decodedInstruction);
     auto lsBit = operandValue & 0x01;

@@ -15,7 +15,7 @@ void InstructionDec::Decode(uint8_t opcode, __attribute__((unused)) std::optiona
         DecodeDecRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionDec::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction) 
+void InstructionDec::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted) 
 {
     if (decodedInstruction.AddressingMode == AddressingMode::RegisterPair)
         Execute16bitDecrement(registerBank, decodedInstruction);

@@ -23,7 +23,7 @@ void InstructionRrca::Decode(__attribute__((unused)) uint8_t opcode, __attribute
     };    
 }
 
-void InstructionRrca::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionRrca::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
 {
     auto value = registerBank->Read(decodedInstruction.SourceRegister);
     auto lSBit = static_cast<uint8_t>(value & 0x01);

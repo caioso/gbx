@@ -14,7 +14,7 @@ void InstructionBit::Decode(uint8_t opcode, __attribute__((unused)) optional<uin
         DecodeBitRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionBit::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionBit::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
 {
     auto operandValue = AcquireOperand(registerBank, decodedInstruction);
     auto result = static_cast<uint8_t>((operandValue >> decodedInstruction.InstructionExtraOperand) & 0x01);

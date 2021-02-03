@@ -46,7 +46,9 @@ public:
     virtual void Decode() = 0;
     virtual void Execute() = 0;
     
-    virtual uint8_t AcquireInstruction(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController) = 0;
+    virtual void AcquireInstruction(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController) = 0;
+    
+    [[nodiscard]] virtual bool IsWriteBackAborted() = 0;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() = 0;
     virtual void AcquireOperand1AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;

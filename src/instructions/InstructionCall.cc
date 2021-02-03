@@ -14,12 +14,12 @@ void InstructionCall::Decode(uint8_t opcode, __attribute__((unused)) std::option
         DecodeConditionalCall(opcode, decodedInstruction);
 }
 
-void InstructionCall::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+void InstructionCall::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction, bool& isWriteBackAborted)
 {
     if (decodedInstruction.InstructionExtraOperand == 0xFF)
         ExecuteUnconditionalCall(registerBank, decodedInstruction);
     else
-        ExecuteConditionalCall(registerBank, decodedInstruction);
+        ExecuteConditionalCall(registerBank, decodedInstruction, isWriteBackAborted);
 }
 
 inline void InstructionCall::ExecuteUnconditionalCall(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
@@ -33,7 +33,7 @@ inline void InstructionCall::ExecuteUnconditionalCall(std::shared_ptr<interfaces
     decodedInstruction.MemoryResult2 = static_cast<uint8_t>(sourceValue & 0xFF);
 }
 
-inline void InstructionCall::ExecuteConditionalCall(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+inline void InstructionCall::ExecuteConditionalCall(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction, bool& isWriteBackAborted)
 {
     auto condition = decodedInstruction.InstructionExtraOperand;
     auto zFlag = registerBank->ReadFlag(Flag::Z);
@@ -42,6 +42,8 @@ inline void InstructionCall::ExecuteConditionalCall(std::shared_ptr<interfaces::
     if ((condition == 0x00 && zFlag == 0x00) || (condition == 0x01 && zFlag == 0x01) ||
         (condition == 0x02 && cyFlag == 0x00) || (condition == 0x03 && cyFlag == 0x01))
         ExecuteUnconditionalCall(registerBank, decodedInstruction);
+    else
+        isWriteBackAborted = true;
 }
 
 inline void InstructionCall::DecodeUnconditionalCall(interfaces::DecodedInstruction& decodedInstruction)
@@ -78,6 +80,7 @@ inline void InstructionCall::DecodeConditionalCall(uint8_t opcode, interfaces::D
         .MemoryResult2 = 0x00,
         .InstructionExtraOperand = conditionalFlag
     };
+
 }
 
 }

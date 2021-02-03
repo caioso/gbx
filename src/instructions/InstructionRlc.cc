@@ -14,7 +14,7 @@ void InstructionRlc::Decode(uint8_t opcode, __attribute__((unused)) optional<uin
         DecodeRlcRegisterMode(opcode, decodedInstruction);       
 }
 
-void InstructionRlc::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionRlc::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
 {
     auto value = AcquireOperand(registerBank, decodedInstruction);
     auto valueMSbit = static_cast<uint8_t>((value >> 7) & 0x01);
