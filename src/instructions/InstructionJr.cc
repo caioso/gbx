@@ -14,7 +14,7 @@ void InstructionJr::Decode(uint8_t opcode, __attribute__((unused)) std::optional
         DecodeConditionalJr(opcode, decodedInstruction);
 }
 
-void InstructionJr::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted) 
+void InstructionJr::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction) 
 {
     if (decodedInstruction.InstructionExtraOperand == 0xFF)
         ExecuteUnconditionalJr(registerBank, decodedInstruction);

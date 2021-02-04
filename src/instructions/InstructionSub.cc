@@ -16,7 +16,7 @@ void InstructionSub::Decode(uint8_t opcode, __attribute__((unused)) optional<uin
         DecodeSubRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionSub::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
+void InstructionSub::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     auto operand1  = registerBank->Read(decodedInstruction.DestinationRegister); // Always A
     auto operand2 = Acquire8bitSourceOperandValue(registerBank, decodedInstruction);

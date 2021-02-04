@@ -16,7 +16,7 @@ void InstructionJp::Decode(__attribute__((unused)) uint8_t opcode, __attribute__
         DecodeConditionalJp(opcode, decodedInstruction);
 }
 
-void InstructionJp::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted) 
+void InstructionJp::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction) 
 {
     // Flag to indicate which jump typ it is
     if (decodedInstruction.InstructionExtraOperand == 0xFF)

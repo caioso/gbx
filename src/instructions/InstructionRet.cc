@@ -14,15 +14,15 @@ void InstructionRet::Decode(uint8_t opcode, optional<uint8_t> preOpcode, Decoded
         DecodeConditionalRet(opcode, preOpcode, decodedInstruction);
 }
 
-void InstructionRet::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
+void InstructionRet::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.InstructionExtraOperand == 0xFF)
-        ExecuteUnconditionalRet(registerBank, decodedInstruction, isWriteBackAborted);
+        ExecuteUnconditionalRet(registerBank, decodedInstruction);
     else
-        ExecuteConditionalRet(registerBank, decodedInstruction, isWriteBackAborted);
+        ExecuteConditionalRet(registerBank, decodedInstruction);
 }
 
-inline void InstructionRet::ExecuteConditionalRet(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
+inline void InstructionRet::ExecuteConditionalRet(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     auto condition = decodedInstruction.InstructionExtraOperand;
     auto zFlag = registerBank->ReadFlag(Flag::Z);
@@ -30,7 +30,7 @@ inline void InstructionRet::ExecuteConditionalRet(shared_ptr<RegisterBankInterfa
 
     if ((condition == 0x00 && zFlag == 0x00) || (condition == 0x01 && zFlag == 0x01) ||
         (condition == 0x02 && cyFlag == 0x00) || (condition == 0x03 && cyFlag == 0x01))
-        ExecuteUnconditionalRet(registerBank, decodedInstruction, isWriteBackAborted);
+        ExecuteUnconditionalRet(registerBank, decodedInstruction);
     else
     {
         auto currentSp = registerBank->ReadPair(Register::SP);
@@ -39,7 +39,7 @@ inline void InstructionRet::ExecuteConditionalRet(shared_ptr<RegisterBankInterfa
     }
 }
 
-inline void InstructionRet::ExecuteUnconditionalRet(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
+inline void InstructionRet::ExecuteUnconditionalRet(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     auto newPCAddress = static_cast<uint16_t>(decodedInstruction.MemoryOperand1 | (decodedInstruction.MemoryOperand2 << 8));
     registerBank->WritePair(decodedInstruction.DestinationRegister, newPCAddress);

@@ -29,7 +29,7 @@ public:
 
     virtual void AcquireInstruction(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController) override;
 
-    [[nodiscard]] virtual bool IsWriteBackAborted() override;
+    [[nodiscard]] virtual bool IsExecutionAborted() override;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() override;
     virtual void AcquireOperand1AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
@@ -56,11 +56,11 @@ protected:
     inline bool IsSuffixedInstruction(uint8_t);
 
     interfaces::DecodedInstruction _instructionData;
-    std::shared_ptr<interfaces::InstructionInterface> _currentInstruction;
+    std::shared_ptr<interfaces::BaseInstructionInterface> _currentInstruction;
     std::shared_ptr<interfaces::RegisterBankInterface> _registers;
     OpcodeDecoder _decoder;
     AddressingModeFormat* _currentAddressingMode;
-    bool _writeBackAborted{};
+    bool _executionAborted{};
 };
 
 }

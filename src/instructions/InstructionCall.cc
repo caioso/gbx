@@ -14,15 +14,15 @@ void InstructionCall::Decode(uint8_t opcode, __attribute__((unused)) std::option
         DecodeConditionalCall(opcode, decodedInstruction);
 }
 
-void InstructionCall::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction, bool& isWriteBackAborted)
+bool InstructionCall::ConditionallyExecute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.InstructionExtraOperand == 0xFF)
-        ExecuteUnconditionalCall(registerBank, decodedInstruction);
+        return ExecuteUnconditionalCall(registerBank, decodedInstruction);
     else
-        ExecuteConditionalCall(registerBank, decodedInstruction, isWriteBackAborted);
+        return ExecuteConditionalCall(registerBank, decodedInstruction);
 }
 
-inline void InstructionCall::ExecuteUnconditionalCall(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+inline bool InstructionCall::ExecuteUnconditionalCall(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
 {
     auto sourceValue = registerBank->ReadPair(decodedInstruction.DestinationRegister);
     auto newPCAddress = static_cast<uint16_t>(decodedInstruction.MemoryOperand1 | (decodedInstruction.MemoryOperand2 << 8));
@@ -31,9 +31,10 @@ inline void InstructionCall::ExecuteUnconditionalCall(std::shared_ptr<interfaces
 
     decodedInstruction.MemoryResult1 = static_cast<uint8_t>((sourceValue >> 8) & 0xFF);
     decodedInstruction.MemoryResult2 = static_cast<uint8_t>(sourceValue & 0xFF);
+    return false;
 }
 
-inline void InstructionCall::ExecuteConditionalCall(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction, bool& isWriteBackAborted)
+inline bool InstructionCall::ExecuteConditionalCall(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
 {
     auto condition = decodedInstruction.InstructionExtraOperand;
     auto zFlag = registerBank->ReadFlag(Flag::Z);
@@ -41,9 +42,9 @@ inline void InstructionCall::ExecuteConditionalCall(std::shared_ptr<interfaces::
 
     if ((condition == 0x00 && zFlag == 0x00) || (condition == 0x01 && zFlag == 0x01) ||
         (condition == 0x02 && cyFlag == 0x00) || (condition == 0x03 && cyFlag == 0x01))
-        ExecuteUnconditionalCall(registerBank, decodedInstruction);
+        return ExecuteUnconditionalCall(registerBank, decodedInstruction);
     else
-        isWriteBackAborted = true;
+        return true;
 }
 
 inline void InstructionCall::DecodeUnconditionalCall(interfaces::DecodedInstruction& decodedInstruction)

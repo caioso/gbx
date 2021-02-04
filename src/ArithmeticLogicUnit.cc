@@ -70,8 +70,12 @@ void ArithmeticLogicUnit::Execute()
     if (_currentInstruction == nullptr)
         throw InstructionException("tried to execute an and e coded instruction");
 
-    _writeBackAborted = false;
-    _currentInstruction->Execute(_registers, _instructionData, _writeBackAborted);     
+    _executionAborted = false;
+
+    if (dynamic_pointer_cast<ConditionalInstructionInterface>(_currentInstruction) != nullptr)
+        _executionAborted = dynamic_pointer_cast<ConditionalInstructionInterface>(_currentInstruction)->ConditionallyExecute(_registers, _instructionData);     
+    else
+        dynamic_pointer_cast<InstructionInterface>(_currentInstruction)->Execute(_registers, _instructionData);     
 }
 
 AddressingModeFormat* ArithmeticLogicUnit::AcquireAddressingModeTraits()
@@ -248,9 +252,9 @@ inline void ArithmeticLogicUnit::IncrementPC()
     _registers->WritePair(Register::PC, programCounter + 1);
 }
 
-bool ArithmeticLogicUnit::IsWriteBackAborted()
+bool ArithmeticLogicUnit::IsExecutionAborted()
 {
-    return _writeBackAborted;
+    return _executionAborted;
 }
 
 }

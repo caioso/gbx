@@ -12,7 +12,7 @@ public:
     virtual ~InstructionSwap() = default;
     
     virtual void Decode(uint8_t, std::optional<uint8_t>, interfaces::DecodedInstruction&) override;
-    virtual void Execute(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&, bool&) override;
+    virtual void Execute(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&) override;
 
 private:
     inline void DecodeSwapRegisterMode(uint8_t, interfaces::DecodedInstruction&);

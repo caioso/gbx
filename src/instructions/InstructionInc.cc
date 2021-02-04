@@ -15,7 +15,7 @@ void InstructionInc::Decode(uint8_t opcode, __attribute__((unused)) std::optiona
         DecodeIncRegisterPairMode(opcode, decodedInstruction);
 }
 
-void InstructionInc::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted) 
+void InstructionInc::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction) 
 {
     if (decodedInstruction.AddressingMode == AddressingMode::RegisterPair)
         Execute16bitIncrement(registerBank, decodedInstruction);

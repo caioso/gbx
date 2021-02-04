@@ -28,7 +28,6 @@ public:
                             std::shared_ptr<interfaces::ArithmeticLogicUnitInterface>) override;
 
 protected:
-    inline void PrepareCycle();
     inline void Fetch();
     inline void Decode();
     inline void Execute();
@@ -59,14 +58,12 @@ protected:
     inline void WriteBackAtImplicitImmediateAddress();
     inline void WriteBackPairAtImmediateAddress();
 
-    inline bool IsWriteBackAborted();
+    inline bool IsExecutionAborted();
 
     std::shared_ptr<interfaces::ArithmeticLogicUnitInterface> _alu;
     std::optional<uint8_t> _preOpcode;
     std::shared_ptr<interfaces::MemoryControllerInterface> _memoryController;
     AddressingModeFormat* _currentAddressingMode;   
-
-    bool _writeBackAborted{};
 
     std::once_flag _flag;
 };

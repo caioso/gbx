@@ -15,7 +15,7 @@ void InstructionCp::Decode(uint8_t opcode, __attribute__((unused)) std::optional
         DecodeCpRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionCp::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted) 
+void InstructionCp::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction) 
 {
     auto operand1 = registerBank->Read(decodedInstruction.DestinationRegister);
     auto operand2 = GetSourceOperandValue(registerBank, decodedInstruction);

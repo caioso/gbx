@@ -6,7 +6,7 @@ using namespace std;
 namespace gbx
 {
 
-shared_ptr<InstructionInterface> OpcodeDecoder::DecodeOpcode(uint8_t opcode, optional<uint8_t> preOpcode)
+shared_ptr<BaseInstructionInterface> OpcodeDecoder::DecodeOpcode(uint8_t opcode, optional<uint8_t> preOpcode)
 {
     if (preOpcode.has_value() && 
        (preOpcode.value() == InstructionConstants::PreOpcode_CB || 
@@ -17,7 +17,7 @@ shared_ptr<InstructionInterface> OpcodeDecoder::DecodeOpcode(uint8_t opcode, opt
         return DecodeInstructionWithoutPreOpcode(opcode);
 }
 
-shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithPreOpcode(uint8_t opcode, std::optional<uint8_t> preOpcode)
+shared_ptr<BaseInstructionInterface> OpcodeDecoder::DecodeInstructionWithPreOpcode(uint8_t opcode, std::optional<uint8_t> preOpcode)
 {
     if (preOpcode.value() == InstructionConstants::PreOpcode_CB)
     {
@@ -68,7 +68,7 @@ shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithPreOpcode(u
     throw InstructionException("unknown instruction");
 }
 
-shared_ptr<InstructionInterface> OpcodeDecoder::DecodeInstructionWithoutPreOpcode(uint8_t opcode)
+shared_ptr<BaseInstructionInterface> OpcodeDecoder::DecodeInstructionWithoutPreOpcode(uint8_t opcode)
 {
     if (OpcodePatternMatcher::Match(opcode, // 0000 0111
         OpcodePatternMatcher::Pattern('0'_b, '0'_b, '0'_b, '0'_b, '0'_b, '1'_b, '1'_b, '1'_b)))

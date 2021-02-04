@@ -14,7 +14,7 @@ void InstructionSrl::Decode(uint8_t opcode, __attribute__((unused)) optional<uin
         DecodeSrlRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionSrl::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
+void InstructionSrl::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     auto operandValue = AcquireOperand(registerBank, decodedInstruction);
     auto lSBit = static_cast<uint8_t>(operandValue & 0x01);

@@ -60,7 +60,7 @@ void InstructionLd::Decode(uint8_t opcode, std::optional<uint8_t> preOpcode, Dec
     }
 }
 
-void InstructionLd::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
+void InstructionLd::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
         if (auto currentAddressingMode = decodedInstruction.AddressingMode;
             InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::Immediate, 

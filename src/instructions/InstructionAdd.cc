@@ -20,7 +20,7 @@ void InstructionAdd::Decode(uint8_t opcode, __attribute__((unused)) optional<uin
         DecodeAddRegisterPairMode(opcode, decodeInstruction);
 }
 
-void InstructionAdd::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction, __attribute__((unused)) bool& isWriteBackAborted)
+void InstructionAdd::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.AddressingMode == AddressingMode::RegisterPair || 
         decodedInstruction.AddressingMode == AddressingMode::SingleImmediatePair)

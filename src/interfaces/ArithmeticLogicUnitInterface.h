@@ -48,7 +48,7 @@ public:
     
     virtual void AcquireInstruction(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController) = 0;
     
-    [[nodiscard]] virtual bool IsWriteBackAborted() = 0;
+    [[nodiscard]] virtual bool IsExecutionAborted() = 0;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() = 0;
     virtual void AcquireOperand1AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
