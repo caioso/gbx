@@ -29,6 +29,8 @@ public:
 
     virtual void AcquireInstruction(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController) override;
 
+    virtual bool ClearInterruptStatusSignal() override;
+
     [[nodiscard]] virtual bool IsExecutionAborted() override;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() override;
@@ -54,6 +56,8 @@ protected:
     inline void DecrementRegisterPair(interfaces::Register);
     inline void IncrementPC();
     inline bool IsSuffixedInstruction(uint8_t);
+    inline void ResolveExecutionSignals();
+    inline void ClearExecutionSignals();
 
     interfaces::DecodedInstruction _instructionData;
     std::shared_ptr<interfaces::BaseInstructionInterface> _currentInstruction;
@@ -61,6 +65,7 @@ protected:
     OpcodeDecoder _decoder;
     AddressingModeFormat* _currentAddressingMode;
     bool _executionAborted{};
+    bool _clearInterruptStatusSignal{};
 };
 
 }

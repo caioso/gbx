@@ -20,6 +20,8 @@
 #include "InstructionPush.h"
 #include "InstructionRes.h"
 #include "InstructionRet.h"
+#include "InstructionReti.h"
+#include "InstructionRst.h"
 #include "InstructionRl.h"
 #include "InstructionRla.h"
 #include "InstructionRlc.h"

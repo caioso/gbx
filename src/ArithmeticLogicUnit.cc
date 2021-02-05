@@ -67,6 +67,8 @@ inline bool ArithmeticLogicUnit::IsSuffixedInstruction(uint8_t instruction)
 
 void ArithmeticLogicUnit::Execute()
 {
+    ClearExecutionSignals();
+    
     if (_currentInstruction == nullptr)
         throw InstructionException("tried to execute an and e coded instruction");
 
@@ -76,6 +78,8 @@ void ArithmeticLogicUnit::Execute()
         _executionAborted = dynamic_pointer_cast<ConditionalInstructionInterface>(_currentInstruction)->ConditionallyExecute(_registers, _instructionData);     
     else
         dynamic_pointer_cast<InstructionInterface>(_currentInstruction)->Execute(_registers, _instructionData);     
+
+    ResolveExecutionSignals();
 }
 
 AddressingModeFormat* ArithmeticLogicUnit::AcquireAddressingModeTraits()
@@ -255,6 +259,22 @@ inline void ArithmeticLogicUnit::IncrementPC()
 bool ArithmeticLogicUnit::IsExecutionAborted()
 {
     return _executionAborted;
+}
+
+bool ArithmeticLogicUnit::ClearInterruptStatusSignal()
+{
+    return _clearInterruptStatusSignal;
+}
+
+inline void ArithmeticLogicUnit::ResolveExecutionSignals()
+{
+    if (_instructionData.Opcode == OpcodeType::reti && _executionAborted == false)
+        _clearInterruptStatusSignal = true;
+}
+
+inline void ArithmeticLogicUnit::ClearExecutionSignals()
+{
+    _clearInterruptStatusSignal = false;
 }
 
 }

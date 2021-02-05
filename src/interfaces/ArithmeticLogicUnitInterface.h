@@ -35,6 +35,8 @@ public:
     const static uint16_t PreOpcode_CB = 0xCB;
 };
 
+typedef bool ArithmeticLogicUnitSignal;
+
 class ArithmeticLogicUnitInterface
 {
 public:
@@ -47,7 +49,9 @@ public:
     virtual void Execute() = 0;
     
     virtual void AcquireInstruction(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController) = 0;
-    
+
+    virtual bool ClearInterruptStatusSignal() = 0;
+
     [[nodiscard]] virtual bool IsExecutionAborted() = 0;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() = 0;
