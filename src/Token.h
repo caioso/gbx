@@ -141,8 +141,8 @@ enum class TokenType
     InstructionMnemonicRES,
     InstructionMnemonicSET,
 
-    // Unknown
-    UnknownToken
+    // Identifier
+    Identifier
 };
 
 struct Token

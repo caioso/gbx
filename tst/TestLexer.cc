@@ -147,7 +147,7 @@ TEST(TestLexer, EvaluateOperatorMixedWithKeyword)
     auto tokens = lexer->Tokens();
 
     EXPECT_STREQ("P", tokens[0].Lexeme.c_str());
-    EXPECT_EQ(TokenType::UnknownToken, tokens[0].Type);
+    EXPECT_EQ(TokenType::Identifier, tokens[0].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
     
@@ -157,12 +157,12 @@ TEST(TestLexer, EvaluateOperatorMixedWithKeyword)
     EXPECT_EQ(static_cast<size_t>(2), tokens[1].Column);
 
     EXPECT_STREQ("ACK", tokens[2].Lexeme.c_str());
-    EXPECT_EQ(TokenType::UnknownToken, tokens[2].Type);
+    EXPECT_EQ(TokenType::Identifier, tokens[2].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
     EXPECT_EQ(static_cast<size_t>(3), tokens[2].Column);
 
     EXPECT_STREQ("PAC", tokens[3].Lexeme.c_str());
-    EXPECT_EQ(TokenType::UnknownToken, tokens[3].Type);
+    EXPECT_EQ(TokenType::Identifier, tokens[3].Type);
     EXPECT_EQ(static_cast<size_t>(2), tokens[3].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[3].Column);
     
@@ -172,22 +172,22 @@ TEST(TestLexer, EvaluateOperatorMixedWithKeyword)
     EXPECT_EQ(static_cast<size_t>(4), tokens[4].Column);
 
     EXPECT_STREQ("K", tokens[5].Lexeme.c_str());
-    EXPECT_EQ(TokenType::UnknownToken, tokens[5].Type);
+    EXPECT_EQ(TokenType::Identifier, tokens[5].Type);
     EXPECT_EQ(static_cast<size_t>(2), tokens[5].Line);
     EXPECT_EQ(static_cast<size_t>(5), tokens[5].Column);
 
     EXPECT_STREQ("P", tokens[6].Lexeme.c_str());
-    EXPECT_EQ(TokenType::UnknownToken, tokens[6].Type);
+    EXPECT_EQ(TokenType::Identifier, tokens[6].Type);
     EXPECT_EQ(static_cast<size_t>(2), tokens[6].Line);
     EXPECT_EQ(static_cast<size_t>(7), tokens[6].Column);
     
     EXPECT_STREQ("++", tokens[7].Lexeme.c_str());
-    EXPECT_EQ(TokenType::UnknownToken, tokens[7].Type);
+    EXPECT_EQ(TokenType::Identifier, tokens[7].Type);
     EXPECT_EQ(static_cast<size_t>(2), tokens[7].Line);
     EXPECT_EQ(static_cast<size_t>(8), tokens[7].Column);
 
     EXPECT_STREQ("K", tokens[8].Lexeme.c_str());
-    EXPECT_EQ(TokenType::UnknownToken, tokens[8].Type);
+    EXPECT_EQ(TokenType::Identifier, tokens[8].Type);
     EXPECT_EQ(static_cast<size_t>(2), tokens[8].Line);
     EXPECT_EQ(static_cast<size_t>(10), tokens[8].Column);
 }
@@ -286,12 +286,12 @@ TEST(TestLexer, TestUnknownSeparator)
     auto tokens = lexer->Tokens();
 
     EXPECT_STREQ("PACK?", tokens[0].Lexeme.c_str());
-    EXPECT_EQ(TokenType::UnknownToken, tokens[0].Type);
+    EXPECT_EQ(TokenType::Identifier, tokens[0].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
    
     EXPECT_STREQ("\\", tokens[1].Lexeme.c_str());
-    EXPECT_EQ(TokenType::UnknownToken, tokens[1].Type);
+    EXPECT_EQ(TokenType::Identifier, tokens[1].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
     EXPECT_EQ(static_cast<size_t>(7), tokens[1].Column);
 }
@@ -770,7 +770,7 @@ TEST(TestLexer, EvaluateStringLiteral4)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
     
     EXPECT_STREQ("MY_STRING", tokens[1].Lexeme.c_str());
-    EXPECT_EQ(TokenType::UnknownToken, tokens[1].Type);
+    EXPECT_EQ(TokenType::Identifier, tokens[1].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
     EXPECT_EQ(static_cast<size_t>(7), tokens[1].Column);
     
@@ -816,7 +816,7 @@ TEST(TestLexer, EvaluateStringLiteral5)
     EXPECT_EQ(static_cast<size_t>(18), tokens[2].Column);
     
     EXPECT_STREQ("A", tokens[3].Lexeme.c_str());
-    EXPECT_EQ(TokenType::UnknownToken, tokens[3].Type);
+    EXPECT_EQ(TokenType::Identifier, tokens[3].Type);
     EXPECT_EQ(static_cast<size_t>(2), tokens[3].Line);
     EXPECT_EQ(static_cast<size_t>(19), tokens[3].Column);
     
@@ -1267,4 +1267,62 @@ TEST(TestLexer, EvaluateAllInstructionMnemonics)
         EXPECT_EQ(static_cast<size_t>(counter + 1), tokens[counter].Line);
         EXPECT_EQ(static_cast<size_t>(1), tokens[counter++].Column);
     }
+}
+
+TEST(TestLexer, SimpleInstructionTest)
+{
+    const string instruction = "LD A, 0xFF";
+
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(instruction);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_STREQ(Lexemes::InstructionMnemonicLD.c_str(), tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::InstructionMnemonicLD, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ("A", tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::Identifier, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(4), tokens[1].Column);
+    
+    EXPECT_STREQ(Lexemes::SeparatorCOMMA.c_str(), tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorCOMMA, tokens[2].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[2].Column);
+    
+    EXPECT_STREQ("0xFF", tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericHEXADECIMAL, tokens[3].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[3].Column);
+}
+
+TEST(TestLexer, SimpleInstructionTest2)
+{
+    const string instruction = "ADD A_REGISTER_ALIAS,54";
+
+    auto lexer = make_shared<Lexer>();
+    lexer->Tokenize(instruction);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_STREQ(Lexemes::InstructionMnemonicADD.c_str(), tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::InstructionMnemonicADD, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ("A_REGISTER_ALIAS", tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::Identifier, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[1].Column);
+    
+    EXPECT_STREQ(Lexemes::SeparatorCOMMA.c_str(), tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::SeparatorCOMMA, tokens[2].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
+    EXPECT_EQ(static_cast<size_t>(21), tokens[2].Column);
+    
+    EXPECT_STREQ("54", tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericDECIMAL, tokens[3].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
+    EXPECT_EQ(static_cast<size_t>(22), tokens[3].Column);
 }

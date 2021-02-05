@@ -314,7 +314,7 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
         else if (lexeme.first.compare(Lexemes::InstructionMnemonicSET) == 0)
             token.Type = TokenType::InstructionMnemonicSET;
         else
-            token.Type = TokenType::UnknownToken;
+            token.Type = TokenType::Identifier;
 
         tokens.push_back(token);
     }
