@@ -10,28 +10,31 @@ GBXAsmException::GBXAsmException(const std::string message)
 src/GBXAsmExceptions.cc:12:50: performance: Parameter 'message' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
 LexerException::LexerException(const std::string message)
                                                  ^
+src/Lexer.cc:756:33: style: Unsigned expression 'i' can't be negative so it is unnecessary to test it. [unsignedPositive]
+    for (auto i = startIndex; i >= 0; --i)
+                                ^
 src/Lexer.cc:60:44: performance: Parameter 'originalLexeme' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
 vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t globalCounter)
                                            ^
-src/Lexer.cc:492:48: performance: Parameter 'lexeme' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
+src/Lexer.cc:499:48: performance: Parameter 'lexeme' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
 inline void Lexer::EvaluateStringLimits(string lexeme, size_t column)
                                                ^
-src/Lexer.cc:520:62: performance: Parameter 'candidate' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
+src/Lexer.cc:527:62: performance: Parameter 'candidate' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
 inline string Lexer::ExtractOperatorSeparatorOrMarker(string candidate, size_t column)
                                                              ^
-src/Lexer.cc:571:61: performance: Parameter 'candidate' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
+src/Lexer.cc:578:61: performance: Parameter 'candidate' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
 inline string Lexer::ExtractCharLiteralFromCandidate(string candidate, size_t column)
                                                             ^
-src/Lexer.cc:398:9: style: Consider using std::any_of algorithm instead of a raw loop. [useStlAlgorithm]
+src/Lexer.cc:405:9: style: Consider using std::any_of algorithm instead of a raw loop. [useStlAlgorithm]
         {
         ^
-src/Lexer.cc:410:9: style: Consider using std::any_of algorithm instead of a raw loop. [useStlAlgorithm]
+src/Lexer.cc:417:9: style: Consider using std::any_of algorithm instead of a raw loop. [useStlAlgorithm]
         {
         ^
-src/Lexer.cc:421:9: style: Consider using std::any_of algorithm instead of a raw loop. [useStlAlgorithm]
+src/Lexer.cc:428:9: style: Consider using std::any_of algorithm instead of a raw loop. [useStlAlgorithm]
         {
         ^
-src/Lexer.cc:714:0: style: Consider using std::any_of algorithm instead of a raw loop. [useStlAlgorithm]
+src/Lexer.cc:721:0: style: Consider using std::any_of algorithm instead of a raw loop. [useStlAlgorithm]
         if (token.Type == TokenType::SeparatorDOUBLEQUOTES)
 ^
 src/Lexer.cc:11:0: style: The function 'Tokens' is never used. [unusedFunction]
