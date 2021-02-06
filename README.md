@@ -45,7 +45,8 @@ Most statements introduce their own ***keywords*** and syntactic and semantic ru
 
 ##### Syntax
 ``` language assembly
-PACK <PACK_TYPE_IDENTIFIER>:
+PACK <PACK_TYPE_IDENTIFIER>
+BEGIN
     [{FIELD TYPE} {FIELD_IDENTIFIER}]+
 END
 ```
@@ -53,7 +54,8 @@ Each `PACK` must include an unique identifier and a non-empty list of fields. Fi
 
 ##### Example
 ``` language assembly
-PACK SPRITE:
+PACK SPRITE
+BEGIN
     BYTE TILE
     BYTE PALETTE
     BYTE X
@@ -116,6 +118,7 @@ Note that, the instantiation of a `PACK` with initializer lists **with an struct
 The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initializes two of its fields (X and Y). The instantiated struct-variable's X field is then loaded into the accumulator, which gets incremented by `H'04`. The accumulator is then written back to MY_SPRITE's field X. At the end, MY_SPRITE is freed, releasing its memory resources.  The second part of the example loads the accumulator with the constant DEFAULT_PALETTE_INDEX and then *casts* HL to the  `PACK` type SPRITE (more specifically, the assembler will interpret HL as the base address of a SPRITE  `PACK` type and will perform field access arithmetic by using the offsets derivable from `PACK` SPRITE structure).
 
 #### `FUNC`
+#### `BEGIN`
 #### `END`
 #### `DECL`
 #### `BOOL`
@@ -152,6 +155,8 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### `ASSRT`
 #### `PASS`
 #### `FAIL`
+#### `IN`
+#### `OUT`
 
 ### Operators
 #### Operator Precedence
