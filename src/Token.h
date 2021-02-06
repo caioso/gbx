@@ -26,6 +26,7 @@ enum class TokenType
     // Keywords
     KeywordPACK,
     KeywordFUNC,
+    KeywordBEGIN,
     KeywordEND,
     KeywordDECL,
     KeywordBOOL,
@@ -61,6 +62,8 @@ enum class TokenType
     KeywordASSRT,
     KeywordPASS,
     KeywordFAIL,
+    KeywordIN,
+    KeywordOUT,
 
     // Operators
     OperatorASSIGNMENT,

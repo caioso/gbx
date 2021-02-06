@@ -300,6 +300,7 @@ TEST(TestLexer, EvaluateAllKeywords)
 {
     const string program = "PACK\n"
                            "FUNC\n"
+                           "BEGIN\n"
                            "END\n"
                            "DECL\n"
                            "BOOL\n"
@@ -334,33 +335,35 @@ TEST(TestLexer, EvaluateAllKeywords)
                            "CHECK\n"
                            "ASSRT\n"
                            "PASS\n"
-                           "FAIL\n";
+                           "FAIL\n"
+                           "IN\n"
+                           "OUT\n";
 
     auto lexer = make_shared<Lexer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
-    auto keywordsString = {Lexemes::KeywordPACK, Lexemes::KeywordFUNC, Lexemes::KeywordEND, Lexemes::KeywordDECL,
-                           Lexemes::KeywordBOOL, Lexemes::KeywordCHAR, Lexemes::KeywordBYTE, Lexemes::KeywordWORD,
-                           Lexemes::KeywordDWORD, Lexemes::KeywordSTR, Lexemes::KeywordAS, Lexemes::KeywordCONST,
-                           Lexemes::KeywordFREE, Lexemes::KeywordIF, Lexemes::KeywordTHEN, Lexemes::KeywordELSE,
-                           Lexemes::KeywordWITH, Lexemes::KeywordREPT, Lexemes::KeywordTIMES, Lexemes::KeywordNEXT,
-                           Lexemes::KeywordEXIT, Lexemes::KeywordWHEN, Lexemes::KeywordIS, Lexemes::KeywordWHILE, 
-                           Lexemes::KeywordALIAS, Lexemes::KeywordTRY, Lexemes::KeywordCATCH, Lexemes::KeywordABORT, 
-                           Lexemes::KeywordTEST, Lexemes::KeywordMACRO, Lexemes::KeywordMOVE, Lexemes::KeywordHIGH,
-                           Lexemes::KeywordLOW, Lexemes::KeywordCHECK, Lexemes::KeywordASSRT, Lexemes::KeywordPASS, 
-                           Lexemes::KeywordFAIL};
+    auto keywordsString = {Lexemes::KeywordPACK, Lexemes::KeywordFUNC, Lexemes::KeywordBEGIN, Lexemes::KeywordEND,
+                           Lexemes::KeywordDECL, Lexemes::KeywordBOOL, Lexemes::KeywordCHAR, Lexemes::KeywordBYTE, 
+                           Lexemes::KeywordWORD, Lexemes::KeywordDWORD, Lexemes::KeywordSTR, Lexemes::KeywordAS, 
+                           Lexemes::KeywordCONST,Lexemes::KeywordFREE, Lexemes::KeywordIF, Lexemes::KeywordTHEN, 
+                           Lexemes::KeywordELSE,Lexemes::KeywordWITH, Lexemes::KeywordREPT, Lexemes::KeywordTIMES, 
+                           Lexemes::KeywordNEXT, Lexemes::KeywordEXIT, Lexemes::KeywordWHEN, Lexemes::KeywordIS, 
+                           Lexemes::KeywordWHILE, Lexemes::KeywordALIAS, Lexemes::KeywordTRY, Lexemes::KeywordCATCH, 
+                           Lexemes::KeywordABORT, Lexemes::KeywordTEST, Lexemes::KeywordMACRO, Lexemes::KeywordMOVE, 
+                           Lexemes::KeywordHIGH, Lexemes::KeywordLOW, Lexemes::KeywordCHECK, Lexemes::KeywordASSRT, 
+                           Lexemes::KeywordPASS, Lexemes::KeywordFAIL, Lexemes::KeywordIN, Lexemes::KeywordOUT};
 
-    auto keywordsTokens = {TokenType::KeywordPACK, TokenType::KeywordFUNC, TokenType::KeywordEND, TokenType::KeywordDECL,
-                           TokenType::KeywordBOOL, TokenType::KeywordCHAR, TokenType::KeywordBYTE, TokenType::KeywordWORD, 
-                           TokenType::KeywordDWORD, TokenType::KeywordSTR, TokenType::KeywordAS, TokenType::KeywordCONST,
-                           TokenType::KeywordFREE, TokenType::KeywordIF, TokenType::KeywordTHEN, TokenType::KeywordELSE,
-                           TokenType::KeywordWITH, TokenType::KeywordREPT, TokenType::KeywordTIMES, TokenType::KeywordNEXT,
-                           TokenType::KeywordEXIT, TokenType::KeywordWHEN, TokenType::KeywordIS, TokenType::KeywordWHILE,
-                           TokenType::KeywordALIAS, TokenType::KeywordTRY, TokenType::KeywordCATCH, TokenType::KeywordABORT,
-                           TokenType::KeywordTEST, TokenType::KeywordMACRO, TokenType::KeywordMOVE, TokenType::KeywordHIGH,
-                           TokenType::KeywordLOW, TokenType::KeywordCHECK, TokenType::KeywordASSRT, TokenType::KeywordPASS, 
-                           TokenType::KeywordFAIL};
+    auto keywordsTokens = {TokenType::KeywordPACK, TokenType::KeywordFUNC, TokenType::KeywordBEGIN, TokenType::KeywordEND, 
+                           TokenType::KeywordDECL, TokenType::KeywordBOOL, TokenType::KeywordCHAR, TokenType::KeywordBYTE, 
+                           TokenType::KeywordWORD, TokenType::KeywordDWORD, TokenType::KeywordSTR, TokenType::KeywordAS, 
+                           TokenType::KeywordCONST, TokenType::KeywordFREE, TokenType::KeywordIF, TokenType::KeywordTHEN, 
+                           TokenType::KeywordELSE, TokenType::KeywordWITH, TokenType::KeywordREPT, TokenType::KeywordTIMES,
+                           TokenType::KeywordNEXT, TokenType::KeywordEXIT, TokenType::KeywordWHEN, TokenType::KeywordIS, 
+                           TokenType::KeywordWHILE, TokenType::KeywordALIAS, TokenType::KeywordTRY, TokenType::KeywordCATCH, 
+                           TokenType::KeywordABORT, TokenType::KeywordTEST, TokenType::KeywordMACRO, TokenType::KeywordMOVE,
+                           TokenType::KeywordHIGH, TokenType::KeywordLOW, TokenType::KeywordCHECK, TokenType::KeywordASSRT, 
+                           TokenType::KeywordPASS, TokenType::KeywordFAIL, TokenType::KeywordIN, TokenType::KeywordOUT};
 
     auto counter = 0;
     for (auto i = static_cast<size_t>(0); i < keywordsString.size(); ++i)

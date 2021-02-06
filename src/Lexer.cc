@@ -94,6 +94,8 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
             token.Type = TokenType::KeywordPACK;
         else if (lexeme.first.compare(Lexemes::KeywordFUNC) == 0)
             token.Type = TokenType::KeywordFUNC;
+        else if (lexeme.first.compare(Lexemes::KeywordBEGIN) == 0)
+            token.Type = TokenType::KeywordBEGIN;
         else if (lexeme.first.compare(Lexemes::KeywordEND) == 0)
             token.Type = TokenType::KeywordEND;
         else if (lexeme.first.compare(Lexemes::KeywordDECL) == 0)
@@ -164,6 +166,11 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
             token.Type = TokenType::KeywordPASS;
         else if (lexeme.first.compare(Lexemes::KeywordFAIL) == 0)
             token.Type = TokenType::KeywordFAIL;
+        else if (lexeme.first.compare(Lexemes::KeywordIN) == 0)
+            token.Type = TokenType::KeywordIN;
+        else if (lexeme.first.compare(Lexemes::KeywordOUT) == 0)
+            token.Type = TokenType::KeywordOUT;
+
         // Operators
         else if (lexeme.first.compare(Lexemes::OperatorASSIGNMENT) == 0)
             token.Type = TokenType::OperatorASSIGNMENT;

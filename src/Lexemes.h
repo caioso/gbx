@@ -12,6 +12,7 @@ public:
     inline const static std::string KeywordPACK = "PACK";
     inline const static std::string KeywordFUNC = "FUNC";
     inline const static std::string KeywordEND = "END";
+    inline const static std::string KeywordBEGIN = "BEGIN";
     inline const static std::string KeywordDECL = "DECL";
     inline const static std::string KeywordBOOL = "BOOL";
     inline const static std::string KeywordCHAR = "CHAR";
@@ -46,6 +47,8 @@ public:
     inline const static std::string KeywordASSRT = "ASSRT";
     inline const static std::string KeywordPASS = "PASS";
     inline const static std::string KeywordFAIL = "FAIL";
+    inline const static std::string KeywordIN = "IN";
+    inline const static std::string KeywordOUT = "OUT";
 
     // Operators
     inline const static std::string OperatorASSIGNMENT = "=";
