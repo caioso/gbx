@@ -8,7 +8,7 @@ namespace gbx::interfaces
 class ClockInterface
 {
 public:
-    virtual void Tick(uint64_t, uint64_t) = 0;
+    virtual uint64_t Ticks() const = 0;
 };
 
 }

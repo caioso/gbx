@@ -19,6 +19,9 @@ clean:
 	rm default.profraw \
 	rm gbxTestCoverage
 
+tidy:
+	cppcheck --std=c++20 --enable=all --inconclusive -v  ./src  --output-file=./check/result.txt
+
 test:
 	./$(TEST_TARGET)
 
@@ -30,9 +33,6 @@ debug:
 
 run:
 	./$(TARGET)
-
-lint:
-	cppcheck --std=c++20 --enable=all --inconclusive -v  ./src  --output-file=./check/result.txt
 
 coverage:
 	xcrun llvm-profdata merge -o gbxTestCoverage default.profraw

@@ -1,144 +1,6 @@
-src/ArithmeticLogicUnit.cc:9:22: warning: Member variable 'ArithmeticLogicUnit::_instructionData' is not initialized in the constructor. [uninitMemberVar]
-ArithmeticLogicUnit::ArithmeticLogicUnit()
-                     ^
-src/ArithmeticLogicUnit.h:56:17: performance:inconclusive: The member function 'gbx::ArithmeticLogicUnit::IsSuffixedInstruction' can be made a static function. Making a function static can bring a performance benefit since no 'this' instance is passed to the function. This change should not cause compiler errors but it does not necessarily make sense conceptually. Think about your design and the task of the function first - is it a function that must not access members of class instances? And maybe it is more appropriate to move this function to a unnamed namespace. [functionStatic]
-    inline bool IsSuffixedInstruction(uint8_t);
-                ^
-src/ArithmeticLogicUnit.cc:61:34: note: Technically the member function 'gbx::ArithmeticLogicUnit::IsSuffixedInstruction' can be static (but you may consider moving to unnamed namespace).
-inline bool ArithmeticLogicUnit::IsSuffixedInstruction(uint8_t instruction)
-                                 ^
-src/ArithmeticLogicUnit.h:56:17: note: Technically the member function 'gbx::ArithmeticLogicUnit::IsSuffixedInstruction' can be static (but you may consider moving to unnamed namespace).
-    inline bool IsSuffixedInstruction(uint8_t);
-                ^
-src/GBXExceptions.h:12:5: style: Class 'GBXException' has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided. [noExplicitConstructor]
-    GBXException(const std::string);
-    ^
-src/GBXExceptions.h:23:5: style: Class 'MemoryAccessException' has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided. [noExplicitConstructor]
-    MemoryAccessException(const std::string);
-    ^
-src/GBXExceptions.h:30:5: style: Class 'MemoryControllerException' has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided. [noExplicitConstructor]
-    MemoryControllerException(const std::string);
-    ^
-src/GBXExceptions.h:37:5: style: Class 'ClockSourceException' has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided. [noExplicitConstructor]
-    ClockSourceException(const std::string);
-    ^
-src/GBXExceptions.h:44:5: style: Class 'ChannelException' has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided. [noExplicitConstructor]
-    ChannelException(const std::string);
-    ^
-src/GBXExceptions.h:51:5: style: Class 'ArithmeticLogicUnitException' has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided. [noExplicitConstructor]
-    ArithmeticLogicUnitException(const std::string);
-    ^
-src/GBXExceptions.h:58:5: style: Class 'RegisterBankException' has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided. [noExplicitConstructor]
-    RegisterBankException(const std::string);
-    ^
-src/GBXExceptions.h:65:5: style: Class 'InstructionException' has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided. [noExplicitConstructor]
-    InstructionException(const std::string message);
-    ^
-src/MemoryController.h:38:37: style: The function 'Read' overrides a function in a base class but is not marked with a 'override' specifier. [missingOverride]
-    std::variant<uint8_t, uint16_t> Read(uint16_t, interfaces::MemoryAccessType);
-                                    ^
-src/interfaces/MemoryControllerInterface.h:22:45: note: Virtual function in base class
-    virtual std::variant<uint8_t, uint16_t> Read(uint16_t, interfaces::MemoryAccessType) = 0;
-                                            ^
-src/MemoryController.h:38:37: note: Function in derived class
-    std::variant<uint8_t, uint16_t> Read(uint16_t, interfaces::MemoryAccessType);
-                                    ^
-src/MemoryController.h:39:10: style: The function 'Write' overrides a function in a base class but is not marked with a 'override' specifier. [missingOverride]
-    void Write(std::variant<uint8_t, uint16_t>, uint16_t);
-         ^
-src/interfaces/MemoryControllerInterface.h:23:18: note: Virtual function in base class
-    virtual void Write(std::variant<uint8_t, uint16_t>, uint16_t) = 0;
-                 ^
-src/MemoryController.h:39:10: note: Function in derived class
-    void Write(std::variant<uint8_t, uint16_t>, uint16_t);
-         ^
-src/MemoryController.h:40:10: style: The function 'Load' overrides a function in a base class but is not marked with a 'override' specifier. [missingOverride]
-    void Load(std::shared_ptr<uint8_t*>, size_t, uint16_t, std::optional<size_t>);
-         ^
-src/interfaces/MemoryControllerInterface.h:24:18: note: Virtual function in base class
-    virtual void Load(std::shared_ptr<uint8_t*>, size_t, uint16_t, std::optional<size_t>) = 0;
-                 ^
-src/MemoryController.h:40:10: note: Function in derived class
-    void Load(std::shared_ptr<uint8_t*>, size_t, uint16_t, std::optional<size_t>);
-         ^
-src/MemoryController.h:42:10: style: The function 'RegisterMemoryResource' overrides a function in a base class but is not marked with a 'override' specifier. [missingOverride]
-    void RegisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>, AddressRange);
-         ^
-src/interfaces/MemoryControllerInterface.h:26:18: note: Virtual function in base class
-    virtual void RegisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>, AddressRange) = 0;
-                 ^
-src/MemoryController.h:42:10: note: Function in derived class
-    void RegisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>, AddressRange);
-         ^
-src/MemoryController.h:43:10: style: The function 'UnregisterMemoryResource' overrides a function in a base class but is not marked with a 'override' specifier. [missingOverride]
-    void UnregisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>);
-         ^
-src/interfaces/MemoryControllerInterface.h:27:18: note: Virtual function in base class
-    virtual void UnregisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>) = 0;
-                 ^
-src/MemoryController.h:43:10: note: Function in derived class
-    void UnregisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>);
-         ^
-src/GBXExceptions.h:65:44: performance: Parameter 'message' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
-    InstructionException(const std::string message);
-                                           ^
-src/Clock.h:25:12: style:inconclusive: The member function 'gbx::Clock::Period' can be made a const function. Making this function 'const' should not cause compiler errors. Even though the function can be made const function technically it may not make sense conceptually. Think about your design and the task of the function first - is it a function that must not change object internal state? [functionConst]
-    double Period();
-           ^
-src/Clock.cc:16:15: note: Technically the member function 'gbx::Clock::Period' can be const.
-double Clock::Period()
-              ^
-src/Clock.h:25:12: note: Technically the member function 'gbx::Clock::Period' can be const.
-    double Period();
-           ^
-src/Clock.h:26:14: style:inconclusive: The member function 'gbx::Clock::Ticks' can be made a const function. Making this function 'const' should not cause compiler errors. Even though the function can be made const function technically it may not make sense conceptually. Think about your design and the task of the function first - is it a function that must not change object internal state? [functionConst]
-    uint64_t Ticks();
-             ^
-src/Clock.cc:21:17: note: Technically the member function 'gbx::Clock::Ticks' can be const.
-uint64_t Clock::Ticks()
-                ^
-src/Clock.h:26:14: note: Technically the member function 'gbx::Clock::Ticks' can be const.
-    uint64_t Ticks();
-             ^
-src/Clock.h:20:5: style: Class 'Clock' has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided. [noExplicitConstructor]
-    Clock(uint64_t);
-    ^
-src/Clock.h:23:10: style: The function 'Tick' overrides a function in a base class but is not marked with a 'override' specifier. [missingOverride]
-    void Tick(uint64_t, uint64_t);
-         ^
-src/interfaces/ClockInterface.h:11:18: note: Virtual function in base class
-    virtual void Tick(uint64_t, uint64_t) = 0;
-                 ^
-src/Clock.h:23:10: note: Function in derived class
-    void Tick(uint64_t, uint64_t);
-         ^
 src/RegisterBank.h:37:20: style:inconclusive: The member function 'gbx::RegisterBank::ReadFlag' can be made a const function. Making this function 'const' should not cause compiler errors. Even though the function can be made const function technically it may not make sense conceptually. Think about your design and the task of the function first - is it a function that must not change object internal state? [functionConst]
     inline uint8_t ReadFlag(interfaces::Flag flag)
                    ^
-src/GBXExceptions.cc:8:46: performance: Parameter 'message' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
-GBXException::GBXException(const std::string message)
-                                             ^
-src/GBXExceptions.cc:12:64: performance: Parameter 'message' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
-MemoryAccessException::MemoryAccessException(const std::string message)
-                                                               ^
-src/GBXExceptions.cc:16:72: performance: Parameter 'message' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
-MemoryControllerException::MemoryControllerException(const std::string message)
-                                                                       ^
-src/GBXExceptions.cc:20:62: performance: Parameter 'message' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
-ClockSourceException::ClockSourceException(const std::string message)
-                                                             ^
-src/GBXExceptions.cc:24:54: performance: Parameter 'message' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
-ChannelException::ChannelException(const std::string message)
-                                                     ^
-src/GBXExceptions.cc:28:78: performance: Parameter 'message' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
-ArithmeticLogicUnitException::ArithmeticLogicUnitException(const std::string message)
-                                                                             ^
-src/GBXExceptions.cc:32:64: performance: Parameter 'message' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
-RegisterBankException::RegisterBankException(const std::string message)
-                                                               ^
-src/GBXExceptions.cc:36:62: performance: Parameter 'message' is passed by value. It could be passed as a const reference which is usually faster and recommended in C++. [passedByValue]
-InstructionException::InstructionException(const std::string message)
-                                                             ^
 src/GameBoyX.cc:10:5: performance: When an object of a class is created, the constructors of all member variables are called consecutively in the order the variables are declared, even if you don't explicitly write them to the initialization list. You could avoid assigning '_cpu' a value by passing the value to the constructor in the initialization list. [useInitializationList]
     _cpu = make_shared<Z80X>();
     ^
@@ -232,7 +94,7 @@ src/instructions/InstructionBit.h:19:17: note: Technically the member function '
 src/instructions/InstructionCall.h:18:17: performance:inconclusive: The member function 'gbx::InstructionCall::DecodeUnconditionalCall' can be made a static function. Making a function static can bring a performance benefit since no 'this' instance is passed to the function. This change should not cause compiler errors but it does not necessarily make sense conceptually. Think about your design and the task of the function first - is it a function that must not access members of class instances? And maybe it is more appropriate to move this function to a unnamed namespace. [functionStatic]
     inline void DecodeUnconditionalCall(interfaces::DecodedInstruction&);
                 ^
-src/instructions/InstructionCall.cc:49:30: note: Technically the member function 'gbx::InstructionCall::DecodeUnconditionalCall' can be static (but you may consider moving to unnamed namespace).
+src/instructions/InstructionCall.cc:50:30: note: Technically the member function 'gbx::InstructionCall::DecodeUnconditionalCall' can be static (but you may consider moving to unnamed namespace).
 inline void InstructionCall::DecodeUnconditionalCall(interfaces::DecodedInstruction& decodedInstruction)
                              ^
 src/instructions/InstructionCall.h:18:17: note: Technically the member function 'gbx::InstructionCall::DecodeUnconditionalCall' can be static (but you may consider moving to unnamed namespace).
@@ -241,20 +103,20 @@ src/instructions/InstructionCall.h:18:17: note: Technically the member function 
 src/instructions/InstructionCall.h:19:17: performance:inconclusive: The member function 'gbx::InstructionCall::DecodeConditionalCall' can be made a static function. Making a function static can bring a performance benefit since no 'this' instance is passed to the function. This change should not cause compiler errors but it does not necessarily make sense conceptually. Think about your design and the task of the function first - is it a function that must not access members of class instances? And maybe it is more appropriate to move this function to a unnamed namespace. [functionStatic]
     inline void DecodeConditionalCall(uint8_t, interfaces::DecodedInstruction&);
                 ^
-src/instructions/InstructionCall.cc:66:30: note: Technically the member function 'gbx::InstructionCall::DecodeConditionalCall' can be static (but you may consider moving to unnamed namespace).
+src/instructions/InstructionCall.cc:67:30: note: Technically the member function 'gbx::InstructionCall::DecodeConditionalCall' can be static (but you may consider moving to unnamed namespace).
 inline void InstructionCall::DecodeConditionalCall(uint8_t opcode, interfaces::DecodedInstruction& decodedInstruction)
                              ^
 src/instructions/InstructionCall.h:19:17: note: Technically the member function 'gbx::InstructionCall::DecodeConditionalCall' can be static (but you may consider moving to unnamed namespace).
     inline void DecodeConditionalCall(uint8_t, interfaces::DecodedInstruction&);
                 ^
 src/instructions/InstructionCall.h:20:17: performance:inconclusive: The member function 'gbx::InstructionCall::ExecuteUnconditionalCall' can be made a static function. Making a function static can bring a performance benefit since no 'this' instance is passed to the function. This change should not cause compiler errors but it does not necessarily make sense conceptually. Think about your design and the task of the function first - is it a function that must not access members of class instances? And maybe it is more appropriate to move this function to a unnamed namespace. [functionStatic]
-    inline void ExecuteUnconditionalCall(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
+    inline bool ExecuteUnconditionalCall(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
                 ^
 src/instructions/InstructionCall.cc:25:30: note: Technically the member function 'gbx::InstructionCall::ExecuteUnconditionalCall' can be static (but you may consider moving to unnamed namespace).
-inline void InstructionCall::ExecuteUnconditionalCall(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+inline bool InstructionCall::ExecuteUnconditionalCall(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
                              ^
 src/instructions/InstructionCall.h:20:17: note: Technically the member function 'gbx::InstructionCall::ExecuteUnconditionalCall' can be static (but you may consider moving to unnamed namespace).
-    inline void ExecuteUnconditionalCall(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
+    inline bool ExecuteUnconditionalCall(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
                 ^
 src/instructions/InstructionJp.h:18:17: performance:inconclusive: The member function 'gbx::InstructionJp::DecodeUnconditionalJpRegisterIndirect' can be made a static function. Making a function static can bring a performance benefit since no 'this' instance is passed to the function. This change should not cause compiler errors but it does not necessarily make sense conceptually. Think about your design and the task of the function first - is it a function that must not access members of class instances? And maybe it is more appropriate to move this function to a unnamed namespace. [functionStatic]
     inline void DecodeUnconditionalJpRegisterIndirect(interfaces::DecodedInstruction&);
@@ -451,6 +313,15 @@ inline void InstructionRrc::DecodeRrcRegisterIndirectMode(interfaces::DecodedIns
 src/instructions/InstructionRrc.h:19:17: note: Technically the member function 'gbx::InstructionRrc::DecodeRrcRegisterIndirectMode' can be static (but you may consider moving to unnamed namespace).
     inline void DecodeRrcRegisterIndirectMode(interfaces::DecodedInstruction&);
                 ^
+src/instructions/InstructionRst.h:18:13: performance:inconclusive: The member function 'gbx::InstructionRst::GetPageLowerAddress' can be made a static function. Making a function static can bring a performance benefit since no 'this' instance is passed to the function. This change should not cause compiler errors but it does not necessarily make sense conceptually. Think about your design and the task of the function first - is it a function that must not access members of class instances? And maybe it is more appropriate to move this function to a unnamed namespace. [functionStatic]
+    uint8_t GetPageLowerAddress(uint8_t page);
+            ^
+src/instructions/InstructionRst.cc:40:25: note: Technically the member function 'gbx::InstructionRst::GetPageLowerAddress' can be static (but you may consider moving to unnamed namespace).
+uint8_t InstructionRst::GetPageLowerAddress(uint8_t page)
+                        ^
+src/instructions/InstructionRst.h:18:13: note: Technically the member function 'gbx::InstructionRst::GetPageLowerAddress' can be static (but you may consider moving to unnamed namespace).
+    uint8_t GetPageLowerAddress(uint8_t page);
+            ^
 src/instructions/InstructionSet.h:18:17: performance:inconclusive: The member function 'gbx::InstructionSet::DecodeSetRegisterMode' can be made a static function. Making a function static can bring a performance benefit since no 'this' instance is passed to the function. This change should not cause compiler errors but it does not necessarily make sense conceptually. Think about your design and the task of the function first - is it a function that must not access members of class instances? And maybe it is more appropriate to move this function to a unnamed namespace. [functionStatic]
     inline void DecodeSetRegisterMode(uint8_t, interfaces::DecodedInstruction&);
                 ^
@@ -559,6 +430,9 @@ inline void InstructionXor::DecodeXorRegisterIndirectMode(interfaces::DecodedIns
 src/instructions/InstructionXor.h:20:17: note: Technically the member function 'gbx::InstructionXor::DecodeXorRegisterIndirectMode' can be static (but you may consider moving to unnamed namespace).
     inline void DecodeXorRegisterIndirectMode(interfaces::DecodedInstruction&);
                 ^
+src/ArithmeticLogicUnit.cc:265:0: style: The function 'ClearInterruptStatusSignal' is never used. [unusedFunction]
+
+^
 src/gbx.cc:22:0: style: The function 'GetALU' is never used. [unusedFunction]
 
 ^

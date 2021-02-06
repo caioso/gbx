@@ -18,7 +18,7 @@ namespace gbx
 class ArithmeticLogicUnit : public interfaces::ArithmeticLogicUnitInterface
 {
 public:
-    ArithmeticLogicUnit();
+    explicit ArithmeticLogicUnit();
     virtual ~ArithmeticLogicUnit() = default;
 
     virtual void Initialize(std::shared_ptr<interfaces::RegisterBankInterface>) override;
@@ -55,7 +55,7 @@ protected:
     inline void IncrementRegisterPair(interfaces::Register);
     inline void DecrementRegisterPair(interfaces::Register);
     inline void IncrementPC();
-    inline bool IsSuffixedInstruction(uint8_t);
+    inline static bool IsSuffixedInstruction(uint8_t);
     inline void ResolveExecutionSignals();
     inline void ClearExecutionSignals();
 

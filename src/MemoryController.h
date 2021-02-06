@@ -35,12 +35,12 @@ public:
     MemoryController() = default;
     virtual ~MemoryController() = default;
 
-    std::variant<uint8_t, uint16_t> Read(uint16_t, interfaces::MemoryAccessType);
-    void Write(std::variant<uint8_t, uint16_t>, uint16_t);
-    void Load(std::shared_ptr<uint8_t*>, size_t, uint16_t, std::optional<size_t>);
+    virtual std::variant<uint8_t, uint16_t> Read(uint16_t, interfaces::MemoryAccessType) override;
+    virtual void Write(std::variant<uint8_t, uint16_t>, uint16_t) override;
+    virtual void Load(std::shared_ptr<uint8_t*>, size_t, uint16_t, std::optional<size_t>) override;
 
-    void RegisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>, AddressRange);
-    void UnregisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>);
+    virtual void RegisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>, AddressRange) override;
+    virtual void UnregisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>) override;
 
 private:
     inline void SortResources();

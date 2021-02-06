@@ -17,13 +17,13 @@ namespace gbx
 class Clock : public interfaces::ClockInterface
 {
 public:
-    Clock(uint64_t);
+    explicit Clock(uint64_t);
     virtual ~Clock() = default;
 
     void Tick(uint64_t, uint64_t);
 
-    double Period();
-    uint64_t Ticks();
+    double Period() const;
+    virtual uint64_t Ticks() const override;
 
 private:
     uint64_t _clockPeriodInNanoSeconds;

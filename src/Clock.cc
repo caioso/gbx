@@ -13,12 +13,12 @@ Clock::Clock(uint64_t clockPeriod)
     , _ticks(0)
 {}
 
-double Clock::Period()
+double Clock::Period() const
 {
     return _clockPeriodInNanoSeconds;
 }
 
-uint64_t Clock::Ticks()
+uint64_t Clock::Ticks() const
 {
     return _ticks;
 }

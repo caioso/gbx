@@ -27,6 +27,7 @@ struct DecodedInstruction
     uint8_t MemoryResult2;
     uint8_t InstructionExtraOperand;
 };
+
 class InstructionConstants
 {
 public:

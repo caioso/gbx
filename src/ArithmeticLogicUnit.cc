@@ -7,7 +7,8 @@ namespace gbx
 {
 
 ArithmeticLogicUnit::ArithmeticLogicUnit()
-    : _currentAddressingMode(nullptr)
+    : _instructionData{OpcodeType::unknown, AddressingMode::Register, 0, 0, 0, Register::NoRegister, Register::NoRegister, 0, 0, 0}
+    , _currentAddressingMode(nullptr)
 {}
 
 void ArithmeticLogicUnit::Initialize(shared_ptr<RegisterBankInterface> registers)
