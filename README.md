@@ -46,7 +46,6 @@ Most statements introduce their own ***keywords*** and syntactic and semantic ru
 ##### Syntax
 ``` language assembly
 PACK <PACK_TYPE_IDENTIFIER>
-BEGIN
     [{FIELD TYPE} {FIELD_IDENTIFIER}]+
 END
 ```
@@ -55,7 +54,6 @@ Each `PACK` must include an unique identifier and a non-empty list of fields. Fi
 ##### Example
 ``` language assembly
 PACK SPRITE
-BEGIN
     BYTE TILE
     BYTE PALETTE
     BYTE X
@@ -66,7 +64,7 @@ END
 
 The previous example depicts the declares a `PACK` type called SPRITE, which consists of five fields: TILE, PALETTE, X, Y, and ATTRIBUTES. The first four fields have been declared as `BYTE` which means they will take one byte each, when the `PACK` is allocated. ATTRIBUTE is a `WORD` type which means it takes 2 bytes when the `PACK` is allocated. To access the 
 
-Once declared, a `PACK` type is an *instantiable-entity* that can be used with the `DECL`, `CONST`, `FREE` statements, `.` operand, `AS` type cast construction, initializer lists and instructions. Instantiated `PACK` are referred to as struct-variables.
+Once declared, a `PACK` type is an *instantiable-entity* that can be used with the `VAR`, `CNST`, `FREE` statements, `.` operand, `AS` type cast CNSTruction, initializer lists and instructions. Instantiated `PACK` are referred to as struct-variables.
 
 ##### Syntax
 ###### Field Access
@@ -79,15 +77,15 @@ Once declared, a `PACK` type is an *instantiable-entity* that can be used with t
 ```
 ###### `PACK` Instantiation with Initializer List
 ``` language assembly
-DECL <PACK_IDENTIFIER> AS <PACK_TYPE_IDENTIFIER> @<ADDRESS_TYPE> [[[.<FIELD_IDENTIFIER> = <VALUE>]+]]*
+VAR <PACK_IDENTIFIER> AS <PACK_TYPE_IDENTIFIER> @<ADDRESS_TYPE> [[[.<FIELD_IDENTIFIER> = <VALUE>]+]]*
 ```
 ###### `PACK` Instance Deletion
 ``` language assembly
 FREE <PACK_IDENTIFIER>
 ```
-###### `PACK` Constant definition with Initializer List
+###### `PACK` CNSTant definition with Initializer List
 ``` language assembly
-CONST <PACK_IDENTIFIER> AS <PACK_TYPE_IDENTIFIER> {[.<FIELD_IDENTIFIER> = <VALUE>]+}
+CNST <PACK_IDENTIFIER> AS <PACK_TYPE_IDENTIFIER> {[.<FIELD_IDENTIFIER> = <VALUE>]+}
 ```
 
 ###### `PACK` Usage with Instruction
@@ -104,7 +102,7 @@ Note that, the instantiation of a `PACK` with initializer lists **with an struct
 ##### Example
 ``` language assembly
     ...
-    DECL    MY_SPRITE AS SPRITE @[GLOBAL_VARIABLES] {.X = H'00, .Y = H'00}
+    VAR     MY_SPRITE AS SPRITE @[GLOBAL_VARIABLES] {.X = H'00, .Y = H'00}
     LD      A, MY_SPRITE.X
     ADD     A, H'04
     LD      MY_SPRITE.X, A 
@@ -115,22 +113,20 @@ Note that, the instantiation of a `PACK` with initializer lists **with an struct
     ...
 ```
 
-The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initializes two of its fields (X and Y). The instantiated struct-variable's X field is then loaded into the accumulator, which gets incremented by `H'04`. The accumulator is then written back to MY_SPRITE's field X. At the end, MY_SPRITE is freed, releasing its memory resources.  The second part of the example loads the accumulator with the constant DEFAULT_PALETTE_INDEX and then *casts* HL to the  `PACK` type SPRITE (more specifically, the assembler will interpret HL as the base address of a SPRITE  `PACK` type and will perform field access arithmetic by using the offsets derivable from `PACK` SPRITE structure).
+The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initializes two of its fields (X and Y). The instantiated struct-variable's X field is then loaded into the accumulator, which gets incremented by `H'04`. The accumulator is then written back to MY_SPRITE's field X. At the end, MY_SPRITE is freed, releasing its memory resources.  The second part of the example loads the accumulator with the CNSTant DEFAULT_PALETTE_INDEX and then *casts* HL to the  `PACK` type SPRITE (more specifically, the assembler will interpret HL as the base address of a SPRITE  `PACK` type and will perform field access arithmetic by using the offsets derivable from `PACK` SPRITE structure).
 
 #### `FUNC`
-#### `BEGIN`
 #### `END`
-#### `DECL`
+#### `VAR`
 #### `BOOL`
 #### `CHAR`
 #### `BYTE`
 #### `WORD`
-#### `DWORD`
+#### `DWRD`
 #### `STR`
 #### `AS`
-##### `AS` for Variable Instantiation
 ##### `AS` for Type Cast
-#### `CONST`
+#### `CNST`
 #### `FREE`
 #### `IF` 
 #### `THEN` 
@@ -139,22 +135,81 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 ##### `WITH` for Function calls
 ##### `WITH` for Function return
 #### `REPT`
-#### `TIMES`
 #### `NEXT`
 #### `EXIT`
 #### `WHEN`
 #### `IS`
-#### `WHILE`
-#### `ALIAS`
+##### `IS` for Variable Instantiation
+#### `FOR`
+Repeat **for** a fixed amount of iterations.
+
+##### Example
+``` language assembly
+    REPT FOR 0x100
+        ... ; Loop body
+    END
+```
+
+#### `UNTL`
+Repeat **until** a condition is met.
+
+``` language assembly
+    REPT UNTL MEMORY_REGISTER != 0x01
+        ... ; Loop body
+    END
+```
+
+##### Example
+``` language assembly
+    ...
+    VAR     MY_SPRITE IS SPRITE @[GLOBAL_VARIABLES] {.X = H'00, .Y = H'00}
+    LD      A, MY_SPRITE.X
+    ADD     A, H'04
+    LD      MY_SPRITE.X, A 
+    FREE    MY_SPRITE
+    ...
+    LD      A, DEFAULT_PALETTE_INDEX
+    LD      {HL AS SPRITE}.PALETTE, A
+    ...
+```
+
+#### `TAG`
+Give a _temporary_ identifier to a variable, constant register or memory location.
+
+``` language assembly
+    TAG HL, POINTER
+```
+
 #### `TRY`
-#### `CATCH`
-#### `ABORT`
-#### `MACRO`
-#### `TEST`
-#### `CHECK`
-#### `ASSRT`
-#### `PASS`
-#### `FAIL`
+_Throwable_ block initializer (happy flow block).
+
+``` language assembly
+    TRY
+        ... ; Throwable block
+    EXPT
+        ... ; Exception Handling
+    END
+```
+#### `EXPT`
+_Exception_ block initializer (unhappy flow block).
+
+``` language assembly
+    TRY
+        ... ; Throwable block
+    EXPT
+        ... ; Exception Handling
+    END
+```
+
+#### `THRW`
+Exception throwing construction
+
+``` language assembly
+    ...
+    ; Error happened, Abort
+    TRHW 0x0A
+    ...
+```
 #### `IN`
 #### `OUT`
 
@@ -276,6 +331,7 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### `.SRAM`
 #### `.VRAM`
 #### `.BANK`
+#### `.MACRO`
 #### `.TEST`
 
 ### Macros
