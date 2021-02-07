@@ -41,6 +41,7 @@ enum class OpcodeType
     ret,
     reti,
     rst,
+    daa,
 };
 
 const uint8_t MemoryOperand = 0x06;

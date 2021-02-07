@@ -9,6 +9,7 @@
 #include "InstructionBit.h"
 #include "InstructionCall.h"
 #include "InstructionCp.h"
+#include "InstructionDaa.h"
 #include "InstructionDec.h"
 #include "InstructionInc.h"
 #include "InstructionJp.h"
