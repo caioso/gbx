@@ -102,7 +102,7 @@ Note that, the instantiation of a `PACK` with initializer lists **with an struct
 ##### Example
 ``` language assembly
     ...
-    VAR     MY_SPRITE AS SPRITE @[GLOBAL_VARIABLES] {.X = H'00, .Y = H'00}
+    VAR     MY_SPRITE IS SPRITE @[GLOBAL_VARIABLES] {.X = H'00, .Y = H'00}
     LD      A, MY_SPRITE.X
     ADD     A, H'04
     LD      MY_SPRITE.X, A 
