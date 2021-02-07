@@ -159,20 +159,6 @@ Repeat **until** a condition is met.
     END
 ```
 
-##### Example
-``` language assembly
-    ...
-    VAR     MY_SPRITE IS SPRITE @[GLOBAL_VARIABLES] {.X = H'00, .Y = H'00}
-    LD      A, MY_SPRITE.X
-    ADD     A, H'04
-    LD      MY_SPRITE.X, A 
-    FREE    MY_SPRITE
-    ...
-    LD      A, DEFAULT_PALETTE_INDEX
-    LD      {HL AS SPRITE}.PALETTE, A
-    ...
-```
-
 #### `TAG`
 Give a _temporary_ identifier to a variable, constant register or memory location.
 
