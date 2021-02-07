@@ -33,12 +33,11 @@ catch( ... )                                                          \
 TEST(TestLanguageStructurePack, SimplePack)
 {
     const string pack = "PACK MY_PACK\n"
-                        "BEGIN\n"
                         "    BYTE MY_BYTE_MEMBER\n"
                         "    WORD MY_WORD_MEMBER\n"
                         "    BOOL MY_BOOL_MEMBER\n"
                         "    CHAR MY_CHAR_MEMBER\n"
-                        "    DWORD MY_DWORD_MEMBER\n"
+                        "    DWRD MY_DWRD_MEMBER\n"
                         "    STR MY_STRING_MEMBER[20]\n"
                         "END";
 
@@ -49,8 +48,6 @@ TEST(TestLanguageStructurePack, SimplePack)
 
     auto tokenTypes = { // PACK MY_PACK
                         TokenType::KeywordPACK, TokenType::Identifier,
-                        // BEGIN
-                        TokenType::KeywordBEGIN,
                         // BYTE MY_BYTE_MEMBER
                         TokenType::KeywordBYTE, TokenType::Identifier,
                         // WORD MY_WORD_MEMBER
@@ -59,8 +56,8 @@ TEST(TestLanguageStructurePack, SimplePack)
                         TokenType::KeywordBOOL, TokenType::Identifier,
                         // CHAR MY_CHAR_MEMBER
                         TokenType::KeywordCHAR, TokenType::Identifier,
-                        // DWORD MY_DWORD_MEMBER
-                        TokenType::KeywordDWORD, TokenType::Identifier,
+                        // DWRD MY_DWRD_MEMBER
+                        TokenType::KeywordDWRD, TokenType::Identifier,
                         // STR MY_STRING_MEMBER[20]
                         TokenType::KeywordSTR, TokenType::Identifier, TokenType::SeparatorOPENBRACKETS, TokenType::LiteralNumericDECIMAL, TokenType::SeparatorCLOSEBRACKETS,
                         // END
@@ -69,8 +66,6 @@ TEST(TestLanguageStructurePack, SimplePack)
 
     auto lexemes = { // PACK MY_PACK
                         Lexemes::KeywordPACK.c_str(), "MY_PACK",
-                        // BEGIN
-                        Lexemes::KeywordBEGIN.c_str(),
                         // BYTE MY_BYTE_MEMBER
                         Lexemes::KeywordBYTE.c_str(), "MY_BYTE_MEMBER",
                         // WORD MY_WORD_MEMBER
@@ -79,8 +74,8 @@ TEST(TestLanguageStructurePack, SimplePack)
                         Lexemes::KeywordBOOL.c_str(), "MY_BOOL_MEMBER",
                         // CHAR MY_CHAR_MEMBER
                         Lexemes::KeywordCHAR.c_str(), "MY_CHAR_MEMBER",
-                        // DWORD MY_DWORD_MEMBER
-                        Lexemes::KeywordDWORD.c_str(), "MY_DWORD_MEMBER",
+                        // DWRD MY_DWRD_MEMBER
+                        Lexemes::KeywordDWRD.c_str(), "MY_DWRD_MEMBER",
                         // STR MY_STRING_MEMBER[20]
                         Lexemes::KeywordSTR.c_str(), "MY_STRING_MEMBER", Lexemes::SeparatorOPENBRACKETS.c_str(), "20", Lexemes::SeparatorCLOSEBRACKETS.c_str(),
                         // END
@@ -89,8 +84,6 @@ TEST(TestLanguageStructurePack, SimplePack)
 
     auto columns = { //PACK MY_PACK
                      1llu, 6llu,
-                     //BEGIN
-                     1llu,
                      //    BYTE MY_BYTE_MEMBER
                      5llu, 10llu, 
                      //    WORD MY_WORD_MEMBER
@@ -99,8 +92,8 @@ TEST(TestLanguageStructurePack, SimplePack)
                      5llu, 10llu, 
                      //    CHAR MY_CHAR_MEMBER
                      5llu, 10llu, 
-                     //    DWORD MY_DWORD_MEMBER
-                     5llu, 11llu, 
+                     //    DWRD MY_DWRD_MEMBER
+                     5llu, 10llu, 
                      //    STR MY_STRING_MEMBER[20]
                      5llu, 9llu, 25llu, 26llu, 28llu,
                      //END
@@ -109,22 +102,20 @@ TEST(TestLanguageStructurePack, SimplePack)
     
     auto lines = {   //PACK MY_PACK
                      1llu, 1llu,
-                     //BEGIN
-                     2llu,
                      //    BYTE MY_BYTE_MEMBER
-                     3llu, 3llu, 
+                     2llu, 2llu, 
                      //    WORD MY_WORD_MEMBER
-                     4llu, 4llu, 
+                     3llu, 3llu, 
                      //    BOOL MY_BOOL_MEMBER
-                     5llu, 5llu, 
+                     4llu, 4llu, 
                      //    CHAR MY_CHAR_MEMBER
+                     5llu, 5llu, 
+                     //    DWRD MY_DWRD_MEMBER
                      6llu, 6llu, 
-                     //    DWORD MY_DWORD_MEMBER
-                     7llu, 7llu, 
                      //    STR MY_STRING_MEMBER[20]
-                     8llu, 8llu, 8llu, 8llu, 8llu,
+                     7llu, 7llu, 7llu, 7llu, 7llu,
                      //END
-                     9llu
+                     8llu
                    };
 
     for (auto i = 0llu; i < lexemes.size(); ++i)

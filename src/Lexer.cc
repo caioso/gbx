@@ -94,12 +94,10 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
             token.Type = TokenType::KeywordPACK;
         else if (lexeme.first.compare(Lexemes::KeywordFUNC) == 0)
             token.Type = TokenType::KeywordFUNC;
-        else if (lexeme.first.compare(Lexemes::KeywordBEGIN) == 0)
-            token.Type = TokenType::KeywordBEGIN;
         else if (lexeme.first.compare(Lexemes::KeywordEND) == 0)
             token.Type = TokenType::KeywordEND;
-        else if (lexeme.first.compare(Lexemes::KeywordDECL) == 0)
-            token.Type = TokenType::KeywordDECL;
+        else if (lexeme.first.compare(Lexemes::KeywordVAR) == 0)
+            token.Type = TokenType::KeywordVAR;
         else if (lexeme.first.compare(Lexemes::KeywordBOOL) == 0)
             token.Type = TokenType::KeywordBOOL;
         else if (lexeme.first.compare(Lexemes::KeywordCHAR) == 0)
@@ -108,14 +106,14 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
             token.Type = TokenType::KeywordBYTE;
         else if (lexeme.first.compare(Lexemes::KeywordWORD) == 0)
             token.Type = TokenType::KeywordWORD;
-        else if (lexeme.first.compare(Lexemes::KeywordDWORD) == 0)
-            token.Type = TokenType::KeywordDWORD;
+        else if (lexeme.first.compare(Lexemes::KeywordDWRD) == 0)
+            token.Type = TokenType::KeywordDWRD;
         else if (lexeme.first.compare(Lexemes::KeywordSTR) == 0)
             token.Type = TokenType::KeywordSTR;
         else if (lexeme.first.compare(Lexemes::KeywordAS) == 0)
             token.Type = TokenType::KeywordAS;
-        else if (lexeme.first.compare(Lexemes::KeywordCONST) == 0)
-            token.Type = TokenType::KeywordCONST;
+        else if (lexeme.first.compare(Lexemes::KeywordCNST) == 0)
+            token.Type = TokenType::KeywordCNST;
         else if (lexeme.first.compare(Lexemes::KeywordFREE) == 0)
             token.Type = TokenType::KeywordFREE;
         else if (lexeme.first.compare(Lexemes::KeywordIF) == 0)
@@ -128,8 +126,6 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
             token.Type = TokenType::KeywordWITH;
         else if (lexeme.first.compare(Lexemes::KeywordREPT) == 0)
             token.Type = TokenType::KeywordREPT;
-        else if (lexeme.first.compare(Lexemes::KeywordTIMES) == 0)
-            token.Type = TokenType::KeywordTIMES;
         else if (lexeme.first.compare(Lexemes::KeywordNEXT) == 0)
             token.Type = TokenType::KeywordNEXT;
         else if (lexeme.first.compare(Lexemes::KeywordEXIT) == 0)
@@ -138,34 +134,26 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
             token.Type = TokenType::KeywordWHEN;
         else if (lexeme.first.compare(Lexemes::KeywordIS) == 0)
             token.Type = TokenType::KeywordIS;
-        else if (lexeme.first.compare(Lexemes::KeywordWHILE) == 0)
-            token.Type = TokenType::KeywordWHILE;
-        else if (lexeme.first.compare(Lexemes::KeywordALIAS) == 0)
-            token.Type = TokenType::KeywordALIAS;
+        else if (lexeme.first.compare(Lexemes::KeywordFOR) == 0)
+            token.Type = TokenType::KeywordFOR;
+        else if (lexeme.first.compare(Lexemes::KeywordUNTL) == 0)
+            token.Type = TokenType::KeywordUNTL;
+        else if (lexeme.first.compare(Lexemes::KeywordTAG) == 0)
+            token.Type = TokenType::KeywordTAG;
         else if (lexeme.first.compare(Lexemes::KeywordTRY) == 0)
             token.Type = TokenType::KeywordTRY;
-        else if (lexeme.first.compare(Lexemes::KeywordCATCH) == 0)
-            token.Type = TokenType::KeywordCATCH;
-        else if (lexeme.first.compare(Lexemes::KeywordABORT) == 0)
-            token.Type = TokenType::KeywordABORT;
+        else if (lexeme.first.compare(Lexemes::KeywordEXPT) == 0)
+            token.Type = TokenType::KeywordEXPT;
+        else if (lexeme.first.compare(Lexemes::KeywordTHRW) == 0)
+            token.Type = TokenType::KeywordTHRW;
         else if (lexeme.first.compare(Lexemes::KeywordTEST) == 0)
             token.Type = TokenType::KeywordTEST;
-        else if (lexeme.first.compare(Lexemes::KeywordMACRO) == 0)
-            token.Type = TokenType::KeywordMACRO;
         else if (lexeme.first.compare(Lexemes::KeywordMOVE) == 0)
             token.Type = TokenType::KeywordMOVE;
         else if (lexeme.first.compare(Lexemes::KeywordHIGH) == 0)
             token.Type = TokenType::KeywordHIGH;
         else if (lexeme.first.compare(Lexemes::KeywordLOW) == 0)
             token.Type = TokenType::KeywordLOW;
-        else if (lexeme.first.compare(Lexemes::KeywordCHECK) == 0)
-            token.Type = TokenType::KeywordCHECK;
-        else if (lexeme.first.compare(Lexemes::KeywordASSRT) == 0)
-            token.Type = TokenType::KeywordASSRT;
-        else if (lexeme.first.compare(Lexemes::KeywordPASS) == 0)
-            token.Type = TokenType::KeywordPASS;
-        else if (lexeme.first.compare(Lexemes::KeywordFAIL) == 0)
-            token.Type = TokenType::KeywordFAIL;
         else if (lexeme.first.compare(Lexemes::KeywordIN) == 0)
             token.Type = TokenType::KeywordIN;
         else if (lexeme.first.compare(Lexemes::KeywordOUT) == 0)

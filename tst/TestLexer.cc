@@ -300,42 +300,36 @@ TEST(TestLexer, EvaluateAllKeywords)
 {
     const string program = "PACK\n"
                            "FUNC\n"
-                           "BEGIN\n"
                            "END\n"
-                           "DECL\n"
+                           "VAR\n"
                            "BOOL\n"
                            "CHAR\n"
                            "BYTE\n"
                            "WORD\n"
-                           "DWORD\n"
+                           "DWRD\n"
                            "STR\n"
                            "AS\n"
-                           "CONST\n"
+                           "CNST\n"
                            "FREE\n"
                            "IF\n"
                            "THEN\n"
                            "ELSE\n"
                            "WITH\n"
                            "REPT\n"
-                           "TIMES\n"
                            "NEXT\n"
                            "EXIT\n"
                            "WHEN\n"
                            "IS\n"
-                           "WHILE\n"
-                           "ALIAS\n"
+                           "FOR\n"
+                           "UNTL\n"
+                           "TAG\n"
                            "TRY\n"
-                           "CATCH\n"
-                           "ABORT\n"
+                           "EXPT\n"
+                           "THRW\n"
                            "TEST\n"
-                           "MACRO\n"
                            "MOVE\n"
                            "HIGH\n"
                            "LOW\n"
-                           "CHECK\n"
-                           "ASSRT\n"
-                           "PASS\n"
-                           "FAIL\n"
                            "IN\n"
                            "OUT\n";
 
@@ -343,27 +337,27 @@ TEST(TestLexer, EvaluateAllKeywords)
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
-    auto keywordsString = {Lexemes::KeywordPACK, Lexemes::KeywordFUNC, Lexemes::KeywordBEGIN, Lexemes::KeywordEND,
-                           Lexemes::KeywordDECL, Lexemes::KeywordBOOL, Lexemes::KeywordCHAR, Lexemes::KeywordBYTE, 
-                           Lexemes::KeywordWORD, Lexemes::KeywordDWORD, Lexemes::KeywordSTR, Lexemes::KeywordAS, 
-                           Lexemes::KeywordCONST,Lexemes::KeywordFREE, Lexemes::KeywordIF, Lexemes::KeywordTHEN, 
-                           Lexemes::KeywordELSE,Lexemes::KeywordWITH, Lexemes::KeywordREPT, Lexemes::KeywordTIMES, 
+    auto keywordsString = {Lexemes::KeywordPACK, Lexemes::KeywordFUNC, Lexemes::KeywordEND,
+                           Lexemes::KeywordVAR, Lexemes::KeywordBOOL, Lexemes::KeywordCHAR, Lexemes::KeywordBYTE, 
+                           Lexemes::KeywordWORD, Lexemes::KeywordDWRD, Lexemes::KeywordSTR, Lexemes::KeywordAS, 
+                           Lexemes::KeywordCNST,Lexemes::KeywordFREE, Lexemes::KeywordIF, Lexemes::KeywordTHEN, 
+                           Lexemes::KeywordELSE,Lexemes::KeywordWITH, Lexemes::KeywordREPT,
                            Lexemes::KeywordNEXT, Lexemes::KeywordEXIT, Lexemes::KeywordWHEN, Lexemes::KeywordIS, 
-                           Lexemes::KeywordWHILE, Lexemes::KeywordALIAS, Lexemes::KeywordTRY, Lexemes::KeywordCATCH, 
-                           Lexemes::KeywordABORT, Lexemes::KeywordTEST, Lexemes::KeywordMACRO, Lexemes::KeywordMOVE, 
-                           Lexemes::KeywordHIGH, Lexemes::KeywordLOW, Lexemes::KeywordCHECK, Lexemes::KeywordASSRT, 
-                           Lexemes::KeywordPASS, Lexemes::KeywordFAIL, Lexemes::KeywordIN, Lexemes::KeywordOUT};
+                           Lexemes::KeywordFOR, Lexemes::KeywordUNTL,
+                           Lexemes::KeywordTAG, Lexemes::KeywordTRY, Lexemes::KeywordEXPT, 
+                           Lexemes::KeywordTHRW, Lexemes::KeywordTEST, Lexemes::KeywordMOVE, 
+                           Lexemes::KeywordHIGH, Lexemes::KeywordLOW, Lexemes::KeywordIN, Lexemes::KeywordOUT};
 
-    auto keywordsTokens = {TokenType::KeywordPACK, TokenType::KeywordFUNC, TokenType::KeywordBEGIN, TokenType::KeywordEND, 
-                           TokenType::KeywordDECL, TokenType::KeywordBOOL, TokenType::KeywordCHAR, TokenType::KeywordBYTE, 
-                           TokenType::KeywordWORD, TokenType::KeywordDWORD, TokenType::KeywordSTR, TokenType::KeywordAS, 
-                           TokenType::KeywordCONST, TokenType::KeywordFREE, TokenType::KeywordIF, TokenType::KeywordTHEN, 
-                           TokenType::KeywordELSE, TokenType::KeywordWITH, TokenType::KeywordREPT, TokenType::KeywordTIMES,
+    auto keywordsTokens = {TokenType::KeywordPACK, TokenType::KeywordFUNC, TokenType::KeywordEND, 
+                           TokenType::KeywordVAR, TokenType::KeywordBOOL, TokenType::KeywordCHAR, TokenType::KeywordBYTE, 
+                           TokenType::KeywordWORD, TokenType::KeywordDWRD, TokenType::KeywordSTR, TokenType::KeywordAS, 
+                           TokenType::KeywordCNST, TokenType::KeywordFREE, TokenType::KeywordIF, TokenType::KeywordTHEN, 
+                           TokenType::KeywordELSE, TokenType::KeywordWITH, TokenType::KeywordREPT,
                            TokenType::KeywordNEXT, TokenType::KeywordEXIT, TokenType::KeywordWHEN, TokenType::KeywordIS, 
-                           TokenType::KeywordWHILE, TokenType::KeywordALIAS, TokenType::KeywordTRY, TokenType::KeywordCATCH, 
-                           TokenType::KeywordABORT, TokenType::KeywordTEST, TokenType::KeywordMACRO, TokenType::KeywordMOVE,
-                           TokenType::KeywordHIGH, TokenType::KeywordLOW, TokenType::KeywordCHECK, TokenType::KeywordASSRT, 
-                           TokenType::KeywordPASS, TokenType::KeywordFAIL, TokenType::KeywordIN, TokenType::KeywordOUT};
+                           TokenType::KeywordFOR, TokenType::KeywordUNTL,
+                           TokenType::KeywordTAG, TokenType::KeywordTRY, TokenType::KeywordEXPT, 
+                           TokenType::KeywordTHRW, TokenType::KeywordTEST,TokenType::KeywordMOVE,
+                           TokenType::KeywordHIGH, TokenType::KeywordLOW, TokenType::KeywordIN, TokenType::KeywordOUT};
 
     auto counter = 0;
     for (auto i = static_cast<size_t>(0); i < keywordsString.size(); ++i)
@@ -761,36 +755,36 @@ TEST(TestLexer, EvaluateStringLiteral3)
 
 TEST(TestLexer, EvaluateStringLiteral4)
 {
-    const string string = "CONST MY_STRING {\"my-string\"}";
+    const string string = "CNST MY_STRING {\"my-string\"}";
     auto lexer = make_shared<Lexer>();
     lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
 
     EXPECT_EQ(static_cast<size_t>(5), tokens.size());
-    EXPECT_STREQ(Lexemes::KeywordCONST.c_str(), tokens[0].Lexeme.c_str());
-    EXPECT_EQ(TokenType::KeywordCONST, tokens[0].Type);
+    EXPECT_STREQ(Lexemes::KeywordCNST.c_str(), tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::KeywordCNST, tokens[0].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
     
     EXPECT_STREQ("MY_STRING", tokens[1].Lexeme.c_str());
     EXPECT_EQ(TokenType::Identifier, tokens[1].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
-    EXPECT_EQ(static_cast<size_t>(7), tokens[1].Column);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[1].Column);
     
     EXPECT_STREQ(Lexemes::SeparatorOPENCURLYBRACKETS.c_str(), tokens[2].Lexeme.c_str());
     EXPECT_EQ(TokenType::SeparatorOPENCURLYBRACKETS, tokens[2].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
-    EXPECT_EQ(static_cast<size_t>(17), tokens[2].Column);
+    EXPECT_EQ(static_cast<size_t>(16), tokens[2].Column);
     
     EXPECT_STREQ("\"my-string\"", tokens[3].Lexeme.c_str());
     EXPECT_EQ(TokenType::LiteralSTRING, tokens[3].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
-    EXPECT_EQ(static_cast<size_t>(18), tokens[3].Column);
+    EXPECT_EQ(static_cast<size_t>(17), tokens[3].Column);
 
     EXPECT_STREQ(Lexemes::SeparatorCLOSECURLYBRACKETS.c_str(), tokens[4].Lexeme.c_str());
     EXPECT_EQ(TokenType::SeparatorCLOSECURLYBRACKETS, tokens[4].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[4].Line);
-    EXPECT_EQ(static_cast<size_t>(29), tokens[4].Column);
+    EXPECT_EQ(static_cast<size_t>(28), tokens[4].Column);
 }
 
 TEST(TestLexer, EvaluateStringLiteral5)
