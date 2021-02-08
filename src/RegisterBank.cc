@@ -34,7 +34,7 @@ void RegisterBank::Write(Register reg, uint8_t val)
     assert(IsSingleRegister(reg));
 
     auto index = RegisterToIndex(reg);
-
+    
     if(IsSingleRegister(reg))
         _registers[index] = val;
     else
