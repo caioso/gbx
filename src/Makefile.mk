@@ -5,11 +5,11 @@ OBJ_DIR := $(CURDIR)/../obj
 TARGET_DIR := $(CURDIR)/..
 SRC_FILES := $(wildcard ./*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./interfaces/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./symbols/*.cc)
+SRC_FILES := $(SRC_FILES) $(wildcard ./constructions/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./utils/*.cc)
 OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
 OBJ_FILES := $(subst interfaces/,,$(OBJ_FILES))
-OBJ_FILES := $(subst symbols/,,$(OBJ_FILES))
+OBJ_FILES := $(subst constructions/,,$(OBJ_FILES))
 OBJ_FILES := $(subst utils/,,$(OBJ_FILES))
 LDFLAGS := $(LDCOVERAGE_FLAGS)
 CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG
@@ -30,10 +30,10 @@ $(OBJ_DIR)/%.o: ./interfaces/%.cc
 $(OBJ_DIR)/%.o: ./interfaces/%.cc ./interfaces/%.h
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
-$(OBJ_DIR)/%.o: ./symbols/%.cc
+$(OBJ_DIR)/%.o: ./constructions/%.cc
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
-$(OBJ_DIR)/%.o: ./symbols/%.cc ./symbols/%.h
+$(OBJ_DIR)/%.o: ./constructions/%.cc ./constructions/%.h
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
 $(OBJ_DIR)/%.o: ./utils/%.cc

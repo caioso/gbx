@@ -3,11 +3,18 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
+#include "../src/constructions/ConstructionPack.h"
+#include "../src/constructions/DeclaredMember.h"
+#include "../src/interfaces/Construction.h"
 #include "../src/Lexer.h"
 #include "../src/Lexemes.h"
+#include "../src/Parser.h"
 
 using namespace gbxasm;
+using namespace gbxasm::interfaces;
+using namespace gbxasm::constructions;
 using namespace std;
 
 #define ASSERT_EXCEPTION( TRY_BLOCK, EXCEPTION_TYPE, MESSAGE )        \
@@ -30,7 +37,7 @@ catch( ... )                                                          \
            << "'!";                                                   \
 }
 
-TEST(TestLanguageStructurePack, SimplePack)
+TEST(TestPackParser, SanityCheckPackTokenization)
 {
     const string pack = "PACK MY_PACK\n"
                         "    BYTE MY_BYTE_MEMBER\n"
@@ -125,4 +132,66 @@ TEST(TestLanguageStructurePack, SimplePack)
         EXPECT_EQ(*(begin(lines) + i), tokens[i].Line);
         EXPECT_EQ(*(begin(columns) + i), tokens[i].Column);
     }
+}
+
+TEST(TestPackParser, ParsePackSimple)
+{
+    const string pack = "PACK MY_PACK\n"
+                        "    BYTE MY_BYTE_MEMBER\n"
+                        "    WORD MY_WORD_MEMBER\n"
+                        "    BOOL MY_BOOL_MEMBER\n"
+                        "    CHAR MY_CHAR_MEMBER\n"
+                        "    DWRD MY_DWRD_MEMBER\n"
+                        "    STR MY_STRING_MEMBER[20]\n"
+                        "END";
+
+
+    auto lexer = make_shared<Lexer>();
+    auto parser = make_shared<Parser>();
+    lexer->Tokenize(pack);
+    parser->Parse(std::move(lexer->Tokens()));
+    auto acceptedConstructions = parser->AcceptedStructures();
+
+    EXPECT_EQ(1llu, acceptedConstructions.size());
+    EXPECT_EQ(ConstructionType::Pack, acceptedConstructions[0].Type);
+    EXPECT_EQ(1llu, acceptedConstructions[0].Construction->Line());
+    EXPECT_EQ(1llu, acceptedConstructions[0].Construction->Column());
+    
+    // Construcion-specific checks
+    auto packConstruction = static_pointer_cast<ConstructionPack>(acceptedConstructions[0].Construction);
+    EXPECT_STREQ("MY_PACK", packConstruction->Identifier().c_str());
+    EXPECT_EQ(6llu, packConstruction->Members().size());
+
+    // Check each member
+    EXPECT_EQ(TypeName::Byte, packConstruction->Members()[0].Type.Name);
+    EXPECT_EQ(1llu, packConstruction->Members()[0].Type.Size);
+    EXPECT_FALSE(packConstruction->Members()[0].IsArray);
+    EXPECT_STREQ("MY_BYTE_MEMBER", packConstruction->Members()[0].Identifier.c_str());
+
+    EXPECT_EQ(TypeName::Word, packConstruction->Members()[1].Type.Name);
+    EXPECT_EQ(2llu, packConstruction->Members()[1].Type.Size);
+    EXPECT_FALSE(packConstruction->Members()[1].IsArray);
+    EXPECT_STREQ("MY_WORD_MEMBER", packConstruction->Members()[1].Identifier.c_str());
+
+    EXPECT_EQ(TypeName::Bool, packConstruction->Members()[2].Type.Name);
+    EXPECT_EQ(1llu, packConstruction->Members()[2].Type.Size);
+    EXPECT_FALSE(packConstruction->Members()[2].IsArray);
+    EXPECT_STREQ("MY_BOOL_MEMBER", packConstruction->Members()[2].Identifier.c_str());
+
+    EXPECT_EQ(TypeName::Char, packConstruction->Members()[3].Type.Name);
+    EXPECT_EQ(1llu, packConstruction->Members()[3].Type.Size);
+    EXPECT_FALSE(packConstruction->Members()[3].IsArray);
+    EXPECT_STREQ("MY_CHAR_MEMBER", packConstruction->Members()[3].Identifier.c_str());
+
+    EXPECT_EQ(TypeName::DoubleWord, packConstruction->Members()[4].Type.Name);
+    EXPECT_EQ(4llu, packConstruction->Members()[4].Type.Size);
+    EXPECT_FALSE(packConstruction->Members()[4].IsArray);
+    EXPECT_STREQ("MY_DWRD_MEMBER", packConstruction->Members()[4].Identifier.c_str());
+
+    EXPECT_EQ(TypeName::String, packConstruction->Members()[5].Type.Name);
+    EXPECT_EQ(1llu, packConstruction->Members()[5].Type.Size);
+    EXPECT_EQ(20llu, packConstruction->Members()[5].ArrayLength);
+    EXPECT_TRUE(packConstruction->Members()[5].IsArray);
+    EXPECT_STREQ("MY_STRING_MEMBER", packConstruction->Members()[5].Identifier.c_str());
+
 }
