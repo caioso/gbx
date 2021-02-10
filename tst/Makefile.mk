@@ -9,7 +9,8 @@ CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O0 -g -DDEBUG
 TARGET := gbxasmTest
 TARGET_DIR := $(CURDIR)/..
 DEPENDECIES := $(OBJ_DIR)/GBXAsmExceptions.o $(OBJ_DIR)/Lexer.o $(OBJ_DIR)/Parser.o \
-			   $(OBJ_DIR)/Construction.o $(OBJ_DIR)/ConstructionPack.o
+			   $(OBJ_DIR)/Construction.o $(OBJ_DIR)/ConstructionPack.o $(OBJ_DIR)/ConstructionParser.o \
+			   $(OBJ_DIR)/PackParser.o
 		
 $(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
 	$(CC) -o $@ $^ $(DEPENDECIES) $(LDFLAGS)

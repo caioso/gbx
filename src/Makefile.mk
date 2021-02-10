@@ -6,11 +6,11 @@ TARGET_DIR := $(CURDIR)/..
 SRC_FILES := $(wildcard ./*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./interfaces/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./constructions/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./utils/*.cc)
+SRC_FILES := $(SRC_FILES) $(wildcard ./parsers/*.cc)
 OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
 OBJ_FILES := $(subst interfaces/,,$(OBJ_FILES))
 OBJ_FILES := $(subst constructions/,,$(OBJ_FILES))
-OBJ_FILES := $(subst utils/,,$(OBJ_FILES))
+OBJ_FILES := $(subst parsers/,,$(OBJ_FILES))
 LDFLAGS := $(LDCOVERAGE_FLAGS)
 CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG
 TARGET := gbxasm
@@ -36,10 +36,10 @@ $(OBJ_DIR)/%.o: ./constructions/%.cc
 $(OBJ_DIR)/%.o: ./constructions/%.cc ./constructions/%.h
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
-$(OBJ_DIR)/%.o: ./utils/%.cc
+$(OBJ_DIR)/%.o: ./parsers/%.cc
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
-$(OBJ_DIR)/%.o: ./utils/%.cc ./utils/%.h
+$(OBJ_DIR)/%.o: ./parsers/%.cc ./parsers/%.h
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
 

@@ -13,6 +13,10 @@ LexerException::LexerException(const std::string message)
     : GBXAsmException(message)
 {}
 
+ParserException::ParserException(const std::string message)
+    : GBXAsmException(message)
+{}
+
 
 const char* GBXAsmException::what() const noexcept
 {

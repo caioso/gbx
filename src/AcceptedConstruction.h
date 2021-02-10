@@ -4,7 +4,7 @@
 
 #include "interfaces/Construction.h"
 
-namespace gbxasm::interfaces
+namespace gbxasm
 {
 
 enum class ConstructionType

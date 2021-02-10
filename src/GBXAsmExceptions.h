@@ -23,4 +23,11 @@ public:
     LexerException(const std::string);
     ~LexerException() = default;
 };
+
+class ParserException : public GBXAsmException
+{
+public:
+    ParserException(const std::string);
+    ~ParserException() = default;
+};
 }
