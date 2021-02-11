@@ -267,15 +267,31 @@ bool ArithmeticLogicUnit::ClearInterruptStatusSignal()
     return _clearInterruptStatusSignal;
 }
 
+bool ArithmeticLogicUnit::HaltSignal()
+{
+    return _haltSignal;
+}
+
+bool ArithmeticLogicUnit::StopSignal()
+{
+    return _stopSignal;
+}
+
 inline void ArithmeticLogicUnit::ResolveExecutionSignals()
 {
     if (_instructionData.Opcode == OpcodeType::reti && _executionAborted == false)
         _clearInterruptStatusSignal = true;
+    else if (_instructionData.Opcode == OpcodeType::halt && _executionAborted == false)
+        _haltSignal = true;
+    else if (_instructionData.Opcode == OpcodeType::stop && _executionAborted == false)
+        _stopSignal = true;
 }
 
 inline void ArithmeticLogicUnit::ClearExecutionSignals()
 {
     _clearInterruptStatusSignal = false;
+    _haltSignal = false;
+    _stopSignal = false;
 }
 
 }

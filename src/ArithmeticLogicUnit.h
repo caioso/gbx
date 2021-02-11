@@ -29,8 +29,9 @@ public:
 
     virtual void AcquireInstruction(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController) override;
 
-    virtual bool ClearInterruptStatusSignal() override;
-
+    [[nodiscard]] virtual bool ClearInterruptStatusSignal() override;
+    [[nodiscard]] virtual bool HaltSignal() override;
+    [[nodiscard]] virtual bool StopSignal() override;
     [[nodiscard]] virtual bool IsExecutionAborted() override;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() override;
@@ -66,6 +67,8 @@ protected:
     AddressingModeFormat* _currentAddressingMode;
     bool _executionAborted{};
     bool _clearInterruptStatusSignal{};
+    bool _haltSignal{};
+    bool _stopSignal{};
 };
 
 }

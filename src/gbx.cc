@@ -123,6 +123,10 @@ int main ()
     {
         cout << "Program Terminated at cycle " << cycleCounter << '\n';
     }
+    catch (const gbx::MemoryControllerException&)
+    {
+        cout << "Program Terminated at cycle " << cycleCounter << '\n';
+    }
 
     cout << "Memory content (0x0100 ~ 0x010b)" << '\n';
     for (auto i = static_cast<uint8_t>(0); i < static_cast<uint8_t>(12); i++)

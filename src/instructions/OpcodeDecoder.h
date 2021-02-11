@@ -13,6 +13,7 @@
 #include "InstructionDaa.h"
 #include "InstructionDec.h"
 #include "InstructionInc.h"
+#include "InstructionHalt.h"
 #include "InstructionJp.h"
 #include "InstructionJr.h"
 #include "InstructionLd.h"
@@ -39,6 +40,7 @@
 #include "InstructionSra.h"
 #include "InstructionSrl.h"
 #include "InstructionSub.h"
+#include "InstructionStop.h"
 #include "InstructionSwap.h"
 #include "InstructionXor.h"
 

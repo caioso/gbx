@@ -51,8 +51,9 @@ public:
     
     virtual void AcquireInstruction(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController) = 0;
 
-    virtual bool ClearInterruptStatusSignal() = 0;
-
+    [[nodiscard]] virtual bool ClearInterruptStatusSignal() = 0;
+    [[nodiscard]] virtual bool HaltSignal() = 0;
+    [[nodiscard]] virtual bool StopSignal() = 0;
     [[nodiscard]] virtual bool IsExecutionAborted() = 0;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() = 0;

@@ -44,6 +44,8 @@ enum class OpcodeType
     daa,
     cpl,
     nop,
+    halt,
+    stop,
 };
 
 const uint8_t MemoryOperand = 0x06;
