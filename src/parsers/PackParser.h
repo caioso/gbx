@@ -15,15 +15,17 @@ namespace gbxasm::parsers
 
 enum class PackSymbols
 {
+    TerminalPack,
     TerminalType,
     TerminalIdentifier,
-    TerminalPack,
-    TerminalEnd,
     TerminalOpenBracket,
-    TerminalCloseBracket,
     TerminalNumericLiteral,
+    TerminalCloseBracket,
+    TerminalEnd,
     NonTerminalHeader,
     NonTerminalMember,
+    NonTerminalMemberList,
+    NonTerminalFooter,
 };
 
 class PackParser : public interfaces::ConstructionParser

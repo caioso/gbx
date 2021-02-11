@@ -154,6 +154,8 @@ TEST(TestPackParser, ParsePackSimple)
     auto endIterator = end(lexer->Tokens());
     parser->TryToAccept(currentToken, endIterator);
 
+    EXPECT_TRUE(parser->IsAccepted());
+
     /*EXPECT_EQ(1llu, acceptedConstructions.size());
     EXPECT_EQ(ConstructionType::Pack, acceptedConstructions[0].Type);
     EXPECT_EQ(1llu, acceptedConstructions[0].Construction->Line());

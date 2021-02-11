@@ -14,9 +14,10 @@ class ConstructionParser
 public:
     virtual AcceptedConstruction TryToAccept(std::vector<Token>::iterator&, std::vector<Token>::iterator&) = 0;
 
-protected:
     bool IsAccepted();
     bool IsRejected();
+
+protected:
     void Accept();
     void Reject();
 
