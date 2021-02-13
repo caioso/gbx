@@ -1,10 +1,13 @@
 #include <gtest/gtest.h>
 
+#include "TestUtils.h"
+
 #include <iostream>
 
 #include "../src/AddressRange.h"
 #include "../src/MemoryController.h"
 #include "../src/interfaces/MemoryControllerInterface.h"
+#include "../src/RAM.h"
 #include "../src/ROM.h"
 
 using namespace std;
@@ -14,10 +17,10 @@ using namespace gbx::interfaces;
 TEST(TestMemoryController, ResourceRegistration) 
 {
     MemoryController memController;
-    shared_ptr<MemoryInterface> rom(new ROM(0x100));
+    shared_ptr<MemoryInterface> ram(new RAM(0x100));
     memController.RegisterMemoryResource
     (
-        rom,
+        ram,
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive)
     );
 
@@ -97,57 +100,57 @@ TEST(TestMemoryController, ResourceRegistrationWithOverlap)
 TEST(TestMemoryController, TwoResourcesOperation) 
 {
     MemoryController memController;
-    shared_ptr<MemoryInterface> smallROM(new ROM(0x100));
-    shared_ptr<MemoryInterface> largeROM(new ROM(0x200));
+    shared_ptr<MemoryInterface> smallRAM(new RAM(0x100));
+    shared_ptr<MemoryInterface> largeRAM(new RAM(0x200));
 
     memController.RegisterMemoryResource
     (
-        smallROM,
+        smallRAM,
         AddressRange(0x0000, 0x0100, RangeType::BeginInclusive)
     );
     memController.RegisterMemoryResource
     (
-        largeROM,
+        largeRAM,
         AddressRange(0x0100, 0x300, RangeType::BeginInclusive)
     );
 
     memController.Write(static_cast<uint16_t>(0xEF87), 0x006A);
     auto value = memController.Read(0x006A, MemoryAccessType::Word);
     EXPECT_EQ(0xEF87, get<uint16_t>(value));
-    EXPECT_EQ(0xEF87, get<uint16_t>(smallROM.get()->Read(0x006A, MemoryAccessType::Word)));
+    EXPECT_EQ(0xEF87, get<uint16_t>(smallRAM.get()->Read(0x006A, MemoryAccessType::Word)));
 
     memController.Write(static_cast<uint16_t>(0x56D2), 0x0211);
     value = memController.Read(0x0211, MemoryAccessType::Word);
     EXPECT_EQ(0x56D2, get<uint16_t>(value));
-    EXPECT_EQ(0x56D2, get<uint16_t>(largeROM.get()->Read(0x0111, MemoryAccessType::Word)));
+    EXPECT_EQ(0x56D2, get<uint16_t>(largeRAM.get()->Read(0x0111, MemoryAccessType::Word)));
 }
 
 TEST(TestMemoryController, NonConsecultiveResources) 
 {
     MemoryController memController;
-    shared_ptr<MemoryInterface> smallROM(new ROM(0x100));
-    shared_ptr<MemoryInterface> largeROM(new ROM(0x200));
+    shared_ptr<MemoryInterface> smallRAM(new RAM(0x100));
+    shared_ptr<MemoryInterface> largeRAM(new RAM(0x200));
 
     memController.RegisterMemoryResource
     (
-        smallROM,
+        smallRAM,
         AddressRange(0x0200, 0x0300, RangeType::BeginInclusive)
     );
     memController.RegisterMemoryResource
     (
-        largeROM,
+        largeRAM,
         AddressRange(0xF100, 0xF300, RangeType::BeginInclusive)
     );
 
     memController.Write(static_cast<uint16_t>(0xFFAA), 0x0254);
     auto value = memController.Read(0x0254, MemoryAccessType::Word);
     EXPECT_EQ(0xFFAA, get<uint16_t>(value));
-    EXPECT_EQ(0xFFAA, get<uint16_t>(smallROM.get()->Read(0x0054, MemoryAccessType::Word)));
+    EXPECT_EQ(0xFFAA, get<uint16_t>(smallRAM.get()->Read(0x0054, MemoryAccessType::Word)));
 
     memController.Write(static_cast<uint16_t>(0xCCAA), 0xF200);
     value = memController.Read(0xF200, MemoryAccessType::Word);
     EXPECT_EQ(0xCCAA, get<uint16_t>(value));
-    EXPECT_EQ(0xCCAA, get<uint16_t>(largeROM.get()->Read(0x0100, MemoryAccessType::Word)));
+    EXPECT_EQ(0xCCAA, get<uint16_t>(largeRAM.get()->Read(0x0100, MemoryAccessType::Word)));
 }
 
 TEST(TestMemoryController, AccessEmptyAddressRange) 
@@ -245,10 +248,10 @@ TEST(TestMemoryController, UnregisterAFewResource)
     auto finalTestPassed = false;
     MemoryController memController;
     shared_ptr<MemoryInterface> rom(new ROM(0x100));
+    shared_ptr<MemoryInterface> ram(new RAM(0x100));
+    shared_ptr<MemoryInterface> ram1(new RAM(0x100));
     shared_ptr<MemoryInterface> rom1(new ROM(0x100));
     shared_ptr<MemoryInterface> rom2(new ROM(0x100));
-    shared_ptr<MemoryInterface> rom3(new ROM(0x100));
-    shared_ptr<MemoryInterface> rom4(new ROM(0x100));
 
     memController.RegisterMemoryResource
     (
@@ -262,17 +265,17 @@ TEST(TestMemoryController, UnregisterAFewResource)
     );
     memController.RegisterMemoryResource
     (
-        rom2,
+        ram,
         AddressRange(0x0200, 0x0300, RangeType::BeginInclusive)
     );
     memController.RegisterMemoryResource
     (
-        rom3,
+        ram1,
         AddressRange(0x0300, 0x0400, RangeType::BeginInclusive)
     );
     memController.RegisterMemoryResource
     (
-        rom4,
+        rom2,
         AddressRange(0x0400, 0x0500, RangeType::BeginInclusive)
     );
 
@@ -281,7 +284,7 @@ TEST(TestMemoryController, UnregisterAFewResource)
     auto value = memController.Read(0x0301, MemoryAccessType::Byte);
     EXPECT_EQ(0xFF, get<uint8_t>(value));
 
-    memController.UnregisterMemoryResource(rom3);
+    memController.UnregisterMemoryResource(ram1);
 
     try
     {
@@ -293,18 +296,18 @@ TEST(TestMemoryController, UnregisterAFewResource)
     }
     EXPECT_TRUE(finalTestPassed);
 
-    value = rom3.get()->Read(0x0001, MemoryAccessType::Byte);
+    value = ram1.get()->Read(0x0001, MemoryAccessType::Byte);
     EXPECT_EQ(0xFF, get<uint8_t>(value));   
 }
 
 TEST(TestMemoryController, ReuseUnregisteredRange) 
 {
     MemoryController memController;
-    shared_ptr<MemoryInterface> rom(new ROM(0x100));
-    shared_ptr<MemoryInterface> rom2(new ROM(0x100));
+    shared_ptr<MemoryInterface> ram(new RAM(0x100));
+    shared_ptr<MemoryInterface> ram2(new RAM(0x100));
     memController.RegisterMemoryResource
     (
-        rom,
+        ram,
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive)
     );
 
@@ -312,13 +315,13 @@ TEST(TestMemoryController, ReuseUnregisteredRange)
     auto value = memController.Read(0x0101, MemoryAccessType::Byte);
     EXPECT_EQ(0xFF, get<uint8_t>(value));
 
-    memController.UnregisterMemoryResource(rom);
+    memController.UnregisterMemoryResource(ram);
 
-    rom2.get()->Write(static_cast<uint8_t>(0xDD), 0x0001);
+    ram2.get()->Write(static_cast<uint8_t>(0xDD), 0x0001);
 
     memController.RegisterMemoryResource
     (
-        rom2,
+        ram2,
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive)
     );
 
@@ -409,4 +412,19 @@ TEST(TestMemoryController, LoadMemoryResourceWithOffset)
         else
             EXPECT_EQ(offsetContent[i - 0x08], get<uint8_t>(readValue));
     }
+}
+
+TEST(TestMemoryController, WriteToRadOnlyRange) 
+{
+    MemoryController memController;
+    shared_ptr<MemoryInterface> rom(new ROM(0x100));
+    memController.RegisterMemoryResource
+    (
+        rom,
+        AddressRange(0x0100, 0x0200, RangeType::BeginInclusive)
+    );
+
+    ASSERT_EXCEPTION( { memController.Write(static_cast<uint8_t>(0xFF), 0x0120); }, 
+                      MemoryAccessException, 
+                      "Attempted to write to a read-only resource");
 }

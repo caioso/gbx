@@ -40,23 +40,9 @@ std::variant<uint8_t, uint16_t> ROM::Read(uint16_t address, MemoryAccessType acc
         return variant<uint8_t, uint16_t>{in_place_index<1>, (_rom[address + 1] << 8 | _rom[address])};
 }
 
-void ROM::Write(std::variant<uint8_t, uint16_t> value, uint16_t address)
+void ROM::Write(__attribute__((unused)) std::variant<uint8_t, uint16_t> value, __attribute__((unused)) uint16_t address)
 {
-    CheckWriteConditions(value, address);
-
-    if (holds_alternative<uint8_t>(value))
-    {
-        auto byte = get<uint8_t>(value);
-        _rom[address] = byte & 0xFF;
-    }
-    else if (holds_alternative<uint16_t>(value))
-    {
-        auto word = get<uint16_t>(value);
-        _rom[address] = word & 0xFF;
-        _rom[address + 1] = (word >> 8) & 0xFF;
-    }
-    else
-        throw MemoryAccessException("variant has no value.");
+    throw MemoryAccessException("Attempted to write to a read-only resource");
 }
 
 inline void ROM::CheckReadConditions(uint16_t address, MemoryAccessType accessType)
@@ -71,22 +57,6 @@ inline void ROM::CheckReadConditions(uint16_t address, MemoryAccessType accessTy
     {
         stringstream ss;
         ss << "bad memory address when reading word from (" << address << " out of " << _size << ")";
-        throw MemoryAccessException(ss.str());
-    }
-}
-
-inline void ROM::CheckWriteConditions(std::variant<uint8_t, uint16_t> value, uint16_t address)
-{
-    if (holds_alternative<uint8_t>(value) && address >= _size)
-    {
-        stringstream ss;
-        ss << "bad memory address when writing byte to (" << address << " out of " << _size << ")";
-        throw MemoryAccessException(ss.str());
-    }
-    else if (holds_alternative<uint16_t>(value) && (address >= _size || address + 1 >= _size))
-    {
-        stringstream ss;
-        ss << "bad memory address when writing word to (" << address << " out of " << _size << ")";
         throw MemoryAccessException(ss.str());
     }
 }
