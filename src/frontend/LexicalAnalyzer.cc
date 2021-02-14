@@ -1,25 +1,25 @@
-#include "Lexer.h"
+#include "LexicalAnalyzer.h"
 
 using namespace std;
 
 namespace gbxasm
 {
 
-Lexer::Lexer()
+LexicalAnalyzer::LexicalAnalyzer()
 {}
 
-vector<Token>& Lexer::Tokens()
+vector<Token>& LexicalAnalyzer::Tokens()
 {
     return _tokens;
 }
 
-void Lexer::Tokenize(string_view input)
+void LexicalAnalyzer::Tokenize(string_view input)
 {
     ClearTokens();
     ExtractTokens(input);
 }
 
-void Lexer::ExtractTokens(string_view input)
+void LexicalAnalyzer::ExtractTokens(string_view input)
 {
     stringstream lineStream(input.data());
     auto currentLine = static_cast<string>("");
@@ -54,10 +54,10 @@ void Lexer::ExtractTokens(string_view input)
     }
 
     if (_stringLiteralAccumulationStarted || _stringLiteralAccumulationEnded)
-        throw LexerException("Non-terminated string literal found");
+        throw LexicalAnalyzerException("Non-terminated string literal found");
 }
 
-vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t globalCounter)
+vector<Token> LexicalAnalyzer::EvaluateLexeme(string originalLexeme, size_t column, size_t globalCounter)
 {
     auto subLexemes = FindSubLexemes(originalLexeme, column);
     vector<Token> tokens;
@@ -309,7 +309,10 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
         else if (lexeme.first.compare(Lexemes::InstructionMnemonicSET) == 0)
             token.Type = TokenType::InstructionMnemonicSET;
         else
+        {
+            EvaluateIdentifier(token.Lexeme);
             token.Type = TokenType::Identifier;
+        }
 
         tokens.push_back(token);
     }
@@ -317,21 +320,59 @@ vector<Token> Lexer::EvaluateLexeme(string originalLexeme, size_t column, size_t
     return tokens;
 }
 
-inline bool Lexer::IsStringLiteral (string_view lexeme)
+inline void LexicalAnalyzer::EvaluateIdentifier(std::string candidate)
+{
+    cout << "Identifier " << candidate << '\n';
+
+    auto characterCounter = 0;
+    for (auto c : candidate)
+    {
+        if (characterCounter == 0 && IsInitialDigit(candidate, 0))
+        {
+                stringstream ss;
+                ss << "Invalid identifier '" << candidate << "'";
+                throw LexicalAnalyzerException(ss.str());
+        }
+
+
+        if (c != '_' && c != 'a' && c != 'b' && c != 'c' && c != 'd' && 
+            c != 'e' && c != 'f' && c != 'g' && c != 'h' && c != 'i' && 
+            c != 'j' && c != 'k' && c != 'l' && c != 'm' && c != 'n' && 
+            c != 'o' && c != 'p' && c != 'q' && c != 'r' && c != 's' && 
+            c != 't' && c != 'u' && c != 'v' && c != 'w' && c != 'x' && 
+            c != 'y' && c != 'z' && c != 'A' && c != 'B' && c != 'C' && 
+            c != 'D' && c != 'E' && c != 'F' && c != 'G' && c != 'H' && 
+            c != 'I' && c != 'J' && c != 'K' && c != 'L' && c != 'M' &&
+            c != 'N' && c != 'O' && c != 'P' && c != 'Q' && c != 'R' && 
+            c != 'S' && c != 'T' && c != 'U' && c != 'V' && c != 'W' && 
+            c != 'X' && c != 'Y' && c != 'Z' && c != '0' && c != '1' &&
+            c != '2' && c != '3' && c != '4' && c != '5' && c != '6' &&
+            c != '7' && c != '8' && c != '9')
+            {
+                stringstream ss;
+                ss << "Invalid identifier '" << candidate << "'";
+                throw LexicalAnalyzerException(ss.str());
+            }
+
+        characterCounter++;
+    }
+}
+
+inline bool LexicalAnalyzer::IsStringLiteral (string_view lexeme)
 {
     if (lexeme[0] == '\"')
         return true;
     return false;
 }
 
-inline bool Lexer::IsCharLiteral (string_view lexeme)
+inline bool LexicalAnalyzer::IsCharLiteral (string_view lexeme)
 {
     if (lexeme[0] == '\'')
         return true;
     return false;
 }
 
-inline bool Lexer::IsNumericLiteral(string_view lexeme)
+inline bool LexicalAnalyzer::IsNumericLiteral(string_view lexeme)
 {
     if (!IsInitialDigit(lexeme, 0))
         return false;
@@ -341,13 +382,13 @@ inline bool Lexer::IsNumericLiteral(string_view lexeme)
         {
             stringstream ss;
             ss << "Invalid character '" << lexeme[i] << "' near numeric literal '" << lexeme <<"'";
-            throw LexerException(ss.str());
+            throw LexicalAnalyzerException(ss.str());
         }
 
     return true;
 }
 
-inline TokenType Lexer::IdentifyNumericLiteral(string_view candidate)
+inline TokenType LexicalAnalyzer::IdentifyNumericLiteral(string_view candidate)
 {
     if(candidate[0] == '0')
     {
@@ -384,7 +425,7 @@ inline TokenType Lexer::IdentifyNumericLiteral(string_view candidate)
     }
 }
 
-inline void Lexer::ValidateDecimalLiteral(string_view candidate)
+inline void LexicalAnalyzer::ValidateDecimalLiteral(string_view candidate)
 {
     for (auto character : candidate)
         if (character != '1' && character != '2' && character != '3' && character != '4' &&
@@ -393,11 +434,11 @@ inline void Lexer::ValidateDecimalLiteral(string_view candidate)
         {
             stringstream ss;
             ss << "Invalid decimal numeric literal '" << candidate << "'";
-            throw LexerException(ss.str());
+            throw LexicalAnalyzerException(ss.str());
         }
 }
 
-inline void Lexer::ValidateOctalLiteral(string_view candidate)
+inline void LexicalAnalyzer::ValidateOctalLiteral(string_view candidate)
 {
     for (auto character : candidate)
         if (character != '1' && character != '2' && character != '3' && character != '4' &&
@@ -405,22 +446,22 @@ inline void Lexer::ValidateOctalLiteral(string_view candidate)
         {
             stringstream ss;
             ss << "Invalid octal numeric literal '" << candidate << "'";
-            throw LexerException(ss.str());
+            throw LexicalAnalyzerException(ss.str());
         }
 }
 
-inline void Lexer::ValidateBinaryLiteral(string_view candidate)
+inline void LexicalAnalyzer::ValidateBinaryLiteral(string_view candidate)
 {
     for (auto character : candidate)
         if (character != '1' && character != '0')
         {
             stringstream ss;
             ss << "Invalid binary numeric literal '" << candidate << "'";
-            throw LexerException(ss.str());
+            throw LexicalAnalyzerException(ss.str());
         }
 }
 
-inline bool Lexer::IsDigit(string_view candidate, size_t position)
+inline bool LexicalAnalyzer::IsDigit(string_view candidate, size_t position)
 {
     if (candidate[position] == '1' || candidate[position] == '2' || candidate[position] == '3' || candidate[position] == '4' ||
         candidate[position] == '5' || candidate[position] == '6' || candidate[position] == '7' || candidate[position] == '8' ||
@@ -434,7 +475,7 @@ inline bool Lexer::IsDigit(string_view candidate, size_t position)
     return false;
 }
 
-inline bool Lexer::IsInitialDigit(string_view candidate, size_t position)
+inline bool LexicalAnalyzer::IsInitialDigit(string_view candidate, size_t position)
 {
     if (candidate[position] == '1' || candidate[position] == '2' || candidate[position] == '3' || candidate[position] == '4' ||
         candidate[position] == '5' || candidate[position] == '6' || candidate[position] == '7' || candidate[position] == '8' ||
@@ -444,7 +485,7 @@ inline bool Lexer::IsInitialDigit(string_view candidate, size_t position)
     return false;
 }
 
-vector<pair<string, size_t> > Lexer::FindSubLexemes(string lexeme, size_t column)
+vector<pair<string, size_t> > LexicalAnalyzer::FindSubLexemes(string lexeme, size_t column)
 {
     vector<pair<string, size_t> > subLexemes;
     string accumulator = "";
@@ -477,14 +518,14 @@ vector<pair<string, size_t> > Lexer::FindSubLexemes(string lexeme, size_t column
     return subLexemes;
 }
 
-inline void Lexer::ConvertCharLiteral(std::vector<std::pair<std::string, size_t> >& subLexemes)
+inline void LexicalAnalyzer::ConvertCharLiteral(std::vector<std::pair<std::string, size_t> >& subLexemes)
 {
     for (auto i = static_cast<size_t>(0x00); i < subLexemes.size(); ++i)
         if (IsPossibleCharLiteralMarker(subLexemes[i].first, 0))
             subLexemes[i] = make_pair(EvaluateAndConvertChar(subLexemes[i].first), subLexemes[i].second);
 }
 
-inline void Lexer::EvaluateStringLimits(string lexeme, size_t column)
+inline void LexicalAnalyzer::EvaluateStringLimits(string lexeme, size_t column)
 {
     if (IsPossibleStringLiteralMarker(lexeme, column))
     {
@@ -495,24 +536,24 @@ inline void Lexer::EvaluateStringLimits(string lexeme, size_t column)
     }
 }
 
-inline void Lexer::SaveSubLexeme(string token, size_t column, std::vector<std::pair<std::string, size_t> >& subLexemes, size_t& columnCounter)
+inline void LexicalAnalyzer::SaveSubLexeme(string token, size_t column, std::vector<std::pair<std::string, size_t> >& subLexemes, size_t& columnCounter)
 {
     subLexemes.push_back(make_pair(token, column + columnCounter));
     columnCounter += token.size();
 }
 
-inline bool Lexer::IsSeparatorOrOperator(string_view lexeme, size_t position)
+inline bool LexicalAnalyzer::IsSeparatorOrOperator(string_view lexeme, size_t position)
 {
     return IsPossibleOperator(lexeme, position) || IsPossibleSeparator(lexeme, position);
 }
 
-inline void Lexer::CorrectLoopIndex( std::vector<std::pair<std::string, size_t> >& subLexemes, size_t& i)
+inline void LexicalAnalyzer::CorrectLoopIndex( std::vector<std::pair<std::string, size_t> >& subLexemes, size_t& i)
 {
     if (subLexemes[subLexemes.size() - 1].first.size() >= 2)
         i += (subLexemes[subLexemes.size() - 1].first.size() - 1);
 }
 
-inline string Lexer::ExtractOperatorSeparatorOrMarker(string candidate, size_t column)
+inline string LexicalAnalyzer::ExtractOperatorSeparatorOrMarker(string candidate, size_t column)
 {
     if (IsPossibleOperator(candidate, column))
         return ExtractOperator(candidate, column);
@@ -524,7 +565,7 @@ inline string Lexer::ExtractOperatorSeparatorOrMarker(string candidate, size_t c
         return ExtractSeparator(candidate, column);
 }
 
-inline string Lexer::ExtractOperator(string candidate, size_t column)
+inline string LexicalAnalyzer::ExtractOperator(string candidate, size_t column)
 {
     string accumulator = "";
     
@@ -541,7 +582,7 @@ inline string Lexer::ExtractOperator(string candidate, size_t column)
     return accumulator;
 }
 
-inline string Lexer::ExtractSeparator(string candidate, size_t column)
+inline string LexicalAnalyzer::ExtractSeparator(string candidate, size_t column)
 {
     // Important note: Separators are *ALWAYS* one character only. That's why they are not accumulated like for Operators.
     string accumulator = "";
@@ -552,7 +593,7 @@ inline string Lexer::ExtractSeparator(string candidate, size_t column)
     return accumulator;
 }
 
-inline string Lexer::ExtractStringLiteralMarker(string candidate, size_t column)
+inline string LexicalAnalyzer::ExtractStringLiteralMarker(string candidate, size_t column)
 {
     // Important note: Separators are *ALWAYS* one character only. That's why they are not accumulated like for Operators.
     string accumulator = "";
@@ -563,7 +604,7 @@ inline string Lexer::ExtractStringLiteralMarker(string candidate, size_t column)
     return accumulator;
 }
 
-inline string Lexer::ExtractCharLiteralFromCandidate(string candidate, size_t column)
+inline string LexicalAnalyzer::ExtractCharLiteralFromCandidate(string candidate, size_t column)
 {
     // Important note: Separators are *ALWAYS* one character only. That's why they are not accumulated like for Operators.
     string accumulator = "";
@@ -578,7 +619,7 @@ inline string Lexer::ExtractCharLiteralFromCandidate(string candidate, size_t co
     return accumulator;
 }
 
-inline string Lexer::ExtractPossibleSubCharLiteral(string candidate, size_t column)
+inline string LexicalAnalyzer::ExtractPossibleSubCharLiteral(string candidate, size_t column)
 {
     auto substring = candidate.substr(column, candidate.size() - column);
     auto accumulator = string("");
@@ -601,7 +642,7 @@ inline string Lexer::ExtractPossibleSubCharLiteral(string candidate, size_t colu
     return accumulator;
 }
 
-inline string Lexer::AccumulateFirstSeparatorOfCharLiteral(string candidate, size_t& column)
+inline string LexicalAnalyzer::AccumulateFirstSeparatorOfCharLiteral(string candidate, size_t& column)
 {
     auto accumulator = string("");
     if(IsPossibleCharLiteralMarker(candidate, column)) 
@@ -610,7 +651,7 @@ inline string Lexer::AccumulateFirstSeparatorOfCharLiteral(string candidate, siz
     return accumulator;
 }
 
-inline string Lexer::AccumulateContentOfCharLiteral(string candidate, size_t& column)
+inline string LexicalAnalyzer::AccumulateContentOfCharLiteral(string candidate, size_t& column)
 {
     auto accumulator = string("");
     if (candidate.size() == 0x04)
@@ -623,33 +664,33 @@ inline string Lexer::AccumulateContentOfCharLiteral(string candidate, size_t& co
 
     return accumulator;
 }   
-inline string Lexer::AccumulateSecondSeparatorOfCharLiteral(string candidate, size_t& column)
+inline string LexicalAnalyzer::AccumulateSecondSeparatorOfCharLiteral(string candidate, size_t& column)
 {
     auto accumulator = string("");
     if(IsPossibleCharLiteralMarker(candidate, column)) 
         accumulator += candidate[column++];
     else
-        throw LexerException("char literals must be one or two characters long");
+        throw LexicalAnalyzerException("char literals must be one or two characters long");
 
     return accumulator;
 }
 
-inline void Lexer::EvaluateCharLiteralSize(string candidate)
+inline void LexicalAnalyzer::EvaluateCharLiteralSize(string candidate)
 {
     if (candidate.size() != 3 && candidate.size() != 4)
     {
         if (candidate.size() == 2 || candidate.size() == 1)
-            throw LexerException("Non-terminated char literal found");
+            throw LexicalAnalyzerException("Non-terminated char literal found");
         else
         {
             stringstream ss;
             ss << "invalid char literal found (" << candidate << ")";
-            throw LexerException(ss.str());    
+            throw LexicalAnalyzerException(ss.str());    
         }
     }
 }
 
-bool Lexer::IsPossibleOperator(string_view candidate, size_t position)
+bool LexicalAnalyzer::IsPossibleOperator(string_view candidate, size_t position)
 {
     if (candidate[position] == '+' || candidate[position] == '=' || candidate[position] == '<' || candidate[position] == '>' ||
         candidate[position] == '/' || candidate[position] == '*' || candidate[position] == '&' || candidate[position] == '|' ||
@@ -660,7 +701,7 @@ bool Lexer::IsPossibleOperator(string_view candidate, size_t position)
     return false;
 }
 
-bool Lexer::IsPossibleSeparator(string_view candidate, size_t position)
+bool LexicalAnalyzer::IsPossibleSeparator(string_view candidate, size_t position)
 {
     if (candidate[position] == '{' || candidate[position] == '}' || candidate[position] == '(' || candidate[position] == ')' ||
         candidate[position] == '[' || candidate[position] == ']' || candidate[position] == ':' || candidate[position] == ',')
@@ -669,7 +710,7 @@ bool Lexer::IsPossibleSeparator(string_view candidate, size_t position)
     return false;
 }
 
-bool Lexer::IsPossibleStringLiteralMarker(string_view candidate, size_t position)
+bool LexicalAnalyzer::IsPossibleStringLiteralMarker(string_view candidate, size_t position)
 {
     if (candidate[position] == '\"')
         return true;
@@ -677,7 +718,7 @@ bool Lexer::IsPossibleStringLiteralMarker(string_view candidate, size_t position
     return false;
 }
 
-bool Lexer::IsPossibleCharLiteralMarker(string_view candidate, size_t position)
+bool LexicalAnalyzer::IsPossibleCharLiteralMarker(string_view candidate, size_t position)
 {
     if (candidate[position] == '\'')
         return true;
@@ -686,7 +727,7 @@ bool Lexer::IsPossibleCharLiteralMarker(string_view candidate, size_t position)
 }
 
 
-inline void Lexer::ExtractAllStringTokenIfNeeded(string_view input)
+inline void LexicalAnalyzer::ExtractAllStringTokenIfNeeded(string_view input)
 {
     if (_stringLiteralAccumulationStarted && _stringLiteralAccumulationEnded)
     {
@@ -703,7 +744,7 @@ inline void Lexer::ExtractAllStringTokenIfNeeded(string_view input)
     }
 }
 
-inline bool Lexer::HasUnmergedStrings()
+inline bool LexicalAnalyzer::HasUnmergedStrings()
 {
     for (auto token : _tokens)
         if (token.Type == TokenType::SeparatorDOUBLEQUOTES)
@@ -712,7 +753,7 @@ inline bool Lexer::HasUnmergedStrings()
     return false;
 }
 
-inline Token Lexer::GenerateStringToken(size_t startIndex, size_t endIndex, string_view input)
+inline Token LexicalAnalyzer::GenerateStringToken(size_t startIndex, size_t endIndex, string_view input)
 {
     auto stringLiteral = string(input.substr(_tokens[startIndex].GlobalPosition, (_tokens[endIndex].GlobalPosition - _tokens[startIndex].GlobalPosition + 1)));
     auto startLine = _tokens[startIndex].Line;
@@ -733,13 +774,13 @@ inline Token Lexer::GenerateStringToken(size_t startIndex, size_t endIndex, stri
     return stringLiteralToken;
 }
 
-inline void Lexer::ClearStringLimitFlags()
+inline void LexicalAnalyzer::ClearStringLimitFlags()
 {
     _stringLiteralAccumulationStarted = false;
     _stringLiteralAccumulationEnded = false;
 }
 
-inline size_t Lexer::FindTokenByType(TokenType type, size_t startIndex)
+inline size_t LexicalAnalyzer::FindTokenByType(TokenType type, size_t startIndex)
 {
     for (auto i = startIndex; i >= 0; --i)
         if (_tokens[i].Type == type)
@@ -748,7 +789,7 @@ inline size_t Lexer::FindTokenByType(TokenType type, size_t startIndex)
     return numeric_limits<size_t>().max();
 }
 
-inline std::string Lexer::EvaluateAndConvertChar(std::string_view originalChar)
+inline std::string LexicalAnalyzer::EvaluateAndConvertChar(std::string_view originalChar)
 {
     if (originalChar.compare("'\\s'") == 0)
         return "' '";
@@ -957,10 +998,10 @@ inline std::string Lexer::EvaluateAndConvertChar(std::string_view originalChar)
 
     stringstream ss;
     ss << "Unknown char literal " << originalChar;
-    throw LexerException(ss.str());
+    throw LexicalAnalyzerException(ss.str());
 }
 
-void Lexer::ClearTokens()
+void LexicalAnalyzer::ClearTokens()
 {
     _tokens.resize(0);
 }

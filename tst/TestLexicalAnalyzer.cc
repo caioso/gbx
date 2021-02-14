@@ -4,8 +4,8 @@
 #include <memory>
 #include <string>
 
-#include "../src/Lexer.h"
-#include "../src/Lexemes.h"
+#include "../src/frontend/LexicalAnalyzer.h"
+#include "../src/frontend/Lexemes.h"
 
 using namespace gbxasm;
 using namespace std;
@@ -30,33 +30,33 @@ catch( ... )                                                          \
            << "'!";                                                   \
 }
 
-TEST(TestLexer, Construction)
+TEST(TestLexicalAnalyzer, Construction)
 {
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
 }
 
-TEST(TestLexer, AcquireReferenceOfTokensVector)
+TEST(TestLexicalAnalyzer, AcquireReferenceOfTokensVector)
 {
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     auto tokens = lexer->Tokens();
 
     EXPECT_EQ(static_cast<size_t>(0), tokens.size());
 }
 
-TEST(TestLexer, BasicTokenization)
+TEST(TestLexicalAnalyzer, BasicTokenization)
 {
     const string program = "";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
     EXPECT_EQ(static_cast<size_t>(0), tokens.size());
 }
 
-TEST(TestLexer, BasicKeywordTokenization)
+TEST(TestLexicalAnalyzer, BasicKeywordTokenization)
 {
     const string program = "PACK";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -65,10 +65,10 @@ TEST(TestLexer, BasicKeywordTokenization)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
 }
 
-TEST(TestLexer, EvaluateBasicLexeme)
+TEST(TestLexicalAnalyzer, EvaluateBasicLexeme)
 {
     const string program = "PACK";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -78,10 +78,10 @@ TEST(TestLexer, EvaluateBasicLexeme)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
 }
 
-TEST(TestLexer, EvaluateLexemeWithOperator)
+TEST(TestLexicalAnalyzer, EvaluateLexemeWithOperator)
 {
     const string program = "PACK+ +PACK +PACK+";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -121,10 +121,10 @@ TEST(TestLexer, EvaluateLexemeWithOperator)
     EXPECT_EQ(static_cast<size_t>(18), tokens[6].Column);
 }
 
-TEST(TestLexer, EvaluateLexemeWothMultiCharacterOperator)
+TEST(TestLexicalAnalyzer, EvaluateLexemeWothMultiCharacterOperator)
 {
     const string program = "PACK== PACK<=>";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -139,10 +139,10 @@ TEST(TestLexer, EvaluateLexemeWothMultiCharacterOperator)
     EXPECT_EQ(static_cast<size_t>(5), tokens[1].Column);
 }
 
-TEST(TestLexer, EvaluateOperatorMixedWithKeyword)
+TEST(TestLexicalAnalyzer, EvaluateOperatorMixedWithKeyword)
 {
-    const string program = "P+ACK\nPAC=K P++K";
-    auto lexer = make_shared<Lexer>();
+    const string program = "P+ACK\nPAC=K P+K";
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -181,21 +181,21 @@ TEST(TestLexer, EvaluateOperatorMixedWithKeyword)
     EXPECT_EQ(static_cast<size_t>(2), tokens[6].Line);
     EXPECT_EQ(static_cast<size_t>(7), tokens[6].Column);
     
-    EXPECT_STREQ("++", tokens[7].Lexeme.c_str());
-    EXPECT_EQ(TokenType::Identifier, tokens[7].Type);
+    EXPECT_STREQ("+", tokens[7].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorPLUS, tokens[7].Type);
     EXPECT_EQ(static_cast<size_t>(2), tokens[7].Line);
     EXPECT_EQ(static_cast<size_t>(8), tokens[7].Column);
 
     EXPECT_STREQ("K", tokens[8].Lexeme.c_str());
     EXPECT_EQ(TokenType::Identifier, tokens[8].Type);
     EXPECT_EQ(static_cast<size_t>(2), tokens[8].Line);
-    EXPECT_EQ(static_cast<size_t>(10), tokens[8].Column);
+    EXPECT_EQ(static_cast<size_t>(9), tokens[8].Column);
 }
 
-TEST(TestLexer, EvaluateSeparator)
+TEST(TestLexicalAnalyzer, EvaluateSeparator)
 {
     const string program = "PACK,(PACK)";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -225,10 +225,10 @@ TEST(TestLexer, EvaluateSeparator)
     EXPECT_EQ(static_cast<size_t>(11), tokens[4].Column);
 }
 
-TEST(TestLexer, TestNestedSeparatorsAndOperators)
+TEST(TestLexicalAnalyzer, TestNestedSeparatorsAndOperators)
 {
     const string program = "{([PACK=PACK])}";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -278,25 +278,17 @@ TEST(TestLexer, TestNestedSeparatorsAndOperators)
     EXPECT_EQ(static_cast<size_t>(15), tokens[8].Column);
 }
 
-TEST(TestLexer, TestUnknownSeparator)
+TEST(TestLexicalAnalyzer, TestUnknownSeparator)
 {
     const string program = "PACK? \\";
-    auto lexer = make_shared<Lexer>();
-    lexer->Tokenize(program);
-    auto tokens = lexer->Tokens();
+    auto lexer = make_shared<LexicalAnalyzer>();
 
-    EXPECT_STREQ("PACK?", tokens[0].Lexeme.c_str());
-    EXPECT_EQ(TokenType::Identifier, tokens[0].Type);
-    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
-    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
-   
-    EXPECT_STREQ("\\", tokens[1].Lexeme.c_str());
-    EXPECT_EQ(TokenType::Identifier, tokens[1].Type);
-    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
-    EXPECT_EQ(static_cast<size_t>(7), tokens[1].Column);
+    ASSERT_EXCEPTION( { lexer->Tokenize(program); }, 
+                      LexicalAnalyzerException, 
+                      "Invalid identifier 'PACK?'");
 }
 
-TEST(TestLexer, EvaluateAllKeywords)
+TEST(TestLexicalAnalyzer, EvaluateAllKeywords)
 {
     const string program = "PACK\n"
                            "FUNC\n"
@@ -333,7 +325,7 @@ TEST(TestLexer, EvaluateAllKeywords)
                            "IN\n"
                            "OUT\n";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -369,7 +361,7 @@ TEST(TestLexer, EvaluateAllKeywords)
     }
 }
 
-TEST(TestLexer, EvaluateAllOperators)
+TEST(TestLexicalAnalyzer, EvaluateAllOperators)
 {
     const string program = "=\n"
                            "==\n"
@@ -395,7 +387,7 @@ TEST(TestLexer, EvaluateAllOperators)
                            ":\n"
                            ".\n";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -423,7 +415,7 @@ TEST(TestLexer, EvaluateAllOperators)
     }
 }
 
-TEST(TestLexer, EvaluateNumericLiterals)
+TEST(TestLexicalAnalyzer, EvaluateNumericLiterals)
 {
     const string program = "0x12AB\n"
                            "0d1289\n"
@@ -432,7 +424,7 @@ TEST(TestLexer, EvaluateNumericLiterals)
                            "4509\n"
                            "00098\n";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -467,7 +459,7 @@ TEST(TestLexer, EvaluateNumericLiterals)
     EXPECT_EQ(static_cast<size_t>(1), tokens[5].Column);
 }
 
-TEST(TestLexer, EvaluateNumericLiteralsWithModifier)
+TEST(TestLexicalAnalyzer, EvaluateNumericLiteralsWithModifier)
 {
     const string program = "0xFFFF.LOW\n"
                            "0d456.HIGH\n"
@@ -477,7 +469,7 @@ TEST(TestLexer, EvaluateNumericLiteralsWithModifier)
                            "-0x91\n"
                            "+0o655\n";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -587,7 +579,7 @@ TEST(TestLexer, EvaluateNumericLiteralsWithModifier)
     EXPECT_EQ(static_cast<size_t>(2), tokens[20].Column);
 }
 
-TEST(TestLexer, InvalidHexadecimalLiterals)
+TEST(TestLexicalAnalyzer, InvalidHexadecimalLiterals)
 {
     const string number1 = "0x889y";
     const string number2 = "F7AA"; // This is an IDENTIFIER (variable name etc.);
@@ -596,106 +588,106 @@ TEST(TestLexer, InvalidHexadecimalLiterals)
     const string number5 = "0b987FA";
     const string number6 = "84FF,"; // Note that , will not cause an error.
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
 
     ASSERT_EXCEPTION( { lexer->Tokenize(number1); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid character 'y' near numeric literal '0x889y'");
     
     // No Exception Expected (not for number, This will be considered an identifier)
     lexer->Tokenize(number2);
 
     ASSERT_EXCEPTION( { lexer->Tokenize(number3); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid decimal numeric literal 'FF41'");
     
     ASSERT_EXCEPTION( { lexer->Tokenize(number4); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid octal numeric literal 'A5001'");
     
     ASSERT_EXCEPTION( { lexer->Tokenize(number5); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid binary numeric literal '987FA'");
     
     ASSERT_EXCEPTION( { lexer->Tokenize(number6); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid decimal numeric literal '84FF'");
 }
 
-TEST(TestLexer, InvalidDecimalLiterals)
+TEST(TestLexicalAnalyzer, InvalidDecimalLiterals)
 {
     const string number1 = "0d889Tj";
     const string number2 = "231p";
     const string number3 = "0dFF51";
     const string number4 = "12FF51";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
 
     ASSERT_EXCEPTION( { lexer->Tokenize(number1); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid character 'T' near numeric literal '0d889Tj'");
     
     ASSERT_EXCEPTION( { lexer->Tokenize(number2); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid character 'p' near numeric literal '231p'");
 
     ASSERT_EXCEPTION( { lexer->Tokenize(number3); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid decimal numeric literal 'FF51'");
     
     ASSERT_EXCEPTION( { lexer->Tokenize(number4); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid decimal numeric literal '12FF51'");
 }
 
-TEST(TestLexer, InvalidOctalLiterals)
+TEST(TestLexicalAnalyzer, InvalidOctalLiterals)
 {
     const string number1 = "0o4511k";
     const string number2 = "0o99999";
     const string number3 = "0oABCDEF";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
 
     ASSERT_EXCEPTION( { lexer->Tokenize(number1); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid character 'k' near numeric literal '0o4511k'");
                       
     ASSERT_EXCEPTION( { lexer->Tokenize(number2); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid octal numeric literal '99999'");
     
     ASSERT_EXCEPTION( { lexer->Tokenize(number3); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid octal numeric literal 'ABCDEF'");
 }
 
-TEST(TestLexer, InvalidBinaryLiterals)
+TEST(TestLexicalAnalyzer, InvalidBinaryLiterals)
 {
     const string number1 = "0b11110877r";
     const string number2 = "0b23456789";
     const string number3 = "0bABCDEF";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
 
     ASSERT_EXCEPTION( { lexer->Tokenize(number1); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid character 'r' near numeric literal '0b11110877r'");
     
     ASSERT_EXCEPTION( { lexer->Tokenize(number2); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid binary numeric literal '23456789'");
     
     ASSERT_EXCEPTION( { lexer->Tokenize(number3); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Invalid binary numeric literal 'ABCDEF'");
 }
 
-TEST(TestLexer, EvaluateBooleanLiterals)
+TEST(TestLexicalAnalyzer, EvaluateBooleanLiterals)
 {
     const string program = "TRUE\n"
                            "FALSE\n";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -710,10 +702,10 @@ TEST(TestLexer, EvaluateBooleanLiterals)
     EXPECT_EQ(static_cast<size_t>(1), tokens[1].Column);
 }
 
-TEST(TestLexer, EvaluateStringLiteral)
+TEST(TestLexicalAnalyzer, EvaluateStringLiteral)
 {
     const string string = "\"basic-test\"";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
 
@@ -724,10 +716,10 @@ TEST(TestLexer, EvaluateStringLiteral)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
 }
 
-TEST(TestLexer, EvaluateStringLiteral2)
+TEST(TestLexicalAnalyzer, EvaluateStringLiteral2)
 {
     const string string = "\" basic test \"";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
 
@@ -739,10 +731,10 @@ TEST(TestLexer, EvaluateStringLiteral2)
     
 }
 
-TEST(TestLexer, EvaluateStringLiteral3)
+TEST(TestLexicalAnalyzer, EvaluateStringLiteral3)
 {
     const string string = "\"\nbasic\ntest\n\"";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
 
@@ -753,10 +745,10 @@ TEST(TestLexer, EvaluateStringLiteral3)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
 }
 
-TEST(TestLexer, EvaluateStringLiteral4)
+TEST(TestLexicalAnalyzer, EvaluateStringLiteral4)
 {
     const string string = "CNST MY_STRING {\"my-string\"}";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
 
@@ -787,11 +779,11 @@ TEST(TestLexer, EvaluateStringLiteral4)
     EXPECT_EQ(static_cast<size_t>(28), tokens[4].Column);
 }
 
-TEST(TestLexer, EvaluateStringLiteral5)
+TEST(TestLexicalAnalyzer, EvaluateStringLiteral5)
 {
     const string string = "PACK\n\"\tmessy   string\"(A + 1)";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
 
@@ -833,10 +825,10 @@ TEST(TestLexer, EvaluateStringLiteral5)
     EXPECT_EQ(static_cast<size_t>(24), tokens[6].Column);
 }
 
-TEST(TestLexer, EvaluateStringLiteral6)
+TEST(TestLexicalAnalyzer, EvaluateStringLiteral6)
 {
     const string string = "\"\"";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
 
@@ -847,10 +839,10 @@ TEST(TestLexer, EvaluateStringLiteral6)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
 }
 
-TEST(TestLexer, EvaluateStringLiteral7)
+TEST(TestLexicalAnalyzer, EvaluateStringLiteral7)
 {
     const string string = "\n\n\n\n\n\n\n\n\n\"sfjfashkjfhdjkfshdjkdashfkajshfjasfhakjsdhfakjsfhajskfhsjkdfheiwuyuscbvmrijeurhaBSXASJDNEN\"";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
 
@@ -861,13 +853,13 @@ TEST(TestLexer, EvaluateStringLiteral7)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
 }
 
-TEST(TestLexer, EvaluateStringLiteral8)
+TEST(TestLexicalAnalyzer, EvaluateStringLiteral8)
 {
     const string text = "\"basic test \"";
     const string text2 = "\" basic test\"";
     const string text3 = "\"basic test\"";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(text);
     auto tokens = lexer->Tokens();
 
@@ -896,10 +888,10 @@ TEST(TestLexer, EvaluateStringLiteral8)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);   
 }
 
-TEST(TestLexer, EvaluateStringLiteral9)
+TEST(TestLexicalAnalyzer, EvaluateStringLiteral9)
 {
     const string string = "0x67{\"\":}";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
 
@@ -932,10 +924,10 @@ TEST(TestLexer, EvaluateStringLiteral9)
 }
 
 
-TEST(TestLexer, EvaluateStringLiteral10)
+TEST(TestLexicalAnalyzer, EvaluateStringLiteral10)
 {
     const string string = "\"string1\" + \"\" + \"string2\"";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
 
@@ -967,10 +959,10 @@ TEST(TestLexer, EvaluateStringLiteral10)
     EXPECT_EQ(static_cast<size_t>(18), tokens[4].Column);
 }
 
-TEST(TestLexer, EvaluateStringLiteral11)
+TEST(TestLexicalAnalyzer, EvaluateStringLiteral11)
 {
     const string string = "\"string1\"\"string2\"";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
 
@@ -987,31 +979,31 @@ TEST(TestLexer, EvaluateStringLiteral11)
     EXPECT_EQ(static_cast<size_t>(10), tokens[1].Column);
 }
 
-TEST(TestLexer, EvaluateUnterminatedString)
+TEST(TestLexicalAnalyzer, EvaluateUnterminatedString)
 {
     const string string = "\"never-ending string";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
 
     ASSERT_EXCEPTION( { lexer->Tokenize(string); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Non-terminated string literal found");
 }
 
-TEST(TestLexer, EvaluateUnterminatedString1)
+TEST(TestLexicalAnalyzer, EvaluateUnterminatedString1)
 {
     const string string = " IF \n \"never-ending string PACK \" \n \" Another string";
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
 
     ASSERT_EXCEPTION( { lexer->Tokenize(string); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Non-terminated string literal found");
 }
 
-TEST(TestLexer, EvaluateCharLiteral)
+TEST(TestLexicalAnalyzer, EvaluateCharLiteral)
 {
     const string program = "'a' 'b' 'c' 'd'";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -1036,51 +1028,51 @@ TEST(TestLexer, EvaluateCharLiteral)
     EXPECT_EQ(static_cast<size_t>(13), tokens[3].Column);
 }
 
-TEST(TestLexer, EvaluateNotClosedCharLiteral)
+TEST(TestLexicalAnalyzer, EvaluateNotClosedCharLiteral)
 {
     const string program = "'a' '";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
 
     ASSERT_EXCEPTION( { lexer->Tokenize(program); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Non-terminated char literal found");
 }
 
-TEST(TestLexer, EvaluateInvalidCharLiteral)
+TEST(TestLexicalAnalyzer, EvaluateInvalidCharLiteral)
 {
     const string program = "'abcdefgh'";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
 
     ASSERT_EXCEPTION( { lexer->Tokenize(program); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "invalid char literal found ('abcdefgh')");
 }
 
-TEST(TestLexer, EvaluateInvalidCharLiteral2)
+TEST(TestLexicalAnalyzer, EvaluateInvalidCharLiteral2)
 {
     const string program = "' a '";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
 
     ASSERT_EXCEPTION( { lexer->Tokenize(program); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Non-terminated char literal found");
 }
 
-TEST(TestLexer, EvaluateInvalidCharLiteral3)
+TEST(TestLexicalAnalyzer, EvaluateInvalidCharLiteral3)
 {
     const string program = "'\\ra'";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
 
     ASSERT_EXCEPTION( { lexer->Tokenize(program); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "invalid char literal found ('\\ra')");
 }
 
-TEST(TestLexer, EvaluateValidCharLiteral)
+TEST(TestLexicalAnalyzer, EvaluateValidCharLiteral)
 {
     const string program = "'\\s' '!' '\\\"' '#'"
                            "'$' '%' '&' '\\''"
@@ -1139,7 +1131,7 @@ TEST(TestLexer, EvaluateValidCharLiteral)
         "'\t'",  "'\v'"
         };
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -1151,33 +1143,33 @@ TEST(TestLexer, EvaluateValidCharLiteral)
     }
 }
 
-TEST(TestLexer, InvalidScapedCharLiterals)
+TEST(TestLexicalAnalyzer, InvalidScapedCharLiterals)
 {
     const string sequence1 = "'\\w'";
     const string sequence2 = "'\\0'";
     const string sequence3 = "'±'";
     const string sequence4 = "'€'";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
 
     ASSERT_EXCEPTION( { lexer->Tokenize(sequence1); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Unknown char literal '\\w'");
 
     ASSERT_EXCEPTION( { lexer->Tokenize(sequence2); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Unknown char literal '\\0'");
 
     ASSERT_EXCEPTION( { lexer->Tokenize(sequence3); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "Unknown char literal '\xC2\xB1'");
 
     ASSERT_EXCEPTION( { lexer->Tokenize(sequence4); }, 
-                      LexerException, 
+                      LexicalAnalyzerException, 
                       "invalid char literal found ('€')");
 }
 
-TEST(TestLexer, EvaluateAllInstructionMnemonics)
+TEST(TestLexicalAnalyzer, EvaluateAllInstructionMnemonics)
 {
     const string program = "NOP\n"
                            "LD\n"
@@ -1222,7 +1214,7 @@ TEST(TestLexer, EvaluateAllInstructionMnemonics)
                            "RES\n"
                            "SET\n";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
@@ -1266,11 +1258,11 @@ TEST(TestLexer, EvaluateAllInstructionMnemonics)
     }
 }
 
-TEST(TestLexer, SimpleInstructionTest)
+TEST(TestLexicalAnalyzer, SimpleInstructionTest)
 {
     const string instruction = "LD A, 0xFF";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(instruction);
     auto tokens = lexer->Tokens();
 
@@ -1295,11 +1287,11 @@ TEST(TestLexer, SimpleInstructionTest)
     EXPECT_EQ(static_cast<size_t>(7), tokens[3].Column);
 }
 
-TEST(TestLexer, SimpleInstructionTest2)
+TEST(TestLexicalAnalyzer, SimpleInstructionTest2)
 {
     const string instruction = "ADD A_REGISTER_ALIAS,54";
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(instruction);
     auto tokens = lexer->Tokens();
 
@@ -1322,4 +1314,110 @@ TEST(TestLexer, SimpleInstructionTest2)
     EXPECT_EQ(TokenType::LiteralNumericDECIMAL, tokens[3].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
     EXPECT_EQ(static_cast<size_t>(22), tokens[3].Column);
+}
+
+TEST(TestLexicalAnalyzer, TestIdentifierParsing)
+{
+    const string program = "BYTE MY_VAR1";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_EQ(2llu, tokens.size());
+
+    EXPECT_STREQ(Lexemes::KeywordBYTE.c_str(), tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::KeywordBYTE, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ("MY_VAR1", tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::Identifier, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[1].Column);
+}
+
+TEST(TestLexicalAnalyzer, TestIdentifierParsing2)
+{
+    const string program = "BYTE CammelCaseVariableName\n"
+                           "WORD Identifier_with_underscore";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_EQ(4llu, tokens.size());
+
+    EXPECT_STREQ(Lexemes::KeywordBYTE.c_str(), tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::KeywordBYTE, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ("CammelCaseVariableName", tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::Identifier, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[1].Column);
+    
+    EXPECT_STREQ(Lexemes::KeywordWORD.c_str(), tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::KeywordWORD, tokens[2].Type);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[2].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[2].Column);
+    
+    EXPECT_STREQ("Identifier_with_underscore", tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::Identifier, tokens[3].Type);
+    EXPECT_EQ(static_cast<size_t>(2), tokens[3].Line);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[3].Column);
+}
+
+TEST(TestLexicalAnalyzer, TestIdentifierWithInvalidCharacter)
+{
+    const string program = "BYTE My%identifier";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+
+    ASSERT_EXCEPTION( { lexer->Tokenize(program); }, 
+                      LexicalAnalyzerException, 
+                      "Invalid identifier 'My%identifier'");
+}
+
+TEST(TestLexicalAnalyzer, TestIdentifierWithInvalidCharacter2)
+{
+    const string program = "BYTE 34MyTest";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+
+    ASSERT_EXCEPTION( { lexer->Tokenize(program); }, 
+                      LexicalAnalyzerException, 
+                      "Invalid character 'M' near numeric literal '34MyTest'");
+}
+
+TEST(TestLexicalAnalyzer, TestIdentifierParsing3)
+{
+    const string program = "BYTE ThisIs-TwoIdentifiers\n";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_EQ(4llu, tokens.size());
+
+    EXPECT_STREQ(Lexemes::KeywordBYTE.c_str(), tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::KeywordBYTE, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ("ThisIs", tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::Identifier, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[1].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorMINUS.c_str(), tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorMINUS, tokens[2].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
+    EXPECT_EQ(static_cast<size_t>(12), tokens[2].Column);
+    
+    EXPECT_STREQ("TwoIdentifiers", tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::Identifier, tokens[3].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
+    EXPECT_EQ(static_cast<size_t>(13), tokens[3].Column);
 }

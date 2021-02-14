@@ -5,15 +5,15 @@
 #include <sstream>
 #include <stack>
 
-#include "../GBXAsmExceptions.h"
-#include "../interfaces/ConstructionParser.h"
+#include "../../GBXAsmExceptions.h"
+#include "../../interfaces/ConstructionSyntacticAnalyzer.h"
 
 #include <iostream>
 
 namespace gbxasm::parsers
 {
 
-enum class PackSymbols
+enum class PackParseTreeSymbols
 {
     TerminalPack,
     TerminalType,
@@ -28,19 +28,19 @@ enum class PackSymbols
     NonTerminalFooter,
 };
 
-class PackParser : public interfaces::ConstructionParser
+class PackSyntacticAnalyzer : public interfaces::ConstructionSyntacticAnalyzer
 {
 public:
-    PackParser() = default;
-    virtual ~PackParser() = default;
+    PackSyntacticAnalyzer() = default;
+    virtual ~PackSyntacticAnalyzer() = default;
 
     virtual AcceptedConstruction TryToAccept(std::vector<Token>::iterator&, std::vector<Token>::iterator&) override;
 
 private:
     void ExtactSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
 
-    std::vector<PackSymbols> _symbols;
-    std::stack<PackSymbols> _stack;
+    std::vector<PackParseTreeSymbols> _symbols;
+    std::stack<PackParseTreeSymbols> _stack;
 };
 
 }

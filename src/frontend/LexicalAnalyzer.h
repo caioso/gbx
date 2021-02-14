@@ -9,18 +9,18 @@
 
 #include <iostream>
 
-#include "GBXAsmExceptions.h"
+#include "../GBXAsmExceptions.h"
 #include "Lexemes.h"
 #include "Token.h"
 
 namespace gbxasm
 {
 
-class Lexer
+class LexicalAnalyzer
 {
 public:
-    Lexer();
-    ~Lexer() = default;
+    LexicalAnalyzer();
+    ~LexicalAnalyzer() = default;
 
     void Tokenize(std::string_view);
     std::vector<Token>& Tokens();
@@ -74,6 +74,8 @@ private:
     inline static std::string AccumulateContentOfCharLiteral(std::string, size_t&);
     inline static std::string ExtractPossibleSubCharLiteral(std::string, size_t);
     inline static std::string EvaluateAndConvertChar(std::string_view);
+
+    inline void EvaluateIdentifier(std::string);
 
     std::vector<Token> _tokens;
     bool _stringLiteralAccumulationStarted{};

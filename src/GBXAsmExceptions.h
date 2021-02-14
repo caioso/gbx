@@ -17,17 +17,17 @@ protected:
     std::string _message;
 };
 
-class LexerException : public GBXAsmException
+class LexicalAnalyzerException : public GBXAsmException
 {
 public:
-    LexerException(const std::string);
-    ~LexerException() = default;
+    LexicalAnalyzerException(const std::string);
+    ~LexicalAnalyzerException() = default;
 };
 
-class ParserException : public GBXAsmException
+class SyntacticAnalyzerException : public GBXAsmException
 {
 public:
-    ParserException(const std::string);
-    ~ParserException() = default;
+    SyntacticAnalyzerException(const std::string);
+    ~SyntacticAnalyzerException() = default;
 };
 }

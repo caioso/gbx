@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "interfaces/Construction.h"
+#include "../interfaces/Construction.h"
 
 namespace gbxasm
 {

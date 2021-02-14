@@ -9,11 +9,11 @@ GBXAsmException::GBXAsmException(const std::string message)
     : _message(message)
 {}
 
-LexerException::LexerException(const std::string message)
+LexicalAnalyzerException::LexicalAnalyzerException(const std::string message)
     : GBXAsmException(message)
 {}
 
-ParserException::ParserException(const std::string message)
+SyntacticAnalyzerException::SyntacticAnalyzerException(const std::string message)
     : GBXAsmException(message)
 {}
 

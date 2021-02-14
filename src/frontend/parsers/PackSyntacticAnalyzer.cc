@@ -1,4 +1,4 @@
-#include "PackParser.h"
+#include "PackSyntacticAnalyzer.h"
 
 using namespace gbxasm::interfaces;
 using namespace gbxasm::parsers;
@@ -7,7 +7,7 @@ using namespace std;
 namespace gbxasm::parsers
 {
 
-AcceptedConstruction PackParser::TryToAccept(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
+AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
 {
     ExtactSymbols(currentToken, end);
 
@@ -27,12 +27,12 @@ AcceptedConstruction PackParser::TryToAccept(vector<Token>::iterator& currentTok
             }
             else if (state == 1) // Detect 'PACK'
             {
-                if (_symbols[leftSubstring] == PackSymbols::TerminalPack)
+                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalPack)
                 {
                     leftSubstring++;
                     state = 2;
                 }
-                else if (_symbols[leftSubstring] == PackSymbols::NonTerminalHeader)
+                else if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalHeader)
                 {
                     leftSubstring++;
                     state = 4;
@@ -46,7 +46,7 @@ AcceptedConstruction PackParser::TryToAccept(vector<Token>::iterator& currentTok
             }
             else if (state == 2) // Detect 'Identifier'
             {
-                if (_symbols[leftSubstring] == PackSymbols::TerminalIdentifier)
+                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalIdentifier)
                 {
                     leftSubstring++;
                     state = 3;
@@ -60,15 +60,15 @@ AcceptedConstruction PackParser::TryToAccept(vector<Token>::iterator& currentTok
             }
             else if (state == 3) // Detect 'Begin of Members' or 'End'
             {
-                if (_symbols[leftSubstring] == PackSymbols::TerminalType ||
-                    _symbols[leftSubstring] == PackSymbols::TerminalEnd)
+                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalType ||
+                    _symbols[leftSubstring] == PackParseTreeSymbols::TerminalEnd)
                 {
                     // Reduce
                     // Remove Identifier
                     _symbols.erase(begin(_symbols) + leftSubstring - 1);
                     // Remove PACK
                     _symbols.erase(begin(_symbols) + leftSubstring - 2);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 2, PackSymbols::NonTerminalHeader);
+                    _symbols.insert(begin(_symbols) +  leftSubstring - 2, PackParseTreeSymbols::NonTerminalHeader);
                     break;
                 }
                 else
@@ -80,26 +80,26 @@ AcceptedConstruction PackParser::TryToAccept(vector<Token>::iterator& currentTok
             }
             else if (state == 4) // Detect Members Type
             {
-                if (_symbols[leftSubstring] == PackSymbols::TerminalType)
+                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalType)
                 {
                     leftSubstring++;
                     state = 5;
                 }
-                else if (_symbols[leftSubstring] == PackSymbols::NonTerminalMember || 
-                         _symbols[leftSubstring] == PackSymbols::NonTerminalMemberList)
+                else if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalMember || 
+                         _symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalMemberList)
                 {
                     leftSubstring++;
                     state = 10;
                 }
-                else if (_symbols[leftSubstring] == PackSymbols::TerminalEnd)
+                else if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalEnd)
                 {
                     // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
                     // Remove First
                     _symbols.erase(begin(_symbols) + leftSubstring);
-                    _symbols.insert(begin(_symbols) +  leftSubstring, PackSymbols::NonTerminalFooter);
+                    _symbols.insert(begin(_symbols) +  leftSubstring, PackParseTreeSymbols::NonTerminalFooter);
                     break;
                 }
-                else if (_symbols[leftSubstring] == PackSymbols::NonTerminalFooter)
+                else if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalFooter)
                 {
                     Accept();
                     break;
@@ -113,7 +113,7 @@ AcceptedConstruction PackParser::TryToAccept(vector<Token>::iterator& currentTok
             }
             else if (state == 5) // Detect Members Identifier
             {
-                if (_symbols[leftSubstring] == PackSymbols::TerminalIdentifier)
+                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalIdentifier)
                 {
                     leftSubstring++;
                     state = 6;
@@ -127,18 +127,18 @@ AcceptedConstruction PackParser::TryToAccept(vector<Token>::iterator& currentTok
             }
             else if (state == 6) // Detect 'Begin of Members' or 'End' or '['
             {
-                if (_symbols[leftSubstring] == PackSymbols::TerminalType ||
-                    _symbols[leftSubstring] == PackSymbols::TerminalEnd)
+                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalType ||
+                    _symbols[leftSubstring] == PackParseTreeSymbols::TerminalEnd)
                 {
                     // Reduce
                     // Remove Identifier
                     _symbols.erase(begin(_symbols) + leftSubstring - 1);
                     // Remove Type
                     _symbols.erase(begin(_symbols) + leftSubstring - 2);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 2, PackSymbols::NonTerminalMember);
+                    _symbols.insert(begin(_symbols) +  leftSubstring - 2, PackParseTreeSymbols::NonTerminalMember);
                     break;
                 }
-                else if (_symbols[leftSubstring] == PackSymbols::TerminalOpenBracket)
+                else if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalOpenBracket)
                 {
                     leftSubstring++;
                     state = 7;
@@ -152,7 +152,7 @@ AcceptedConstruction PackParser::TryToAccept(vector<Token>::iterator& currentTok
             }
             else if (state == 7) // Detect numeric literal
             {
-                if (_symbols[leftSubstring] == PackSymbols::TerminalNumericLiteral)
+                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalNumericLiteral)
                 {
                     leftSubstring++;
                     state = 8;
@@ -166,7 +166,7 @@ AcceptedConstruction PackParser::TryToAccept(vector<Token>::iterator& currentTok
             }
             else if (state == 8) // Detect ]
             {
-                if (_symbols[leftSubstring] == PackSymbols::TerminalCloseBracket)
+                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalCloseBracket)
                 {
                     leftSubstring++;
                     state = 9;
@@ -180,8 +180,8 @@ AcceptedConstruction PackParser::TryToAccept(vector<Token>::iterator& currentTok
             }
             else if (state == 9) // Detect 'Begin of Members' or 'End'
             {
-                if (_symbols[leftSubstring] == PackSymbols::TerminalType ||
-                    _symbols[leftSubstring] == PackSymbols::TerminalEnd)
+                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalType ||
+                    _symbols[leftSubstring] == PackParseTreeSymbols::TerminalEnd)
                 {
                     // Reduce
                     // Remove ]
@@ -194,7 +194,7 @@ AcceptedConstruction PackParser::TryToAccept(vector<Token>::iterator& currentTok
                     _symbols.erase(begin(_symbols) + leftSubstring - 4);
                     // Remove Type
                     _symbols.erase(begin(_symbols) + leftSubstring - 5);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 5, PackSymbols::NonTerminalMember);
+                    _symbols.insert(begin(_symbols) +  leftSubstring - 5, PackParseTreeSymbols::NonTerminalMember);
                     break;
                 }
                 else
@@ -206,31 +206,31 @@ AcceptedConstruction PackParser::TryToAccept(vector<Token>::iterator& currentTok
             }
             else if (state == 10) // Detect ]
             {
-                if (_symbols[leftSubstring] == PackSymbols::NonTerminalMember || 
-                    _symbols[leftSubstring] == PackSymbols::NonTerminalMemberList)
+                if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalMember || 
+                    _symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalMemberList)
                 {
                     // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
                     // Remove First
                     _symbols.erase(begin(_symbols) + leftSubstring);
                     // Remove Second
                     _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 1, PackSymbols::NonTerminalMemberList);
+                    _symbols.insert(begin(_symbols) +  leftSubstring - 1, PackParseTreeSymbols::NonTerminalMemberList);
                     break;
                 }
-                else if (_symbols[leftSubstring] == PackSymbols::TerminalType)
+                else if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalType)
                 {
                     leftSubstring++;
                     state = 5;
                 }
-                else if (_symbols[leftSubstring] == PackSymbols::TerminalEnd)
+                else if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalEnd)
                 {
                     // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
                     // Remove First
                     _symbols.erase(begin(_symbols) + leftSubstring);
-                    _symbols.insert(begin(_symbols) +  leftSubstring, PackSymbols::NonTerminalFooter);
+                    _symbols.insert(begin(_symbols) +  leftSubstring, PackParseTreeSymbols::NonTerminalFooter);
                     break;
                 }
-                else if (_symbols[leftSubstring] == PackSymbols::NonTerminalFooter)
+                else if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalFooter)
                 {
                     Accept();
                     break;
@@ -254,7 +254,7 @@ AcceptedConstruction PackParser::TryToAccept(vector<Token>::iterator& currentTok
     return accepted;
 }
 
-void PackParser::ExtactSymbols(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
+void PackSyntacticAnalyzer::ExtactSymbols(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
 {
     vector<Token> constructionSymbols;
 
@@ -276,33 +276,33 @@ void PackParser::ExtactSymbols(vector<Token>::iterator& currentToken, vector<Tok
         switch (x.Type)
         {
             case TokenType::KeywordPACK: 
-                return PackSymbols::TerminalPack;
+                return PackParseTreeSymbols::TerminalPack;
             case TokenType::Identifier: 
-                return PackSymbols::TerminalIdentifier;
+                return PackParseTreeSymbols::TerminalIdentifier;
             case TokenType::KeywordBYTE:
             case TokenType::KeywordWORD:
             case TokenType::KeywordDWRD:
             case TokenType::KeywordSTR:
             case TokenType::KeywordCHAR:
             case TokenType::KeywordBOOL:
-                 return PackSymbols::TerminalType;
+                 return PackParseTreeSymbols::TerminalType;
             case TokenType::SeparatorOPENBRACKETS: 
-                return PackSymbols::TerminalOpenBracket;
+                return PackParseTreeSymbols::TerminalOpenBracket;
             case TokenType::SeparatorCLOSEBRACKETS: 
-                return PackSymbols::TerminalCloseBracket;
+                return PackParseTreeSymbols::TerminalCloseBracket;
             case TokenType::LiteralNumericDECIMAL:
             case TokenType::LiteralNumericHEXADECIMAL:
             case TokenType::LiteralNumericOCTAL:
             case TokenType::LiteralNumericBINARY:
-                return PackSymbols::TerminalNumericLiteral;
+                return PackParseTreeSymbols::TerminalNumericLiteral;
             case TokenType::KeywordEND:
-                return PackSymbols::TerminalEnd;
+                return PackParseTreeSymbols::TerminalEnd;
             default:
             {
                 stringstream ss;
                 // add a 'translation later'
                 ss << "Unexpected '" << static_cast<uint8_t>(x.Type) <<"' found";
-                throw ParserException(ss.str());
+                throw SyntacticAnalyzerException(ss.str());
             }
         }
     });

@@ -1,4 +1,4 @@
-#include "Parser.h"
+#include "SyntacticAnalyzer.h"
 
 using namespace gbxasm::interfaces;
 using namespace gbxasm::constructions;
@@ -7,7 +7,7 @@ using namespace std;
 
 namespace gbxasm
 {
-void Parser::Parse(vector<Token> tokens)
+void SyntacticAnalyzer::Parse(vector<Token> tokens)
 {
     // Evaluate first token en define which parser to use;
     auto currentToken = begin(tokens);
@@ -20,14 +20,14 @@ void Parser::Parse(vector<Token> tokens)
     _acceptedStructures.push_back(construction);
 }
 
-vector<AcceptedConstruction> Parser::AcceptedStructures()
+vector<AcceptedConstruction> SyntacticAnalyzer::AcceptedStructures()
 {
     return _acceptedStructures;
 }
 
-shared_ptr<ConstructionParser> Parser::ChooseParser(__attribute__((unused)) vector<Token>::iterator currentToken)
+shared_ptr<ConstructionSyntacticAnalyzer> SyntacticAnalyzer::ChooseParser(__attribute__((unused)) vector<Token>::iterator currentToken)
 {
-    return make_shared<PackParser>();
+    return make_shared<PackSyntacticAnalyzer>();
 }
 
 }

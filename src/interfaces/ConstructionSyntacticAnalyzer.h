@@ -2,14 +2,14 @@
 
 #include <vector>
 
-#include "../Token.h"
-#include "../AcceptedConstruction.h"
+#include "../frontend/Token.h"
+#include "../frontend/AcceptedConstruction.h"
 #include "Construction.h"
 
 namespace gbxasm::interfaces
 {
 
-class ConstructionParser
+class ConstructionSyntacticAnalyzer
 {
 public:
     virtual AcceptedConstruction TryToAccept(std::vector<Token>::iterator&, std::vector<Token>::iterator&) = 0;

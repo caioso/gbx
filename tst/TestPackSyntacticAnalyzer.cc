@@ -5,12 +5,12 @@
 #include <string>
 #include <utility>
 
-#include "../src/constructions/ConstructionPack.h"
-#include "../src/constructions/DeclaredMember.h"
+#include "../src/frontend/LexicalAnalyzer.h"
+#include "../src/frontend/Lexemes.h"
+#include "../src/frontend/parsers/PackSyntacticAnalyzer.h"
 #include "../src/interfaces/Construction.h"
-#include "../src/Lexer.h"
-#include "../src/Lexemes.h"
-#include "../src/parsers/PackParser.h"
+#include "../src/language/ConstructionPack.h"
+#include "../src/language/DeclaredMember.h"
 
 using namespace gbxasm;
 using namespace gbxasm::interfaces;
@@ -38,7 +38,7 @@ catch( ... )                                                          \
            << "'!";                                                   \
 }
 
-TEST(TestPackParser, SanityCheckPackTokenization)
+TEST(TestPackSyntacticAnalyzer, SanityCheckPackTokenization)
 {
     const string pack = "PACK MY_PACK\n"
                         "    BYTE MY_BYTE_MEMBER\n"
@@ -50,7 +50,7 @@ TEST(TestPackParser, SanityCheckPackTokenization)
                         "END";
 
 
-    auto lexer = make_shared<Lexer>();
+    auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(pack);
     auto tokens = lexer->Tokens();
 
@@ -135,7 +135,7 @@ TEST(TestPackParser, SanityCheckPackTokenization)
     }
 }
 
-TEST(TestPackParser, ParsePackSimple)
+TEST(TestPackSyntacticAnalyzer, ParsePackSimple)
 {
     const string pack = "PACK MY_PACK\n"
                         "    BYTE MY_BYTE_MEMBER\n"
@@ -147,8 +147,8 @@ TEST(TestPackParser, ParsePackSimple)
                         "END";
 
 
-    auto lexer = make_shared<Lexer>();
-    auto parser = make_shared<PackParser>();
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<PackSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
