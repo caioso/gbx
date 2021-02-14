@@ -7,11 +7,13 @@ SRC_FILES := $(wildcard ./*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./interfaces/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./language/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./frontend/parsers/*.cc)
+SRC_FILES := $(SRC_FILES) $(wildcard ./frontend/passes/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./frontend/*.cc)
 OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
 OBJ_FILES := $(subst interfaces/,,$(OBJ_FILES))
 OBJ_FILES := $(subst language/,,$(OBJ_FILES))
 OBJ_FILES := $(subst frontend/parsers/,,$(OBJ_FILES))
+OBJ_FILES := $(subst frontend/passes/,,$(OBJ_FILES))
 OBJ_FILES := $(subst frontend/,,$(OBJ_FILES))
 LDFLAGS := $(LDCOVERAGE_FLAGS)
 CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG
@@ -48,6 +50,12 @@ $(OBJ_DIR)/%.o: ./frontend/parsers/%.cc
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
 $(OBJ_DIR)/%.o: ./frontend/parsers/%.cc ./frontend/parsers/%.h
+	$(CC) $(CPPFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./frontend/passes/%.cc
+	$(CC) $(CPPFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./frontend/passes/%.cc ./frontend/passes/%.h
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
 

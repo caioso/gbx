@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include "TestUtils.h"
+
 #include <memory>
 #include <string>
 #include <utility>
@@ -17,26 +19,6 @@ using namespace gbxasm::interfaces;
 using namespace gbxasm::constructions;
 using namespace gbxasm::parsers;
 using namespace std;
-
-#define ASSERT_EXCEPTION( TRY_BLOCK, EXCEPTION_TYPE, MESSAGE )        \
-try                                                                   \
-{                                                                     \
-    TRY_BLOCK                                                         \
-    FAIL() << "exception '" << MESSAGE << "' not thrown";             \
-}                                                                     \
-catch( const EXCEPTION_TYPE& e )                                      \
-{                                                                     \
-    EXPECT_STREQ( MESSAGE, e.what() )                                 \
-        << " exception message is incorrect. Expected the following " \
-           "message:\n\n"                                             \
-        << e.what() << "\n";                                          \
-}                                                                     \
-catch( ... )                                                          \
-{                                                                     \
-    FAIL() << "exception '" << MESSAGE                                \
-           << "' not thrown with expected type '" << #EXCEPTION_TYPE  \
-           << "'!";                                                   \
-}
 
 TEST(TestPackSyntacticAnalyzer, SanityCheckPackTokenization)
 {
