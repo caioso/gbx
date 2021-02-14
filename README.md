@@ -305,9 +305,51 @@ Exception throwing construction
 #### `,`
 
 ### Directives
+#### `.IFDEF`
+Conditional assembly block. This directive instructs the pre-processor to include any code placed the `.IFDEF` ... [`ELSE`|`.END`], given that its condition evaluates true.
+
+##### Example
+``` language assembly
+    .IFDEF PRE_PROCESSOR_SYMBOL
+        ... ; The content of this block *will not* be removed if PRE_PROCESSOR_SYMBOL is 
+            ; found defined in any source file or is provided as command-line argument.
+    .END
+```
+#### `.ELSE`
+Complementary symbol to `.IFDEF`. The code contained within this block will only be included if the condition in `.IFDEF` does not evaluate true.
+
+##### Example
+``` language assembly
+    .IFDEF NON_EXISTING_PRE_PROCESSOR_SYMBOL
+        ... ; Only included if NON_EXISTING_PRE_PROCESSOR_SYMBOL is defined.
+    .ELSE
+        ... ; This code *will* be included otherwise.
+    .END
+```
+### `.END`
+Block-ending keyword used with `.IFDEF` and `.ELSE`.
+
+#### .DEF
+Pre-processor symbol definition directive. `.DEF` only accepts an identifier to fully-define a pre-processing symbol. Identifiers are not required to be unique. Using `.DEF` with an already defined pre-compilation symbol has no effect.
+
+##### Example
+``` language assembly
+    .DEF PLATFORM_GBX ; Defines a pre-processor symbol with identifier 'PLATFORM_GBX'
+```
+
+#### .UNDEF
+**Undefine** a previously defined pre-compilation symbol. Using `.UNDEF` with a non-defined pre-processor symbol has no effect.
+
+##### Example
+``` language assembly
+    .UNDEF PLATFORM_GBX ; Undefine a pre-compulation symbol with identifier 'PLATFORM_GBX'
+```
+
+
+#### `.PRINT`
+
 #### `.USE`
 #### `.ORG`
-#### `.PRINT`
 #### `.BREAK`
 #### `.BANK`
 #### `.CART`
