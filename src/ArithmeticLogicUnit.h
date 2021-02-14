@@ -32,6 +32,7 @@ public:
     [[nodiscard]] virtual bool ClearInterruptStatusSignal() override;
     [[nodiscard]] virtual bool HaltSignal() override;
     [[nodiscard]] virtual bool StopSignal() override;
+    [[nodiscard]] virtual bool InterruptMasterEnable() override;
     [[nodiscard]] virtual bool IsExecutionAborted() override;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() override;
@@ -69,6 +70,7 @@ protected:
     bool _clearInterruptStatusSignal{};
     bool _haltSignal{};
     bool _stopSignal{};
+    bool _interruptMasterEnable{};
 };
 
 }

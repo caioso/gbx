@@ -26,7 +26,7 @@ DEPENDECIES := $(OBJ_DIR)/GBXExceptions.o $(OBJ_DIR)/RegisterBank.o $(OBJ_DIR)/R
 			   $(OBJ_DIR)/InstructionJr.o $(OBJ_DIR)/InstructionCall.o $(OBJ_DIR)/InstructionRet.o \
 			   $(OBJ_DIR)/InstructionReti.o $(OBJ_DIR)/InstructionRst.o $(OBJ_DIR)/InstructionDaa.o \
 			   $(OBJ_DIR)/InstructionCpl.o $(OBJ_DIR)/InstructionNop.o $(OBJ_DIR)/InstructionHalt.o \
-			   $(OBJ_DIR)/InstructionStop.o
+			   $(OBJ_DIR)/InstructionStop.o $(OBJ_DIR)/InstructionEi.o $(OBJ_DIR)/InstructionDi.o
 
 $(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
 	$(CC) -o $@ $^ $(DEPENDECIES) $(LDFLAGS)

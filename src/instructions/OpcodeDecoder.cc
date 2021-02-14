@@ -179,6 +179,12 @@ shared_ptr<BaseInstructionInterface> OpcodeDecoder::DecodeInstructionWithoutPreO
     else if (OpcodePatternMatcher::Match(opcode, // 1111 1000
              OpcodePatternMatcher::Pattern('1'_b, '1'_b, '1'_b, '1'_b, '1'_b, '0'_b, '0'_b, '0'_b)))
              return make_shared<InstructionLdhl>();
+    else if (OpcodePatternMatcher::Match(opcode, // 1111 1011
+             OpcodePatternMatcher::Pattern('1'_b, '1'_b, '1'_b, '1'_b, '1'_b, '0'_b, '1'_b, '1'_b)))
+             return make_shared<InstructionEi>();
+    else if (OpcodePatternMatcher::Match(opcode, // 1111 0011
+             OpcodePatternMatcher::Pattern('1'_b, '1'_b, '1'_b, '1'_b, '0'_b, '0'_b, '1'_b, '1'_b)))
+             return make_shared<InstructionDi>();
     else if (OpcodePatternMatcher::Match(opcode, // 1111 1110
              OpcodePatternMatcher::Pattern('1'_b, '1'_b, '1'_b, '1'_b, '1'_b, '1'_b, '1'_b, '0'_b)) ||
              OpcodePatternMatcher::Match(opcode, // 1011 1110

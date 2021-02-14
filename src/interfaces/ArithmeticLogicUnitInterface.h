@@ -54,6 +54,7 @@ public:
     [[nodiscard]] virtual bool ClearInterruptStatusSignal() = 0;
     [[nodiscard]] virtual bool HaltSignal() = 0;
     [[nodiscard]] virtual bool StopSignal() = 0;
+    [[nodiscard]] virtual bool InterruptMasterEnable() = 0;
     [[nodiscard]] virtual bool IsExecutionAborted() = 0;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() = 0;

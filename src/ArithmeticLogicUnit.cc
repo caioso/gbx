@@ -277,6 +277,11 @@ bool ArithmeticLogicUnit::StopSignal()
     return _stopSignal;
 }
 
+bool ArithmeticLogicUnit::InterruptMasterEnable()
+{
+    return _interruptMasterEnable;
+}
+
 inline void ArithmeticLogicUnit::ResolveExecutionSignals()
 {
     if (_instructionData.Opcode == OpcodeType::reti && _executionAborted == false)
@@ -285,6 +290,10 @@ inline void ArithmeticLogicUnit::ResolveExecutionSignals()
         _haltSignal = true;
     else if (_instructionData.Opcode == OpcodeType::stop && _executionAborted == false)
         _stopSignal = true;
+    else if (_instructionData.Opcode == OpcodeType::ei && _executionAborted == false)
+        _interruptMasterEnable = true;
+    else if (_instructionData.Opcode == OpcodeType::di && _executionAborted == false)
+        _interruptMasterEnable = false;
 }
 
 inline void ArithmeticLogicUnit::ClearExecutionSignals()

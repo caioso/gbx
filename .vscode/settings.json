@@ -77,6 +77,7 @@
         "__functional_03": "cpp",
         "filesystem": "cpp",
         "numeric": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "testeianddiinstructions": "cpp"
     }
 }

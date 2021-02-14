@@ -12,6 +12,8 @@
 #include "InstructionCpl.h"
 #include "InstructionDaa.h"
 #include "InstructionDec.h"
+#include "InstructionDi.h"
+#include "InstructionEi.h"
 #include "InstructionInc.h"
 #include "InstructionHalt.h"
 #include "InstructionJp.h"
