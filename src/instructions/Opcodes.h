@@ -48,6 +48,8 @@ enum class OpcodeType
     stop,
     ei,
     di,
+    ccf,
+    scf,
 };
 
 const uint8_t MemoryOperand = 0x06;
