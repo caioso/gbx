@@ -9,7 +9,7 @@ GBXAsmException::GBXAsmException(const std::string message)
     : _message(message)
 {}
 
-PreprocessorException::PreprocessorException(const std::string message)
+PreProcessorException::PreProcessorException(const std::string message)
     : GBXAsmException(message)
 {}
 

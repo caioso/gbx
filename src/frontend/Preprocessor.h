@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <memory>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "../GBXAsmExceptions.h"
@@ -11,14 +12,14 @@
 namespace gbxasm
 {
 
-class Preprocessor
+class PreProcessor
 {
 public:
-    Preprocessor() = default;
-    ~Preprocessor() = default;
+    PreProcessor() = default;
+    ~PreProcessor() = default;
 
     void RegisterPass(std::shared_ptr<interfaces::Pass>, size_t);
-    void ProcessPass(size_t);
+    std::string ProcessPass(std::string, size_t);
 
 protected:
     std::vector<std::shared_ptr<interfaces::Pass>> _passes;

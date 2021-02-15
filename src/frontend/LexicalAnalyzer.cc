@@ -22,8 +22,8 @@ void LexicalAnalyzer::Tokenize(string_view input)
 void LexicalAnalyzer::ExtractTokens(string_view input)
 {
     stringstream lineStream(input.data());
-    auto currentLine = static_cast<string>("");
-    auto line = static_cast<size_t>(1);
+    auto currentLine =string("");
+    auto line = 1llu;
     auto globalCounter = 0;
 
     _stringLiteralAccumulationStarted = false;
@@ -31,11 +31,11 @@ void LexicalAnalyzer::ExtractTokens(string_view input)
 
     while(getline(lineStream, currentLine, '\n'))
     {
-        shared_ptr<stringstream> stream = make_shared<stringstream>(currentLine);
-        auto lexeme = static_cast<string>("");
+        stringstream stream(currentLine);
+        auto lexeme = string("");
         auto column = 0;
 
-        while ((*stream) >> lexeme)
+        while (stream >> lexeme)
         {
             column = currentLine.find(lexeme, column);  
             auto tokens = EvaluateLexeme(lexeme, column + 1, globalCounter);

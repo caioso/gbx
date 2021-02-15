@@ -129,6 +129,11 @@ public:
     inline const static std::string InstructionMnemonicBIT = "BIT";
     inline const static std::string InstructionMnemonicRES = "RES";
     inline const static std::string InstructionMnemonicSET = "SET";
+
+    // PreProcessor
+    inline const static std::string PreProcessorIFDEF = ".IFDEF";
+    inline const static std::string PreProcessorEND = ".END";
+    inline const static std::string PreProcessorELSE = ".ELSE";
 };
 
 }

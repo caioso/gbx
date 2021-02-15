@@ -17,11 +17,11 @@ protected:
     std::string _message;
 };
 
-class PreprocessorException : public GBXAsmException
+class PreProcessorException : public GBXAsmException
 {
 public:
-    PreprocessorException(const std::string);
-    ~PreprocessorException() = default;
+    PreProcessorException(const std::string);
+    ~PreProcessorException() = default;
 };
 
 class LexicalAnalyzerException : public GBXAsmException
