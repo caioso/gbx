@@ -1,4 +1,4 @@
-TARGET := gbx
+TARGET := libgbxcore.a
 TEST_TARGET := gbxTest
 
 all:
@@ -24,15 +24,6 @@ tidy:
 
 test:
 	./$(TEST_TARGET)
-
-debug-test:
-	lldb $(TEST_TARGET)
-
-debug:
-	lldb $(TARGET)
-
-run:
-	./$(TARGET)
 
 coverage:
 	xcrun llvm-profdata merge -o gbxTestCoverage default.profraw
