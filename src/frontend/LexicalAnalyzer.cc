@@ -1,5 +1,6 @@
 #include "LexicalAnalyzer.h"
 
+using namespace gbxasm::utilities;
 using namespace std;
 
 namespace gbxasm
@@ -322,39 +323,11 @@ vector<Token> LexicalAnalyzer::EvaluateLexeme(string originalLexeme, size_t colu
 
 inline void LexicalAnalyzer::EvaluateIdentifier(std::string candidate)
 {
-    cout << "Identifier " << candidate << '\n';
-
-    auto characterCounter = 0;
-    for (auto c : candidate)
+    if (!IdentifierValidator::IsValid(candidate))
     {
-        if (characterCounter == 0 && IsInitialDigit(candidate, 0))
-        {
-                stringstream ss;
-                ss << "Invalid identifier '" << candidate << "'";
-                throw LexicalAnalyzerException(ss.str());
-        }
-
-
-        if (c != '_' && c != 'a' && c != 'b' && c != 'c' && c != 'd' && 
-            c != 'e' && c != 'f' && c != 'g' && c != 'h' && c != 'i' && 
-            c != 'j' && c != 'k' && c != 'l' && c != 'm' && c != 'n' && 
-            c != 'o' && c != 'p' && c != 'q' && c != 'r' && c != 's' && 
-            c != 't' && c != 'u' && c != 'v' && c != 'w' && c != 'x' && 
-            c != 'y' && c != 'z' && c != 'A' && c != 'B' && c != 'C' && 
-            c != 'D' && c != 'E' && c != 'F' && c != 'G' && c != 'H' && 
-            c != 'I' && c != 'J' && c != 'K' && c != 'L' && c != 'M' &&
-            c != 'N' && c != 'O' && c != 'P' && c != 'Q' && c != 'R' && 
-            c != 'S' && c != 'T' && c != 'U' && c != 'V' && c != 'W' && 
-            c != 'X' && c != 'Y' && c != 'Z' && c != '0' && c != '1' &&
-            c != '2' && c != '3' && c != '4' && c != '5' && c != '6' &&
-            c != '7' && c != '8' && c != '9')
-            {
-                stringstream ss;
-                ss << "Invalid identifier '" << candidate << "'";
-                throw LexicalAnalyzerException(ss.str());
-            }
-
-        characterCounter++;
+            stringstream ss;
+            ss << "Invalid identifier '" << candidate << "'";
+            throw LexicalAnalyzerException(ss.str());
     }
 }
 
@@ -374,7 +347,7 @@ inline bool LexicalAnalyzer::IsCharLiteral (string_view lexeme)
 
 inline bool LexicalAnalyzer::IsNumericLiteral(string_view lexeme)
 {
-    if (!IsInitialDigit(lexeme, 0))
+    if (!IdentifierValidator::IsInitialDigit(lexeme, 0llu))
         return false;
 
     for (auto i = static_cast<size_t>(1); i < lexeme.size(); i++)
@@ -470,16 +443,6 @@ inline bool LexicalAnalyzer::IsDigit(string_view candidate, size_t position)
         candidate[position] == 'a' || candidate[position] == 'b' || candidate[position] == 'c' || candidate[position] == 'd' || 
         candidate[position] == 'e' || candidate[position] == 'f' || candidate[position] == 'X' || candidate[position] == 'x' ||
         candidate[position] == 'o' || candidate[position] == 'O')
-        return true;
-
-    return false;
-}
-
-inline bool LexicalAnalyzer::IsInitialDigit(string_view candidate, size_t position)
-{
-    if (candidate[position] == '1' || candidate[position] == '2' || candidate[position] == '3' || candidate[position] == '4' ||
-        candidate[position] == '5' || candidate[position] == '6' || candidate[position] == '7' || candidate[position] == '8' ||
-        candidate[position] == '9' || candidate[position] == '0')
         return true;
 
     return false;

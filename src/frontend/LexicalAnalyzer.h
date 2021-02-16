@@ -9,6 +9,7 @@
 
 #include <iostream>
 
+#include "../utilities/IdentifierValidator.h"
 #include "../GBXAsmExceptions.h"
 #include "Lexemes.h"
 #include "Token.h"
@@ -46,7 +47,6 @@ private:
     inline bool IsStringLiteral(std::string_view);
     inline bool IsCharLiteral(std::string_view);
     inline bool IsDigit(std::string_view, size_t);
-    inline bool IsInitialDigit(std::string_view, size_t);
     inline bool HasUnmergedStrings();
 
     inline TokenType IdentifyNumericLiteral(std::string_view);

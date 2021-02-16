@@ -9,12 +9,14 @@ SRC_FILES := $(SRC_FILES) $(wildcard ./language/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./frontend/parsers/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./frontend/passes/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./frontend/*.cc)
+SRC_FILES := $(SRC_FILES) $(wildcard ./utilities/*.cc)
 OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
 OBJ_FILES := $(subst interfaces/,,$(OBJ_FILES))
 OBJ_FILES := $(subst language/,,$(OBJ_FILES))
 OBJ_FILES := $(subst frontend/parsers/,,$(OBJ_FILES))
 OBJ_FILES := $(subst frontend/passes/,,$(OBJ_FILES))
 OBJ_FILES := $(subst frontend/,,$(OBJ_FILES))
+OBJ_FILES := $(subst utilities/,,$(OBJ_FILES))
 LDFLAGS := $(LDCOVERAGE_FLAGS)
 CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG
 TARGET := gbxasm
@@ -47,6 +49,12 @@ $(OBJ_DIR)/%.o: ./frontend/%.cc ./frontend/%.h
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
 $(OBJ_DIR)/%.o: ./frontend/parsers/%.cc
+	$(CC) $(CPPFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./utilities/%.cc ./utilities/%.h
+	$(CC) $(CPPFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./utilities/parsers/%.cc
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
 $(OBJ_DIR)/%.o: ./frontend/parsers/%.cc ./frontend/parsers/%.h
