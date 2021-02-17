@@ -944,14 +944,14 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral10)
 
 TEST(TestLexicalAnalyzer, EvaluateStringLiteral11)
 {
-    const string string = "\"string1\"\"string2\"";
+    const string string = "\"'string1'\"\"string2\"";
     auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
 
     EXPECT_EQ(static_cast<size_t>(2), tokens.size());
     
-    EXPECT_STREQ("\"string1\"", tokens[0].Lexeme.c_str());
+    EXPECT_STREQ("\"'string1'\"", tokens[0].Lexeme.c_str());
     EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
@@ -959,7 +959,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral11)
     EXPECT_STREQ("\"string2\"", tokens[1].Lexeme.c_str());
     EXPECT_EQ(TokenType::LiteralSTRING, tokens[1].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
-    EXPECT_EQ(static_cast<size_t>(10), tokens[1].Column);
+    EXPECT_EQ(static_cast<size_t>(12), tokens[1].Column);
 }
 
 TEST(TestLexicalAnalyzer, EvaluateUnterminatedString)
@@ -1014,6 +1014,17 @@ TEST(TestLexicalAnalyzer, EvaluateCharLiteral)
 TEST(TestLexicalAnalyzer, EvaluateNotClosedCharLiteral)
 {
     const string program = "'a' '";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+
+    ASSERT_EXCEPTION( { lexer->Tokenize(program); }, 
+                      LexicalAnalyzerException, 
+                      "Non-terminated char literal found");
+}
+
+TEST(TestLexicalAnalyzer, EvaluateNotClosedCharLiteral2)
+{
+    const string program = "'''";
 
     auto lexer = make_shared<LexicalAnalyzer>();
 

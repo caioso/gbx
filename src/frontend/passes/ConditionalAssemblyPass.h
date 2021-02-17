@@ -18,9 +18,17 @@
 namespace gbxasm
 {
 
+enum class BlockToKeepInCode
+{
+    IfBlock,
+    ElseBlock,
+    NoBlock
+};
+
 struct BlockLimits
 {
     size_t BlockInitializerPosition;
+    size_t BlockPositionAfterSymbol;
     size_t BlockFinalizerPosition;
 };
 
@@ -47,11 +55,14 @@ protected:
 
     inline void ProcessDirective(std::string_view, std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
     inline void EvaluateIfDef(std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
-    inline void EvaluateEnd(std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t, std::string_view);
-    inline void EvaluateElse(std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t, std::string_view);
+    inline void EvaluateEnd(std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
+    inline void EvaluateElse(std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
+    inline void RemoveBlock(BlockToKeepInCode, ConditionalAssemblyBlock);
 
-    std::vector<std::string>& _symbolTable;
+    inline BlockToKeepInCode DetectBlockToKeep(ConditionalAssemblyBlock);
+
     std::vector<ConditionalAssemblyBlock> _conditionalAssemblyBlocks;
+    std::vector<std::string>& _symbolTable;
     std::string _workString;
 };
 

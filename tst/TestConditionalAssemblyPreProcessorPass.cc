@@ -41,8 +41,10 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithoutElse)
                      "\tEI\n"
                      ".END";
 
-    string ifBlock = "\n\tLD SP, 0xFFFE\n"
-                     "\tEI\n";
+    string ifBlock = ".IFDEF MY_SYMBOL\n"
+                     "\tLD SP, 0xFFFE\n"
+                     "\tEI\n"
+                     ".END";
 
     vector<string> symbolTable;
     symbolTable.push_back("MY_SYMBOL");
@@ -68,11 +70,15 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithElse)
                      "\tRET\n"
                      ".END\n";
 
-    string ifBlock = "\n\tLD A, 0xFF\n"
-                     "\tINC A\n";
+    string ifBlock = ".IFDEF THE_SYMBOL\n"
+                     "\tLD A, 0xFF\n"
+                     "\tINC A\n"
+                     ".ELSE";
     
-    string elseBlock = "\n\tCALL MY_FUNCTION\n"
-                       "\tRET\n";
+    string elseBlock = ".ELSE\n"
+                     "\tCALL MY_FUNCTION\n"
+                     "\tRET\n"
+                     ".END";
 
     vector<string> symbolTable;
     symbolTable.push_back("THE_SYMBOL");
@@ -105,17 +111,21 @@ TEST(TestConditionalAssemblyPreProcessorPass, NesteIfDefBlock)
                      ".END\n"
                      ".END\n";
 
-    string innerBlock = "\n\tLD HL, 0xFF45\n"
-                        "\tLD A, [HL]\n";
+    string innerBlock = ".IFDEF THE_SECOND_SYMBOL\n"
+                     "\tLD HL, 0xFF45\n"
+                     "\tLD A, [HL]\n"
+                     ".END";
     
-    string OuterBlock = "\n\tLD A, 0xFF\n"
-                        "\tINC A\n"
-                        "\tSUB A, C"
-                        "\n"
-                        ".IFDEF THE_SECOND_SYMBOL\n"
-                        "\tLD HL, 0xFF45\n"
-                        "\tLD A, [HL]\n"
-                        ".END\n";
+    string OuterBlock = ".IFDEF THE_SYMBOL\n"
+                     "\tLD A, 0xFF\n"
+                     "\tINC A\n"
+                     "\tSUB A, C"
+                     "\n"
+                     ".IFDEF THE_SECOND_SYMBOL\n"
+                     "\tLD HL, 0xFF45\n"
+                     "\tLD A, [HL]\n"
+                     ".END\n"
+                     ".END";
     
     
     vector<string> symbolTable;
@@ -196,6 +206,31 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefDirective)
                       "Malformed '.IFDEF' directive (identifier expected)");
 }
 
+TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefDirective2)
+{
+    string program = ".IFDEF DEFINED\n"
+                     "\tSLA A, 1\n"
+                     ".IFDEF NO_DEFINED\n"
+                     "\tLD C, A\n"
+                     "\tLD C, A\n"
+                     "\tLD C, A\n"
+                     ".ELSE\n"
+                     "\tLD C, A\n"
+                     ".END\n"
+                     "\tSUB A, B\n"
+                     ".END\n"
+                     "\tSLA A, 1\n"
+                     "\tLD C, A\n"
+                     ".END\n";
+
+    vector<string> symbolTable; 
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    
+    ASSERT_EXCEPTION( { pass->Process(program); }, 
+                      PreProcessorException, 
+                       "Unexpected '.END' directive found");
+}
+
 TEST(TestConditionalAssemblyPreProcessorPass, InvalidIdentifier)
 {
     string program = ".IFDEF ^&&~AAAA\n"
@@ -208,4 +243,144 @@ TEST(TestConditionalAssemblyPreProcessorPass, InvalidIdentifier)
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
                       "Invalid PreAssembly symbol identifier '^&&~AAAA'");
+}
+
+TEST(TestConditionalAssemblyPreProcessorPass, TestCodeRemoval)
+{
+    string program = ".IFDEF THE_SYMBOL\n"
+                     "\tLD A, 0xFF\n"
+                     "\tINC A\n"
+                     ".ELSE\n"
+                     "\tCALL MY_FUNCTION\n"
+                     "\tRET\n"
+                     ".END\n";
+    
+    string result =  "                 \n"
+                     "\tLD A, 0xFF\n"
+                     "\tINC A\n"
+                     "     \n"
+                     "                 \n"
+                     "    \n"
+                     "    \n";
+    
+    string SecondPassResult =  "                 \n"
+                     "           \n"
+                     "      \n"
+                     "     \n"
+                     "\tCALL MY_FUNCTION\n"
+                     "\tRET\n"
+                     "    \n";
+
+    vector<string> symbolTable;
+    symbolTable.push_back("THE_SYMBOL");
+
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    pass->Process(program);
+    auto processedCode = pass->Result();
+
+    EXPECT_STREQ(result.c_str(), processedCode.c_str());
+    
+    symbolTable.pop_back();
+
+    auto secondPass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    secondPass->Process(program);
+    auto secondPassProcessedCode = secondPass->Result();
+
+    EXPECT_STREQ(SecondPassResult.c_str(), secondPassProcessedCode.c_str());
+}
+
+TEST(TestConditionalAssemblyPreProcessorPass, TestRemoval2)
+{
+    string program = ".IFDEF NO_DEFINED\n"
+                     "\tSLA A, 1\n"
+                     "\tLD C, A\n"
+                     ".END\n";
+    
+    string result = "                 \n"
+                     "         \n"
+                     "        \n"
+                     "    \n";
+
+    vector<string> symbolTable; 
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    pass->Process(program);
+    auto processedCode = pass->Result();
+
+    EXPECT_STREQ(result.c_str(), processedCode.c_str());
+}
+
+TEST(TestConditionalAssemblyPreProcessorPass, TestRemoval3)
+{
+    string program = ".IFDEF DEFINED\n"
+                     "\tSLA A, 1\n"
+                     ".IFDEF NO_DEFINED\n"
+                     "\tLD C, A\n"
+                     "\tLD C, A\n"
+                     "\tLD C, A\n"
+                     ".ELSE\n"
+                     "\tLD C, A\n"
+                     ".END\n"
+                     "\tSUB A, B\n"
+                     ".END\n";
+    
+    string result = "              \n"
+                     "\tSLA A, 1\n"
+                     "                 \n"
+                     "        \n"
+                     "        \n"
+                     "        \n"
+                     "     \n"
+                     "\tLD C, A\n"
+                     "    \n"
+                     "\tSUB A, B\n"
+                     "    \n";
+
+    vector<string> symbolTable; 
+    symbolTable.push_back("DEFINED");
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    pass->Process(program);
+    auto processedCode = pass->Result();
+
+    EXPECT_STREQ(result.c_str(), processedCode.c_str());
+}
+
+TEST(TestConditionalAssemblyPreProcessorPass, TestRemoval4)
+{
+    string program = ".IFDEF DEFINED\n"
+                     "\tSLA A, 1\n"
+                     ".IFDEF NO_DEFINED\n"
+                     "\tLD C, A\n"
+                     "\tLD C, A\n"
+                     "\tLD C, A\n"
+                     ".ELSE\n"
+                     "\tLD C, A\n"
+                     ".END\n"
+                     "\tSUB A, B\n"
+                     ".ELSE\n"
+                     "\tSLA A, 1\n"
+                     "\tLD C, A\n"
+                     ".END\n";
+    
+    string result = "              \n"
+                     "\tSLA A, 1\n"
+                     "                 \n"
+                     "        \n"
+                     "        \n"
+                     "        \n"
+                     "     \n"
+                     "\tLD C, A\n"
+                     "    \n"
+                     "\tSUB A, B\n"
+                     "     \n"
+                     "         \n"
+                     "        \n"
+                     "    \n";
+
+    vector<string> symbolTable; 
+    symbolTable.push_back("DEFINED");
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    pass->Process(program);
+    auto processedCode = pass->Result();
+
+    EXPECT_STREQ(result.c_str(), processedCode.c_str());
 }
