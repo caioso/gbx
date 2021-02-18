@@ -1,29 +1,61 @@
-CC := clang++
-
-OBJ_DIR := $(CURDIR)
-TARGET_DIR := $(CURDIR)
-SRC_FILES := $(wildcard ./*.cc)
-OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
-LDFLAGS := $(LDCOVERAGE_FLAGS)
-CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG 
-INCLUDE := -I../gbxcore/src/
 TARGET := gbx
+TEST_TARGET := gbxTest
 
-$(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
-	$(CC) $(CPPFLAGS) $(INCLUDE) ../gbxcore/libgbxcore.a gbx.cc -o $@
+all:
+	$(call MakeTarget, src)
+	$(call MakeTarget, tst)
 
-$(OBJ_DIR)/%.o: %.cc %.h
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+source:
+	$(call MakeTarget, src)
 
-$(OBJ_DIR)/%.o: %.cc
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+unit:
+	$(call MakeTarget, tst)
 
 clean:
-	rm -rf *.o  *.so  *.stackdump  *.a  *.exe
+	$(call CleanTarget, src)
+	$(call CleanTarget, tst)
+	rm -f ./obj/*.o ./obj/*.gcno ./$(TARGET)
+	rm -f ./tst/*.o ./$(TEST_TARGET) \
+	rm default.profraw \
+	rm gbxTestCoverage
+
+test:
+	./$(TEST_TARGET)
+
+tidy:
+	cppcheck --std=c++20 --enable=all --inconclusive -v  ./src  --output-file=./check/result.txt
+
+debug-test:
+	lldb $(TEST_TARGET)
+
+debug:
+	lldb $(TARGET)
 
 run:
-	./gbx
+	./$(TARGET)
 
+coverage:
+	xcrun llvm-profdata merge -o gbxTestCoverage default.profraw
+	xcrun llvm-cov report gbxTest -instr-profile=gbxTestCoverage -use-color --ignore-filename-regex="(gtest|gmock)" --ignore-filename-regex="(Test(.*)\.cc)"
+	
 .PHONY: all clean run
 
+define CleanTarget
+	$(call EnteringMessage, ${1})
+	@$(MAKE) -C ${1} -f Makefile.mk clean
+	$(call ExitingMessage, ${1})
+endef
 
+define MakeTarget
+	$(call EnteringMessage, ${1})
+	@$(MAKE) -C ${1} -f Makefile.mk
+	$(call ExitingMessage, ${1})
+endef
+
+define EnteringMessage
+@echo Entering ${1}
+endef
+
+define ExitingMessage
+@echo Exiting ${1}
+endef
