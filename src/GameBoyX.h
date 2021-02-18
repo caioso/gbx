@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "interfaces/Runtime.h"
 #include "constants/SystemConstants.h"
 #include "ArithmeticLogicUnit.h"
 #include "Clock.h"
@@ -16,12 +17,12 @@
 namespace gbx
 {
 
-class GameBoyX
+class GameBoyX : public interfaces::Runtime
 {
 public:
     GameBoyX();
     virtual ~GameBoyX() = default;
-    void Run();
+    virtual void Run() override;
     
 protected:
     std::shared_ptr<Z80X> _cpu;
