@@ -5,7 +5,7 @@ OBJ_DIR := $(CURDIR)/../obj
 TARGET_DIR := $(CURDIR)/..
 SRC_FILES := $(wildcard ./*.cc)
 OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
-LDFLAGS := $(LDCOVERAGE_FLAGS)
+LDFLAGS := $(LDCOVERAGE_FLAGS) -L/usr/local/lib -lboost_system
 CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG
 TARGET := gbxdb
 
