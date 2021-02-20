@@ -7,6 +7,8 @@ namespace gbx::interfaces
 
 enum class RequestType
 {
+    // Data Requests
+    Register,
     UnknownType
 };
 

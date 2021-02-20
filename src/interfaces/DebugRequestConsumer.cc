@@ -1,4 +1,5 @@
 #include "DebugRequestConsumer.h"
+#include "DebugRequestProducer.h"
 
 using namespace std;
 
