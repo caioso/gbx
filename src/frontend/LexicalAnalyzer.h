@@ -17,6 +17,12 @@
 namespace gbxasm
 {
 
+struct StringSubstitution
+{
+    char Original;
+    size_t Position;
+};
+
 class LexicalAnalyzer
 {
 public:
@@ -36,6 +42,7 @@ private:
     inline std::string ExtractCharLiteralFromCandidate(std::string, size_t);
     
     void ClearTokens();
+    void ConvertString(std::string&);
     void ExtractTokens(std::string_view);
 
     inline bool IsPossibleOperator(std::string_view, size_t);
@@ -47,6 +54,7 @@ private:
     inline bool IsStringLiteral(std::string_view);
     inline bool IsCharLiteral(std::string_view);
     inline bool IsDigit(std::string_view, size_t);
+    inline bool IsSpecialCharacter(std::string_view, size_t);
     inline bool HasUnmergedStrings();
 
     inline TokenType IdentifyNumericLiteral(std::string_view);
@@ -75,9 +83,12 @@ private:
     inline static std::string ExtractPossibleSubCharLiteral(std::string, size_t);
     inline static std::string EvaluateAndConvertChar(std::string_view);
 
+    inline void RegisterSubstitution(size_t, std::string&);
+
     inline void EvaluateIdentifier(std::string);
 
     std::vector<Token> _tokens;
+    std::vector<StringSubstitution> _substitutionTable;
     bool _stringLiteralAccumulationStarted{};
     bool _stringLiteralAccumulationEnded{};
 };

@@ -716,9 +716,13 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral2)
 
 TEST(TestLexicalAnalyzer, EvaluateStringLiteral3)
 {
-    const string string = "\"\nbasic\ntest\n\"";
+    const string test1 = "\"\nbasic\ntest\n\"";
+    const string test2 = "\"\n basic \n test 2\n\"";
+    const string test3 = "\"\n basic \n"
+                         "test 3\n\"";
+    const string test4 = "\"\t\taa\t\t\"\"'\\a\\a'\"";
     auto lexer = make_shared<LexicalAnalyzer>();
-    lexer->Tokenize(string);
+    lexer->Tokenize(test1);
     auto tokens = lexer->Tokens();
 
     EXPECT_EQ(static_cast<size_t>(1), tokens.size());
@@ -726,6 +730,38 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral3)
     EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+
+    lexer->Tokenize(test2);
+    tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(1), tokens.size());
+    EXPECT_STREQ("\"\n basic \n test 2\n\"", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+
+    lexer->Tokenize(test3);
+    tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(1), tokens.size());
+    EXPECT_STREQ("\"\n basic \ntest 3\n\"", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+
+    lexer->Tokenize(test4);
+    tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(2), tokens.size());
+    EXPECT_STREQ("\"\t\taa\t\t\"", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ("\"'\\a\\a'\"", tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(9), tokens[1].Column);
 }
 
 TEST(TestLexicalAnalyzer, EvaluateStringLiteral4)
@@ -810,13 +846,44 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral5)
 
 TEST(TestLexicalAnalyzer, EvaluateStringLiteral6)
 {
-    const string string = "\"\"";
+    const string test1 = "\"\"";
+    const string test2 = "\"'\\\"++*+\"";
+    const string test3 = "\"\'\n\'\"";
+    const string test4 = "\"\'\t ++++  \ad\vq\e\\za\\w\\x\\q\\k\\\\\\'\\{\rtest\'\"";
+
     auto lexer = make_shared<LexicalAnalyzer>();
-    lexer->Tokenize(string);
+    lexer->Tokenize(test1);
     auto tokens = lexer->Tokens();
 
     EXPECT_EQ(static_cast<size_t>(1), tokens.size());
     EXPECT_STREQ("\"\"", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+
+    lexer->Tokenize(test2);
+    tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(1), tokens.size());
+    EXPECT_STREQ("\"'\\\"++*+\"", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+
+    lexer->Tokenize(test3);
+    tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(1), tokens.size());
+    EXPECT_STREQ("\"\'\n\'\"", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+
+    lexer->Tokenize(test4);
+    tokens = lexer->Tokens();
+
+    EXPECT_EQ(static_cast<size_t>(1), tokens.size());
+    EXPECT_STREQ("\"\'\t ++++  \ad\vq\e\\za\\w\\x\\q\\k\\\\\\'\\{\rtest\'\"", tokens[0].Lexeme.c_str());
     EXPECT_EQ(TokenType::LiteralSTRING, tokens[0].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
@@ -944,7 +1011,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral10)
 
 TEST(TestLexicalAnalyzer, EvaluateStringLiteral11)
 {
-    const string string = "\"'string1'\"\"string2\"";
+    const string string = "\"'string1'\"\"' string2 '\"";
     auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(string);
     auto tokens = lexer->Tokens();
@@ -956,7 +1023,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral11)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
 
-    EXPECT_STREQ("\"string2\"", tokens[1].Lexeme.c_str());
+    EXPECT_STREQ("\"' string2 '\"", tokens[1].Lexeme.c_str());
     EXPECT_EQ(TokenType::LiteralSTRING, tokens[1].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
     EXPECT_EQ(static_cast<size_t>(12), tokens[1].Column);

@@ -16,8 +16,10 @@ vector<Token>& LexicalAnalyzer::Tokens()
 
 void LexicalAnalyzer::Tokenize(string_view input)
 {
+    auto workString = string(input);
     ClearTokens();
-    ExtractTokens(input);
+    ConvertString(workString);
+    ExtractTokens(workString);
 }
 
 void LexicalAnalyzer::ExtractTokens(string_view input)
@@ -338,7 +340,7 @@ inline bool LexicalAnalyzer::IsStringLiteral (string_view lexeme)
     return false;
 }
 
-inline bool LexicalAnalyzer::IsCharLiteral (string_view lexeme)
+inline bool LexicalAnalyzer::IsCharLiteral(string_view lexeme)
 {
     if (lexeme[0] == '\'')
         return true;
@@ -463,7 +465,6 @@ vector<pair<string, size_t> > LexicalAnalyzer::FindSubLexemes(string lexeme, siz
                 SaveSubLexeme(accumulator, column, subLexemes, columnCounter);
                 accumulator = "";
             }
-          
             SaveSubLexeme(ExtractOperatorSeparatorOrMarker(lexeme, i), column, subLexemes, columnCounter);
             CorrectLoopIndex(subLexemes, i);
             EvaluateStringLimits(lexeme, i);
@@ -653,7 +654,7 @@ inline void LexicalAnalyzer::EvaluateCharLiteralSize(string candidate)
     }
 }
 
-bool LexicalAnalyzer::IsPossibleOperator(string_view candidate, size_t position)
+inline bool LexicalAnalyzer::IsPossibleOperator(string_view candidate, size_t position)
 {
     if (candidate[position] == '+' || candidate[position] == '=' || candidate[position] == '<' || candidate[position] == '>' ||
         candidate[position] == '/' || candidate[position] == '*' || candidate[position] == '&' || candidate[position] == '|' ||
@@ -664,7 +665,12 @@ bool LexicalAnalyzer::IsPossibleOperator(string_view candidate, size_t position)
     return false;
 }
 
-bool LexicalAnalyzer::IsPossibleSeparator(string_view candidate, size_t position)
+inline bool LexicalAnalyzer::IsSpecialCharacter(string_view candidate, size_t position)
+{
+    return (candidate[position] <= 0x20 || candidate[position] >= 0x7F);
+}
+
+inline bool LexicalAnalyzer::IsPossibleSeparator(string_view candidate, size_t position)
 {
     if (candidate[position] == '{' || candidate[position] == '}' || candidate[position] == '(' || candidate[position] == ')' ||
         candidate[position] == '[' || candidate[position] == ']' || candidate[position] == ':' || candidate[position] == ',')
@@ -719,6 +725,21 @@ inline bool LexicalAnalyzer::HasUnmergedStrings()
 inline Token LexicalAnalyzer::GenerateStringToken(size_t startIndex, size_t endIndex, string_view input)
 {
     auto stringLiteral = string(input.substr(_tokens[startIndex].GlobalPosition, (_tokens[endIndex].GlobalPosition - _tokens[startIndex].GlobalPosition + 1)));
+
+    for (auto i = 0llu; i < stringLiteral.size(); ++i)
+    {
+        auto candidate = find_if(begin(_substitutionTable), end(_substitutionTable), 
+        [&](StringSubstitution x) -> bool 
+        {  
+            return x.Position == i + _tokens[startIndex].GlobalPosition; 
+        }); 
+
+        if (candidate != end(_substitutionTable))
+        {
+            stringLiteral[i] = (*candidate).Original;
+        }
+    }
+
     auto startLine = _tokens[startIndex].Line;
     auto startColumn = _tokens[startIndex].Column;
     auto startGlobalPosition = _tokens[startIndex].GlobalPosition;
@@ -964,9 +985,53 @@ inline std::string LexicalAnalyzer::EvaluateAndConvertChar(std::string_view orig
     throw LexicalAnalyzerException(ss.str());
 }
 
+
+void LexicalAnalyzer::ConvertString(std::string& input)
+{
+    auto processingString = false;
+    for (auto i = 0llu; i < input.size(); ++i)
+    {
+        if (!processingString)
+        {
+            if (i == 0 && input[i] == '\"')
+                processingString = true;
+            else if (i != 0 && input[i - 1] != '\\' && input[i] == '\"')
+                processingString = true;
+            else if (i != 0 && input[i - 1] == '\\' && input[i] == '\"')
+                processingString = false;
+        }
+        else
+        {
+            if (input[i - 1] != '\\' && input[i] == '\"')
+                processingString = false;
+            if ((input[i - 1] == '\\' && input[i] != '\"') || (input[i - 1] == '\\' && input[i] == '\"'))
+            {
+                RegisterSubstitution(i - 1, input);
+                RegisterSubstitution(i, input);
+            }
+            else if (input[i] == '\'')
+                RegisterSubstitution(i, input);
+            else if (IsPossibleSeparator(input, i) || IsPossibleOperator(input, i) || IsSpecialCharacter(input, i))
+                RegisterSubstitution(i, input);
+        }
+    }
+}
+
+inline void LexicalAnalyzer::RegisterSubstitution(size_t position, string& input)
+{
+    StringSubstitution substitution = 
+    {
+        .Original = input[position],
+        .Position = position
+    };
+    input[position] = '_';
+    _substitutionTable.push_back(substitution);
+}
+
 void LexicalAnalyzer::ClearTokens()
 {
     _tokens.resize(0);
+    _substitutionTable.resize(0);
 }
 
 }
