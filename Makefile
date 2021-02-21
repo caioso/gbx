@@ -36,7 +36,7 @@ run:
 
 coverage:
 	xcrun llvm-profdata merge -o gbxasmTestCoverage default.profraw
-	xcrun llvm-cov report gbxasmTest -instr-profile=gbxasmTestCoverage -use-color --ignore-filename-regex="(gtest|gmock)" --ignore-filename-regex="(Test(.*)\.cc)"
+	xcrun llvm-cov report gbxasmTest -instr-profile=gbxasmTestCoverage -use-color --ignore-filename-regex="(gtest|gmock)" --ignore-filename-regex="(Test(.*)\.cc)" --ignore-filename-regex="((.*)\.h)"
 	
 .PHONY: all clean run
 
