@@ -24,6 +24,8 @@ public:
     void RunWithDebugSupport(size_t, CancellationToken&);
     void RunWithDebugSupport(CancellationToken&);
 
+    [[nodiscard]] uint8_t ReadRegister(interfaces::Register);
+    
     virtual void ConsumeRequest(std::shared_ptr<interfaces::DebugRequest>) override;
 
 private:

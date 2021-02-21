@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../interfaces/DebugRequest.h"
-
+#include "interfaces/RegisterBankInterface.h"
 namespace gbx::requests
 {
 
@@ -14,14 +14,14 @@ enum class RegisterDataOperation
 class RegisterDataRequest : public interfaces::DebugRequest
 {
 public:
-    RegisterDataRequest(size_t, RegisterDataOperation, interfaces::RequestType);
+    RegisterDataRequest(interfaces::Register, RegisterDataOperation);
     virtual ~RegisterDataRequest() = default;
 
-    size_t Register();
+    interfaces::Register Register();
     RegisterDataOperation Operation();
 
 private:
-    size_t _register;
+    interfaces::Register _register;
     RegisterDataOperation _operation;
 };
 

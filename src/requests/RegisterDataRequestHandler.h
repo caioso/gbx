@@ -3,6 +3,10 @@
 #include <memory>
 
 #include "../interfaces/RequestHandler.h"
+#include "../GBXExceptions.h"
+#include "interfaces/RegisterBankInterface.h"
+#include "RegisterDataRequest.h"
+#include "RegisterDataResponse.h"
 
 namespace gbx::requests
 {
@@ -13,7 +17,7 @@ public:
     RegisterDataRequestHandler() = default;
     virtual ~RegisterDataRequestHandler() = default;
 
-    virtual std::shared_ptr<interfaces::DebugResponse> Process(std::shared_ptr<interfaces::DebugRequest>, std::shared_ptr<interfaces::Runtime>) override;
+    [[nodiscard]] virtual std::shared_ptr<interfaces::DebugResponse> Process(std::shared_ptr<interfaces::DebugRequest>, std::shared_ptr<interfaces::Runtime>) override;
 };
 
 }

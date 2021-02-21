@@ -59,4 +59,9 @@ inline void Runner::RunWithDebugger()
     }
 }
 
+inline uint8_t Runner::ReadRegister(Register reg)
+{
+    return _runtime->ReadRegister(reg);
+}
+
 }

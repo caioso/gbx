@@ -1,15 +1,16 @@
 #include "RegisterDataRequest.h"
 
+using namespace gbx::interfaces;
 namespace gbx::requests
 {
 
-RegisterDataRequest::RegisterDataRequest(size_t reg, RegisterDataOperation op, interfaces::RequestType type)
-    : interfaces::DebugRequest(type)
+RegisterDataRequest::RegisterDataRequest(enum Register reg, RegisterDataOperation op)
+    : interfaces::DebugRequest(RequestType::Register)
     , _register(reg)
     , _operation(op)
 {}
 
-size_t RegisterDataRequest::Register()
+Register RegisterDataRequest::Register()
 {
     return _register;
 }

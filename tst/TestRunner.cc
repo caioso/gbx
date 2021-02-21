@@ -13,6 +13,7 @@
 #include "../src/CancellationToken.h"
 #include "../src/Runner.h"
 #include "interfaces/Runtime.h"
+#include "interfaces/RegisterBankInterface.h"
 
 using namespace std;
 using namespace std::chrono_literals;
@@ -30,11 +31,13 @@ public:
 
     virtual ~DummyRequest() = default;
 };  
+
 class RuntimeMock : public Runtime
 {
 public:
     virtual ~RuntimeMock() = default;
     MOCK_METHOD(void, Run, ());
+    MOCK_METHOD(uint8_t, ReadRegister, (Register));
 };
 
 class RequestProducerMock : public DebugRequestProducer
@@ -209,4 +212,14 @@ TEST(TestRunner, ConsumeMultipleRequestsTest)
     runner->ConsumeRequest(requestPointer);
     runner->ConsumeRequest(requestPointer);
     runner->RunWithDebugSupport(1, token);
+}
+
+TEST(TestRunner, RequestReadRegister)
+{
+    auto runTime = make_shared<RuntimeMock>();
+ 
+    EXPECT_CALL((*runTime), ReadRegister(Register::A)).WillOnce(Return(static_cast<uint8_t>(0xFE)));
+    auto registerValue = runTime->ReadRegister(Register::A);
+
+    EXPECT_EQ(0xFE, registerValue);
 }

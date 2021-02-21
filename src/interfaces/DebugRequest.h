@@ -16,6 +16,7 @@ class DebugRequest
 {
 public:
     DebugRequest(RequestType);
+    virtual ~DebugRequest() = default;
 
 protected:
     RequestType _requestType;
