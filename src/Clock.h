@@ -8,7 +8,7 @@
 #include <thread>
 
 #include "EngineParameters.h"
-#include "GBXExceptions.h"
+#include "GBXCoreExceptions.h"
 #include "interfaces/ClockInterface.h"
 
 namespace gbx

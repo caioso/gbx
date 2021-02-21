@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "AddressingModeFormat.h"
-#include "GBXExceptions.h"
+#include "GBXCoreExceptions.h"
 #include "RegisterBank.h"
 #include "ArithmeticLogicUnit.h"
 #include "interfaces/ArithmeticLogicUnitInterface.h"

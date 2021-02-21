@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../interfaces/InstructionInterface.h"
-#include "../GBXExceptions.h"
+#include "../GBXCoreExceptions.h"
 
 namespace gbx
 {

@@ -48,7 +48,7 @@
 #include "InstructionSwap.h"
 #include "InstructionXor.h"
 
-#include "../GBXExceptions.h"
+#include "../GBXCoreExceptions.h"
 #include "../interfaces/InstructionInterface.h"
 #include "InstructionUtilities.h"
 #include "OpcodePatternMatcher.h"

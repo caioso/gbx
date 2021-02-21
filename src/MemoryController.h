@@ -6,7 +6,7 @@
 #include <variant>
 #include <vector>
 
-#include "GBXExceptions.h"
+#include "GBXCoreExceptions.h"
 #include "interfaces/MemoryControllerInterface.h"
 #include "interfaces/MemoryInterface.h"
 

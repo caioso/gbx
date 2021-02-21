@@ -12,7 +12,7 @@
 
 #include "../src/instructions/Opcodes.h"
 #include "../src/ArithmeticLogicUnit.h"
-#include "../src/GBXExceptions.h"
+#include "../src/GBXCoreExceptions.h"
 #include "../src/MemoryController.h"
 #include "../src/RegisterBank.h"
 

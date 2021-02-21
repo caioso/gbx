@@ -23,6 +23,7 @@ public:
     GameBoyX();
     virtual ~GameBoyX() = default;
     virtual void Run() override;
+    virtual uint8_t ReadRegister(interfaces::Register) override;
     
 protected:
     std::shared_ptr<Z80X> _cpu;

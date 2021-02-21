@@ -6,60 +6,60 @@
 namespace gbx
 {
 
-class GBXException : std::exception
+class GBXCoreException : std::exception
 {
 public:
-    explicit GBXException(const std::string&);
-    virtual ~GBXException() = default;
+    explicit GBXCoreException(const std::string&);
+    virtual ~GBXCoreException() = default;
     virtual const char* what() const noexcept;
 
 protected:
     std::string _message;
 };
 
-class MemoryAccessException : public GBXException
+class MemoryAccessException : public GBXCoreException
 {
 public:
     explicit MemoryAccessException(const std::string&);
     ~MemoryAccessException() = default;
 };
 
-class MemoryControllerException : public GBXException
+class MemoryControllerException : public GBXCoreException
 {
 public:
     explicit MemoryControllerException(const std::string&);
     ~MemoryControllerException() = default;
 };
 
-class ClockSourceException : public GBXException
+class ClockSourceException : public GBXCoreException
 {
 public:
     explicit ClockSourceException(const std::string&);
     ~ClockSourceException() = default;
 };
 
-class ChannelException : public GBXException
+class ChannelException : public GBXCoreException
 {
 public:
     explicit ChannelException(const std::string&);
     ~ChannelException() = default;
 };
 
-class ArithmeticLogicUnitException : public GBXException
+class ArithmeticLogicUnitException : public GBXCoreException
 {
 public:
     explicit ArithmeticLogicUnitException(const std::string&);
     ~ArithmeticLogicUnitException() = default;
 };
 
-class RegisterBankException : public GBXException
+class RegisterBankException : public GBXCoreException
 {
 public:
     explicit RegisterBankException(const std::string&);
     ~RegisterBankException() = default;
 };
 
-class InstructionException : public GBXException
+class InstructionException : public GBXCoreException
 {
 public:
     explicit InstructionException(const std::string&);

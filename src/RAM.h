@@ -9,7 +9,7 @@
 #include <variant>
 
 #include "interfaces/MemoryInterface.h"
-#include "GBXExceptions.h"
+#include "GBXCoreExceptions.h"
 #include "ROM.h"
 
 namespace gbx

@@ -8,7 +8,7 @@
 #include <sstream>
 #include <variant>
 
-#include "GBXExceptions.h"
+#include "GBXCoreExceptions.h"
 #include "interfaces/MemoryInterface.h"
 
 namespace gbx

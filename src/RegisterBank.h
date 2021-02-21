@@ -7,7 +7,7 @@
 #include <exception>
 #include <type_traits>
 
-#include "GBXExceptions.h"
+#include "GBXCoreExceptions.h"
 #include "interfaces/RegisterBankInterface.h"
 namespace gbx
 {

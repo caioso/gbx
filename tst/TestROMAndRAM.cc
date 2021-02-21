@@ -9,7 +9,7 @@
 #include <variant>
 
 #include "../src/interfaces/MemoryControllerInterface.h"
-#include "../src/GBXExceptions.h"
+#include "../src/GBXCoreExceptions.h"
 #include "../src/ROM.h"
 #include "../src/RAM.h"
 

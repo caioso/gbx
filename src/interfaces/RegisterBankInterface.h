@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "../GBXExceptions.h"
+#include "../GBXCoreExceptions.h"
 
 namespace gbx::interfaces
 {

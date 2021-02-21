@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "../src/Clock.h"
-#include "../src/GBXExceptions.h"
+#include "../src/GBXCoreExceptions.h"
 #include "../src/EngineParameters.h"
 #include "../src/interfaces/ClockInterface.h"
 

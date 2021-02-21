@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "GBXExceptions.h"
+#include "GBXCoreExceptions.h"
 #include "AddressingModeFormat.h"
 #include "instructions/InstructionUtilities.h"
 #include "instructions/OpcodeDecoder.h"

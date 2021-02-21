@@ -1,43 +1,43 @@
-#include "GBXExceptions.h"
+#include "GBXCoreExceptions.h"
 
 using namespace std;
 
 namespace gbx
 {
 
-GBXException::GBXException(const std::string& message)
+GBXCoreException::GBXCoreException(const std::string& message)
     : _message(message)
 {}
 
 MemoryAccessException::MemoryAccessException(const std::string& message)
-    : GBXException(message)
+    : GBXCoreException(message)
 {}
 
 MemoryControllerException::MemoryControllerException(const std::string& message)
-    : GBXException(message)
+    : GBXCoreException(message)
 {}
 
 ClockSourceException::ClockSourceException(const std::string& message)
-    : GBXException(message)
+    : GBXCoreException(message)
 {}
 
 ChannelException::ChannelException(const std::string& message)
-    : GBXException(message)
+    : GBXCoreException(message)
 {}
 
 ArithmeticLogicUnitException::ArithmeticLogicUnitException(const std::string& message)
-    : GBXException(message)
+    : GBXCoreException(message)
 {}
 
 RegisterBankException::RegisterBankException(const std::string& message)
-    : GBXException(message)
+    : GBXCoreException(message)
 {}
 
 InstructionException::InstructionException(const std::string& message)
-    : GBXException(message)
+    : GBXCoreException(message)
 {}
 
-const char* GBXException::what() const noexcept
+const char* GBXCoreException::what() const noexcept
 {
     return _message.c_str();
 }

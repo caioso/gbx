@@ -46,4 +46,9 @@ void GameBoyX::Run()
     _cpu->Run();
 }
 
+uint8_t GameBoyX::ReadRegister(interfaces::Register reg)
+{
+    return _registers->Read(reg);
+}
+
 }
