@@ -6,6 +6,7 @@
 #include <limits>
 #include <memory>
 #include <thread> 
+#include <variant> 
 
 #include "../src/interfaces/DebugRequest.h"
 #include "../src/interfaces/DebugRequestConsumer.h"
@@ -39,7 +40,8 @@ class RuntimeMock : public Runtime
 public:
     virtual ~RuntimeMock() = default;
     MOCK_METHOD(void, Run, ());
-    MOCK_METHOD(uint8_t, ReadRegister, (Register));
+    MOCK_METHOD((std::variant<uint8_t, uint16_t>), ReadRegister, (Register));
+    MOCK_METHOD(void, WriteRegister, (Register, (std::variant<uint8_t, uint16_t>)));
 };
 
 class RequestProducerMock : public DebugRequestProducer
@@ -223,5 +225,22 @@ TEST(TestRunner, RequestReadRegister)
     EXPECT_CALL((*runTime), ReadRegister(Register::A)).WillOnce(Return(static_cast<uint8_t>(0xFE)));
     auto registerValue = runTime->ReadRegister(Register::A);
 
-    EXPECT_EQ(0xFE, registerValue);
+    EXPECT_CALL((*runTime), ReadRegister(Register::HL)).WillOnce(Return(static_cast<uint16_t>(0xFEEF)));
+    auto registerPairValue = runTime->ReadRegister(Register::HL);
+
+    EXPECT_EQ(0xFE, get<uint8_t>(registerValue));
+    EXPECT_EQ(0xFEEF, get<uint16_t>(registerPairValue));
+}
+
+TEST(TestRunner, RequestWriteRegister)
+{
+    auto runTime = make_shared<RuntimeMock>();
+ 
+    auto expectationVariant = std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xFE));
+    EXPECT_CALL((*runTime), WriteRegister(Register::A, expectationVariant));
+    runTime->WriteRegister(Register::A, static_cast<uint8_t>(0xFE));
+
+    auto expectationPairVariant = std::variant<uint8_t, uint16_t>(static_cast<uint16_t>(0xFEEF));
+    EXPECT_CALL((*runTime), WriteRegister(Register::HL, expectationPairVariant));
+    runTime->WriteRegister(Register::HL, static_cast<uint16_t>(0xFEEF));
 }

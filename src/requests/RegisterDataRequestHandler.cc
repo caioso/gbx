@@ -20,6 +20,11 @@ shared_ptr<DebugResponse> RegisterDataRequestHandler::Process(shared_ptr<DebugRe
         auto registerValue = runtime->ReadRegister(registerRequest->Register());
         return make_shared<RegisterDataResponse>(registerRequest->Register(), registerValue);
     }
+    else if (registerRequest->Operation() == RegisterDataOperation::Write)
+    {
+        runtime->WriteRegister(registerRequest->Register(), registerRequest->Value());
+        return make_shared<RegisterDataResponse>(registerRequest->Register(), registerRequest->Value());
+    }
     
     return make_shared<DebugResponse>(ResponseType::UnknownType);
 }

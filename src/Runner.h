@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include <queue>
+#include <variant>
 
 #include "interfaces/Runtime.h"
 #include "interfaces/DebugRequestConsumer.h"
@@ -24,7 +25,7 @@ public:
     void RunWithDebugSupport(size_t, CancellationToken&);
     void RunWithDebugSupport(CancellationToken&);
 
-    [[nodiscard]] uint8_t ReadRegister(gbxcore::interfaces::Register);
+    [[nodiscard]] std::variant<uint8_t, uint16_t> ReadRegister(gbxcore::interfaces::Register);
     
     virtual void ConsumeRequest(std::shared_ptr<interfaces::DebugRequest>) override;
 
