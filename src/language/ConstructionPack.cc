@@ -3,7 +3,7 @@
 using namespace gbxasm::interfaces;
 using namespace std;
 
-namespace gbxasm::constructions
+namespace gbxasm::language
 {
 
 ConstructionPack::ConstructionPack(size_t line, size_t column)

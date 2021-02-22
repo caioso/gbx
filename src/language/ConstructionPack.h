@@ -5,7 +5,7 @@
 #include "../interfaces/Construction.h"
 #include "DeclaredMember.h"
 
-namespace gbxasm::constructions
+namespace gbxasm::language
 {
 
 class ConstructionPack : public gbxasm::interfaces::Construction

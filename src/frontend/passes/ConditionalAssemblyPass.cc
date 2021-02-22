@@ -4,7 +4,7 @@ using namespace gbxasm::interfaces;
 using namespace gbxasm::utilities;
 using namespace std;
 
-namespace gbxasm
+namespace gbxasm::frontend::passes
 {
 
 ConditionalAssemblyPass::ConditionalAssemblyPass(vector<string>& symbolTable)
@@ -14,7 +14,7 @@ ConditionalAssemblyPass::ConditionalAssemblyPass(vector<string>& symbolTable)
 void ConditionalAssemblyPass::Process(string input)
 {
     _workString = input;
-    LocateBlocks();
+    ProcessInput();
     ProcessBlocks();
 }
 
@@ -31,6 +31,57 @@ void ConditionalAssemblyPass::ProcessBlocks()
         RemoveBlock(blockToKeep, block);
     }
 }
+
+void ConditionalAssemblyPass::ProcessInput()
+{
+    auto currentLine = string("");
+    auto lexeme = string("");    
+    size_t globalCounter = 0llu;
+    stringstream lineStream(_workString);
+    stack<ConditionalAssemblyBlock> blocksStack;
+
+    while(getline(lineStream, currentLine, '\n'))
+    {
+        currentLine += ' ';
+        stringstream stream(currentLine);
+    
+        while (stream >> lexeme)
+            ProcessDirective(lexeme, stream, blocksStack, globalCounter);
+
+        globalCounter += currentLine.size();
+    }
+
+    if (blocksStack.size() != 0)
+        throw PreProcessorException("Malformed conditional assembly block (expected '.END')");
+}
+
+inline BlockToKeepInCode ConditionalAssemblyPass::DetectBlockToKeep(ConditionalAssemblyBlock block)
+{
+    auto symbol = block.PreProcessorSymbol;
+    auto position = find(begin(_symbolTable), end(_symbolTable), symbol);
+
+    if (block.Type == BlockType::IfDef)
+    {
+        if (position == end(_symbolTable) && block.ElseBlock == nullopt)
+            return BlockToKeepInCode::NoBlock;
+        else if (position == end(_symbolTable) && block.ElseBlock != nullopt)
+            return BlockToKeepInCode::ElseBlock;
+        else if (position != end(_symbolTable))
+            return BlockToKeepInCode::IfBlock;
+    }
+    else
+    {
+        if (position != end(_symbolTable) && block.ElseBlock == nullopt)
+            return BlockToKeepInCode::NoBlock;
+        else if (position != end(_symbolTable) && block.ElseBlock != nullopt)
+            return BlockToKeepInCode::ElseBlock;
+        else if (position == end(_symbolTable))
+            return BlockToKeepInCode::IfBlock;
+    }
+
+    return BlockToKeepInCode::NoBlock;
+}
+
 
 inline void ConditionalAssemblyPass::RemoveBlock(BlockToKeepInCode targetBlockToKeep, ConditionalAssemblyBlock block)
 {
@@ -81,75 +132,46 @@ inline void ConditionalAssemblyPass::RemoveBlock(BlockToKeepInCode targetBlockTo
             _workString[i] = ' ';
 }
 
-inline BlockToKeepInCode ConditionalAssemblyPass::DetectBlockToKeep(ConditionalAssemblyBlock block)
-{
-    auto symbol = block.PreProcessorSymbol;
-    auto position = find(begin(_symbolTable), end(_symbolTable), symbol);
-
-    if (position == end(_symbolTable) && block.ElseBlock == nullopt)
-        return BlockToKeepInCode::NoBlock;
-    else if (position == end(_symbolTable) && block.ElseBlock != nullopt)
-        return BlockToKeepInCode::ElseBlock;
-    else if (position != end(_symbolTable))
-        return BlockToKeepInCode::IfBlock;
-
-    return BlockToKeepInCode::NoBlock;
-}
-
-void ConditionalAssemblyPass::LocateBlocks()
-{
-    auto currentLine = string("");
-    auto lexeme = string("");    
-    size_t globalCounter = 0llu;
-    stringstream lineStream(_workString);
-    stack<ConditionalAssemblyBlock> blocksStack;
-
-    while(getline(lineStream, currentLine, '\n'))
-    {
-        currentLine += ' ';
-        stringstream stream(currentLine);
-    
-        while (stream >> lexeme)
-            ProcessDirective(lexeme, stream, blocksStack, globalCounter);
-
-        globalCounter += currentLine.size();
-    }
-
-    if (blocksStack.size() != 0)
-        throw PreProcessorException("Malformed '.IFDEF' conditional assembly block (expected '.END')");
-}
-
 inline void ConditionalAssemblyPass::ProcessDirective(string_view lexeme, stringstream& stream, stack<ConditionalAssemblyBlock>& blocksStack, size_t globalCounter)
 {
     auto upperCaseLexeme = string(lexeme);
     transform(begin(upperCaseLexeme), end(upperCaseLexeme), begin(upperCaseLexeme), [](unsigned char c) -> auto {return toupper(c);});
 
-    if (upperCaseLexeme.compare(Lexemes::PreProcessorIFDEF.c_str()) == 0)
-        EvaluateIfDef(stream, blocksStack, globalCounter);
+    if (upperCaseLexeme.compare(Lexemes::PreProcessorIFDEF.c_str()) == 0 ||
+        upperCaseLexeme.compare(Lexemes::PreProcessorIFNDEF.c_str()) == 0)
+        EvaluateIfDirectives(upperCaseLexeme, stream, blocksStack, globalCounter);
     else if (upperCaseLexeme.compare(Lexemes::PreProcessorEND.c_str()) == 0)
         EvaluateEnd(stream, blocksStack, globalCounter);
     else if (upperCaseLexeme.compare(Lexemes::PreProcessorELSE.c_str()) == 0)
         EvaluateElse(stream, blocksStack, globalCounter);
+    else if (upperCaseLexeme.compare(Lexemes::PreProcessorDEF.c_str()) == 0)
+        EvaluateDef(stream, globalCounter);
 }
 
-inline void ConditionalAssemblyPass::EvaluateIfDef(stringstream& stream, stack<ConditionalAssemblyBlock>& blocksStack, size_t globalCounter)
+inline void ConditionalAssemblyPass::EvaluateIfDirectives(string lexeme, stringstream& stream, stack<ConditionalAssemblyBlock>& blocksStack, size_t globalCounter)
 {
-    auto initialPosition = static_cast<size_t>(stream.tellg()) - Lexemes::PreProcessorIFDEF.size();
+    auto targetBlock = lexeme.compare(Lexemes::PreProcessorIFDEF) == 0? BlockType::IfDef : BlockType::IfNDef;
+    auto initialPosition = static_cast<size_t>(stream.tellg()) - lexeme.size();
     auto identifier = string("");
     stream >> identifier;                
 
     if (identifier.size() == 0)
-        throw PreProcessorException("Malformed '.IFDEF' directive (identifier expected)");
+    {
+        stringstream ss;
+        ss << "Malformed '" << lexeme << "' directive (identifier expected)";
+        throw PreProcessorException(ss.str());
+    }
 
     if (!IdentifierValidator::IsValid(identifier))
     {
         stringstream ss;
-        ss << "Invalid PreAssembly symbol identifier '" << identifier << "'";
+        ss << "Invalid Pre-Assembly symbol identifier '" << identifier << "'";
         throw PreProcessorException(ss.str());
     }
 
     ConditionalAssemblyBlock block = 
     {
+        .Type = targetBlock,
         .PreProcessorSymbol = identifier,
         .IfBlock = 
         {
@@ -197,6 +219,33 @@ inline void ConditionalAssemblyPass::EvaluateElse(stringstream& stream, stack<Co
 
     topBlock.ElseBlock = make_optional(block);
     blocksStack.push(topBlock);
+}
+
+inline void ConditionalAssemblyPass::EvaluateDef(stringstream& stream, size_t globalCounter)
+{
+    auto initialPosition = static_cast<size_t>(stream.tellg()) - Lexemes::PreProcessorDEF.size();
+    auto identifier = string("");
+    stream >> identifier;                
+
+    if (identifier.size() == 0)
+        throw PreProcessorException("Malformed '.DEF' directive (identifier expected)");
+
+    if (!IdentifierValidator::IsValid(identifier))
+    {
+        stringstream ss;
+        ss << "Invalid Pre-Assembly symbol identifier '" << identifier << "'";
+        throw PreProcessorException(ss.str());
+    }
+
+    // Remove DEF Directive from the code
+    auto begin = globalCounter + static_cast<size_t>(initialPosition);
+    auto end = globalCounter + static_cast<size_t>(stream.tellg());
+    
+    for (auto i = begin; i < end; ++i)
+        if (_workString[i] != '\n')
+            _workString[i] = ' ';
+
+    _symbolTable.push_back(identifier);
 }
 
 }

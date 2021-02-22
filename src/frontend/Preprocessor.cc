@@ -3,7 +3,7 @@
 using namespace gbxasm::interfaces;
 using namespace std;
 
-namespace gbxasm
+namespace gbxasm::frontend
 {
 
 void PreProcessor::RegisterPass(shared_ptr<Pass> pass, size_t position)

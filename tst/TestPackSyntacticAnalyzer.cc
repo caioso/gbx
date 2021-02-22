@@ -15,9 +15,10 @@
 #include "../src/language/DeclaredMember.h"
 
 using namespace gbxasm;
-using namespace gbxasm::interfaces;
-using namespace gbxasm::constructions;
-using namespace gbxasm::parsers;
+using namespace gbxasm::frontend;
+using namespace gbxasm::frontend::parsers;
+using namespace gbxasm::language;
+using namespace gbxasm::utilities;
 using namespace std;
 
 TEST(TestPackSyntacticAnalyzer, SanityCheckPackTokenization)

@@ -3,7 +3,7 @@
 using namespace gbxasm::utilities;
 using namespace std;
 
-namespace gbxasm
+namespace gbxasm::frontend
 {
 
 LexicalAnalyzer::LexicalAnalyzer()

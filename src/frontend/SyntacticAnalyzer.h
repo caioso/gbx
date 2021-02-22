@@ -9,7 +9,7 @@
 #include "AcceptedConstruction.h"
 #include "Token.h"
 
-namespace gbxasm
+namespace gbxasm::frontend
 {
 
 class SyntacticAnalyzer

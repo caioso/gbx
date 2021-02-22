@@ -14,7 +14,7 @@
 #include "Lexemes.h"
 #include "Token.h"
 
-namespace gbxasm
+namespace gbxasm::frontend
 {
 
 struct StringSubstitution

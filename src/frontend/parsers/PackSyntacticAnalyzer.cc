@@ -1,10 +1,10 @@
 #include "PackSyntacticAnalyzer.h"
 
 using namespace gbxasm::interfaces;
-using namespace gbxasm::parsers;
+using namespace gbxasm::frontend;
 using namespace std;
 
-namespace gbxasm::parsers
+namespace gbxasm::frontend::parsers
 {
 
 AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
@@ -39,7 +39,7 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
                 }
                 else
                 {
-                    cout << "Rejected" << '\n';
+                    //cout << "Rejected" << '\n';
                     Reject();
                     break;
                 }
@@ -53,7 +53,7 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
                 }
                 else
                 {
-                    cout << "Rejected" << '\n';
+                    //cout << "Rejected" << '\n';
                     Reject();
                     break;
                 }
@@ -73,7 +73,7 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
                 }
                 else
                 {
-                    cout << "Rejected" << '\n';
+                    //cout << "Rejected" << '\n';
                     Reject();
                     break;
                 }
@@ -106,7 +106,7 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
                 }
                 else
                 {
-                    cout << "Rejected" << '\n';
+                    //cout << "Rejected" << '\n';
                     Reject();
                     break;
                 }
@@ -120,7 +120,7 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
                 }
                 else
                 {
-                    cout << "Rejected" << '\n';
+                    //cout << "Rejected" << '\n';
                     Reject();
                     break;
                 }
@@ -145,7 +145,7 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
                 }
                 else
                 {
-                    cout << "Rejected" << '\n';
+                    //cout << "Rejected" << '\n';
                     Reject();
                     break;
                 }
@@ -159,7 +159,7 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
                 }
                 else
                 {
-                    cout << "Rejected" << '\n';
+                    //cout << "Rejected" << '\n';
                     Reject();
                     break;
                 }
@@ -173,7 +173,7 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
                 }
                 else
                 {
-                    cout << "Rejected" << '\n';
+                    //cout << "Rejected" << '\n';
                     Reject();
                     break;
                 }
@@ -199,7 +199,7 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
                 }
                 else
                 {
-                    cout << "Rejected" << '\n';
+                    //cout << "Rejected" << '\n';
                     Reject();
                     break;
                 }
@@ -237,18 +237,18 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
                 }
                 else
                 {
-                    cout << "Rejected" << '\n';
+                    //cout << "Rejected" << '\n';
                     Reject();
                     break;
                 }
             }
         }
 
-        cout << "\nOriginal : Size " << _symbols.size() << '\n';
+        /*cout << "\nOriginal : Size " << _symbols.size() << '\n';
         for (auto token : _symbols)
         {
             cout << static_cast<size_t>(token) << '\n';
-        }
+        }*/
     }
 
     return accepted;
@@ -307,11 +307,11 @@ void PackSyntacticAnalyzer::ExtactSymbols(vector<Token>::iterator& currentToken,
         }
     });
 
-    cout << "Original : Size " << _symbols.size() << '\n';
+    /*cout << "Original : Size " << _symbols.size() << '\n';
     for (auto token : _symbols)
     {
         cout << static_cast<size_t>(token) << '\n';
-    }
+    }*/
 }
 
 }

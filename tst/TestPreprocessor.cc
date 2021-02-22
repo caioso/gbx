@@ -13,6 +13,8 @@
 #include "../src/GBXAsmExceptions.h"
 
 using namespace gbxasm::interfaces;
+using namespace gbxasm::frontend;
+using namespace gbxasm::frontend::passes;
 using namespace gbxasm;
 using namespace std;
 

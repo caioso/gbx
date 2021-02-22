@@ -1,11 +1,12 @@
 #include "SyntacticAnalyzer.h"
 
 using namespace gbxasm::interfaces;
-using namespace gbxasm::constructions;
-using namespace gbxasm::parsers;
+using namespace gbxasm::language;
+using namespace gbxasm::frontend;
+using namespace gbxasm::frontend::parsers;
 using namespace std;
 
-namespace gbxasm
+namespace gbxasm::frontend
 {
 void SyntacticAnalyzer::Parse(vector<Token> tokens)
 {

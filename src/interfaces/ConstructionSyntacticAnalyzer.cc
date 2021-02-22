@@ -1,5 +1,7 @@
 #include "ConstructionSyntacticAnalyzer.h"
 
+using namespace gbxasm::frontend;
+
 namespace gbxasm::interfaces
 {
 

@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace gbxasm
+namespace gbxasm::frontend
 {
 
 enum class TokenType

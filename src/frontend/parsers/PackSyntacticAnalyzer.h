@@ -7,10 +7,7 @@
 
 #include "../../GBXAsmExceptions.h"
 #include "../../interfaces/ConstructionSyntacticAnalyzer.h"
-
-#include <iostream>
-
-namespace gbxasm::parsers
+namespace gbxasm::frontend::parsers
 {
 
 enum class PackParseTreeSymbols

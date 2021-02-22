@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 
-namespace gbxasm::constructions
+namespace gbxasm::language
 {
 
 enum class TypeName

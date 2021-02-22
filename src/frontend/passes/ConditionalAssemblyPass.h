@@ -15,8 +15,14 @@
 #include "../../GBXAsmExceptions.h"
 #include "../Lexemes.h"
 
-namespace gbxasm
+namespace gbxasm::frontend::passes
 {
+
+enum class BlockType
+{
+    IfDef,
+    IfNDef
+};
 
 enum class BlockToKeepInCode
 {
@@ -34,6 +40,7 @@ struct BlockLimits
 
 struct ConditionalAssemblyBlock
 {
+    BlockType Type;
     std::string PreProcessorSymbol;
     BlockLimits IfBlock;
     
@@ -50,13 +57,14 @@ public:
     [[nodiscard]] virtual std::string Result() override;
 
 protected:
-    void LocateBlocks();
+    void ProcessInput();
     void ProcessBlocks();
 
     inline void ProcessDirective(std::string_view, std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
-    inline void EvaluateIfDef(std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
+    inline void EvaluateIfDirectives(std::string, std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
     inline void EvaluateEnd(std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
     inline void EvaluateElse(std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
+    inline void EvaluateDef(std::stringstream&, size_t);
     inline void RemoveBlock(BlockToKeepInCode, ConditionalAssemblyBlock);
 
     inline BlockToKeepInCode DetectBlockToKeep(ConditionalAssemblyBlock);

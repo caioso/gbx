@@ -9,7 +9,7 @@
 #include "../GBXAsmExceptions.h"
 #include "../interfaces/Pass.h"
 
-namespace gbxasm
+namespace gbxasm::frontend
 {
 
 class PreProcessor

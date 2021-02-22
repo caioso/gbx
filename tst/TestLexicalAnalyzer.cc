@@ -10,6 +10,8 @@
 #include "../src/frontend/Lexemes.h"
 
 using namespace gbxasm;
+using namespace gbxasm::frontend;
+using namespace gbxasm::utilities;
 using namespace std;
 
 

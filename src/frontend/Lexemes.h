@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace gbxasm
+namespace gbxasm::frontend
 {
 
 class Lexemes
@@ -132,8 +132,10 @@ public:
 
     // PreProcessor
     inline const static std::string PreProcessorIFDEF = ".IFDEF";
+    inline const static std::string PreProcessorIFNDEF = ".IFNDEF";
     inline const static std::string PreProcessorEND = ".END";
     inline const static std::string PreProcessorELSE = ".ELSE";
+    inline const static std::string PreProcessorDEF = ".DEF";
 };
 
 }
