@@ -1,6 +1,6 @@
 #include "AddressRange.h"
 
-namespace gbx
+namespace gbxcore
 {
 
 AddressRange::AddressRange(uint16_t begin, uint16_t end, std::optional<RangeType> range)

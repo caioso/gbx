@@ -1,14 +1,15 @@
 #include "ArithmeticLogicUnit.h"
 
 using namespace std;
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
+using namespace gbxcore::instructions;
 
-namespace gbx
+namespace gbxcore
 {
 
 ArithmeticLogicUnit::ArithmeticLogicUnit()
-    : _instructionData{OpcodeType::unknown, AddressingMode::Register, 0, 0, 0, Register::NoRegister, Register::NoRegister, 0, 0, 0}
-    , _currentAddressingMode(nullptr)
+    : _currentAddressingMode(nullptr)
+    , _instructionData{OpcodeType::unknown, AddressingMode::Register, 0, 0, 0, Register::NoRegister, Register::NoRegister, 0, 0, 0} 
 {}
 
 void ArithmeticLogicUnit::Initialize(shared_ptr<RegisterBankInterface> registers)

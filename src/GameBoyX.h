@@ -14,7 +14,7 @@
 #include "ROM.h"
 #include "Z80X.h"
 
-namespace gbx
+namespace gbxcore
 {
 
 class GameBoyX : public interfaces::Runtime

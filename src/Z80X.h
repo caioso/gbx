@@ -9,7 +9,7 @@
 #include "interfaces/MemoryControllerInterface.h"
 #include "interfaces/RegisterBankInterface.h"
 
-namespace gbx
+namespace gbxcore
 {
 
 class Z80X : public std::enable_shared_from_this<Z80X>

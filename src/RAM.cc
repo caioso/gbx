@@ -1,9 +1,9 @@
 #include "RAM.h"
 
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 using namespace std;
 
-namespace gbx
+namespace gbxcore
 {
 RAM::RAM(size_t size)
     : ROM(size)

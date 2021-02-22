@@ -11,7 +11,7 @@
 #include "../src/interfaces/ClockInterface.h"
 
 using namespace std;
-using namespace gbx;
+using namespace gbxcore;
 
 TEST(TestClock, Construction) 
 {

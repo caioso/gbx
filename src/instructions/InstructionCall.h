@@ -2,7 +2,7 @@
 
 #include "../interfaces/InstructionInterface.h"
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 class InstructionCall : public interfaces::ConditionalInstructionInterface

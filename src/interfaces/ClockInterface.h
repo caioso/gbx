@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace gbx::interfaces
+namespace gbxcore::interfaces
 {
 
 class ClockInterface

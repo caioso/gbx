@@ -6,7 +6,7 @@
 #include "../AddressRange.h"
 #include "MemoryInterface.h"
 
-namespace gbx::interfaces
+namespace gbxcore::interfaces
 {
 
 enum class MemoryRequestType

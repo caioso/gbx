@@ -13,9 +13,9 @@
 #include "../src/ROM.h"
 #include "../src/RAM.h"
 
-using namespace std;
-using namespace gbx;
-using namespace gbx::interfaces;
+using namespace std; 
+using namespace gbxcore;
+using namespace gbxcore::interfaces;
 
 
 TEST(TestROMAndRAM, Construction) 

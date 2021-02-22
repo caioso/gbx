@@ -11,8 +11,8 @@
 #include "../src/ROM.h"
 
 using namespace std;
-using namespace gbx;
-using namespace gbx::interfaces;
+using namespace gbxcore;
+using namespace gbxcore::interfaces;
 
 TEST(TestMemoryController, ResourceRegistration) 
 {

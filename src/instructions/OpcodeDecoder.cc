@@ -1,9 +1,9 @@
 #include "OpcodeDecoder.h"
 
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 using namespace std;
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 shared_ptr<BaseInstructionInterface> OpcodeDecoder::DecodeOpcode(uint8_t opcode, optional<uint8_t> preOpcode)

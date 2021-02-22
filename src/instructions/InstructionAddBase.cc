@@ -1,9 +1,9 @@
 #include "InstructionAddBase.h"
 
 using namespace std;
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 uint8_t InstructionAddBase::Calculate8BitBinaryAdditionAndSetFlags(uint8_t operand1, uint8_t operand2, optional<uint8_t> carry, shared_ptr<RegisterBankInterface> registerBank)

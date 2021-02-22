@@ -4,8 +4,8 @@
 #include "../src/RegisterBank.h"
 
 using namespace std;
-using namespace gbx;
-using namespace gbx::interfaces;
+using namespace gbxcore;
+using namespace gbxcore::interfaces;
 
 TEST(TestRegisterBank, ReadRegisterA) 
 {

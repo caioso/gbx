@@ -2,7 +2,7 @@
 
 #include "../interfaces/InstructionInterface.h"
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 class InstructionRla : public interfaces::InstructionInterface

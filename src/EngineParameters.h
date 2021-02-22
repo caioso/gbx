@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace gbx
+namespace gbxcore
 {
 class EngineParameters
 {

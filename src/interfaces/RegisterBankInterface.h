@@ -4,7 +4,7 @@
 
 #include "../GBXCoreExceptions.h"
 
-namespace gbx::interfaces
+namespace gbxcore::interfaces
 {
 
 enum class Flag

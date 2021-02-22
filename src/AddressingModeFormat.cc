@@ -1,6 +1,6 @@
 #include "AddressingModeFormat.h"
 
-namespace gbx
+namespace gbxcore
 {
     
 AddressingModeFormat AddressingModeTemplate::NoAddressingMode                          

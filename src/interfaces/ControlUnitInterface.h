@@ -5,7 +5,7 @@
 #include "ArithmeticLogicUnitInterface.h"
 #include "MemoryControllerInterface.h"
 
-namespace gbx::interfaces
+namespace gbxcore::interfaces
 {
 
 class ControlUnitInterface

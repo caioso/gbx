@@ -5,7 +5,7 @@
 #include "InstructionAddBase.h"
 #include "../interfaces/InstructionInterface.h"
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 class InstructionInc : public interfaces::InstructionInterface, public InstructionAddBase

@@ -1,9 +1,9 @@
 #include "RegisterBank.h"
 
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 using namespace std;
 
-namespace gbx
+namespace gbxcore
 {
 
 RegisterBank::RegisterBank()

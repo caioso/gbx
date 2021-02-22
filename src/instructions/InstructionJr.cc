@@ -1,9 +1,9 @@
 #include "InstructionJr.h"
 
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 using namespace std;
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 void InstructionJr::Decode(uint8_t opcode, __attribute__((unused)) std::optional<uint8_t> preOpcode, interfaces::DecodedInstruction& decodedInstruction)

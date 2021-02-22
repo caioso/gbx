@@ -3,7 +3,7 @@
 #include "../interfaces/InstructionInterface.h"
 #include "../GBXCoreExceptions.h"
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 class InstructionStop : public interfaces::InstructionInterface

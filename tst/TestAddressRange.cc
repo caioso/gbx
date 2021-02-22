@@ -3,7 +3,7 @@
 #include "../src/AddressRange.h"
 
 using namespace std;
-using namespace gbx;
+using namespace gbxcore;
 
 TEST(TestAddressRange, RangeAllInclusive) 
 {

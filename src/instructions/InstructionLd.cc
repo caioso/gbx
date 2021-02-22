@@ -1,9 +1,9 @@
 #include "InstructionLd.h"
 
 using namespace std;
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 void InstructionLd::Decode(uint8_t opcode, std::optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction)

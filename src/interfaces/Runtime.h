@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RegisterBankInterface.h"
-namespace gbx::interfaces
+namespace gbxcore::interfaces
 {
 struct Runtime
 {

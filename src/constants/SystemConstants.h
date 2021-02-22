@@ -2,7 +2,7 @@
 
 #include <cstdlib>
 
-namespace gbx::constants
+namespace gbxcore::constants
 {
 
 const size_t UserROMInitialAddress = 0x0000;

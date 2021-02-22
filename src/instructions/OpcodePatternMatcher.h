@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 typedef enum class BitPattern_t

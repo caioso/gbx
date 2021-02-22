@@ -15,7 +15,7 @@
 #include "interfaces/ControlUnitInterface.h"
 #include "interfaces/MemoryControllerInterface.h"
 
-namespace gbx
+namespace gbxcore
 {
 class ControlUnit : public std::enable_shared_from_this<ControlUnit>, public interfaces::ControlUnitInterface
 {

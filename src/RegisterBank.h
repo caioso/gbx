@@ -9,7 +9,7 @@
 
 #include "GBXCoreExceptions.h"
 #include "interfaces/RegisterBankInterface.h"
-namespace gbx
+namespace gbxcore
 {
 
 class RegisterBank : public interfaces::RegisterBankInterface 

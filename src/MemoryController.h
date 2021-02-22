@@ -12,7 +12,7 @@
 
 #include <memory>
 
-namespace gbx
+namespace gbxcore
 {
 
 typedef struct MemoryResource_t

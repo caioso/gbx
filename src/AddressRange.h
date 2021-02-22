@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <optional>
 
-namespace gbx
+namespace gbxcore
 {
 
 enum class RangeType

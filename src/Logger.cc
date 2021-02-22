@@ -1,6 +1,6 @@
 #include "Logger.h"
 
-namespace gbx
+namespace gbxcore
 {
 
 void Log::LogLn(const char* message)

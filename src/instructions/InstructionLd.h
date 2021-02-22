@@ -3,7 +3,7 @@
 #include "InstructionUtilities.h"
 #include "../interfaces/InstructionInterface.h"
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 class InstructionLd : public interfaces::InstructionInterface

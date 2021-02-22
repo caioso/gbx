@@ -1,9 +1,9 @@
 #include "InstructionCall.h"
 
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 using namespace std;
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 void InstructionCall::Decode(uint8_t opcode, __attribute__((unused)) std::optional<uint8_t> preOpcode, interfaces::DecodedInstruction& decodedInstruction)

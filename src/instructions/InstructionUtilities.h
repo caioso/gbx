@@ -7,7 +7,7 @@
 #include "../AddressingMode.h"
 #include "../MemoryController.h"
 
-namespace gbx
+namespace gbxcore::instructions
 {
     
 class InstructionUtilities

@@ -14,8 +14,9 @@
 #include "../src/instructions/Opcodes.h"
 
 using namespace std;
-using namespace gbx;
-using namespace gbx::interfaces;
+using namespace gbxcore;
+using namespace gbxcore::interfaces;
+using namespace gbxcore::instructions;
 
 class ArithmeticLogicDecorator : public ArithmeticLogicUnit
 {

@@ -14,8 +14,8 @@
 #include "../src/interfaces/MemoryControllerInterface.h"
 
 using namespace std;
-using namespace gbx;
-using namespace gbx::interfaces;
+using namespace gbxcore;
+using namespace gbxcore::interfaces;
 using ::testing::Return;
 
 uint8_t ImmediateOpcode(Register source)

@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace gbx
+namespace gbxcore
 {
 
 GBXCoreException::GBXCoreException(const std::string& message)

@@ -1,9 +1,9 @@
 #include "InstructionRl.h"
 
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 using namespace std;
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 void InstructionRl::Decode(uint8_t opcode, __attribute__((unused)) optional<uint8_t> complement, DecodedInstruction&decodedInstruction)

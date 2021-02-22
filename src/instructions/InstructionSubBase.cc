@@ -1,9 +1,9 @@
 #include "InstructionSubBase.h"
 
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 using namespace std;
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 uint8_t InstructionSubBase::Acquire8bitSourceOperandValue(shared_ptr<interfaces::RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)

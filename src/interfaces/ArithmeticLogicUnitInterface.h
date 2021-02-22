@@ -11,12 +11,12 @@
 #include "MemoryControllerInterface.h"
 #include "RegisterBankInterface.h"
 
-namespace gbx::interfaces
+namespace gbxcore::interfaces
 {
 
 struct DecodedInstruction
 {
-    OpcodeType Opcode;
+    instructions::OpcodeType Opcode;
     AddressingMode AddressingMode;
     uint8_t MemoryOperand1;
     uint8_t MemoryOperand2;

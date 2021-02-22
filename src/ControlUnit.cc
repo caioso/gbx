@@ -1,9 +1,9 @@
 #include "ControlUnit.h"
 
 using namespace std;
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 
-namespace gbx
+namespace gbxcore
 {
 
 ControlUnit::ControlUnit()

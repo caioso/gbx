@@ -12,7 +12,7 @@
 #include "GBXCoreExceptions.h"
 #include "ROM.h"
 
-namespace gbx
+namespace gbxcore
 {
     
 class RAM : public ROM

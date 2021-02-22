@@ -1,6 +1,6 @@
 #pragma once
 
-namespace gbx
+namespace gbxcore
 {
 
 enum class AddressingMode

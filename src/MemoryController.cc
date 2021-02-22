@@ -1,9 +1,9 @@
 #include "MemoryController.h"
 
 using namespace std;
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 
-namespace gbx
+namespace gbxcore
 {
 
 std::variant<uint8_t, uint16_t> MemoryController::Read(uint16_t address, MemoryAccessType accessType)

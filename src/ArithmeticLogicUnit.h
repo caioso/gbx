@@ -12,7 +12,7 @@
 #include "interfaces/MemoryControllerInterface.h"
 #include "interfaces/RegisterBankInterface.h"
 
-namespace gbx
+namespace gbxcore
 {
 
 class ArithmeticLogicUnit : public interfaces::ArithmeticLogicUnitInterface
@@ -61,11 +61,11 @@ protected:
     inline void ResolveExecutionSignals();
     inline void ClearExecutionSignals();
 
+    AddressingModeFormat* _currentAddressingMode;
     interfaces::DecodedInstruction _instructionData;
+    instructions::OpcodeDecoder _decoder;
     std::shared_ptr<interfaces::BaseInstructionInterface> _currentInstruction;
     std::shared_ptr<interfaces::RegisterBankInterface> _registers;
-    OpcodeDecoder _decoder;
-    AddressingModeFormat* _currentAddressingMode;
     bool _executionAborted{};
     bool _clearInterruptStatusSignal{};
     bool _haltSignal{};

@@ -1,4 +1,4 @@
 #include "OpcodePatternMatcher.h"
 
-namespace gbx
+namespace gbxcore::instructions
 {}

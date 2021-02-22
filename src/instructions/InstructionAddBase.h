@@ -8,7 +8,7 @@
 #include "../interfaces/RegisterBankInterface.h"
 #include "../interfaces/InstructionInterface.h"
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 enum FlagMode

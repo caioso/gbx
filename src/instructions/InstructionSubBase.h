@@ -3,12 +3,10 @@
 #include <memory>
 #include <optional>
 
-#include <iostream>
-
 #include "../interfaces/RegisterBankInterface.h"
 #include "../interfaces/InstructionInterface.h"
 
-namespace gbx
+namespace gbxcore::instructions
 {
 
 class InstructionSubBase

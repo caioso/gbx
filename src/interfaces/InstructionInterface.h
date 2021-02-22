@@ -7,7 +7,7 @@
 #include "ArithmeticLogicUnitInterface.h"
 #include "RegisterBankInterface.h"
 
-namespace gbx::interfaces
+namespace gbxcore::interfaces
 {
 
 class BaseInstructionInterface

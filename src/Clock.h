@@ -11,7 +11,7 @@
 #include "GBXCoreExceptions.h"
 #include "interfaces/ClockInterface.h"
 
-namespace gbx
+namespace gbxcore
 {
 
 class Clock : public interfaces::ClockInterface

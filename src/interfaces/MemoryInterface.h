@@ -5,7 +5,7 @@
 #include <optional>
 #include <variant>
 
-namespace gbx::interfaces
+namespace gbxcore::interfaces
 {
 
 enum class MemoryAccessType

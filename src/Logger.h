@@ -4,7 +4,7 @@
 
 using namespace std;
 
-namespace gbx
+namespace gbxcore
 {
 class Log 
 {

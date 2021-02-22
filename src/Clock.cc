@@ -5,7 +5,7 @@ using namespace std::this_thread;
 using namespace std::chrono_literals;
 using std::chrono::system_clock;
 
-namespace gbx
+namespace gbxcore
 {
 
 Clock::Clock(uint64_t clockPeriod)

@@ -1,9 +1,9 @@
 #include "GameBoyX.h"
 
-using namespace gbx::constants;
+using namespace gbxcore::constants;
 using namespace std;
 
-namespace gbx
+namespace gbxcore
 {
 
 GameBoyX::GameBoyX()

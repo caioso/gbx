@@ -1,9 +1,9 @@
 #include "ROM.h"
 
 using namespace std;
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 
-namespace gbx
+namespace gbxcore
 {
 
 ROM::ROM(std::size_t sizeInBytes)

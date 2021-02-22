@@ -1,9 +1,9 @@
 #include "Z80X.h"
 
 using namespace std;
-using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 
-namespace gbx
+namespace gbxcore
 {
 
 void Z80X::Initialize(shared_ptr<ControlUnitInterface> controlUnit, 
