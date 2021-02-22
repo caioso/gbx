@@ -329,6 +329,18 @@ Complementary symbol to `.IFDEF`. The code contained within this block will only
 ### `.END`
 Block-ending keyword used with `.IFDEF` and `.ELSE`.
 
+#### `.IFNDEF`
+Conditional assemly block. The opposite of `.IFDEF`.
+
+
+##### Example
+``` language assembly
+    .IFNDEF PRE_PROCESSOR_SYMBOL
+        ... ; The content of this block *will* be removed if PRE_PROCESSOR_SYMBOL is 
+            ; found defined in any source file or is provided as command-line argument.
+    .END
+```
+
 #### .DEF
 Pre-processor symbol definition directive. `.DEF` only accepts an identifier to fully-define a pre-processing symbol. Identifiers are not required to be unique. Using `.DEF` with an already defined pre-compilation symbol has no effect.
 
