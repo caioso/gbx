@@ -1,6 +1,8 @@
 #include "RegisterDataRequest.h"
 
 using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
+
 namespace gbx::requests
 {
 

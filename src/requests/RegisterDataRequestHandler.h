@@ -17,7 +17,7 @@ public:
     RegisterDataRequestHandler() = default;
     virtual ~RegisterDataRequestHandler() = default;
 
-    [[nodiscard]] virtual std::shared_ptr<interfaces::DebugResponse> Process(std::shared_ptr<interfaces::DebugRequest>, std::shared_ptr<interfaces::Runtime>) override;
+    [[nodiscard]] virtual std::shared_ptr<interfaces::DebugResponse> Process(std::shared_ptr<interfaces::DebugRequest>, std::shared_ptr<gbxcore::interfaces::Runtime>) override;
 };
 
 }

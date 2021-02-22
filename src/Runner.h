@@ -15,7 +15,7 @@ namespace gbx
 class Runner : public interfaces::DebugRequestConsumer
 {
 public:
-    Runner(std::shared_ptr<interfaces::Runtime>, std::shared_ptr<interfaces::DebugRequestProducer>);
+    Runner(std::shared_ptr<gbxcore::interfaces::Runtime>, std::shared_ptr<interfaces::DebugRequestProducer>);
     virtual ~Runner() = default;
 
     void Run(size_t, CancellationToken&);
@@ -24,7 +24,7 @@ public:
     void RunWithDebugSupport(size_t, CancellationToken&);
     void RunWithDebugSupport(CancellationToken&);
 
-    [[nodiscard]] uint8_t ReadRegister(interfaces::Register);
+    [[nodiscard]] uint8_t ReadRegister(gbxcore::interfaces::Register);
     
     virtual void ConsumeRequest(std::shared_ptr<interfaces::DebugRequest>) override;
 
@@ -33,7 +33,7 @@ private:
     inline void RunWithDebugger();
 
 private:
-    std::shared_ptr<interfaces::Runtime> _runtime;
+    std::shared_ptr<gbxcore::interfaces::Runtime> _runtime;
     std::queue<std::shared_ptr<interfaces::DebugRequest>> _requestQueue;
 };
 

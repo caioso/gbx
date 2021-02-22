@@ -1,5 +1,6 @@
 #include "RegisterDataResponse.h"
 
+using namespace gbxcore::interfaces;
 using namespace gbx::interfaces;
 using namespace std;
 

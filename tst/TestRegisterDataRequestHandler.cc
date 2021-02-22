@@ -15,6 +15,9 @@ using namespace std;
 using namespace gbx;
 using namespace gbx::interfaces;
 using namespace gbx::requests;
+using namespace gbxcore;
+using namespace gbxcore::interfaces;
+
 using namespace ::testing;
 
 class DummyRequest : public DebugRequest
@@ -31,7 +34,7 @@ class RequestProducerMock : public DebugRequestProducer
 {
 public:
     virtual ~RequestProducerMock() = default;
-    MOCK_METHOD(void, ConsumeResponse, (std::shared_ptr<interfaces::DebugResponse>));
+    MOCK_METHOD(void, ConsumeResponse, (std::shared_ptr<gbx::interfaces::DebugResponse>));
 };
 
 class RuntimeMock : public Runtime

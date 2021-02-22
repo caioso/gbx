@@ -6,8 +6,8 @@
 #include "GameBoyX.h"
 
 using namespace std;
-using namespace gbx::interfaces;
-using namespace gbx;
+using namespace gbxcore::interfaces;
+using namespace gbxcore;
 
 // Test Only
 class GbxDecorator : public GameBoyX

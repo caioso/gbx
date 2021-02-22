@@ -11,14 +11,14 @@ namespace gbx::requests
 class RegisterDataResponse : public interfaces::DebugResponse
 {
 public:
-    RegisterDataResponse(interfaces::Register, std::variant<uint8_t, uint16_t>);
+    RegisterDataResponse(gbxcore::interfaces::Register, std::variant<uint8_t, uint16_t>);
     virtual ~RegisterDataResponse() = default;
 
-    interfaces::Register Register();
+    gbxcore::interfaces::Register Register();
     std::variant<uint8_t, uint16_t> Value();
 
 private:
-    interfaces::Register _register;
+    gbxcore::interfaces::Register _register;
     std::variant<uint8_t, uint16_t> _value;
 };
 

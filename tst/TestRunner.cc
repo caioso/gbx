@@ -19,6 +19,8 @@ using namespace std;
 using namespace std::chrono_literals;
 using namespace gbx;
 using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
+
 using ::testing::Return;
 using ::testing::_;
 

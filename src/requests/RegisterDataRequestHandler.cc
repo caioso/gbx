@@ -2,6 +2,7 @@
 
 using namespace gbx;
 using namespace gbx::interfaces;
+using namespace gbxcore::interfaces;
 using namespace std;
 
 namespace gbx::requests

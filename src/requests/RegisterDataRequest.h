@@ -14,14 +14,14 @@ enum class RegisterDataOperation
 class RegisterDataRequest : public interfaces::DebugRequest
 {
 public:
-    RegisterDataRequest(interfaces::Register, RegisterDataOperation);
+    RegisterDataRequest(gbxcore::interfaces::Register, RegisterDataOperation);
     virtual ~RegisterDataRequest() = default;
 
-    interfaces::Register Register();
+    gbxcore::interfaces::Register Register();
     RegisterDataOperation Operation();
 
 private:
-    interfaces::Register _register;
+    gbxcore::interfaces::Register _register;
     RegisterDataOperation _operation;
 };
 
