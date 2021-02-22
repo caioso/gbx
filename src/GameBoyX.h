@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <variant>
 
 #include "interfaces/Runtime.h"
 #include "constants/SystemConstants.h"
@@ -23,9 +24,12 @@ public:
     GameBoyX();
     virtual ~GameBoyX() = default;
     virtual void Run() override;
-    virtual uint8_t ReadRegister(interfaces::Register) override;
+    virtual std::variant<uint8_t, uint16_t> ReadRegister(interfaces::Register) override;
+    virtual void WriteRegister(interfaces::Register, std::variant<uint8_t, uint16_t>) override;
     
 protected:
+    bool IsPair(interfaces::Register);
+
     std::shared_ptr<Z80X> _cpu;
     std::shared_ptr<ControlUnit> _controlUnit;
     std::shared_ptr<MemoryController> _memoryController;

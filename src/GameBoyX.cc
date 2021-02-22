@@ -1,6 +1,7 @@
 #include "GameBoyX.h"
 
 using namespace gbxcore::constants;
+using namespace gbxcore::interfaces;
 using namespace std;
 
 namespace gbxcore
@@ -46,9 +47,25 @@ void GameBoyX::Run()
     _cpu->Run();
 }
 
-uint8_t GameBoyX::ReadRegister(interfaces::Register reg)
+variant<uint8_t, uint16_t> GameBoyX::ReadRegister(interfaces::Register reg)
 {
-    return _registers->Read(reg);
+    if (IsPair(reg))
+        return _registers->ReadPair(reg);
+    else
+        return _registers->Read(reg);
+}
+
+void GameBoyX::WriteRegister(interfaces::Register reg, variant<uint8_t, uint16_t> value)
+{
+    if (IsPair(reg))
+        return _registers->WritePair(reg, get<uint16_t>(value));
+    else
+        return _registers->Write(reg, get<uint8_t>(value));
+}
+
+bool GameBoyX::IsPair(interfaces::Register reg)
+{
+    return reg == Register::HL || reg == Register::BC || reg == Register::DE || reg == Register::AF;
 }
 
 }
