@@ -12,7 +12,8 @@ string ApplicationHelp::Help()
     ss << "options:\n";
     ss << " -d/--debug\t\tEnable debug mode\n";
     ss << " -i/--ip <IPAddress>\tDebug Server IP Address\n";
-    ss << " -p/--potr <Port>\tDebug Server Port Number\n";
+    ss << " -p/--port <Port>\tDebug Server Port Number\n";
+    ss << " -v/--verbose\t\tVerbose mode\n";
     ss << " -h/--help\t\tShow this message\n";
 
     return ss.str();

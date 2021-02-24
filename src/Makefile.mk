@@ -16,7 +16,7 @@ INCLUDE_REQUESTS := -I../../../../gbxcore/src/
 TARGET := gbx
 
 $(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
-	$(CC) $(CPPFLAGS) $(INCLUDE) ../../gbxcore/libgbxcore.a gbx.cc -o $@
+	$(CC) $(CPPFLAGS) $(INCLUDE) ../../gbxcore/libgbxcore.a -o $@ $(OBJ_FILES)  $(LDFLAGS)
 
 $(OBJ_DIR)/%.o: %.cc %.h
 	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<

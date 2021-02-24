@@ -21,6 +21,33 @@ TEST(CommandLineArgumentsParser, Construction)
     auto parser = make_shared<ArgumentsParser>();
 }
 
+
+TEST(CommandLineArgumentsParser, EnableVerboseMode)
+{
+    char* verboseFlag = strdup("-v");
+    char* arguments[] = {verboseFlag};
+    int count = 1;
+    auto parser = make_shared<ArgumentsParser>();
+    
+    parser->Parse(reinterpret_cast<char**>(arguments), count);
+    auto applicationConfiguration = parser->Configuration();
+
+    EXPECT_TRUE(applicationConfiguration.Verbose);
+}
+
+TEST(CommandLineArgumentsParser, EnableVerboseModeExtended)
+{
+    char* verboseFlag = strdup("--verbose");
+    char* arguments[] = {verboseFlag};
+    int count = 1;
+    auto parser = make_shared<ArgumentsParser>();
+    
+    parser->Parse(reinterpret_cast<char**>(arguments), count);
+    auto applicationConfiguration = parser->Configuration();
+
+    EXPECT_TRUE(applicationConfiguration.Verbose);
+}
+
 TEST(CommandLineArgumentsParser, SetUpDebugModeWithIPAndPort)
 {
     char* debugFlag = strdup("-d");
@@ -150,7 +177,8 @@ TEST(CommandLineArgumentsParser, helpOption)
                    "options:\n"
                    " -d/--debug\t\tEnable debug mode\n"
                    " -i/--ip <IPAddress>\tDebug Server IP Address\n"
-                   " -p/--potr <Port>\tDebug Server Port Number\n"
+                   " -p/--port <Port>\tDebug Server Port Number\n"
+                   " -v/--verbose\t\tVerbose mode\n"
                    " -h/--help\t\tShow this message\n";
 
     char* helpFlag = strdup("-h");

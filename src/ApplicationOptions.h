@@ -14,6 +14,8 @@ const std::string OptionPortFlag = "-p";
 const std::string OptionPortFlagExtended = "--port";
 const std::string OptionHelpFlag = "-h";
 const std::string OptionHelpFlagExtended = "--help";
+const std::string OptionVerboseFlag = "-v";
+const std::string OptionVerboseFlagExtended = "--verbose";
 
 struct ApplicationHelp
 {

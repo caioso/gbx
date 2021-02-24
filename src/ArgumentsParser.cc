@@ -15,6 +15,8 @@ void ArgumentsParser::Parse(char** arguments, int count)
 
         if (option.compare(OptionHelpFlag) == 0 || option.compare(OptionHelpFlagExtended) == 0)
             throw GBXException(ApplicationHelp::Help());
+        if (option.compare(OptionVerboseFlag) == 0 || option.compare(OptionVerboseFlagExtended) == 0)
+            _configuration.Verbose = true;
         if (option.compare(OptionDebugFlag) == 0 || option.compare(OptionDebugFlagExtended) == 0)
             _configuration.IsDebug = true;
         else if ((option.compare(OptionIPAddressFlag) == 0 && i < count - 1) ||
@@ -48,10 +50,10 @@ void ArgumentsParser::EvaluateConfiguration()
         ss << "Invalid Port '" << _configuration.Port << "'";
         throw GBXException(ss.str());
     }
-    if (_configuration.IsDebug && _configuration.Port.compare("") == 0)
-        throw GBXException("-p/--port option required");
     if (_configuration.IsDebug && _configuration.IPAddress.compare("") == 0)
         throw GBXException("-i/--ip option required");
+    if (_configuration.IsDebug && _configuration.Port.compare("") == 0)
+        throw GBXException("-p/--port option required");
 }
 
 ApplicationConfiguration ArgumentsParser::Configuration()
