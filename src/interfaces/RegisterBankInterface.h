@@ -56,6 +56,7 @@ enum class Register
 class RegisterBankInterface 
 {
 public:
+    virtual ~RegisterBankInterface() = default;
     virtual std::uint8_t Read(Register) = 0;
     virtual std::uint16_t ReadPair(Register) = 0;
 
