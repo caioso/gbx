@@ -9,7 +9,7 @@ class Construction
 {
 public:
     Construction(size_t line, size_t column);
-    ~Construction() = default;
+    virtual ~Construction() = default;
 
     size_t Column();
     size_t Line();

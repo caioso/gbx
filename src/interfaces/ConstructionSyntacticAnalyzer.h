@@ -12,6 +12,7 @@ namespace gbxasm::interfaces
 class ConstructionSyntacticAnalyzer
 {
 public:
+    virtual ~ConstructionSyntacticAnalyzer() = default;
     virtual frontend::AcceptedConstruction TryToAccept(std::vector<frontend::Token>::iterator&, std::vector<frontend::Token>::iterator&) = 0;
 
     bool IsAccepted();
