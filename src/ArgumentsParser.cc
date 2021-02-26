@@ -2,63 +2,127 @@
 
 using namespace std;
 
-namespace gbx
+namespace gbxcommons
 {
 
 void ArgumentsParser::Parse(char** arguments, int count)
 {
-    _configuration = {};
+    _parsedOptions.resize(0);
 
     for (auto i = 0; i < count; ++i)
     {
-        auto option = string(arguments[i]);
+        auto match = find_if(begin(_registeredOptions), end(_registeredOptions), 
+        [&](const CommandLineOption& c)
+        {
+            if (c.ShortVersion.compare(arguments[i]) == 0 || c.LongVersion.compare(arguments[i]) == 0)
+                return true;
+            return false;
+        });
 
-        if (option.compare(OptionHelpFlag) == 0 || option.compare(OptionHelpFlagExtended) == 0)
-            throw ArgumentsParserException(ApplicationHelp::Help());
-        if (option.compare(OptionVerboseFlag) == 0 || option.compare(OptionVerboseFlagExtended) == 0)
-            _configuration.Verbose = true;
-        if (option.compare(OptionDebugFlag) == 0 || option.compare(OptionDebugFlagExtended) == 0)
-            _configuration.IsDebug = true;
-        else if ((option.compare(OptionIPAddressFlag) == 0 && i < count - 1) ||
-                 (option.compare(OptionIPAddressFlagExtended) == 0 && i < count - 1))
-            _configuration.IPAddress = string(arguments[++i]);
-        else if ((option.compare(OptionPortFlag) == 0 && i < count - 1) ||
-                 (option.compare(OptionPortFlagExtended) == 0 && i < count - 1))
-            _configuration.Port = string(arguments[++i]);
+        if (match != end(_registeredOptions))
+        {
+            // Evaluate option
+            ParsedOption option = 
+            {
+                .ShortVersion = (*match).ShortVersion,
+                .LongVersion = (*match).LongVersion,
+                .Value = nullopt,
+            };
+
+            if ((*match).Type == OptionType::Pair)
+            {
+                if (i == count -1)
+                {
+                    stringstream ss;
+                    ss << "Option " << (*match).ShortVersion << '/' << (*match).LongVersion << " requires a value";
+                    throw ArgumentsParserException(ss.str());
+                }
+                
+                auto value = arguments[++i];
+                option.Value = make_optional<string>(string(value));
+            }
+
+            _parsedOptions.push_back(option);
+        }
     }
 
-    EvaluateConfiguration();
+    CheckForMandatoryOptions();
 }
 
-void ArgumentsParser::EvaluateConfiguration()
+void ArgumentsParser::CheckForMandatoryOptions()
 {
-    if (!_configuration.IsDebug && (_configuration.IPAddress.compare("") != 0 || _configuration.Port.compare("") != 0))
-        throw ArgumentsParserException("-d/--debug option expected");
-    if (_configuration.IPAddress.compare(OptionDebugFlag) == 0  || _configuration.IPAddress.compare(OptionDebugFlagExtended) == 0 ||
-        _configuration.IPAddress.compare(OptionIPAddressFlag) == 0  || _configuration.IPAddress.compare(OptionIPAddressFlagExtended) == 0 ||
-        _configuration.IPAddress.compare(OptionPortFlag) == 0  || _configuration.IPAddress.compare(OptionPortFlagExtended) == 0)
+    for (auto requiredOption : _registeredOptions)
     {
-        stringstream ss;
-        ss << "Invalid IP Address '" << _configuration.IPAddress << "'";
-        throw ArgumentsParserException(ss.str());
+        if (requiredOption.Requirement == OptionRequirement::Required)
+        {
+            auto match = find_if(begin(_parsedOptions), end(_parsedOptions), 
+            [&](const ParsedOption& c)
+            {
+                if (c.ShortVersion.compare(requiredOption.ShortVersion) == 0 || c.LongVersion.compare(requiredOption.LongVersion) == 0)
+                    return true;
+                return false;
+            });     
+
+            if (match == end(_parsedOptions))
+            {
+                stringstream ss;
+                ss << "Option " << requiredOption.ShortVersion << '/' << requiredOption.LongVersion << " is required";
+                throw ArgumentsParserException(ss.str());
+            }
+        }
     }
-    if (_configuration.Port.compare(OptionDebugFlag) == 0  || _configuration.Port.compare(OptionDebugFlagExtended) == 0 ||
-        _configuration.Port.compare(OptionIPAddressFlag) == 0  || _configuration.Port.compare(OptionIPAddressFlagExtended) == 0 ||
-        _configuration.Port.compare(OptionPortFlag) == 0  || _configuration.Port.compare(OptionPortFlagExtended) == 0)
-    {
-        stringstream ss;
-        ss << "Invalid Port '" << _configuration.Port << "'";
-        throw ArgumentsParserException(ss.str());
-    }
-    if (_configuration.IsDebug && _configuration.IPAddress.compare("") == 0)
-        throw ArgumentsParserException("-i/--ip option required");
-    if (_configuration.IsDebug && _configuration.Port.compare("") == 0)
-        throw ArgumentsParserException("-p/--port option required");
 }
 
-ApplicationConfiguration ArgumentsParser::Configuration()
+void ArgumentsParser::RegisterOption(string shortVerison, 
+                                     string longVersion, 
+                                     string description, 
+                                     OptionType type, 
+                                     OptionRequirement requirement)
 {
-    return _configuration;
+
+    CommandLineOption value = 
+    {
+        .ShortVersion = shortVerison,
+        .LongVersion = longVersion,
+        .Description = description,
+        .Type = type,
+        .Requirement = requirement
+    };
+
+    _registeredOptions.push_back(value);
+}
+
+bool ArgumentsParser::HasBeenFound(string option)
+{
+    auto match = find_if(begin(_parsedOptions), end(_parsedOptions), 
+    [&](const ParsedOption& c)
+    {
+        if (c.ShortVersion.compare(option) == 0 || c.LongVersion.compare(option) == 0)
+            return true;
+        return false;
+    });
+
+    return match != end(_parsedOptions);
+}
+
+ParsedOption ArgumentsParser::RetrieveOption(string option)
+{
+    auto match = find_if(begin(_parsedOptions), end(_parsedOptions), 
+    [&](const ParsedOption& c)
+    {
+        if (c.ShortVersion.compare(option) == 0 || c.LongVersion.compare(option) == 0)
+            return true;
+        return false;
+    });
+
+    if (match == end(_parsedOptions))
+    {
+        stringstream ss;
+        ss << "Option " << option << " has not been parsed";
+        throw ArgumentsParserException(ss.str());
+    }
+
+    return *match;
 }
 
 }

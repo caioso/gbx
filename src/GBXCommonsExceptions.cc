@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace gbx
+namespace gbxcommons
 {
 
 GBXCommonsException::GBXCommonsException(const std::string& message)
