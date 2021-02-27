@@ -12,15 +12,7 @@
 
 namespace gbxcommons
 {
-
-struct ApplicationConfiguration
-{
-    bool Verbose;
-    bool IsDebug;
-    std::string IPAddress;
-    std::string Port;
-};
-
+    
 enum class OptionType
 {
     Flag,
