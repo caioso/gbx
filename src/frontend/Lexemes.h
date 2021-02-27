@@ -136,6 +136,7 @@ public:
     inline const static std::string PreProcessorEND = ".END";
     inline const static std::string PreProcessorELSE = ".ELSE";
     inline const static std::string PreProcessorDEF = ".DEF";
+    inline const static std::string PreProcessorUNDEF = ".UNDEF";
     
     inline const static std::string PreProcessorSingleLineCommentMarker = ";";
     inline const static std::string PreProcessorMultipleLineCommentMarkerStarter = ";:";

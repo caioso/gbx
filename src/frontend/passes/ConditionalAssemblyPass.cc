@@ -146,6 +146,8 @@ inline void ConditionalAssemblyPass::ProcessDirective(string_view lexeme, string
         EvaluateElse(stream, blocksStack, globalCounter);
     else if (upperCaseLexeme.compare(Lexemes::PreProcessorDEF.c_str()) == 0)
         EvaluateDef(stream, globalCounter);
+    else if (upperCaseLexeme.compare(Lexemes::PreProcessorUNDEF.c_str()) == 0)
+        EvaluateUndef(stream, globalCounter);
 }
 
 inline void ConditionalAssemblyPass::EvaluateIfDirectives(string lexeme, stringstream& stream, stack<ConditionalAssemblyBlock>& blocksStack, size_t globalCounter)
@@ -227,8 +229,30 @@ inline void ConditionalAssemblyPass::EvaluateDef(stringstream& stream, size_t gl
     auto identifier = string("");
     stream >> identifier;                
 
+    EvaluateIdentifier(identifier, Lexemes::PreProcessorDEF);
+    RemoveSingleLineDirective(initialPosition, static_cast<size_t>(stream.tellg()), globalCounter);
+    AddIdentifierToSymbolTable(identifier);
+}
+
+inline void ConditionalAssemblyPass::EvaluateUndef(stringstream& stream, size_t globalCounter)
+{
+    auto initialPosition = static_cast<size_t>(stream.tellg()) - Lexemes::PreProcessorUNDEF.size();
+    auto identifier = string("");
+    stream >> identifier;                
+
+    EvaluateIdentifier(identifier, Lexemes::PreProcessorUNDEF);
+    RemoveSingleLineDirective(initialPosition, static_cast<size_t>(stream.tellg()), globalCounter);
+    RemoveIdentifierFromSymbolTable(identifier);
+}
+
+inline void ConditionalAssemblyPass::EvaluateIdentifier(string identifier, string targetDirective)
+{
     if (identifier.size() == 0)
-        throw PreProcessorException("Malformed '.DEF' directive (identifier expected)");
+     {
+        stringstream ss;
+        ss << "Malformed '" << targetDirective << "' directive (identifier expected)";
+        throw PreProcessorException(ss.str());
+     }
 
     if (!IdentifierValidator::IsValid(identifier))
     {
@@ -236,16 +260,41 @@ inline void ConditionalAssemblyPass::EvaluateDef(stringstream& stream, size_t gl
         ss << "Invalid Pre-Assembly symbol identifier '" << identifier << "'";
         throw PreProcessorException(ss.str());
     }
+}
 
-    // Remove DEF Directive from the code
-    auto begin = globalCounter + static_cast<size_t>(initialPosition);
-    auto end = globalCounter + static_cast<size_t>(stream.tellg());
+inline void ConditionalAssemblyPass::RemoveSingleLineDirective(size_t start, size_t finish, size_t globalCounter)
+{
+    size_t beginPos = globalCounter + start;
+    size_t endPos = globalCounter + finish;
     
-    for (auto i = begin; i < end; ++i)
+    for (auto i = beginPos; i < endPos; ++i)
         if (_workString[i] != '\n')
             _workString[i] = ' ';
 
-    _symbolTable.push_back(identifier);
+}
+
+inline void ConditionalAssemblyPass::AddIdentifierToSymbolTable(string identifier)
+{
+    auto match = find_if(_symbolTable.begin(), _symbolTable.end(), 
+    [&](string s) -> auto
+    {
+        return s.compare(identifier) == 0;
+    });
+
+    if (match == _symbolTable.end())
+        _symbolTable.push_back(identifier);
+}
+
+inline void ConditionalAssemblyPass::RemoveIdentifierFromSymbolTable(string identifier)
+{
+    auto match = find_if(_symbolTable.begin(), _symbolTable.end(), 
+    [&](string s) -> auto
+    {
+        return s.compare(identifier) == 0;
+    });
+
+    if (match != _symbolTable.end())
+        _symbolTable.erase(match);
 }
 
 }

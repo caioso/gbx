@@ -65,9 +65,14 @@ protected:
     inline void EvaluateEnd(std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
     inline void EvaluateElse(std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
     inline void EvaluateDef(std::stringstream&, size_t);
+    inline void EvaluateUndef(std::stringstream&, size_t);
     inline void RemoveBlock(BlockToKeepInCode, ConditionalAssemblyBlock);
 
     inline BlockToKeepInCode DetectBlockToKeep(ConditionalAssemblyBlock);
+    inline void EvaluateIdentifier(std::string, std::string);
+    inline void RemoveSingleLineDirective(size_t, size_t, size_t);
+    inline void RemoveIdentifierFromSymbolTable(std::string);
+    inline void AddIdentifierToSymbolTable(std::string);
 
     std::vector<ConditionalAssemblyBlock> _conditionalAssemblyBlocks;
     std::vector<std::string>& _symbolTable;
