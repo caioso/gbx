@@ -18,7 +18,7 @@ using ::testing::_;
 
 TEST(CommandLineArgumentsParser, Construction)
 {
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
 }
 
 TEST(CommandLineArgumentsParser, OptionalFlagArgumentParsing)
@@ -27,7 +27,7 @@ TEST(CommandLineArgumentsParser, OptionalFlagArgumentParsing)
     char* verboseFlag = strdup("-v");
 
     // Setup object
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
     parser->RegisterOption("-v", "--verbose", "Enable verbose", OptionType::Flag, OptionRequirement::Optional);
 
     // Parse
@@ -51,7 +51,7 @@ TEST(CommandLineArgumentsParser, RequiredFlagArgumentParsing)
     char* verboseFlag = strdup("-v");
 
     // Setup object
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
     parser->RegisterOption("-v", "--verbose", "Enable verbose", OptionType::Flag, OptionRequirement::Required);
 
     // Parse
@@ -72,7 +72,7 @@ TEST(CommandLineArgumentsParser, RequiredFlagArgumentParsing)
 TEST(CommandLineArgumentsParser, DoNotProvideRequiredFlagArgumentParsing)
 {
     // Setup object
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
     parser->RegisterOption("-v", "--verbose", "Enable verbose", OptionType::Flag, OptionRequirement::Required);
 
     // Parse
@@ -91,7 +91,7 @@ TEST(CommandLineArgumentsParser, OptionalPairArgumentParsing)
     char* ipValue = strdup("192.168.1.1");
 
     // Setup object
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
     parser->RegisterOption("-i", "--ip", "Server IP address", OptionType::Pair, OptionRequirement::Optional);
 
     // Parse
@@ -114,7 +114,7 @@ TEST(CommandLineArgumentsParser, ParseUnknownFlagArgument)
     char* verboseFlag = strdup("-v");
 
     // Setup object
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
     parser->RegisterOption("-v", "--verbose", "Enable verbose", OptionType::Flag, OptionRequirement::Optional);
 
     // Parse
@@ -135,7 +135,7 @@ TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument)
     char* verboseFlag = strdup("-v");
 
     // Setup object
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
     parser->RegisterOption("-v", "--verbose", "Enable verbose", OptionType::Flag, OptionRequirement::Optional);
 
     // Parse
@@ -157,7 +157,7 @@ TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument2)
     char* unknownFlagValue = strdup("value");
 
     // Setup object
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
     parser->RegisterOption("-v", "--verbose", "Enable verbose", OptionType::Flag, OptionRequirement::Optional);
 
     // Parse
@@ -178,7 +178,7 @@ TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument3)
     char* ipValue = strdup("192.168.1.1");
 
     // Setup object
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
     parser->RegisterOption("-i", "--ip", "Server IP address", OptionType::Pair, OptionRequirement::Optional);
 
     // Parse
@@ -199,7 +199,7 @@ TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument4)
     char* ipValue = strdup("192.168.1.1");
 
     // Setup object
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
     parser->RegisterOption("-i", "--ip", "Server IP address", OptionType::Pair, OptionRequirement::Optional);
 
     // Parse
@@ -219,7 +219,7 @@ TEST(CommandLineArgumentsParser, DoNotProvideRequiredFlagArgument)
     char* flag = strdup("-f");
 
     // Setup object
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
     parser->RegisterOption("-v", "--verbose", "Enable verbose", OptionType::Flag, OptionRequirement::Required);
 
     // Parse
@@ -238,7 +238,7 @@ TEST(CommandLineArgumentsParser, RequiredPairArgumentParsing)
     char* ipValue = strdup("192.168.1.1");
 
     // Setup object
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
     parser->RegisterOption("-i", "--ip", "Server IP address", OptionType::Pair, OptionRequirement::Required);
 
     // Parse
@@ -262,7 +262,7 @@ TEST(CommandLineArgumentsParser, DoNotProvideRequiredPairArgumentParsing)
     char* otherValue = strdup("192.168.1.1");
 
     // Setup object
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
     parser->RegisterOption("-i", "--ip", "Server IP address", OptionType::Pair, OptionRequirement::Required);
 
     // Parse
@@ -281,7 +281,7 @@ TEST(CommandLineArgumentsParser, DoNotProvideValueToPairOption)
     char* ipValue = strdup("192.168.1.1");
 
     // Setup object
-    auto parser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("");
     parser->RegisterOption("-i", "--ip", "Server IP address", OptionType::Pair, OptionRequirement::Optional);
 
     // Parse
@@ -292,18 +292,45 @@ TEST(CommandLineArgumentsParser, DoNotProvideValueToPairOption)
                       "Option -i/--ip requires a value");
 }
 
-/*
+TEST(CommandLineArgumentsParser, DisplayHelpMessage)
+{
+    const string helpMessage = "USAGE: MyTool -i <input> -o <output> [-v/--verbose | -t/--timeout <timeout>]\n"
+                               "----------------------------------------------------------------------------\n"
+                               "OPTIONS:\n"
+                               "-i/--input   <value> Input argument (required)\n"
+                               "-o/--output  <value> Output argument (required)\n"
+                               "-t/--timeout <value> Timeout value (optional)\n"
+                               "-v/--verbose         Verbose mode (optional)\n\n"
+                               "-h/--help            Display available options";
+
+    auto parser = make_shared<ArgumentsParser>("MyTool -i <input> -o <output> [-v/--verbose | -t/--timeout <timeout>]");
+    parser->RegisterOption("-i", "--input", "Input argument", OptionType::Pair, OptionRequirement::Required);
+    parser->RegisterOption("-o", "--output", "Output argument", OptionType::Pair, OptionRequirement::Required);
+    parser->RegisterOption("-t", "--timeout", "Timeout value", OptionType::Pair, OptionRequirement::Optional);
+    parser->RegisterOption("-v", "--verbose", "Verbose mode", OptionType::Flag, OptionRequirement::Optional);
+
+    // Setup object
+    auto help = parser->Help();
+    ASSERT_STREQ(helpMessage.c_str(), help.c_str());
+}
+
+
 TEST(CommandLineArgumentsParser, EnableVerboseMode)
 {
     char* verboseFlag = strdup("-v");
     char* arguments[] = {verboseFlag};
     int count = 1;
-    auto parser = make_shared<ArgumentsParser>();
+
+    auto parser = make_shared<ArgumentsParser>("Test Description");
+    parser->RegisterOption("-d", "--debug", "Enable Debug Mode", OptionType::Flag, OptionRequirement::Optional);
+    parser->RegisterOption("-i", "--ip", "IP Address", OptionType::Pair, OptionRequirement::Optional);
+    parser->RegisterOption("-p", "--port", "Port Number", OptionType::Pair, OptionRequirement::Optional);
+    parser->RegisterOption("-v", "--verbose", "Verbose mode", OptionType::Flag, OptionRequirement::Optional);
     
     parser->Parse(reinterpret_cast<char**>(arguments), count);
-    auto applicationConfiguration = parser->Configuration();
+    auto veboseFound = parser->HasBeenFound("--verbose");
 
-    EXPECT_TRUE(applicationConfiguration.Verbose);
+    EXPECT_TRUE(veboseFound);
 }
 
 TEST(CommandLineArgumentsParser, EnableVerboseModeExtended)
@@ -311,12 +338,17 @@ TEST(CommandLineArgumentsParser, EnableVerboseModeExtended)
     char* verboseFlag = strdup("--verbose");
     char* arguments[] = {verboseFlag};
     int count = 1;
-    auto parser = make_shared<ArgumentsParser>();
+    
+    auto parser = make_shared<ArgumentsParser>("Test Description");
+    parser->RegisterOption("-d", "--debug", "Enable Debug Mode", OptionType::Flag, OptionRequirement::Optional);
+    parser->RegisterOption("-i", "--ip", "IP Address", OptionType::Pair, OptionRequirement::Optional);
+    parser->RegisterOption("-p", "--port", "Port Number", OptionType::Pair, OptionRequirement::Optional);
+    parser->RegisterOption("-v", "--verbose", "Verbose mode", OptionType::Flag, OptionRequirement::Optional);
     
     parser->Parse(reinterpret_cast<char**>(arguments), count);
-    auto applicationConfiguration = parser->Configuration();
+    auto veboseFound = parser->HasBeenFound("-v");
 
-    EXPECT_TRUE(applicationConfiguration.Verbose);
+    EXPECT_TRUE(veboseFound);
 }
 
 TEST(CommandLineArgumentsParser, SetUpDebugModeWithIPAndPort)
@@ -328,14 +360,27 @@ TEST(CommandLineArgumentsParser, SetUpDebugModeWithIPAndPort)
     char* portValue = strdup("5555");
     char* arguments[] = {debugFlag, ipFlag, ipValue, portFlag, portValue};
     int count = 5;
-    auto parser = make_shared<ArgumentsParser>();
     
-    parser->Parse(reinterpret_cast<char**>(arguments), count);
-    auto applicationConfiguration = parser->Configuration();
+    auto parser = make_shared<ArgumentsParser>("Test Description");
+    parser->RegisterOption("-d", "--debug", "Enable Debug Mode", OptionType::Flag, OptionRequirement::Optional);
+    parser->RegisterOption("-i", "--ip", "IP Address", OptionType::Pair, OptionRequirement::Optional);
+    parser->RegisterOption("-p", "--port", "Port Number", OptionType::Pair, OptionRequirement::Optional);
+    parser->RegisterOption("-v", "--verbose", "Verbose mode", OptionType::Flag, OptionRequirement::Optional);
 
-    EXPECT_TRUE(applicationConfiguration.IsDebug);
-    EXPECT_STREQ("192.168.0.1", applicationConfiguration.IPAddress.c_str());
-    EXPECT_STREQ("5555", applicationConfiguration.Port.c_str());
+    parser->Parse(reinterpret_cast<char**>(arguments), count);
+
+    auto debugFound = parser->HasBeenFound("-d");
+    EXPECT_TRUE(debugFound);
+
+    auto ipFound = parser->HasBeenFound("-i");
+    EXPECT_TRUE(ipFound);
+    auto ipOption = parser->RetrieveOption("-i");
+    EXPECT_STREQ("192.168.0.1", ipOption.Value.value().c_str());
+    
+    auto portFound = parser->HasBeenFound("-p");
+    EXPECT_TRUE(portFound);
+    auto portOption = parser->RetrieveOption("-p");
+    EXPECT_STREQ("5555", portOption.Value.value().c_str());
 }
 
 TEST(CommandLineArgumentsParser, SetUpDebugModeWithIPAndPortExtended)
@@ -347,118 +392,25 @@ TEST(CommandLineArgumentsParser, SetUpDebugModeWithIPAndPortExtended)
     char* portValue = strdup("9999");
     char* arguments[] = {debugFlag, ipFlag, ipValue, portFlag, portValue};
     int count = 5;
-    auto parser = make_shared<ArgumentsParser>();
     
+    auto parser = make_shared<ArgumentsParser>("Test Description");
+    parser->RegisterOption("-d", "--debug", "Enable Debug Mode", OptionType::Flag, OptionRequirement::Optional);
+    parser->RegisterOption("-i", "--ip", "IP Address", OptionType::Pair, OptionRequirement::Optional);
+    parser->RegisterOption("-p", "--port", "Port Number", OptionType::Pair, OptionRequirement::Optional);
+    parser->RegisterOption("-v", "--verbose", "Verbose mode", OptionType::Flag, OptionRequirement::Optional);
+
     parser->Parse(reinterpret_cast<char**>(arguments), count);
-    auto applicationConfiguration = parser->Configuration();
 
-    EXPECT_TRUE(applicationConfiguration.IsDebug);
-    EXPECT_STREQ("127.0.0.1", applicationConfiguration.IPAddress.c_str());
-    EXPECT_STREQ("9999", applicationConfiguration.Port.c_str());
-}
+    auto debugFound = parser->HasBeenFound("-d");
+    EXPECT_TRUE(debugFound);
 
-TEST(CommandLineArgumentsParser, MalformedCommandLineOptionTest1)
-{
-    char* ipFlag = strdup("--ip");
-    char* ipValue = strdup("127.0.0.1");
-    char* portFlag = strdup("--port");
-    char* portValue = strdup("9999");
-    char* arguments[] = {ipFlag, ipValue, portFlag, portValue};
-    int count = 4;
-    auto parser = make_shared<ArgumentsParser>();
+    auto ipFound = parser->HasBeenFound("-i");
+    EXPECT_TRUE(ipFound);
+    auto ipOption = parser->RetrieveOption("-i");
+    EXPECT_STREQ("127.0.0.1", ipOption.Value.value().c_str());
     
-    ASSERT_EXCEPTION( { parser->Parse(reinterpret_cast<char**>(arguments), count); }, 
-                      ArgumentsParserException, 
-                      "-d/--debug option expected");
+    auto portFound = parser->HasBeenFound("-p");
+    EXPECT_TRUE(portFound);
+    auto portOption = parser->RetrieveOption("-p");
+    EXPECT_STREQ("9999", portOption.Value.value().c_str());
 }
-
-TEST(CommandLineArgumentsParser, MalformedCommandLineOptionTest2)
-{
-    char* debugFlag = strdup("--debug");
-    char* ipFlag = strdup("--ip");
-    char* portFlag = strdup("--port");
-    char* portValue = strdup("9999");
-    char* arguments[] = {debugFlag, ipFlag, portFlag, portValue};
-    int count = 4;
-    auto parser = make_shared<ArgumentsParser>();
-    
-    ASSERT_EXCEPTION( { parser->Parse(reinterpret_cast<char**>(arguments), count); }, 
-                      ArgumentsParserException, 
-                      "Invalid IP Address '--port'");
-}
-
-TEST(CommandLineArgumentsParser, MalformedCommandLineOptionTest3)
-{
-    char* debugFlag = strdup("--debug");
-    char* portFlag = strdup("--port");
-    char* arguments[] = {debugFlag, portFlag, debugFlag};
-    int count = 3;
-    auto parser = make_shared<ArgumentsParser>();
-    
-    ASSERT_EXCEPTION( { parser->Parse(reinterpret_cast<char**>(arguments), count); }, 
-                      ArgumentsParserException, 
-                      "Invalid Port '--debug'");
-}
-
-TEST(CommandLineArgumentsParser, MalformedCommandLineOptionTest4)
-{
-    char* debugFlag = strdup("--debug");
-    char* ipFlag = strdup("--ip");
-    char* ipValue = strdup("127.0.0.1");
-    char* arguments[] = {debugFlag, ipFlag, ipValue};
-    int count = 3;
-    auto parser = make_shared<ArgumentsParser>();
-    
-    ASSERT_EXCEPTION( { parser->Parse(reinterpret_cast<char**>(arguments), count); }, 
-                      ArgumentsParserException, 
-                      "-p/--port option required");
-}
-
-TEST(CommandLineArgumentsParser, MalformedCommandLineOptionTest5)
-{
-    char* debugFlag = strdup("--debug");
-    char* portFlag = strdup("--port");
-    char* portValue = strdup("9999");
-    char* arguments[] = {debugFlag, portFlag, portValue};
-    int count = 3;
-    auto parser = make_shared<ArgumentsParser>();
-    
-    ASSERT_EXCEPTION( { parser->Parse(reinterpret_cast<char**>(arguments), count); }, 
-                      ArgumentsParserException, 
-                      "-i/--ip option required");
-}
-
-TEST(CommandLineArgumentsParser, LaunchInRuntimeMode)
-{
-    char* arguments[] = {};
-    int count = 0;
-    auto parser = make_shared<ArgumentsParser>();
-    
-    parser->Parse(reinterpret_cast<char**>(arguments), count);
-    auto applicationConfiguration = parser->Configuration();
-
-    EXPECT_FALSE(applicationConfiguration.IsDebug);
-    EXPECT_STREQ("", applicationConfiguration.IPAddress.c_str());
-    EXPECT_STREQ("", applicationConfiguration.Port.c_str());
-}
-
-TEST(CommandLineArgumentsParser, helpOption)
-{
-    string message = "Usage: gbx [-d/--debug -i/--ip <IPAddress> -p/--port <Port>]\n"
-                   "options:\n"
-                   " -d/--debug\t\tEnable debug mode\n"
-                   " -i/--ip <IPAddress>\tDebug Server IP Address\n"
-                   " -p/--port <Port>\tDebug Server Port Number\n"
-                   " -v/--verbose\t\tVerbose mode\n"
-                   " -h/--help\t\tShow this message\n";
-
-    char* helpFlag = strdup("-h");
-    char* arguments[] = {helpFlag};
-    int count = 1;
-    auto parser = make_shared<ArgumentsParser>();
-    
-
-    ASSERT_EXCEPTION( { parser->Parse(reinterpret_cast<char**>(arguments), count); }, 
-                      ArgumentsParserException, 
-                      message.c_str());
-}*/

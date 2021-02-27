@@ -52,20 +52,35 @@ struct ParsedOption
 class ArgumentsParser
 {
 public:
-    ArgumentsParser() = default;
+    ArgumentsParser(std::string);
     ~ArgumentsParser() = default;
 
     void Parse(char**, int);
     void RegisterOption(std::string, std::string, std::string, OptionType, OptionRequirement);
     void CheckForMandatoryOptions();
-    
+    std::string Help();
+
     bool HasBeenFound(std::string);
 
     ParsedOption RetrieveOption(std::string);
 
 private:
+    std::vector<CommandLineOption>::iterator FindRegisteredOption(std::string);
+    std::vector<ParsedOption>::iterator FindParsedOption(CommandLineOption);
+
+    std::string GenerateHeader();
+    std::string GenerateSeparator(size_t);
+    std::string GenerateOptionLines(size_t);
+    std::string GenerateOptionPair(CommandLineOption);
+    std::string AddExtraSpaces(size_t);
+    std::string AddValueOrSpaces(CommandLineOption);
+    std::string AddRequiredOrOptional(CommandLineOption);
+    std::string GenerateHelpLine(size_t);
+    size_t FindLongestOptionLength();
+
     std::vector<CommandLineOption> _registeredOptions;
     std::vector<ParsedOption> _parsedOptions;
+    std::string _usage{};
 };
 
 }
