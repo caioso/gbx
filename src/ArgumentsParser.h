@@ -69,6 +69,7 @@ private:
     std::string AddRequiredOrOptional(CommandLineOption);
     std::string GenerateHelpLine(size_t);
     size_t FindLongestOptionLength();
+    bool MatchesHelp(std::string);
 
     std::vector<CommandLineOption> _registeredOptions;
     std::vector<ParsedOption> _parsedOptions;

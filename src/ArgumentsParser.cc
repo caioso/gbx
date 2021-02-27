@@ -41,9 +41,25 @@ void ArgumentsParser::Parse(char** arguments, int count)
 
             _parsedOptions.push_back(option);
         }
+        else if (MatchesHelp(arguments[i]))
+        {
+            ParsedOption option = 
+            {
+                .ShortVersion = "-h",
+                .LongVersion = "--help",
+                .Value = nullopt,
+            };
+
+            _parsedOptions.push_back(option);
+        }
     }
 
     CheckForMandatoryOptions();
+}
+
+bool ArgumentsParser::MatchesHelp(string argument)
+{
+    return argument.compare("-h") == 0 || argument.compare("--help") == 0;
 }
 
 void ArgumentsParser::CheckForMandatoryOptions()

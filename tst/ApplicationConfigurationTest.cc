@@ -171,6 +171,45 @@ TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument2)
                       "Option -z has not been parsed");
 }
 
+TEST(CommandLineArgumentsParser, RetrieveHelp1)
+{
+    // Constants
+    char* helpFlag = strdup("-h");
+
+    // Setup object
+    auto parser = make_shared<ArgumentsParser>("");
+    parser->RegisterOption("-v", "--verbose", "Enable verbose", OptionType::Flag, OptionRequirement::Optional);
+
+    // Parse
+    char* arguments[] = {helpFlag};
+    int count = 1;
+    parser->Parse(reinterpret_cast<char**>(arguments), count);
+
+    // Check result
+    auto helpFound = parser->HasBeenFound("-h");
+    EXPECT_TRUE(helpFound);
+}
+
+TEST(CommandLineArgumentsParser, RetrieveHelp2)
+{
+    // Constants
+    char* helpFlag = strdup("--help");
+
+    // Setup object
+    auto parser = make_shared<ArgumentsParser>("");
+    parser->RegisterOption("-v", "--verbose", "Enable verbose", OptionType::Flag, OptionRequirement::Optional);
+
+    // Parse
+    char* arguments[] = {helpFlag};
+    int count = 1;
+    parser->Parse(reinterpret_cast<char**>(arguments), count);
+
+    // Check result
+    auto helpFound = parser->HasBeenFound("-h");
+    EXPECT_TRUE(helpFound);
+}
+
+
 TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument3)
 {
     // Constants
