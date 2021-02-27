@@ -5,18 +5,29 @@
 #include <sstream>
 #include <iostream>
 
+#include "ArgumentsParser.h"
 #include "ApplicationOptions.h"
 #include "ArgumentsParser.h"
 #include "GameBoyX.h"
 #include "GBXExceptions.h"
+#include "GBXCommonsExceptions.h"
 
 using namespace boost;
 using namespace std;
 using namespace gbx;
 using namespace gbxcore::interfaces;
 using namespace gbxcore;
+using namespace gbxcommons;
 
 // Test Only
+struct ApplicationConfiguration
+{
+    bool Verbose;
+    bool IsDebug;
+    string IPAddress;
+    string Port;
+};
+
 class GbxDecorator : public GameBoyX
 {
 public:
@@ -35,17 +46,43 @@ public:
     std::shared_ptr<Clock> GetClock() { return _clock; }
 };
 
-ApplicationConfiguration configuration;
+ApplicationConfiguration configuration{};
 
 ApplicationConfiguration ParseCommandLine(int argc, char** argv)
 {
-    auto argsParser = make_shared<ArgumentsParser>();
+    auto parser = make_shared<ArgumentsParser>("gbx [-d/--debug -i/--ip <ip> -p/--port <port {-v}]");
+    parser->RegisterOption("-d", "--debug", "Enable Debug Mode", OptionType::Flag, OptionRequirement::Optional);
+    parser->RegisterOption("-i", "--ip", "IP Address", OptionType::Pair, OptionRequirement::Optional);
+    parser->RegisterOption("-p", "--port", "Port Number", OptionType::Pair, OptionRequirement::Optional);
+    parser->RegisterOption("-v", "--verbose", "Verbose mode", OptionType::Flag, OptionRequirement::Optional);
+
     try
     {
-        argsParser->Parse(argv, argc);
-        return argsParser->Configuration();
+        parser->Parse(argv, argc);
+
+        if (parser->HasBeenFound("-h"))
+        {
+            cout << parser->Help() << '\n';
+            exit(0);
+        }
+
+        if (parser->HasBeenFound("-v"))
+            configuration.Verbose = true;
+
+        if (parser->HasBeenFound("-d"))
+        {
+            configuration.IsDebug = true;
+
+            if (parser->HasBeenFound("-i"))
+                configuration.IPAddress = parser->RetrieveOption("-i").Value.value();
+            
+            if (parser->HasBeenFound("-p"))
+                configuration.Port = parser->RetrieveOption("-p").Value.value();
+        }
+
+        return configuration;
     }
-    catch(const GBXException& e)
+    catch(const GBXCommonsException& e)
     {
         cout << e.what() << '\n';
         exit(1);
@@ -60,7 +97,6 @@ void Log(string message)
 
 void InitializeDebugServer()
 {
-   
     auto raw_ip_address = configuration.IPAddress;
     unsigned short port_num = stoi(configuration.Port);
 
