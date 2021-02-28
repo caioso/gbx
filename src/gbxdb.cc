@@ -35,8 +35,15 @@ int main ()
 
             cout << "message to send: " << message << '\n'; 
 
-            boost::system::error_code ignored_error;
-            boost::asio::write(sock, boost::asio::buffer(message), ignored_error);
+            if (message.compare("end") == 0)
+            {
+                sock.close();
+            }
+            else
+            {
+                boost::system::error_code ignored_error;
+                boost::asio::write(sock, boost::asio::buffer(message), ignored_error);
+            }
         }
     }
     catch (system::system_error &e) 
