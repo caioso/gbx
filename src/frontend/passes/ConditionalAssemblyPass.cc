@@ -7,8 +7,9 @@ using namespace std;
 namespace gbxasm::frontend::passes
 {
 
-ConditionalAssemblyPass::ConditionalAssemblyPass(vector<string>& symbolTable)
+ConditionalAssemblyPass::ConditionalAssemblyPass(vector<string>& symbolTable, std::shared_ptr<interfaces::MessageStream> stream)
     : _symbolTable(symbolTable)
+    , _stream(stream)
 {}
 
 void ConditionalAssemblyPass::Process(string input)
@@ -295,6 +296,12 @@ inline void ConditionalAssemblyPass::RemoveIdentifierFromSymbolTable(string iden
 
     if (match != _symbolTable.end())
         _symbolTable.erase(match);
+    else
+    {
+        stringstream ss;
+        ss << "Undefinition of non-defined pre-assembly symbol '" << identifier << "'";
+        _stream->Write(ss.str(), nullopt, nullopt, nullopt);
+    }
 }
 
 }

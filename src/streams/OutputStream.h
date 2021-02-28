@@ -1,0 +1,26 @@
+#pragma once
+
+#include <iostream>
+#include <memory>
+#include <sstream>
+
+#include "../interfaces/MessageStream.h"
+#include "../interfaces/StreamSink.h"
+
+namespace gbxasm::streams
+{
+
+class OutputStream : public interfaces::MessageStream
+{
+public:
+    OutputStream(std::optional<std::string>, std::shared_ptr<interfaces::StreamSink>);
+    virtual ~OutputStream() = default;
+
+    virtual void Write(std::string, std::optional<std::string>, std::optional<size_t>, std::optional<size_t>) override;
+
+private:
+    std::shared_ptr<interfaces::StreamSink> _sink;
+    std::string _prefix;
+};
+
+}

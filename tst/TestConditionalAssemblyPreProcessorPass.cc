@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "../src/frontend/passes/ConditionalAssemblyPass.h"
+#include "../src/interfaces/MessageStream.h"
 #include "../src/interfaces/Pass.h"
 #include "../src/GBXAsmExceptions.h"
 
@@ -18,11 +19,22 @@ using namespace gbxasm::frontend::passes;
 using namespace gbxasm::utilities;
 using namespace std;
 
+using ::testing::Return;
+using ::testing::_;
+
+class StreamMock : public interfaces::MessageStream
+{
+public:
+    virtual ~StreamMock() = default;
+
+    MOCK_METHOD(void, Write, (std::string, (std::optional<std::string>), (std::optional<size_t>), (std::optional<size_t>)));
+};
+
 class ConditionalAssemblyPassWrapper : public ConditionalAssemblyPass
 {
 public:
-    ConditionalAssemblyPassWrapper(vector<string>& symbolTable)
-        : ConditionalAssemblyPass(symbolTable)
+    ConditionalAssemblyPassWrapper(vector<string>& symbolTable, std::shared_ptr<interfaces::MessageStream> stream)
+        : ConditionalAssemblyPass(symbolTable, stream)
     {}
 
     std::vector<ConditionalAssemblyBlock> Blocks()
@@ -34,7 +46,9 @@ public:
 TEST(TestConditionalAssemblyPreProcessorPass, Construction)
 {
     vector<string> symbolTable;
-    auto pass = make_shared<ConditionalAssemblyPass>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 }
 
 TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithoutElse)
@@ -52,7 +66,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithoutElse)
     vector<string> symbolTable;
     symbolTable.push_back("MY_SYMBOL");
 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
 
     EXPECT_EQ(1llu, pass->Blocks().size());
@@ -73,7 +89,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithoutElse2)
     vector<string> symbolTable;
     symbolTable.push_back("MY_SYMBOL");
 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -103,7 +121,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithElse)
     vector<string> symbolTable;
     symbolTable.push_back("THE_SYMBOL");
 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
 
     EXPECT_EQ(1llu, pass->Blocks().size());
@@ -127,7 +147,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithElse2)
     vector<string> symbolTable;
     symbolTable.push_back("MY_OTHER_SYMBOL");
 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -168,7 +190,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, NesteIfDefBlock)
     symbolTable.push_back("THE_SYMBOL");
     symbolTable.push_back("THE_SECOND_SYMBOL");
 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
 
     EXPECT_EQ(2llu, pass->Blocks().size());
@@ -193,7 +217,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefConditionalAssemblyB
                      "\tEI\n";
 
     vector<string> symbolTable;
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -209,7 +235,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedIfDefAndTwoEndKeyword)
                      ".END\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -223,7 +251,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfNDefConditionalAssembly
                      "\tEI\n";
 
     vector<string> symbolTable;
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -239,7 +269,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedIfNDefAndTwoEndKeyword)
                      ".END\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -253,7 +285,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedElseKeyword)
                      "\tEI\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -267,7 +301,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefDirective)
                      "\tEI\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -281,7 +317,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfNDefDirective)
                      "\tEI\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -306,7 +344,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefDirective2)
                      ".END\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -320,7 +360,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, InvalidIfDefIdentifier)
                      "\tEI\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -334,7 +376,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, InvalidIfNDefIdentifier)
                      "\tLD A, 0x00\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -370,7 +414,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestCodeRemovalIfDef)
     vector<string> symbolTable;
     symbolTable.push_back("THE_SYMBOL");
 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -378,7 +424,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestCodeRemovalIfDef)
     
     symbolTable.pop_back();
 
-    auto secondPass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto secondPass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, stream);
     secondPass->Process(program);
     auto secondPassProcessedCode = secondPass->Result();
 
@@ -398,7 +444,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef2)
                      "    \n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -433,7 +481,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef3)
 
     vector<string> symbolTable; 
     symbolTable.push_back("DEFINED");
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -474,7 +524,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef4)
 
     vector<string> symbolTable; 
     symbolTable.push_back("DEFINED");
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -496,7 +548,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfNDefBlockDetectionWithoutElse)
     vector<string> symbolTable;
     symbolTable.push_back("MY_SYMBOL");
 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
 
     EXPECT_EQ(1llu, pass->Blocks().size());
@@ -535,7 +589,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfNDefBlockDetectionWithElse)
     vector<string> symbolTable;
     symbolTable.push_back("THE_SYMBOL");
 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
 
     EXPECT_EQ(1llu, pass->Blocks().size());
@@ -579,7 +635,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestCodeRemovalIfNDef)
     vector<string> symbolTable;
     symbolTable.push_back("THE_OTHER_SYMBOL");
 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -587,7 +645,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestCodeRemovalIfNDef)
     
     symbolTable.push_back("THE_SYMBOL");
 
-    auto secondPass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto secondPass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, stream);
     secondPass->Process(program);
     auto secondPassProcessedCode = secondPass->Result();
 
@@ -607,7 +665,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef2)
                      "    \n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -642,7 +702,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef3)
 
     vector<string> symbolTable; 
     symbolTable.push_back("NO_DEFINED");
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -683,7 +745,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef4)
 
     vector<string> symbolTable; 
     symbolTable.push_back("NO_DEFINED");
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -696,7 +760,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolDefintion)
     string output = "              \n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -722,7 +788,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MultipleSymbolDefintion)
                      "LD A, 0xFF";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -739,7 +807,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedDefDirective)
     string program = ".DEF\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -751,7 +821,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedDefDirective2)
     string program = ".DEF";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -763,7 +835,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedDefDirective3)
     string program = ".DEF              ";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -775,7 +849,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIdentifier1)
     string program = ".DEF .DEF";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -787,7 +863,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIdentifier2)
     string program = ".DEF $$%AGGHJAYYS";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -799,7 +877,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIdentifier3)
     string program = ".DEF 12223";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -811,7 +891,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIdentifier4)
     string program = ".DEF 0xFFFF";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -824,7 +906,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MultipleStatementesInOneLine)
     string output =  "               LD A, 0xFF\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -839,7 +923,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion)
     string output =  "                \n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 
@@ -847,13 +933,15 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion)
     EXPECT_STREQ(output.c_str(), processedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol)
+TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion1)
 {
     string program1 = ".DEF MY_SYMBOL\n";
     string program2 = ".UNDEF MY_SYMBOL\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program1);
 
     EXPECT_EQ(1llu, symbolTable.size());
@@ -863,7 +951,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol
     EXPECT_EQ(0llu, symbolTable.size());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol2)
+TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion2)
 {
     string program1 = ".DEF MY_SYMBOL\n"
                       ".DEF MY_SYMBOL_1\n"
@@ -871,7 +959,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol
     string program2 = ".UNDEF MY_SYMBOL\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program1);
 
     EXPECT_EQ(3llu, symbolTable.size());
@@ -885,7 +975,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol
     EXPECT_STREQ("MY_SYMBOL_2", symbolTable[1].c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol3)
+TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion3)
 {
     string program1 = ".DEF MY_SYMBOL\n"
                       ".DEF MY_SYMBOL_1\n"
@@ -893,7 +983,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol
     string program2 = ".UNDEF MY_SYMBOL_2\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program1);
 
     EXPECT_EQ(3llu, symbolTable.size());
@@ -907,7 +999,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol
     EXPECT_STREQ("MY_SYMBOL_1", symbolTable[1].c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol4)
+TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion4)
 {
     string program1 = ".DEF MY_SYMBOL\n"
                       ".DEF MY_SYMBOL_1\n"
@@ -915,7 +1007,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol
     string program2 = ".UNDEF MY_SYMBOL_1\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program1);
 
     EXPECT_EQ(3llu, symbolTable.size());
@@ -929,7 +1023,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol
     EXPECT_STREQ("MY_SYMBOL_2", symbolTable[1].c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol5)
+TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion5)
 {
     string program1 = ".DEF MY_SYMBOL\n"
                       ".DEF MY_SYMBOL_1\n"
@@ -939,7 +1033,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol
                       ".UNDEF MY_SYMBOL_2\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program1);
 
     EXPECT_EQ(3llu, symbolTable.size());
@@ -951,13 +1047,29 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionToUndefinedSymbol
     EXPECT_EQ(0llu, symbolTable.size());
 }
 
+TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionOfNotDefinedIdentifier)
+{
+    string program1 = ".UNDEF MY_SYMBOL\n";
+
+    vector<string> symbolTable; 
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
+
+    EXPECT_CALL((*stream), Write("Undefinition of non-defined pre-assembly symbol 'MY_SYMBOL'", ::_, ::_, ::_));
+    pass->Process(program1);
+    EXPECT_EQ(0llu, symbolTable.size());
+}
+
 
 TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefDirective)
 {
     string program = ".UNDEF\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -969,7 +1081,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefDirective2)
     string program = ".UNDEF";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -981,7 +1095,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefDirective3)
     string program = ".UNDEF              ";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -993,7 +1109,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefIdentifier1)
     string program = ".UNDEF .IFDEF";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -1005,7 +1123,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefIdentifier2)
     string program = ".UNDEF &&*()()(**)";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -1017,7 +1137,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefIdentifier3)
     string program = ".UNDEF 6789";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -1029,7 +1151,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefIdentifier4)
     string program = ".UNDEF 0o3344";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 
     ASSERT_EXCEPTION( { pass->Process(program); }, 
                       PreProcessorException, 
@@ -1042,7 +1166,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, MultipleStatementesInOneLineWithUn
     string output =  "                 LD B, 0x5A\n";
 
     vector<string> symbolTable; 
-    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable);
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
     pass->Process(program);
     auto processedCode = pass->Result();
 

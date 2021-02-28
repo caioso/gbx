@@ -9,7 +9,9 @@
 
 #include "../src/frontend/passes/ConditionalAssemblyPass.h"
 #include "../src/frontend/PreProcessor.h"
+#include "../src/interfaces/MessageStream.h"
 #include "../src/interfaces/Pass.h"
+#include "../src/interfaces/StreamSink.h"
 #include "../src/GBXAsmExceptions.h"
 
 using namespace gbxasm::interfaces;
@@ -18,6 +20,13 @@ using namespace gbxasm::frontend::passes;
 using namespace gbxasm;
 using namespace std;
 
+class StreamMock : public interfaces::MessageStream
+{
+public:
+    virtual ~StreamMock() = default;
+
+    MOCK_METHOD(void, Write, (std::string, (std::optional<std::string>), (std::optional<size_t>), (std::optional<size_t>)));
+};
 class PreProcessorWrapper : public PreProcessor
 {
 public:
@@ -56,8 +65,10 @@ TEST(TestPreProcessor, Construction)
 TEST(TestPreProcessor, RegisterPass)
 {
     vector<string> symbolTable;
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
     auto preprocessor = make_shared<PreProcessorWrapper>();
-    auto conditionalAssemblyPass = make_shared<ConditionalAssemblyPass>(symbolTable);
+    auto conditionalAssemblyPass = make_shared<ConditionalAssemblyPass>(symbolTable, streamMock);
 
     // Register This as the first pass.
     preprocessor->RegisterPass(conditionalAssemblyPass, 0);
@@ -67,8 +78,10 @@ TEST(TestPreProcessor, RegisterPass)
 TEST(TestPreProcessor, RegisterMultiplePasses)
 {
     vector<string> symbolTable;
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
     auto preprocessor = make_shared<PreProcessorWrapper>();
-    auto conditionalAssemblyPass = make_shared<ConditionalAssemblyPass>(symbolTable);
+    auto conditionalAssemblyPass = make_shared<ConditionalAssemblyPass>(symbolTable, streamMock);
     auto dummyPass = make_shared<DummyPass>();
 
     // Register This as the first pass.
@@ -81,8 +94,10 @@ TEST(TestPreProcessor, RegisterMultiplePasses)
 TEST(TestPreProcessor, RegisterPassOutOfBounds)
 {
     vector<string> symbolTable;
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
     auto preprocessor = make_shared<PreProcessorWrapper>();
-    auto conditionalAssemblyPass = make_shared<ConditionalAssemblyPass>(symbolTable);
+    auto conditionalAssemblyPass = make_shared<ConditionalAssemblyPass>(symbolTable, streamMock);
     auto dummyPass = make_shared<DummyPass>();
 
     // Register This as the first pass.

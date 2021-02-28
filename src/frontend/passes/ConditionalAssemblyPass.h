@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <memory>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -10,6 +11,7 @@
 
 #include <iostream>
 
+#include "../../interfaces/MessageStream.h"
 #include "../../interfaces/Pass.h"
 #include "../../utilities/IdentifierValidator.h"
 #include "../../GBXAsmExceptions.h"
@@ -50,7 +52,7 @@ struct ConditionalAssemblyBlock
 class ConditionalAssemblyPass : public interfaces::Pass
 { 
 public:
-    ConditionalAssemblyPass(std::vector<std::string>&);
+    ConditionalAssemblyPass(std::vector<std::string>&, std::shared_ptr<interfaces::MessageStream>);
     virtual ~ConditionalAssemblyPass() = default;
 
     virtual void Process(std::string) override;
@@ -77,6 +79,7 @@ protected:
     std::vector<ConditionalAssemblyBlock> _conditionalAssemblyBlocks;
     std::vector<std::string>& _symbolTable;
     std::string _workString;
+    std::shared_ptr<interfaces::MessageStream> _stream;
 };
 
 }
