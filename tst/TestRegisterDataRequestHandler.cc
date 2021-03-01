@@ -5,11 +5,10 @@
 
 #include "TestUtils.h"
 
-#include "../src/interfaces/DebugRequestProducer.h"
 #include "../src/interfaces/Runtime.h"
-#include "../src/requests/RegisterDataRequest.h"
-#include "../src/requests/RegisterDataResponse.h"
-#include "../src/requests/RegisterDataRequestHandler.h"
+#include "../src/requests/register-data/RegisterDataRequest.h"
+#include "../src/requests/register-data/RegisterDataResponse.h"
+#include "../src/requests/register-data/RegisterDataRequestHandler.h"
 #include "interfaces/Runtime.h"
 #include "interfaces/RegisterBankInterface.h"
 
@@ -22,23 +21,15 @@ using namespace gbxcore::interfaces;
 
 using namespace ::testing;
 
-class DummyRequest : public DebugRequest
+class DummyRequest : public DebugMessage
 {
 public:
     DummyRequest()
-        : DebugRequest(RequestType::UnknownType)
+        : DebugMessage(MessageType::UnknownMessage)
     {}
 
     virtual ~DummyRequest() = default;
 };  
-
-class RequestProducerMock : public DebugRequestProducer
-{
-public:
-    virtual ~RequestProducerMock() = default;
-    MOCK_METHOD(void, ConsumeResponse, (std::shared_ptr<gbx::interfaces::DebugResponse>));
-};
-
 class RuntimeMock : public Runtime
 {
 public:
@@ -61,7 +52,7 @@ TEST(TestRegisterDataHandler, ProcessIncorrectRequestType)
     auto runtimePointer = static_pointer_cast<Runtime>(runtime);
     auto registerDataRequestsHandler = make_shared<RegisterDataRequestHandler>();
     auto request = make_shared<DummyRequest>();
-    auto requestPointer = static_pointer_cast<DebugRequest>(request);
+    auto requestPointer = static_pointer_cast<DebugMessage>(request);
 
     ASSERT_EXCEPTION( { auto response = registerDataRequestsHandler->Process(requestPointer, runtimePointer);} , 
                       RequestHandlerException, 
@@ -83,7 +74,7 @@ TEST(TestRegisterDataHandler, ReadSingleRegisterTest)
     {
         auto value = distribution(engine);
         auto request = make_shared<RegisterDataRequest>(target, RegisterDataOperation::Read, nullopt);
-        auto requestPointer = static_pointer_cast<DebugRequest>(request);
+        auto requestPointer = static_pointer_cast<DebugMessage>(request);
         
         EXPECT_CALL((*runtime), ReadRegister(target)).WillOnce(Return(static_cast<uint8_t>(value)));    
         auto response = registerDataRequestsHandler->Process(requestPointer, runtimePointer);
@@ -109,7 +100,7 @@ TEST(TestRegisterDataHandler, ReadPairRegisterTest)
     {
         auto value = distribution(engine);
         auto request = make_shared<RegisterDataRequest>(target, RegisterDataOperation::Read, nullopt);
-        auto requestPointer = static_pointer_cast<DebugRequest>(request);
+        auto requestPointer = static_pointer_cast<DebugMessage>(request);
         
         EXPECT_CALL((*runtime), ReadRegister(target)).WillOnce(Return(static_cast<uint16_t>(value)));    
         auto response = registerDataRequestsHandler->Process(requestPointer, runtimePointer);
@@ -135,7 +126,7 @@ TEST(TestRegisterDataHandler, WriteSingleRegisterTest)
     {
         auto valueToWrite = distribution(engine);
         auto writeRequest = make_shared<RegisterDataRequest>(target, RegisterDataOperation::Write, make_optional(valueToWrite));
-        auto writeRequestPointer = static_pointer_cast<DebugRequest>(writeRequest);
+        auto writeRequestPointer = static_pointer_cast<DebugMessage>(writeRequest);
         
         auto expectationVariant = std::variant<uint8_t, uint16_t>(valueToWrite);
         EXPECT_CALL((*runtime), WriteRegister(target, expectationVariant));

@@ -2,13 +2,13 @@
 
 #include <variant>
 
-#include "../interfaces/DebugResponse.h"
+#include "../../interfaces/DebugMessage.h"
 #include "interfaces/RegisterBankInterface.h"
 
 namespace gbx::requests
 {
 
-class RegisterDataResponse : public interfaces::DebugResponse
+class RegisterDataResponse : public interfaces::DebugMessage
 {
 public:
     RegisterDataResponse(gbxcore::interfaces::Register, std::variant<uint8_t, uint16_t>);

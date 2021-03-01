@@ -7,9 +7,8 @@ using namespace std;
 namespace gbx
 {
 
-Runner::Runner(shared_ptr<Runtime> runner, shared_ptr<DebugRequestProducer> producer)
-    : DebugRequestConsumer(producer)
-    , _runtime(runner)
+Runner::Runner(shared_ptr<Runtime> runner)
+    : _runtime(runner)
 {}
 
 void Runner::Run(size_t numberOfCycles, CancellationToken& token)
@@ -36,11 +35,6 @@ void Runner::RunWithDebugSupport(size_t numberOfCycles, CancellationToken& token
         RunWithDebugger();
 }
 
-void Runner::ConsumeRequest(shared_ptr<interfaces::DebugRequest> request)
-{
-    _requestQueue.push(request);
-}
-
 inline void Runner::RunHeadless()
 {
     _runtime->Run();
@@ -53,9 +47,8 @@ inline void Runner::RunWithDebugger()
     while (_requestQueue.size() != 0)
     {
         auto request = _requestQueue.front();
-        // Handle Request
-        auto response = make_shared<DebugResponse>(ResponseType::UnknownType);
-        _producer->ConsumeResponse(response);
+        // Handle Message
+        //auto response = make_shared<DebugMessage>(MessageType::UnknownMessage);
         _requestQueue.pop();
     }
 }

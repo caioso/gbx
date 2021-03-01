@@ -13,6 +13,10 @@ RequestHandlerException::RequestHandlerException(const std::string& message)
     : GBXException(message)
 {}
 
+DebugServerException::DebugServerException(const std::string& message)
+    : GBXException(message)
+{}
+
 const char* GBXException::what() const noexcept
 {
     return _message.c_str();

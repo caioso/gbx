@@ -24,4 +24,11 @@ public:
     ~RequestHandlerException() = default;
 };
 
+class DebugServerException : public GBXException
+{
+public:
+    explicit DebugServerException(const std::string&);
+    ~DebugServerException() = default;
+};
+
 }

@@ -8,7 +8,7 @@ namespace gbx::requests
 {
 
 RegisterDataResponse::RegisterDataResponse(enum Register reg, variant<uint8_t, uint16_t> value)
-    : DebugResponse(ResponseType::Register)
+    : DebugMessage(MessageType::RegisterResponse)
     , _register(reg)
     , _value(value)
 {}

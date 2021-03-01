@@ -32,7 +32,7 @@ ApplicationConfiguration configuration{};
 
 ApplicationConfiguration ParseCommandLine(int argc, char** argv)
 {
-    auto parser = make_shared<ArgumentsParser>("gbx [-d/--debug -i/--ip <ip> -p/--port <port {-v}]");
+    auto parser = make_shared<ArgumentsParser>("gbx [-d/--debug -i/--ip <ip> -p/--port <port> | -v/--verbose]");
     parser->RegisterOption("-d", "--debug", "Enable Debug Mode", OptionType::Flag, OptionRequirement::Optional);
     parser->RegisterOption("-i", "--ip", "IP Address", OptionType::Pair, OptionRequirement::Optional);
     parser->RegisterOption("-p", "--port", "Port Number", OptionType::Pair, OptionRequirement::Optional);
@@ -55,11 +55,16 @@ ApplicationConfiguration ParseCommandLine(int argc, char** argv)
         {
             configuration.IsDebug = true;
 
-            if (parser->HasBeenFound("-i"))
+            if (parser->HasBeenFound("-i") && parser->HasBeenFound("-p"))
+            {
                 configuration.IPAddress = parser->RetrieveOption("-i").Value.value();
-            
-            if (parser->HasBeenFound("-p"))
                 configuration.Port = parser->RetrieveOption("-p").Value.value();
+            }
+            else
+            {
+                cout << parser->Help() << '\n';
+                exit(0);
+            }
         }
 
         return configuration;
@@ -109,7 +114,7 @@ void InitializeDebugServer()
             boost::array<char, 128> buf;
             boost::system::error_code error;
 
-            size_t len = sock.read_some(boost::asio::buffer(buf), error);
+            //size_t len = sock.read_some(boost::asio::buffer(buf), error);
             cout << "message received: " << buf.data() << '\n';
 
             if (error == boost::asio::error::eof)

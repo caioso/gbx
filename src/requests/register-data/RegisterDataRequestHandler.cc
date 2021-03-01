@@ -8,7 +8,7 @@ using namespace std;
 namespace gbx::requests
 {
 
-shared_ptr<DebugResponse> RegisterDataRequestHandler::Process(shared_ptr<DebugRequest> request, shared_ptr<Runtime> runtime)
+shared_ptr<DebugMessage> RegisterDataRequestHandler::Process(shared_ptr<DebugMessage> request, shared_ptr<Runtime> runtime)
 {
     auto registerRequest = dynamic_pointer_cast<RegisterDataRequest>(request);
 
@@ -26,7 +26,7 @@ shared_ptr<DebugResponse> RegisterDataRequestHandler::Process(shared_ptr<DebugRe
         return make_shared<RegisterDataResponse>(registerRequest->Register(), registerRequest->Value());
     }
     
-    return make_shared<DebugResponse>(ResponseType::UnknownType);
+    return make_shared<DebugMessage>(MessageType::UnknownMessage);
 }
 
 }

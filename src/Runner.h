@@ -6,17 +6,16 @@
 #include <variant>
 
 #include "interfaces/Runtime.h"
-#include "interfaces/DebugRequestConsumer.h"
-#include "interfaces/DebugRequestProducer.h"
+#include "interfaces/DebugMessage.h"
 #include "CancellationToken.h"
 
 namespace gbx
 {
 
-class Runner : public interfaces::DebugRequestConsumer
+class Runner
 {
 public:
-    Runner(std::shared_ptr<gbxcore::interfaces::Runtime>, std::shared_ptr<interfaces::DebugRequestProducer>);
+    Runner(std::shared_ptr<gbxcore::interfaces::Runtime>);
     virtual ~Runner() = default;
 
     void Run(size_t, CancellationToken&);
@@ -27,15 +26,13 @@ public:
 
     [[nodiscard]] std::variant<uint8_t, uint16_t> ReadRegister(gbxcore::interfaces::Register);
     
-    virtual void ConsumeRequest(std::shared_ptr<interfaces::DebugRequest>) override;
-
 private:
     inline void RunHeadless();
     inline void RunWithDebugger();
 
 private:
     std::shared_ptr<gbxcore::interfaces::Runtime> _runtime;
-    std::queue<std::shared_ptr<interfaces::DebugRequest>> _requestQueue;
+    std::queue<std::shared_ptr<interfaces::DebugMessage>> _requestQueue;
 };
 
 }

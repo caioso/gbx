@@ -3,7 +3,7 @@
 #include <optional>
 #include <variant>
 
-#include "../interfaces/DebugRequest.h"
+#include "../../interfaces/DebugMessage.h"
 #include "interfaces/RegisterBankInterface.h"
 namespace gbx::requests
 {
@@ -14,7 +14,7 @@ enum class RegisterDataOperation
     Write
 };
 
-class RegisterDataRequest : public interfaces::DebugRequest
+class RegisterDataRequest : public interfaces::DebugMessage
 {
 public:
     RegisterDataRequest(gbxcore::interfaces::Register, RegisterDataOperation, std::optional<std::variant<std::uint8_t, std::uint16_t>>);
