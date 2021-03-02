@@ -31,7 +31,7 @@ void DebugServer::WaitForClient()
     _state = DebugServerState::WaitingForClient;
 }
 
-void DebugServer::Notify(__attribute__((unused)) shared_ptr<gbxcommons::NotificationArgs> args)
+void DebugServer::Notify(shared_ptr<gbxcommons::NotificationArgs> args)
 {
     if (dynamic_pointer_cast<ClientConnectedArgs>(args) != nullptr)
         OnClientConnected();
@@ -51,13 +51,13 @@ void DebugServer::OnClientConnected()
         throw DebugServerException("Invalid connection request received");
 }
 
-void DebugServer::DispatchRequest(shared_ptr<MessageReceivedArgs> message)
+void DebugServer::DispatchRequest([[maybe_unused]] shared_ptr<MessageReceivedArgs> message)
 {
-    if (message->Message->Type() == MessageType::StatusRequest)
+ /*   if (message->Message->Type() == MessageType::StatusRequest)
     {
         auto response = GenerateStatusResponse();
         _protocol->Send(response);
-    }
+    }*/
 }
 
 shared_ptr<DebugServerStatusResponse> DebugServer::GenerateStatusResponse()
