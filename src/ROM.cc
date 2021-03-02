@@ -40,7 +40,7 @@ std::variant<uint8_t, uint16_t> ROM::Read(uint16_t address, MemoryAccessType acc
         return variant<uint8_t, uint16_t>{in_place_index<1>, (_rom[address + 1] << 8 | _rom[address])};
 }
 
-void ROM::Write(__attribute__((unused)) std::variant<uint8_t, uint16_t> value, __attribute__((unused)) uint16_t address)
+void ROM::Write([[maybe_unused]] std::variant<uint8_t, uint16_t> value, [[maybe_unused]] uint16_t address)
 {
     throw MemoryAccessException("Attempted to write to a read-only resource");
 }

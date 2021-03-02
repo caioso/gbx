@@ -24,6 +24,7 @@ public:
     GameBoyX();
     virtual ~GameBoyX() = default;
     virtual void Run() override;
+    
     virtual std::variant<uint8_t, uint16_t> ReadRegister(interfaces::Register) override;
     virtual void WriteRegister(interfaces::Register, std::variant<uint8_t, uint16_t>) override;
     

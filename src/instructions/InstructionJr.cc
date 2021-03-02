@@ -6,7 +6,7 @@ using namespace std;
 namespace gbxcore::instructions
 {
 
-void InstructionJr::Decode(uint8_t opcode, __attribute__((unused)) std::optional<uint8_t> preOpcode, interfaces::DecodedInstruction& decodedInstruction)
+void InstructionJr::Decode(uint8_t opcode, [[maybe_unused]] std::optional<uint8_t> preOpcode, interfaces::DecodedInstruction& decodedInstruction)
 {
     if ((opcode & 0x20) == 0x00)
         DecodeUnconditionalJr(decodedInstruction);    

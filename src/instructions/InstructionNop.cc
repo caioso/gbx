@@ -6,7 +6,7 @@ using namespace std;
 namespace gbxcore::instructions
 {
 
-void InstructionNop::Decode(__attribute__((unused)) uint8_t opcode, __attribute__((unused)) optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction)
+void InstructionNop::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction)
 {
     decodedInstruction =
     {
@@ -23,7 +23,7 @@ void InstructionNop::Decode(__attribute__((unused)) uint8_t opcode, __attribute_
     };
 }
 
-void InstructionNop::Execute(__attribute__((unused)) shared_ptr<RegisterBankInterface> registerBank, __attribute__((unused)) DecodedInstruction& decodedInstruction)
+void InstructionNop::Execute([[maybe_unused]] shared_ptr<RegisterBankInterface> registerBank, [[maybe_unused]] DecodedInstruction& decodedInstruction)
 {
     return;
 }

@@ -154,7 +154,7 @@ void ArithmeticLogicUnit::AcquireOperand2AtComposedAddress(shared_ptr<interfaces
     _instructionData.MemoryOperand2 = get<uint8_t>(memoryController->Read(operandLocation, MemoryAccessType::Byte));
 }
 
-void ArithmeticLogicUnit::AcquireOperand2Implicitly(__attribute__((unused)) shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::AcquireOperand2Implicitly([[maybe_unused]] shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
     auto operandLocation = static_cast<uint16_t>(0xFF << 8 | _instructionData.MemoryOperand1);
     _instructionData.MemoryOperand2 = get<uint8_t>(memoryController->Read(operandLocation, MemoryAccessType::Byte));
@@ -193,7 +193,7 @@ void ArithmeticLogicUnit::WriteBackAtRegisterAddress(shared_ptr<interfaces::Memo
         DecrementRegisterPair(_instructionData.DestinationRegister);
 }
 
-void ArithmeticLogicUnit::WriteBackAtComposedAddress(__attribute__((unused)) shared_ptr<interfaces::MemoryControllerInterface> memoryController)
+void ArithmeticLogicUnit::WriteBackAtComposedAddress([[maybe_unused]] shared_ptr<interfaces::MemoryControllerInterface> memoryController)
 {
     auto resultContent = _instructionData.MemoryResult1;
     auto resultAddress = static_cast<uint16_t>(_instructionData.MemoryOperand1 | _instructionData.MemoryOperand2 << 8);

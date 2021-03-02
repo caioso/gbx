@@ -6,7 +6,7 @@ using namespace std;
 namespace gbxcore::instructions
 {
 
-void InstructionRst::Decode(uint8_t opcode, __attribute__((unused)) optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction) 
+void InstructionRst::Decode(uint8_t opcode, [[maybe_unused]] optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction) 
 {
     auto pageCode = static_cast<uint8_t>((opcode >> 0x03) & 0x07);
 

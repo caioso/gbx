@@ -45,7 +45,7 @@ inline void InstructionRet::ExecuteUnconditionalRet(shared_ptr<RegisterBankInter
     registerBank->WritePair(decodedInstruction.DestinationRegister, newPCAddress);
 }
 
-inline void InstructionRet::DecodeConditionalRet(__attribute__((unused)) uint8_t opcode, __attribute__((unused))  optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction)
+inline void InstructionRet::DecodeConditionalRet([[maybe_unused]] uint8_t opcode, [[maybe_unused]]  optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction)
 {
     auto conditionalFlag = static_cast<uint8_t>((opcode >> 0x03) & 0x03);
 
@@ -64,7 +64,7 @@ inline void InstructionRet::DecodeConditionalRet(__attribute__((unused)) uint8_t
     };
 }
 
-inline void InstructionRet::DecodeUnconditionalRet(__attribute__((unused)) uint8_t opcode, __attribute__((unused))  optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction)
+inline void InstructionRet::DecodeUnconditionalRet([[maybe_unused]] uint8_t opcode, [[maybe_unused]]  optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction)
 {
     decodedInstruction =
     {

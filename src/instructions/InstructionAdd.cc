@@ -6,7 +6,7 @@ using namespace gbxcore::interfaces;
 namespace gbxcore::instructions
 {
 
-void InstructionAdd::Decode(uint8_t opcode, __attribute__((unused)) optional<uint8_t> preOpcode, DecodedInstruction& decodeInstruction)
+void InstructionAdd::Decode(uint8_t opcode, [[maybe_unused]] optional<uint8_t> preOpcode, DecodedInstruction& decodeInstruction)
 {
     if (opcode == 0x86)  // ADD A, (HL)
         DecodeAddPointerMode(decodeInstruction);

@@ -6,7 +6,7 @@ using namespace std;
 namespace gbxcore::instructions
 {
 
-void InstructionCcf::Decode(__attribute__((unused)) uint8_t opcode, __attribute__((unused)) optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction)
+void InstructionCcf::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction)
 {
     decodedInstruction =
     {
@@ -23,7 +23,7 @@ void InstructionCcf::Decode(__attribute__((unused)) uint8_t opcode, __attribute_
     };
 }
 
-void InstructionCcf::Execute(__attribute__((unused)) shared_ptr<RegisterBankInterface> registerBank, __attribute__((unused)) DecodedInstruction& decodedInstruction)
+void InstructionCcf::Execute([[maybe_unused]] shared_ptr<RegisterBankInterface> registerBank, [[maybe_unused]] DecodedInstruction& decodedInstruction)
 {
     auto cyValue = registerBank->ReadFlag(Flag::CY);
     cyValue = cyValue == static_cast<uint8_t>(0)? static_cast<uint8_t>(1) : static_cast<uint8_t>(0);

@@ -6,7 +6,7 @@ using namespace std;
 namespace gbxcore::instructions
 {
 
-void InstructionRes::Decode(uint8_t opcode, __attribute__((unused)) optional<uint8_t> preOpcode, DecodedInstruction&decodedInstruction)
+void InstructionRes::Decode(uint8_t opcode, [[maybe_unused]] optional<uint8_t> preOpcode, DecodedInstruction&decodedInstruction)
  {
     if ((opcode & 0x07) == 0x06) // Res b, (HL)
         DecodeResRegisterIndirectMode(opcode, decodedInstruction);

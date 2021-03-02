@@ -6,7 +6,7 @@ using namespace std;
 namespace gbxcore::instructions
 {
 
-void InstructionRlc::Decode(uint8_t opcode, __attribute__((unused)) optional<uint8_t> complement, DecodedInstruction&decodedInstruction)
+void InstructionRlc::Decode(uint8_t opcode, [[maybe_unused]] optional<uint8_t> complement, DecodedInstruction&decodedInstruction)
 {
     if (opcode == 0x06) // RLC (HL)
         DecodeRlcRegisterIndirectMode(decodedInstruction);

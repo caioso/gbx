@@ -5,7 +5,7 @@ using namespace gbxcore::interfaces;
 
 namespace gbxcore::instructions
 {
-void InstructionDec::Decode(uint8_t opcode, __attribute__((unused)) std::optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction)
+void InstructionDec::Decode(uint8_t opcode, [[maybe_unused]] std::optional<uint8_t> preOpcode, DecodedInstruction& decodedInstruction)
 {
     if (opcode == 0x35)
         DecodeDecRegisterIndirectMode(decodedInstruction);
