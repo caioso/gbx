@@ -26,7 +26,7 @@ vector<AcceptedConstruction> SyntacticAnalyzer::AcceptedStructures()
     return _acceptedStructures;
 }
 
-shared_ptr<ConstructionSyntacticAnalyzer> SyntacticAnalyzer::ChooseParser(__attribute__((unused)) vector<Token>::iterator currentToken)
+shared_ptr<ConstructionSyntacticAnalyzer> SyntacticAnalyzer::ChooseParser([[maybe_unused]] vector<Token>::iterator currentToken)
 {
     return make_shared<PackSyntacticAnalyzer>();
 }
