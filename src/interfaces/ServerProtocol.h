@@ -14,7 +14,7 @@ class ServerProtocol
 public:
     virtual ~ServerProtocol() = default;
 
-    virtual void Initialize(ServerProtocolParameters) = 0;
+    virtual void Initialize(std::shared_ptr<ServerProtocolParameters>) = 0;
     virtual void WaitForClient() = 0;
     virtual void AddEventListener(std::shared_ptr<gbxcommons::Observer>) = 0;
     virtual void Send(std::shared_ptr<DebugMessage>) = 0;

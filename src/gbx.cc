@@ -1,20 +1,22 @@
-#include <boost/asio.hpp>
-#include <boost/array.hpp>
-
-#include <string>
-#include <sstream>
 #include <iostream>
+#include <chrono>
+#include <string>
+#include <thread>
+#include <sstream>
 
 #include "ArgumentsParser.h"
 #include "ApplicationOptions.h"
-#include "ArgumentsParser.h"
+#include "BoostAsioServerProtocol.h"
+#include "BoostAsioServerProtocolParameters.h"
+#include "DebugServer.h"
 #include "GameBoyX.h"
 #include "GBXExceptions.h"
 #include "GBXCommonsExceptions.h"
+#include "interfaces/ServerProtocol.h"
 
-using namespace boost;
 using namespace std;
 using namespace gbx;
+using namespace gbx::interfaces;
 using namespace gbxcore::interfaces;
 using namespace gbxcore;
 using namespace gbxcommons;
@@ -84,66 +86,20 @@ void Log(string message)
 
 void InitializeDebugServer()
 {
-    auto raw_ip_address = configuration.IPAddress;
-    unsigned short port_num = stoi(configuration.Port);
-
-    boost::system::error_code ec;
-    asio::ip::address ip_address = asio::ip::address::from_string(raw_ip_address, ec);
-
-    if (ec.value() != 0) {
-        std::cout 
-        << "Failed to parse the IP address. Error code = " << ec.value() << ". Message: " << ec.message();
-    }
-
-    asio::ip::tcp::endpoint ep(ip_address, port_num);
-    asio::io_service ios;
-
-    try 
-    {
-        asio::ip::tcp::acceptor acceptor(ios, ep.protocol());
-        acceptor.bind(ep);
-        acceptor.listen(1);
-        
-        cout << "Waiting for client to join..." << '\n';
-        asio::ip::tcp::socket sock(ios);
-        acceptor.accept(sock);
-        cout << "Connection established!" << '\n';
-
-        for (;;)
-        {
-            boost::array<char, 128> buf;
-            boost::system::error_code error;
-
-            //size_t len = sock.read_some(boost::asio::buffer(buf), error);
-            cout << "message received: " << buf.data() << '\n';
-
-            if (error == boost::asio::error::eof)
-            {
-                cout << "Client left" << '\n';
-                break; // Connection closed cleanly by peer.
-            }
-            else if (error)
-                throw boost::system::system_error(error); // Some other error.
-        }
-    }
-    catch (system::system_error &e) 
-    {
-        std::cout << "Error occured! Error code = " << e.code() << ". Message: " << e.what();
-    }
+    auto gbx = make_shared<GameBoyX>();
+    auto protocol = make_shared<BoostAsioServerProtocol>();
+    auto protocolParameters = make_shared<BoostAsioServerProtocolParameters>(configuration.IPAddress, stoi(configuration.Port), configuration.Verbose);
+    auto debugServer = make_shared<DebugServer>(gbx, static_pointer_cast<gbx::interfaces::ServerProtocol>(protocol));
+         
+    debugServer->Initialize(protocolParameters);
+    debugServer->WaitForClient();
+    debugServer->Run();
 }
 
 void DebugMode()
 {
     Log("Debug Mode");
     InitializeDebugServer();
-    /*auto gbx = make_unique<GbxDecorator>();
-    auto cycleCounter = 0;
-
-    while (cycleCounter < 100)
-    {
-        gbx->Run();
-        cycleCounter++;
-    }*/
 }
 
 void RuntimeMode()

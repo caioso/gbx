@@ -63,7 +63,7 @@ class ServerProtocolMock : public ServerProtocol
 {
 public:
     virtual ~ServerProtocolMock() = default;
-    MOCK_METHOD(void, Initialize, (ServerProtocolParameters));
+    MOCK_METHOD(void, Initialize, (std::shared_ptr<ServerProtocolParameters>));
     MOCK_METHOD(void, WaitForClient, ());
     MOCK_METHOD(void, AddEventListener, (std::shared_ptr<gbxcommons::Observer>));
     MOCK_METHOD(void, Send, (std::shared_ptr<DebugMessage>));
@@ -71,7 +71,7 @@ public:
 
 void ConnectServer(shared_ptr<DebugServerWrapper> debugServer, shared_ptr<ServerProtocolMock> protocol)
 {
-    ServerProtocolParameters protocolParameters;
+    auto protocolParameters = make_shared<ServerProtocolParameters>();
     EXPECT_CALL((*protocol), Initialize(::_));
     EXPECT_CALL((*protocol), AddEventListener(::_));
     debugServer->Initialize(protocolParameters);
@@ -89,7 +89,7 @@ void ConnectServer(shared_ptr<DebugServerWrapper> debugServer, shared_ptr<Server
 
 TEST(TestDebugServer, InitializeServer)
 {
-    ServerProtocolParameters protocolParameters;
+    auto protocolParameters = make_shared<ServerProtocolParameters>();
     auto runtime = make_shared<RuntimeMock>();
     auto protocol = make_shared<ServerProtocolMock>();
     auto debugServer = make_shared<DebugServerWrapper>(static_pointer_cast<Runtime>(runtime),
@@ -103,7 +103,7 @@ TEST(TestDebugServer, InitializeServer)
 
 TEST(TestDebugServer, WaitForClientToClient)
 {
-    ServerProtocolParameters protocolParameters;
+    auto protocolParameters = make_shared<ServerProtocolParameters>();
     auto runtime = make_shared<RuntimeMock>();
     auto protocol = make_shared<ServerProtocolMock>();
     auto debugServer = make_shared<DebugServerWrapper>(static_pointer_cast<Runtime>(runtime),
@@ -121,7 +121,7 @@ TEST(TestDebugServer, WaitForClientToClient)
 
 TEST(TestDebugServer, TryToWaitForClientWithoutInitialization)
 {
-    ServerProtocolParameters protocolParameters;
+    auto protocolParameters = make_shared<ServerProtocolParameters>();
     auto runtime = make_shared<RuntimeMock>();
     auto protocol = make_shared<ServerProtocolMock>();
     auto debugServer = make_shared<DebugServerWrapper>(static_pointer_cast<Runtime>(runtime),
@@ -134,7 +134,7 @@ TEST(TestDebugServer, TryToWaitForClientWithoutInitialization)
 
 TEST(TestDebugServer, ClientConnected)
 {
-    ServerProtocolParameters protocolParameters;
+    auto protocolParameters = make_shared<ServerProtocolParameters>();
     auto runtime = make_shared<RuntimeMock>();
     auto protocol = make_shared<ServerProtocolMock>();
     auto debugServer = make_shared<DebugServerWrapper>(static_pointer_cast<Runtime>(runtime),
@@ -145,7 +145,7 @@ TEST(TestDebugServer, ClientConnected)
 
 TEST(TestDebugServer, ClientConnectedNotificationReceivedAtIncorrectTime)
 {
-    ServerProtocolParameters protocolParameters;
+    auto protocolParameters = make_shared<ServerProtocolParameters>();
     auto runtime = make_shared<RuntimeMock>();
     auto protocol = make_shared<ServerProtocolMock>();
     auto debugServer = make_shared<DebugServerWrapper>(static_pointer_cast<Runtime>(runtime),
@@ -172,7 +172,7 @@ TEST(TestDebugServer, ClientConnectedNotificationReceivedAtIncorrectTime)
 
 TEST(TestDebugServer, ClientConnectedNotificationReceivedAtIncorrectTime2)
 {
-    ServerProtocolParameters protocolParameters;
+    auto protocolParameters = make_shared<ServerProtocolParameters>();
     auto runtime = make_shared<RuntimeMock>();
     auto protocol = make_shared<ServerProtocolMock>();
     auto debugServer = make_shared<DebugServerWrapper>(static_pointer_cast<Runtime>(runtime),
@@ -192,7 +192,7 @@ TEST(TestDebugServer, ClientConnectedNotificationReceivedAtIncorrectTime2)
 
 TEST(TestDebugServer, NotifyUnknownArgsType)
 {
-    ServerProtocolParameters protocolParameters;
+    auto protocolParameters = make_shared<ServerProtocolParameters>();
     auto runtime = make_shared<RuntimeMock>();
     auto protocol = make_shared<ServerProtocolMock>();
     auto debugServer = make_shared<DebugServerWrapper>(static_pointer_cast<Runtime>(runtime),
@@ -214,7 +214,7 @@ TEST(TestDebugServer, NotifyUnknownArgsType)
 
 TEST(TestDebugServer, ReceiveStatusRequest)
 {
-    ServerProtocolParameters protocolParameters;
+    auto protocolParameters = make_shared<ServerProtocolParameters>();
     auto runtime = make_shared<RuntimeMock>();
     auto protocol = make_shared<ServerProtocolMock>();
     auto debugServer = make_shared<DebugServerWrapper>(static_pointer_cast<Runtime>(runtime),

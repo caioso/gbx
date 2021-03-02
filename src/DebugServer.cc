@@ -15,13 +15,12 @@ DebugServer::DebugServer(shared_ptr<Runtime> gbx,
     , _protocol(protocol)
 {}
 
-void DebugServer::Initialize(ServerProtocolParameters parameters)
+void DebugServer::Initialize(std::shared_ptr<ServerProtocolParameters> parameters)
 {
     _protocol->Initialize(parameters);
     _protocol->AddEventListener(shared_from_this());
     _state = DebugServerState::Initialized;
 }
-
 void DebugServer::WaitForClient()
 {
     if (_state != DebugServerState::Initialized)
@@ -41,6 +40,20 @@ void DebugServer::Notify(shared_ptr<gbxcommons::NotificationArgs> args)
         throw DebugServerException("Unknown NotificationArgs type received");
 }
 
+void DebugServer::Run()
+{
+    size_t counter = 0;
+    while (true)
+    {
+        //_gameBoyX->Run();
+
+        //if (counter % 10000 == 0)
+//            cout << counter << '\n';
+
+        counter++;
+    }
+}
+
 void DebugServer::OnClientConnected()
 {
     if (_state == DebugServerState::WaitingForClient)
@@ -53,11 +66,11 @@ void DebugServer::OnClientConnected()
 
 void DebugServer::DispatchRequest([[maybe_unused]] shared_ptr<MessageReceivedArgs> message)
 {
- /*   if (message->Message->Type() == MessageType::StatusRequest)
+    if (message->Message->Type() == MessageType::StatusRequest)
     {
         auto response = GenerateStatusResponse();
         _protocol->Send(response);
-    }*/
+    }
 }
 
 shared_ptr<DebugServerStatusResponse> DebugServer::GenerateStatusResponse()

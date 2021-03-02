@@ -13,7 +13,7 @@ OBJ_FILES := $(subst interfaces/,,$(OBJ_FILES))
 OBJ_FILES := $(subst requests/debug-server-status/,,$(OBJ_FILES))
 OBJ_FILES := $(subst requests/register-data/,,$(OBJ_FILES))
 OBJ_FILES := $(subst requests/,,$(OBJ_FILES))
-LDFLAGS := $(LDCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O0 -g -DDEBUG -lboost_system
+LDFLAGS := $(LDCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O0 -g -DDEBUG -lboost_system -pthread
 CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG 
 INCLUDE := -I../../gbxcore/src/ -I../../gbxcommons/src/
 INCLUDE_REQUESTS := -I../../../../gbxcore/src/ -I../../../../gbxcommons/src/

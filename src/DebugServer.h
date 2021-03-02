@@ -46,9 +46,11 @@ public:
                 std::shared_ptr<gbx::interfaces::ServerProtocol>);
     ~DebugServer() = default;
 
-    void Initialize(gbx::interfaces::ServerProtocolParameters);
+    void Initialize(std::shared_ptr<interfaces::ServerProtocolParameters>);
     void WaitForClient();
     void DispatchRequest(std::shared_ptr<MessageReceivedArgs>);
+    void Run();
+    
     virtual void Notify(std::shared_ptr<gbxcommons::NotificationArgs>) override;
 
 protected:
