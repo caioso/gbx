@@ -18,7 +18,13 @@ DebugServer::DebugServer(shared_ptr<Runtime> gbx,
 void DebugServer::Initialize(std::shared_ptr<ServerProtocolParameters> parameters)
 {
     _protocol->Initialize(parameters);
-    _protocol->AddEventListener(shared_from_this());
+    
+    //           RAW STRING
+    // Protocol      ->     Request Translator
+    //                     DEBUG MESSAGE
+    // Request Translator       ->       Debug Server
+    //_protocol->AddEventListener(shared_from_this());
+    
     _state = DebugServerState::Initialized;
 }
 void DebugServer::WaitForClient()
@@ -30,7 +36,7 @@ void DebugServer::WaitForClient()
     _state = DebugServerState::WaitingForClient;
 }
 
-void DebugServer::Notify(shared_ptr<gbxcommons::NotificationArgs> args)
+void DebugServer::Notify(shared_ptr<RequestEventArgs> args)
 {
     if (dynamic_pointer_cast<ClientConnectedArgs>(args) != nullptr)
         OnClientConnected();
@@ -45,11 +51,12 @@ void DebugServer::Run()
     size_t counter = 0;
     while (true)
     {
-        //_gameBoyX->Run();
+        /*
+        _gameBoyX->Run();
 
-        //if (counter % 10000 == 0)
-//            cout << counter << '\n';
-
+        if (counter % 10000 == 0)
+            cout << counter << '\n';
+        */
         counter++;
     }
 }

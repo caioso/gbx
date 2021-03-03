@@ -26,7 +26,7 @@ public:
 
     virtual void Initialize(std::shared_ptr<interfaces::ServerProtocolParameters>) override;
     virtual void WaitForClient() override;
-    virtual void AddEventListener(std::shared_ptr<gbxcommons::Observer>) override;
+    virtual void AddEventListener(std::shared_ptr<gbxcommons::Observer<interfaces::RawRequestEventArgs>>) override;
     virtual void Send(std::shared_ptr<interfaces::DebugMessage>) override;
 
 private:
@@ -37,7 +37,7 @@ private:
     boost::asio::ip::address ConvertIpAddress();
     void AcceptConnection();
 
-    std::vector<std::shared_ptr<gbxcommons::Observer>> _observer{};
+    std::vector<std::shared_ptr<gbxcommons::Observer<interfaces::RawRequestEventArgs>>> _observer{};
     std::unique_ptr<std::thread> _thread;
 
     std::string _ip;

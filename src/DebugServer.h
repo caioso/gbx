@@ -11,6 +11,7 @@
 #include "requests/debug-server-status/DebugServerStatusResponse.h"
 
 #include "GBXExceptions.h"
+#include "RequestTranslator.h"
 #include "Observer.h"
 
 namespace gbx
@@ -24,13 +25,13 @@ enum class DebugServerState
     Connected
 };
 
-class ClientConnectedArgs : public gbxcommons::NotificationArgs
+class ClientConnectedArgs : public RequestEventArgs
 {
 public:
     ~ClientConnectedArgs() = default;
 };
 
-class MessageReceivedArgs : public gbxcommons::NotificationArgs
+class MessageReceivedArgs : public RequestEventArgs
 {
 public:
     MessageReceivedArgs(std::shared_ptr<interfaces::DebugMessage>);
@@ -39,7 +40,7 @@ public:
     std::shared_ptr<interfaces::DebugMessage> Message;
 };
 
-class DebugServer : public gbxcommons::Observer, public std::enable_shared_from_this<DebugServer>
+class DebugServer : public gbxcommons::Observer<RequestEventArgs>, public std::enable_shared_from_this<DebugServer>
 {
 public:
     DebugServer(std::shared_ptr<gbxcore::interfaces::Runtime>, 
@@ -51,7 +52,7 @@ public:
     void DispatchRequest(std::shared_ptr<MessageReceivedArgs>);
     void Run();
     
-    virtual void Notify(std::shared_ptr<gbxcommons::NotificationArgs>) override;
+    virtual void Notify(std::shared_ptr<RequestEventArgs>) override;
 
 protected:
     void OnClientConnected();
