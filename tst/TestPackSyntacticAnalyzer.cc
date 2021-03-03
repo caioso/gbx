@@ -181,3 +181,51 @@ TEST(TestPackSyntacticAnalyzer, ParsePackSimple)
     EXPECT_TRUE(packConstruction->Members()[5].IsArray);
     EXPECT_STREQ("MY_STRING_MEMBER", packConstruction->Members()[5].Identifier.c_str());*/
 }
+
+
+TEST(TestPackSyntacticAnalyzer, ParsePackFormat2)
+{
+    const string pack = "PACK MY_PACK\n"
+                        "    BYTE MY_BYTE_MEMBER\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<PackSyntacticAnalyzer>();
+    lexer->Tokenize(pack);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(TestPackSyntacticAnalyzer, ParsePackFormat3)
+{
+    const string pack = "PACK MY_PACK\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<PackSyntacticAnalyzer>();
+    lexer->Tokenize(pack);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(TestPackSyntacticAnalyzer, ParsePackFormat4)
+{
+    const string pack = "PACK MY_PACK\n"
+                        "    BYTE MY_BYTE_MEMBER[19990]\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<PackSyntacticAnalyzer>();
+    lexer->Tokenize(pack);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}

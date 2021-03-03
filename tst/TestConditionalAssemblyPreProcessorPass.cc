@@ -923,6 +923,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion)
     string output =  "                \n";
 
     vector<string> symbolTable; 
+    symbolTable.push_back("MY_SYMBOL");
     auto stream = make_shared<StreamMock>();
     auto streamMock = static_pointer_cast<MessageStream>(stream);
     auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
@@ -1166,6 +1167,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MultipleStatementesInOneLineWithUn
     string output =  "                 LD B, 0x5A\n";
 
     vector<string> symbolTable; 
+    symbolTable.push_back("MY_SYMBOL");
     auto stream = make_shared<StreamMock>();
     auto streamMock = static_pointer_cast<MessageStream>(stream);
     auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
