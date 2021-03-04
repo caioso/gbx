@@ -5,11 +5,13 @@ OBJ_DIR := $(CURDIR)/../obj
 TARGET_DIR := $(CURDIR)/..
 SRC_FILES := $(wildcard ./*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./interfaces/*.cc)
+SRC_FILES := $(SRC_FILES) $(wildcard ./requests/client-connected/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./requests/debug-server-status/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./requests/register-data/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./requests/*.cc)
 OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
 OBJ_FILES := $(subst interfaces/,,$(OBJ_FILES))
+OBJ_FILES := $(subst requests/client-connected/,,$(OBJ_FILES))
 OBJ_FILES := $(subst requests/debug-server-status/,,$(OBJ_FILES))
 OBJ_FILES := $(subst requests/register-data/,,$(OBJ_FILES))
 OBJ_FILES := $(subst requests/,,$(OBJ_FILES))
@@ -38,6 +40,12 @@ $(OBJ_DIR)/%.o: ./requests/%.cc
 	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
 
 $(OBJ_DIR)/%.o: ./requests/%.cc ./requests/%.h
+	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./requests/client-connected/%.cc
+	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./requests/client-connected/%.cc ./requests/client-connected/%.h
 	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
 
 $(OBJ_DIR)/%.o: ./requests/debug-server-status/%.cc

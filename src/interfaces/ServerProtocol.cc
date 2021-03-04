@@ -3,11 +3,11 @@
 namespace gbx::interfaces
 {
 
-RawRequestEventArgs::RawRequestEventArgs(std::array<uint8_t, MaxRawRequestSize> rawRequest)
+RawDebugMessageEventArgs::RawDebugMessageEventArgs(std::array<uint8_t, MaxRawRequestSize> rawRequest)
     : _rawRequewst(rawRequest)
 {}
 
-std::array<uint8_t, MaxRawRequestSize> RawRequestEventArgs::RawRequest()
+std::array<uint8_t, MaxRawRequestSize> RawDebugMessageEventArgs::RawRequest()
 {
     return _rawRequewst;
 }

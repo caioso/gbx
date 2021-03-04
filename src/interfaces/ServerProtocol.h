@@ -11,11 +11,11 @@ namespace gbx::interfaces
 {
 
 const size_t MaxRawRequestSize = 128;
-class RawRequestEventArgs
+class RawDebugMessageEventArgs
 {
 public:
-    RawRequestEventArgs(std::array<uint8_t, MaxRawRequestSize>);
-    virtual ~RawRequestEventArgs() = default;
+    RawDebugMessageEventArgs(std::array<uint8_t, MaxRawRequestSize>);
+    ~RawDebugMessageEventArgs() = default;
     
     std::array<uint8_t, MaxRawRequestSize> RawRequest();
 
@@ -30,7 +30,7 @@ public:
 
     virtual void Initialize(std::shared_ptr<ServerProtocolParameters>) = 0;
     virtual void WaitForClient() = 0;
-    virtual void AddEventListener(std::shared_ptr<gbxcommons::Observer<RawRequestEventArgs>>) = 0;
+    virtual void AddEventListener(std::weak_ptr<gbxcommons::Observer<RawDebugMessageEventArgs>>) = 0;
     virtual void Send(std::shared_ptr<DebugMessage>) = 0;
 };
 

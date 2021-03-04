@@ -7,9 +7,12 @@ namespace gbx::interfaces
 
 enum class MessageType
 {
-    // Data Requests
+    // Client Connected Message
+    ClientConnectedRequest,
+    // Server Status Messages
     StatusRequest,
     StatusResponse,
+    // Register Status Messages
     RegisterRequest,
     RegisterResponse,
     UnknownMessage

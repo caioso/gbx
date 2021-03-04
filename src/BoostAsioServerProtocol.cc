@@ -94,7 +94,7 @@ void BoostAsioServerProtocol::AcceptConnection()
     Log("Connection established!");
 }
 
-void BoostAsioServerProtocol::AddEventListener(shared_ptr<gbxcommons::Observer<interfaces::RawRequestEventArgs>> oberver)
+void BoostAsioServerProtocol::AddEventListener(weak_ptr<gbxcommons::Observer<interfaces::RawDebugMessageEventArgs>> oberver)
 {
     _observer.push_back(oberver);
 }

@@ -13,7 +13,7 @@ DEPENDECIES := $(OBJ_DIR)/Runner.o $(OBJ_DIR)/CancellationToken.o \
 			   $(OBJ_DIR)/RegisterDataRequestHandler.o $(OBJ_DIR)/RegisterDataRequest.o \
 			   $(OBJ_DIR)/GBXExceptions.o $(OBJ_DIR)/RegisterDataResponse.o \
 			   $(OBJ_DIR)/DebugServer.o $(OBJ_DIR)/DebugServerStatusRequest.o $(OBJ_DIR)/DebugServerStatusResponse.o \
-			   $(OBJ_DIR)/DebugMessage.o $(OBJ_DIR)/RequestTranslator.o $(OBJ_DIR)/ServerProtocol.o \
+			   $(OBJ_DIR)/DebugMessage.o $(OBJ_DIR)/RequestTranslator.o $(OBJ_DIR)/ServerProtocol.o $(OBJ_DIR)/ClientConnectedRequest.o \
 
 $(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
 	$(CC) $(INCLUDE) -o $@ $^ $(DEPENDECIES) $(LDFLAGS)
