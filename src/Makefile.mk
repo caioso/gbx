@@ -9,6 +9,7 @@ SRC_FILES := $(SRC_FILES) $(wildcard ./language/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./frontend/parsers/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./frontend/passes/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./frontend/*.cc)
+SRC_FILES := $(SRC_FILES) $(wildcard ./intermediate-representation/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./utilities/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./streams/*.cc)
 OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
@@ -17,6 +18,7 @@ OBJ_FILES := $(subst language/,,$(OBJ_FILES))
 OBJ_FILES := $(subst frontend/parsers/,,$(OBJ_FILES))
 OBJ_FILES := $(subst frontend/passes/,,$(OBJ_FILES))
 OBJ_FILES := $(subst frontend/,,$(OBJ_FILES))
+OBJ_FILES := $(subst intermediate-representation/,,$(OBJ_FILES))
 OBJ_FILES := $(subst utilities/,,$(OBJ_FILES))
 OBJ_FILES := $(subst streams/,,$(OBJ_FILES))
 LDFLAGS := $(LDCOVERAGE_FLAGS)
@@ -56,7 +58,13 @@ $(OBJ_DIR)/%.o: ./frontend/parsers/%.cc
 $(OBJ_DIR)/%.o: ./utilities/%.cc ./utilities/%.h
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
-$(OBJ_DIR)/%.o: ./utilities/parsers/%.cc
+$(OBJ_DIR)/%.o: ./utilities/%.cc
+	$(CC) $(CPPFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./intermediate-representation/%.cc ./intermediate-representation/%.h
+	$(CC) $(CPPFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./intermediate-representation/%.cc
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
 $(OBJ_DIR)/%.o: ./frontend/parsers/%.cc ./frontend/parsers/%.h

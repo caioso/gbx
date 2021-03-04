@@ -18,12 +18,12 @@ void SyntacticAnalyzer::Parse(vector<Token> tokens)
     auto parser = ChooseParser(currentToken);
     auto construction = parser->TryToAccept(currentToken, endIterator);
     
-    _acceptedStructures.push_back(construction);
+    _intermediateRepresentations.push_back(construction);
 }
 
-vector<AcceptedConstruction> SyntacticAnalyzer::AcceptedStructures()
+vector<std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> > SyntacticAnalyzer::AcceptedStructures()
 {
-    return _acceptedStructures;
+    return _intermediateRepresentations;
 }
 
 shared_ptr<ConstructionSyntacticAnalyzer> SyntacticAnalyzer::ChooseParser([[maybe_unused]] vector<Token>::iterator currentToken)

@@ -1,5 +1,6 @@
 #include "PackSyntacticAnalyzer.h"
 
+using namespace gbxasm::intermediate_representation;
 using namespace gbxasm::interfaces;
 using namespace gbxasm::frontend;
 using namespace std;
@@ -7,11 +8,9 @@ using namespace std;
 namespace gbxasm::frontend::parsers
 {
 
-AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
+std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
 {
     ExtactSymbols(currentToken, end);
-
-    AcceptedConstruction accepted;
 
     while (!IsAccepted() && !IsRejected())
     {        
@@ -36,6 +35,12 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
                 {
                     leftSubstring++;
                     state = 4;
+                }
+                else if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalPack)
+                {
+                    //cout << "Accept" << '\n';
+                    Accept();
+                    break;
                 }
                 else
                 {
@@ -101,7 +106,12 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
                 }
                 else if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalFooter)
                 {
-                    Accept();
+                    // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
+                    // Remove First
+                    _symbols.erase(begin(_symbols) + leftSubstring);
+                    // Remove Second
+                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
+                    _symbols.insert(begin(_symbols) +  leftSubstring - 1, PackParseTreeSymbols::NonTerminalPack);
                     break;
                 }
                 else
@@ -232,7 +242,14 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
                 }
                 else if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalFooter)
                 {
-                    Accept();
+                    // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
+                    // Remove First
+                    _symbols.erase(begin(_symbols) + leftSubstring);
+                    // Remove Second
+                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
+                    // Remove Third
+                    _symbols.erase(begin(_symbols) + leftSubstring - 2);
+                    _symbols.insert(begin(_symbols) +  leftSubstring - 2, PackParseTreeSymbols::NonTerminalPack);
                     break;
                 }
                 else
@@ -244,14 +261,22 @@ AcceptedConstruction PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator&
             }
         }
 
-        /*cout << "\nOriginal : Size " << _symbols.size() << '\n';
+        //cout << "\nOriginal : Size " << _symbols.size() << '\n';
         for (auto token : _symbols)
         {
-            cout << static_cast<size_t>(token) << '\n';
-        }*/
+            //cout << static_cast<size_t>(token) << '\n';
+        }
     }
 
-    return accepted;
+    if (IsAccepted())
+        return ExtractConstructions();
+    else
+        return {};
+}
+
+std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> PackSyntacticAnalyzer:: ExtractConstructions()
+{
+    return make_shared<PackIntermediateRepresentation>();
 }
 
 void PackSyntacticAnalyzer::ExtactSymbols(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
@@ -307,10 +332,10 @@ void PackSyntacticAnalyzer::ExtactSymbols(vector<Token>::iterator& currentToken,
         }
     });
 
-    /*cout << "Original : Size " << _symbols.size() << '\n';
+    /*//cout << "Original : Size " << _symbols.size() << '\n';
     for (auto token : _symbols)
     {
-        cout << static_cast<size_t>(token) << '\n';
+        //cout << static_cast<size_t>(token) << '\n';
     }*/
 }
 

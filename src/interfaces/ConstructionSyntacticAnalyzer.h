@@ -1,9 +1,10 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
+#include "../intermediate-representation/IntermediateRepresentation.h"
 #include "../frontend/Token.h"
-#include "../frontend/AcceptedConstruction.h"
 #include "Construction.h"
 
 namespace gbxasm::interfaces
@@ -13,7 +14,7 @@ class ConstructionSyntacticAnalyzer
 {
 public:
     virtual ~ConstructionSyntacticAnalyzer() = default;
-    virtual frontend::AcceptedConstruction TryToAccept(std::vector<frontend::Token>::iterator&, std::vector<frontend::Token>::iterator&) = 0;
+    virtual std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> TryToAccept(std::vector<frontend::Token>::iterator&, std::vector<frontend::Token>::iterator&) = 0;
 
     bool IsAccepted();
     bool IsRejected();
