@@ -2,6 +2,8 @@
 
 using namespace boost::asio;
 using namespace boost::system;
+using namespace gbx::interfaces;
+using namespace gbx::requests;
 using namespace std;
 
 namespace gbx
@@ -63,6 +65,12 @@ void BoostAsioServerProtocol::ProtocolLoop()
         size_t len = _socket->read_some(buffer(buf), error);
 
         //cout << buf.data() << '\n';
+        // TEST
+        if (buf[0] == 'a')
+        {
+            DispatchRawDebugMessage(MessageType::StatusRequest);
+        }
+
         if (error == error::eof)
         {
             Log("Client disconnected");
@@ -89,19 +97,38 @@ void BoostAsioServerProtocol::AcceptConnection()
     acceptor.listen(1);
     
     Log("Waiting for client to join...");
-    _socket = make_unique<boost::asio::ip::tcp::socket>(ios);
-    acceptor.accept(*_socket);
+        _socket = make_unique<boost::asio::ip::tcp::socket>(ios);
+        acceptor.accept(*_socket);
+        DispatchRawDebugMessage(interfaces::MessageType::ClientConnectedRequest);
     Log("Connection established!");
 }
 
 void BoostAsioServerProtocol::AddEventListener(weak_ptr<gbxcommons::Observer<interfaces::RawDebugMessageEventArgs>> oberver)
 {
-    _observer.push_back(oberver);
+    _observers.push_back(oberver);
 }
 
-void BoostAsioServerProtocol::Send(shared_ptr<interfaces::DebugMessage>)
+void BoostAsioServerProtocol::Send(shared_ptr<interfaces::DebugMessage> message)
 {
+    cout << "BoostAsioServerProtocol::Send" << '\n';
+}
 
+void BoostAsioServerProtocol::DispatchRawDebugMessage(interfaces::MessageType type)
+{
+    switch (type)
+    {
+        case MessageType::ClientConnectedRequest: NotifyObservers(ClientConnectedRequest::MakeRawRequest()); break;
+        case MessageType::StatusRequest: NotifyObservers(DebugServerStatusRequest::MakeRawRequest()); break;
+        default:
+            throw ServerProtocolException("Unknown request type");
+    }
+}
+
+void BoostAsioServerProtocol::NotifyObservers(std::shared_ptr<RawDebugMessageEventArgs> rawMessage)
+{
+    for (auto observer : _observers)
+        if (!observer.expired())
+            observer.lock()->Notify(rawMessage);
 }
 
 }

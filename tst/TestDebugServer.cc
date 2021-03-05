@@ -47,8 +47,13 @@ public:
     }
 };
 
-class DummyEventArgs : public gbx::interfaces::RawDebugMessageEventArgs
-{};
+class DummyDebugMessage : public gbx::interfaces::DebugMessage
+{
+public:
+    DummyDebugMessage() : DebugMessage(MessageType::UnknownMessage)
+    {}
+    ~DummyDebugMessage() = default;
+};
 
 class RuntimeMock : public Runtime
 {
@@ -81,9 +86,11 @@ void ConnectServer(shared_ptr<DebugServerWrapper> debugServer, shared_ptr<Server
     debugServer->WaitForClient();
     EXPECT_EQ(DebugServerState::WaitingForClient, debugServer->State());
 
-    //auto notificationArgs = make_shared<ClientConnectedArgs>();
-    //auto notificationArgsPointer = static_pointer_cast<gbx::interfaces::RawDebugMessageEventArgs>(notificationArgs);
-    //debugServer->Notify(notificationArgsPointer);
+    // Pretend that the the protocol object sent a notification to the request translator and that it notified the server about a new requets.
+    auto clientConnectedRequest = make_shared<ClientConnectedRequest>();
+    auto debugMessageEventArgs = make_shared<DebugMessageEventArgs>(clientConnectedRequest);
+    debugServer->Notify(debugMessageEventArgs);
+
     EXPECT_EQ(DebugServerState::Connected, debugServer->State());
 }
 
@@ -100,7 +107,7 @@ TEST(TestDebugServer, InitializeServer)
     debugServer->Initialize(protocolParameters);
     EXPECT_EQ(DebugServerState::Initialized, debugServer->State());
 }
-/*
+
 TEST(TestDebugServer, WaitForClientToClient)
 {
     auto protocolParameters = make_shared<ServerProtocolParameters>();
@@ -151,21 +158,12 @@ TEST(TestDebugServer, ClientConnectedNotificationReceivedAtIncorrectTime)
     auto debugServer = make_shared<DebugServerWrapper>(static_pointer_cast<Runtime>(runtime),
                                                 static_pointer_cast<ServerProtocol>(protocol));
     
-    EXPECT_CALL((*protocol), Initialize(::_));
-    EXPECT_CALL((*protocol), AddEventListener(::_));
-    debugServer->Initialize(protocolParameters);
-    EXPECT_EQ(DebugServerState::Initialized, debugServer->State());
+    ConnectServer(debugServer, protocol);
+     // Pretend that the the protocol object sent a notification to the request translator and that it notified the server about a new requets.
+    auto clientConnectedRequest = make_shared<ClientConnectedRequest>();
+    auto debugMessageEventArgs = make_shared<DebugMessageEventArgs>(clientConnectedRequest);
 
-    EXPECT_CALL((*protocol), WaitForClient());
-    debugServer->WaitForClient();
-    EXPECT_EQ(DebugServerState::WaitingForClient, debugServer->State());
-
-    //auto notificationArgs = make_shared<ClientConnectedArgs>();
-    //auto notificationArgsPointer = static_pointer_cast<gbx::interfaces::RawDebugMessageEventArgs>(notificationArgs);
-    //debugServer->Notify(notificationArgsPointer);
-    EXPECT_EQ(DebugServerState::Connected, debugServer->State());
-
-   ASSERT_EXCEPTION( { debugServer->Notify(notificationArgsPointer); } , 
+    ASSERT_EXCEPTION( { debugServer->Notify(debugMessageEventArgs); } , 
                       DebugServerException, 
                       "Client already connected");
 }
@@ -183,9 +181,11 @@ TEST(TestDebugServer, ClientConnectedNotificationReceivedAtIncorrectTime2)
     debugServer->Initialize(protocolParameters);
     EXPECT_EQ(DebugServerState::Initialized, debugServer->State());
 
-    //auto notificationArgs = make_shared<ClientConnectedArgs>();
-    //auto notificationArgsPointer = static_pointer_cast<gbx::interfaces::RawDebugMessageEventArgs>(notificationArgs);
-    ASSERT_EXCEPTION( { debugServer->Notify(notificationArgsPointer); } , 
+    // Pretend that the the protocol object sent a notification to the request translator and that it notified the server about a new requets.
+    auto clientConnectedRequest = make_shared<ClientConnectedRequest>();
+    auto debugMessageEventArgs = make_shared<DebugMessageEventArgs>(clientConnectedRequest);
+
+    ASSERT_EXCEPTION( { debugServer->Notify(debugMessageEventArgs); } , 
                       DebugServerException, 
                       "Invalid connection request received");
 }
@@ -201,13 +201,14 @@ TEST(TestDebugServer, NotifyUnknownArgsType)
     EXPECT_CALL((*protocol), Initialize(::_));
     EXPECT_CALL((*protocol), AddEventListener(::_));
     debugServer->Initialize(protocolParameters);
+    
     EXPECT_CALL((*protocol), WaitForClient());
     debugServer->WaitForClient();
 
-    //auto notificationArgs = make_shared<DummyEventArgs >();
-    //auto notificationArgsPointer = static_pointer_cast<gbx::interfaces::RawDebugMessageEventArgs>(notificationArgs);
+    auto dummyRequest = make_shared<DummyDebugMessage>();
+    auto debugMessageEventArgs = make_shared<DebugMessageEventArgs>(dummyRequest);
 
-    ASSERT_EXCEPTION( { debugServer->Notify(notificationArgsPointer); } , 
+    ASSERT_EXCEPTION( { debugServer->Notify(debugMessageEventArgs); } , 
                       DebugServerException, 
                       "Unknown NotificationArgs type received");
 }
@@ -223,8 +224,7 @@ TEST(TestDebugServer, ReceiveStatusRequest)
     ConnectServer(debugServer, protocol);
 
     auto debugServerStatusRequest = make_shared<DebugServerStatusRequest>();
-//    auto messageReceivedArgs = make_shared<MessageReceivedArgs>(debugServerStatusRequest);
-    //auto notificationArgsPointer = static_pointer_cast<gbx::interfaces::RawDebugMessageEventArgs>(messageReceivedArgs);
+    auto debugMessageEventArgs = make_shared<DebugMessageEventArgs>(debugServerStatusRequest);
 
     auto response = make_shared<DebugServerStatusResponse>(DebugServerStatus::Halted);
     EXPECT_CALL((*protocol), Send(::_)).WillOnce(testing::Invoke([&](shared_ptr<DebugMessage> arguement)
@@ -235,6 +235,5 @@ TEST(TestDebugServer, ReceiveStatusRequest)
         EXPECT_EQ(DebugServerStatus::Halted, message->Status());
     }));
 
-    //debugServer->Notify(notificationArgsPointer);
+    debugServer->Notify(debugMessageEventArgs);
 }
-*/

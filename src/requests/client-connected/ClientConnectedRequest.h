@@ -16,6 +16,7 @@ public:
     virtual ~ClientConnectedRequest() = default;
 
     static std::shared_ptr<ClientConnectedRequest> MakeRequest(std::array<uint8_t, gbx::interfaces::MaxRawRequestSize>);
+    static std::shared_ptr<interfaces::RawDebugMessageEventArgs> MakeRawRequest();
 };
 
 }

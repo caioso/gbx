@@ -11,7 +11,8 @@ void RequestTranslator::Notify(shared_ptr<interfaces::RawDebugMessageEventArgs> 
     auto debugMessage = DecodeRawRequest(rawRequest->RawRequest());
     
     for(auto observer : _observers)
-        observer.lock()->Notify(debugMessage);
+        if (!observer.expired())
+            observer.lock()->Notify(debugMessage);
 }
 
 void RequestTranslator::AddEventListener(weak_ptr<gbxcommons::Observer<DebugMessageEventArgs>> observer)

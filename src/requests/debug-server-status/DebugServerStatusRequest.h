@@ -16,6 +16,7 @@ public:
     virtual ~DebugServerStatusRequest() = default;
 
     static std::shared_ptr<DebugServerStatusRequest> MakeRequest(std::array<uint8_t, gbx::interfaces::MaxRawRequestSize>);
+    static std::shared_ptr<interfaces::RawDebugMessageEventArgs> MakeRawRequest();
 };
 
 }

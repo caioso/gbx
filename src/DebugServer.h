@@ -35,13 +35,14 @@ public:
 
     void Initialize(std::shared_ptr<interfaces::ServerProtocolParameters>);
     void WaitForClient();
-    //void DispatchRequest(std::shared_ptr<MessageReceivedArgs>);
     void Run();
     
     virtual void Notify(std::shared_ptr<DebugMessageEventArgs>) override;
 
 protected:
+    void DispatchRequest(std::shared_ptr<interfaces::DebugMessage>);
     void OnClientConnected();
+    void DispatchRequest(interfaces::MessageType);
 
     std::shared_ptr<requests::DebugServerStatusResponse> GenerateStatusResponse();
 

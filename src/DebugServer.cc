@@ -40,8 +40,8 @@ void DebugServer::Notify(shared_ptr<DebugMessageEventArgs> args)
 {
     if (dynamic_pointer_cast<ClientConnectedRequest>(args->Message()) != nullptr)
         OnClientConnected();
-    //else if (dynamic_pointer_cast<MessageReceivedArgs>(args) != nullptr)
-    //    DispatchRequest(dynamic_pointer_cast<MessageReceivedArgs>(args));
+    else if (dynamic_pointer_cast<DebugServerStatusRequest>(args->Message()) != nullptr)
+        DispatchRequest(dynamic_pointer_cast<DebugMessage>(args->Message()));
     else
         throw DebugServerException("Unknown NotificationArgs type received");
 }
@@ -63,6 +63,8 @@ void DebugServer::Run()
 
 void DebugServer::OnClientConnected()
 {
+    cout << "OnClientConnected: Client Connected" << '\n';
+
     if (_state == DebugServerState::WaitingForClient)
         _state = DebugServerState::Connected;
     else if (_state == DebugServerState::Connected)
@@ -71,19 +73,19 @@ void DebugServer::OnClientConnected()
         throw DebugServerException("Invalid connection request received");
 }
 
-/*void DebugServer::DispatchRequest([[maybe_unused]] shared_ptr<MessageReceivedArgs> message)
+void DebugServer::DispatchRequest(shared_ptr<DebugMessage> message)
 {
-    if (message->Message->Type() == MessageType::StatusRequest)
+    if (message->Type() == MessageType::StatusRequest)
     {
         auto response = GenerateStatusResponse();
         _protocol->Send(response);
     }
-}*/
+}
 
 shared_ptr<DebugServerStatusResponse> DebugServer::GenerateStatusResponse()
 {
+    cout << "GenerateStatusResponse: sending DebugServerStatusResponse" << '\n';
     return make_shared<DebugServerStatusResponse>(DebugServerStatus::Halted);
 }
-
 
 }
