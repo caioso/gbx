@@ -5,16 +5,10 @@ OBJ_DIR := $(CURDIR)/../obj
 TARGET_DIR := $(CURDIR)/..
 SRC_FILES := $(wildcard ./*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./interfaces/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./requests/client-connected/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./requests/debug-server-status/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./requests/register-data/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./requests/*.cc)
+SRC_FILES := $(SRC_FILES) $(wildcard ./runtime/*.cc)
 OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
 OBJ_FILES := $(subst interfaces/,,$(OBJ_FILES))
-OBJ_FILES := $(subst requests/client-connected/,,$(OBJ_FILES))
-OBJ_FILES := $(subst requests/debug-server-status/,,$(OBJ_FILES))
-OBJ_FILES := $(subst requests/register-data/,,$(OBJ_FILES))
-OBJ_FILES := $(subst requests/,,$(OBJ_FILES))
+OBJ_FILES := $(subst runtime/,,$(OBJ_FILES))
 LDFLAGS := $(LDCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O0 -g -DDEBUG -lboost_system -pthread
 CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG 
 INCLUDE := -I../../gbxcore/src/ -I../../gbxcommons/src/
@@ -36,28 +30,10 @@ $(OBJ_DIR)/%.o: ./interfaces/%.cc
 $(OBJ_DIR)/%.o: ./interfaces/%.cc ./interfaces/%.h
 	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
 
-$(OBJ_DIR)/%.o: ./requests/%.cc
+$(OBJ_DIR)/%.o: ./runtime/%.cc
 	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
 
-$(OBJ_DIR)/%.o: ./requests/%.cc ./requests/%.h
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./requests/client-connected/%.cc
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./requests/client-connected/%.cc ./requests/client-connected/%.h
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./requests/debug-server-status/%.cc
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./requests/debug-server-status/%.cc ./requests/debug-server-status/%.h
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./requests/register-data/%.cc
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./requests/register-data/%.cc ./requests/register-data/%.h
+$(OBJ_DIR)/%.o: ./runtime/%.cc ./runtime/%.h
 	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
 
 clean:

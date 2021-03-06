@@ -1,4 +1,4 @@
-#include "BoostAsioServerProtocol.h"
+/*#include "BoostAsioServerProtocol.h"
 
 using namespace boost::asio;
 using namespace boost::system;
@@ -131,4 +131,4 @@ void BoostAsioServerProtocol::NotifyObservers(std::shared_ptr<RawDebugMessageEve
             observer.lock()->Notify(rawMessage);
 }
 
-}
+}*/

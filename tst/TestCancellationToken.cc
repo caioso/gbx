@@ -1,10 +1,11 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "../src/CancellationToken.h"
+#include "../src/runtime/CancellationToken.h"
 
 using namespace std;
 using namespace gbx;
+using namespace gbx::runtime;
 
 TEST(TestCancellationToken, Construction) 
 {

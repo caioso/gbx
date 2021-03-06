@@ -8,8 +8,8 @@
 #include <thread> 
 #include <variant> 
 
-#include "../src/CancellationToken.h"
-#include "../src/Runner.h"
+#include "../src/runtime/CancellationToken.h"
+#include "../src/runtime/Runner.h"
 #include "interfaces/Runtime.h"
 #include "interfaces/RegisterBankInterface.h"
 
@@ -17,6 +17,7 @@ using namespace std;
 using namespace std::chrono_literals;
 using namespace gbx;
 using namespace gbx::interfaces;
+using namespace gbx::runtime;
 using namespace gbxcore::interfaces;
 
 using ::testing::Return;

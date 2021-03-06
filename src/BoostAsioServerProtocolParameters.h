@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 #include <string>
 
@@ -23,4 +23,4 @@ private:
     bool _verbose;
 };
 
-}
+}*/

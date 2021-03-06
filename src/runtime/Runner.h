@@ -5,11 +5,11 @@
 #include <queue>
 #include <variant>
 
+#include "../interfaces/DebugMessage.h"
 #include "interfaces/Runtime.h"
-#include "interfaces/DebugMessage.h"
 #include "CancellationToken.h"
 
-namespace gbx
+namespace gbx::runtime
 {
 
 class Runner

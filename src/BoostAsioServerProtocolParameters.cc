@@ -1,4 +1,4 @@
-#include "BoostAsioServerProtocolParameters.h"
+/*#include "BoostAsioServerProtocolParameters.h"
 
 namespace gbx
 {
@@ -24,4 +24,4 @@ bool BoostAsioServerProtocolParameters::Verbose()
     return _verbose;
 }
 
-}
+}*/

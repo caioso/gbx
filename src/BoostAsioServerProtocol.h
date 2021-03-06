@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
@@ -52,4 +52,4 @@ private:
     std::unique_ptr<boost::asio::ip::tcp::socket> _socket;
 };
 
-}
+}*/

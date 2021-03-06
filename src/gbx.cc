@@ -8,15 +8,12 @@
 #include "ApplicationOptions.h"
 #include "BoostAsioServerProtocol.h"
 #include "BoostAsioServerProtocolParameters.h"
-#include "DebugServer.h"
 #include "GameBoyX.h"
 #include "GBXExceptions.h"
 #include "GBXCommonsExceptions.h"
-#include "interfaces/ServerProtocol.h"
 
 using namespace std;
 using namespace gbx;
-using namespace gbx::interfaces;
 using namespace gbxcore::interfaces;
 using namespace gbxcore;
 using namespace gbxcommons;
@@ -87,13 +84,13 @@ void Log(string message)
 void InitializeDebugServer()
 {
     auto gbx = make_shared<GameBoyX>();
-    auto protocol = make_shared<BoostAsioServerProtocol>();
-    auto protocolParameters = make_shared<BoostAsioServerProtocolParameters>(configuration.IPAddress, stoi(configuration.Port), configuration.Verbose);
-    auto debugServer = make_shared<DebugServer>(gbx, static_pointer_cast<gbx::interfaces::ServerProtocol>(protocol));
+    //auto protocol = make_shared<BoostAsioServerProtocol>();
+    //auto protocolParameters = make_shared<BoostAsioServerProtocolParameters>(configuration.IPAddress, stoi(configuration.Port), configuration.Verbose);
+    //auto debugServer = make_shared<DebugServer>(gbx, static_pointer_cast<gbx::interfaces::ServerProtocol>(protocol));
          
-    debugServer->Initialize(protocolParameters);
-    debugServer->WaitForClient();
-    debugServer->Run();
+    //debugServer->Initialize(protocolParameters);
+    //debugServer->WaitForClient();
+    //debugServer->Run();
 }
 
 void DebugMode()
