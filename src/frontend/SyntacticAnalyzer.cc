@@ -1,7 +1,6 @@
 #include "SyntacticAnalyzer.h"
 
 using namespace gbxasm::interfaces;
-using namespace gbxasm::language;
 using namespace gbxasm::frontend;
 using namespace gbxasm::frontend::parsers;
 using namespace std;

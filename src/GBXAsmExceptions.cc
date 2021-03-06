@@ -21,6 +21,10 @@ SyntacticAnalyzerException::SyntacticAnalyzerException(const std::string message
     : GBXAsmException(message)
 {}
 
+ConversionException::ConversionException(const std::string message)
+    : GBXAsmException(message)
+{}
+
 
 const char* GBXAsmException::what() const noexcept
 {

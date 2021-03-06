@@ -12,15 +12,13 @@
 #include "../src/frontend/parsers/PackSyntacticAnalyzer.h"
 #include "../src/interfaces/Construction.h"
 #include "../src/intermediate-representation/PackIntermediateRepresentation.h"
-#include "../src/language/ConstructionPack.h"
-#include "../src/language/DeclaredMember.h"
+#include "../src/intermediate-representation/DeclaredMember.h"
 #include "../src/GBXAsmExceptions.h"
 
 using namespace gbxasm;
 using namespace gbxasm::frontend;
 using namespace gbxasm::frontend::parsers;
 using namespace gbxasm::intermediate_representation;
-using namespace gbxasm::language;
 using namespace gbxasm::utilities;
 using namespace std;
 
@@ -302,11 +300,42 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat11)
     EXPECT_TRUE(parser->IsAccepted());
 }
 
-TEST(TestPackSyntacticAnalyzer, PackIntermediateRepresentation)
+TEST(TestPackSyntacticAnalyzer, PackIntermediateRepresentationWithSingleMember)
+{
+    const string pack = "PACK FLAG_REGISTER\n"
+                        "    BYTE FLAGS[2]\n"
+                        "END";
+
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<PackSyntacticAnalyzer>();
+    lexer->Tokenize(pack);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    auto intermediateRepresentation = parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+
+    auto packRepresentation = dynamic_pointer_cast<PackIntermediateRepresentation>(intermediateRepresentation);
+    EXPECT_NE(nullptr, packRepresentation);
+
+    EXPECT_STREQ("FLAG_REGISTER", packRepresentation->Identifier().c_str());
+    EXPECT_EQ(1llu, packRepresentation->Line());
+    EXPECT_EQ(1llu, packRepresentation->Column());
+    EXPECT_EQ(1llu, packRepresentation->Members().size());
+    
+    EXPECT_STREQ("FLAGS", packRepresentation->Members()[0].Identifier.c_str());
+    EXPECT_EQ(TypeName::Byte, packRepresentation->Members()[0].Type.Name);
+    EXPECT_TRUE(packRepresentation->Members()[0].IsArray);
+    EXPECT_EQ("2", packRepresentation->Members()[0].ArrayLength);
+}
+
+TEST(TestPackSyntacticAnalyzer, PackIntermediateRepresentationWithMultipleMembers)
 {
     const string pack = "PACK MY_PACK\n"
                         "    BYTE MY_BYTE_MEMBER\n"
                         "    WORD MY_WORD_MEMBER\n"
+                        "    BYTE MY_BYTE_ARRAY_MEMBER[0x100]\n"
                         "    BOOL MY_BOOL_MEMBER\n"
                         "    CHAR MY_CHAR_MEMBER\n"
                         "    DWRD MY_DWRD_MEMBER\n"
@@ -325,47 +354,45 @@ TEST(TestPackSyntacticAnalyzer, PackIntermediateRepresentation)
 
     auto packRepresentation = dynamic_pointer_cast<PackIntermediateRepresentation>(intermediateRepresentation);
     EXPECT_NE(nullptr, packRepresentation);
-/*
-    EXPECT_EQ(1llu, acceptedConstructions.size());
-    EXPECT_EQ(ConstructionType::Pack, acceptedConstructions[0].Type);
-    EXPECT_EQ(1llu, acceptedConstructions[0].Construction->Line());
-    EXPECT_EQ(1llu, acceptedConstructions[0].Construction->Column());
+
+    EXPECT_STREQ("MY_PACK", packRepresentation->Identifier().c_str());
+    EXPECT_EQ(1llu, packRepresentation->Line());
+    EXPECT_EQ(1llu, packRepresentation->Column());
+    EXPECT_EQ(7llu, packRepresentation->Members().size());
     
-    // Construcion-specific checks
-    auto packConstruction = static_pointer_cast<ConstructionPack>(acceptedConstructions[0].Construction);
-    EXPECT_STREQ("MY_PACK", packConstruction->Identifier().c_str());
-    EXPECT_EQ(6llu, packConstruction->Members().size());
+    EXPECT_STREQ("MY_BYTE_MEMBER", packRepresentation->Members()[0].Identifier.c_str());
+    EXPECT_EQ(TypeName::Byte, packRepresentation->Members()[0].Type.Name);
+    EXPECT_FALSE(packRepresentation->Members()[0].IsArray);
+    EXPECT_EQ("", packRepresentation->Members()[0].ArrayLength);
+    
+    EXPECT_STREQ("MY_WORD_MEMBER", packRepresentation->Members()[1].Identifier.c_str());
+    EXPECT_EQ(TypeName::Word, packRepresentation->Members()[1].Type.Name);
+    EXPECT_FALSE(packRepresentation->Members()[1].IsArray);
+    EXPECT_EQ("", packRepresentation->Members()[1].ArrayLength);
 
-    // Check each member
-    EXPECT_EQ(TypeName::Byte, packConstruction->Members()[0].Type.Name);
-    EXPECT_EQ(1llu, packConstruction->Members()[0].Type.Size);
-    EXPECT_FALSE(packConstruction->Members()[0].IsArray);
-    EXPECT_STREQ("MY_BYTE_MEMBER", packConstruction->Members()[0].Identifier.c_str());
-
-    EXPECT_EQ(TypeName::Word, packConstruction->Members()[1].Type.Name);
-    EXPECT_EQ(2llu, packConstruction->Members()[1].Type.Size);
-    EXPECT_FALSE(packConstruction->Members()[1].IsArray);
-    EXPECT_STREQ("MY_WORD_MEMBER", packConstruction->Members()[1].Identifier.c_str());
-
-    EXPECT_EQ(TypeName::Bool, packConstruction->Members()[2].Type.Name);
-    EXPECT_EQ(1llu, packConstruction->Members()[2].Type.Size);
-    EXPECT_FALSE(packConstruction->Members()[2].IsArray);
-    EXPECT_STREQ("MY_BOOL_MEMBER", packConstruction->Members()[2].Identifier.c_str());
-
-    EXPECT_EQ(TypeName::Char, packConstruction->Members()[3].Type.Name);
-    EXPECT_EQ(1llu, packConstruction->Members()[3].Type.Size);
-    EXPECT_FALSE(packConstruction->Members()[3].IsArray);
-    EXPECT_STREQ("MY_CHAR_MEMBER", packConstruction->Members()[3].Identifier.c_str());
-
-    EXPECT_EQ(TypeName::DoubleWord, packConstruction->Members()[4].Type.Name);
-    EXPECT_EQ(4llu, packConstruction->Members()[4].Type.Size);
-    EXPECT_FALSE(packConstruction->Members()[4].IsArray);
-    EXPECT_STREQ("MY_DWRD_MEMBER", packConstruction->Members()[4].Identifier.c_str());
-
-    EXPECT_EQ(TypeName::String, packConstruction->Members()[5].Type.Name);
-    EXPECT_EQ(1llu, packConstruction->Members()[5].Type.Size);
-    EXPECT_EQ(20llu, packConstruction->Members()[5].ArrayLength);
-    EXPECT_TRUE(packConstruction->Members()[5].IsArray);
-    EXPECT_STREQ("MY_STRING_MEMBER", packConstruction->Members()[5].Identifier.c_str());*/
+    EXPECT_STREQ("MY_BYTE_ARRAY_MEMBER", packRepresentation->Members()[2].Identifier.c_str());
+    EXPECT_EQ(TypeName::Byte, packRepresentation->Members()[2].Type.Name);
+    EXPECT_TRUE(packRepresentation->Members()[2].IsArray);
+    EXPECT_EQ("0x100", packRepresentation->Members()[2].ArrayLength);
+    
+    EXPECT_STREQ("MY_BOOL_MEMBER", packRepresentation->Members()[3].Identifier.c_str());
+    EXPECT_EQ(TypeName::Bool, packRepresentation->Members()[3].Type.Name);
+    EXPECT_FALSE(packRepresentation->Members()[3].IsArray);
+    EXPECT_EQ("", packRepresentation->Members()[3].ArrayLength);
+    
+    EXPECT_STREQ("MY_CHAR_MEMBER", packRepresentation->Members()[4].Identifier.c_str());
+    EXPECT_EQ(TypeName::Char, packRepresentation->Members()[4].Type.Name);
+    EXPECT_FALSE(packRepresentation->Members()[4].IsArray);
+    EXPECT_EQ("", packRepresentation->Members()[4].ArrayLength);
+    
+    EXPECT_STREQ("MY_DWRD_MEMBER", packRepresentation->Members()[5].Identifier.c_str());
+    EXPECT_EQ(TypeName::DoubleWord, packRepresentation->Members()[5].Type.Name);
+    EXPECT_FALSE(packRepresentation->Members()[5].IsArray);
+    EXPECT_EQ("", packRepresentation->Members()[5].ArrayLength);
+    
+    EXPECT_STREQ("MY_STRING_MEMBER", packRepresentation->Members()[6].Identifier.c_str());
+    EXPECT_EQ(TypeName::String, packRepresentation->Members()[6].Type.Name);
+    EXPECT_TRUE(packRepresentation->Members()[6].IsArray);
+    EXPECT_EQ("20", packRepresentation->Members()[6].ArrayLength);
 }
 

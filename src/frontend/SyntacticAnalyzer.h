@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "../intermediate-representation/IntermediateRepresentation.h"
-#include "../language/ConstructionPack.h"
 #include "../interfaces/ConstructionSyntacticAnalyzer.h"
 #include "parsers/PackSyntacticAnalyzer.h"
 

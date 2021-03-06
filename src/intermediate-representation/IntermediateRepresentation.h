@@ -16,7 +16,7 @@ enum class ConstructionType
 class IntermediateRepresentation
 {
 public:
-    IntermediateRepresentation(ConstructionType);
+    IntermediateRepresentation(ConstructionType, size_t, size_t);
     virtual ~IntermediateRepresentation() = default;
 
     ConstructionType Type();
@@ -25,8 +25,8 @@ public:
 
 private:
     ConstructionType _type{};
-    size_t _column{};
     size_t _line{};
+    size_t _column{};
 };
 
 }

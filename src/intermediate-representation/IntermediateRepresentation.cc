@@ -3,8 +3,10 @@
 namespace gbxasm::intermediate_representation
 {
 
-IntermediateRepresentation::IntermediateRepresentation(ConstructionType type)
+IntermediateRepresentation::IntermediateRepresentation(ConstructionType type, size_t line, size_t column)
     : _type(type)
+    , _line(line)
+    , _column(column)
 {}
 
 ConstructionType IntermediateRepresentation::Type()

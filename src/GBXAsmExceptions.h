@@ -37,4 +37,11 @@ public:
     SyntacticAnalyzerException(const std::string);
     ~SyntacticAnalyzerException() = default;
 };
+
+class ConversionException : public GBXAsmException
+{
+public:
+    ConversionException(const std::string);
+    ~ConversionException() = default;
+};
 }

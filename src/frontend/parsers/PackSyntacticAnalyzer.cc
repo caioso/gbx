@@ -1,282 +1,195 @@
 #include "PackSyntacticAnalyzer.h"
 
-using namespace gbxasm::intermediate_representation;
-using namespace gbxasm::interfaces;
 using namespace gbxasm::frontend;
+using namespace gbxasm::interfaces;
+using namespace gbxasm::intermediate_representation;
+using namespace gbxasm::utilities;
 using namespace std;
 
 namespace gbxasm::frontend::parsers
 {
 
-std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
+shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
 {
     ExtactSymbols(currentToken, end);
+
+    string identifier;
+    vector<DeclaredMember> members;
+
+    // current member attributes
+    DeclaredMember member;
 
     while (!IsAccepted() && !IsRejected())
     {        
         auto leftSubstring = -1;
-        auto state = 0;
+        auto state = FSMStates::InitialState;
         
         while(true)
         {
-            if (state == 0)
+            if (state == FSMStates::InitialState)
             {
-                leftSubstring++;
-                state = 1;
+                Shift(leftSubstring); state = FSMStates::InitialPackHeaderOrNTPackDetection;
             }
-            else if (state == 1) // Detect 'PACK'
+            else if (state == FSMStates::InitialPackHeaderOrNTPackDetection) // Detect 'PACK'
             {
-                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalPack)
+                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalPack)
                 {
-                    leftSubstring++;
-                    state = 2;
+                    Shift(leftSubstring); state = FSMStates::PackIdentifierDetection;
                 }
-                else if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalHeader)
+                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalHeader)
                 {
-                    leftSubstring++;
-                    state = 4;
+                    Shift(leftSubstring); state = FSMStates::InitialMemberDetectionOrFooterOrNTPackDetection;
                 }
-                else if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalPack)
+                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalPack)
                 {
-                    //cout << "Accept" << '\n';
-                    Accept();
-                    break;
+                    Accept(); break;
                 }
                 else
                 {
-                    //cout << "Rejected" << '\n';
-                    Reject();
-                    break;
+                    Reject(); break;
                 }
             }
-            else if (state == 2) // Detect 'Identifier'
+            else if (state == FSMStates::PackIdentifierDetection) // Detect 'Identifier'
             {
-                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalIdentifier)
+                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalIdentifier)
                 {
-                    leftSubstring++;
-                    state = 3;
+                    Shift(leftSubstring); state = FSMStates::PackHeaderDetection;
                 }
                 else
                 {
-                    //cout << "Rejected" << '\n';
-                    Reject();
-                    break;
+                    Reject(); break;
                 }
             }
-            else if (state == 3) // Detect 'Begin of Members' or 'End'
+            else if (state == FSMStates::PackHeaderDetection) // Detect 'Begin of Members' or 'End'
             {
-                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalType ||
-                    _symbols[leftSubstring] == PackParseTreeSymbols::TerminalEnd)
+                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalType ||
+                    _symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalEnd)
                 {
-                    // Reduce
-                    // Remove Identifier
-                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                    // Remove PACK
-                    _symbols.erase(begin(_symbols) + leftSubstring - 2);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 2, PackParseTreeSymbols::NonTerminalHeader);
-                    break;
+                    ReduceHeader(leftSubstring, identifier); break;
                 }
                 else
                 {
-                    //cout << "Rejected" << '\n';
-                    Reject();
-                    break;
+                    Reject(); break;
                 }
             }
-            else if (state == 4) // Detect Members Type
+            else if (state == FSMStates::InitialMemberDetectionOrFooterOrNTPackDetection) // Detect Members Type
             {
-                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalType)
+                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalType)
                 {
-                    leftSubstring++;
-                    state = 5;
+                    Shift(leftSubstring); state = FSMStates::MemberIdentifierDetection;
                 }
-                else if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalMember || 
-                         _symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalMemberList)
+                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalMember || 
+                         _symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalMemberList)
                 {
-                    leftSubstring++;
-                    state = 10;
+                    Shift(leftSubstring); state = FSMStates::MemberListOrFooterOrNTPackDetection;
                 }
-                else if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalEnd)
+                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalEnd)
                 {
-                    // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
-                    // Remove First
-                    _symbols.erase(begin(_symbols) + leftSubstring);
-                    _symbols.insert(begin(_symbols) +  leftSubstring, PackParseTreeSymbols::NonTerminalFooter);
-                    break;
+                    ReduceEmptyPackFooter(leftSubstring); break;
                 }
-                else if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalFooter)
+                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalFooter)
                 {
-                    // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
-                    // Remove First
-                    _symbols.erase(begin(_symbols) + leftSubstring);
-                    // Remove Second
-                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 1, PackParseTreeSymbols::NonTerminalPack);
-                    break;
+                    ReduceEmptyPack(leftSubstring); break;
                 }
                 else
                 {
-                    //cout << "Rejected" << '\n';
-                    Reject();
-                    break;
+                    Reject(); break;
                 }
             }
-            else if (state == 5) // Detect Members Identifier
+            else if (state == FSMStates::MemberIdentifierDetection) // Detect Members Identifier
             {
-                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalIdentifier)
+                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalIdentifier)
                 {
-                    leftSubstring++;
-                    state = 6;
+                    Shift(leftSubstring); state = FSMStates::MemberArrayOpenBracketDetection;
                 }
                 else
                 {
-                    //cout << "Rejected" << '\n';
-                    Reject();
-                    break;
+                    Reject(); break;
                 }
             }
-            else if (state == 6) // Detect 'Begin of Members' or 'End' or '['
+            else if (state == FSMStates::MemberArrayOpenBracketDetection) // Detect 'Begin of Members' or 'End' or '['
             {
-                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalType ||
-                    _symbols[leftSubstring] == PackParseTreeSymbols::TerminalEnd)
+                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalType ||
+                    _symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalEnd)
                 {
-                    // Reduce
-                    // Remove Identifier
-                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                    // Remove Type
-                    _symbols.erase(begin(_symbols) + leftSubstring - 2);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 2, PackParseTreeSymbols::NonTerminalMember);
-                    break;
+                    ReduceMember(leftSubstring, member, members); break;
                 }
-                else if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalOpenBracket)
+                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalOpenBracket)
                 {
-                    leftSubstring++;
-                    state = 7;
+                    Shift(leftSubstring); state = FSMStates::ArrayDimensionDetection;
                 }
                 else
                 {
-                    //cout << "Rejected" << '\n';
-                    Reject();
-                    break;
+                    Reject(); break;
                 }
             }
-            else if (state == 7) // Detect numeric literal
+            else if (state == FSMStates::ArrayDimensionDetection) // Detect numeric literal
             {
-                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalNumericLiteral)
+                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalNumericLiteral)
                 {
-                    leftSubstring++;
-                    state = 8;
+                    Shift(leftSubstring); state = FSMStates::MemberArrayCloseBracketDetection;
                 }
                 else
                 {
-                    //cout << "Rejected" << '\n';
-                    Reject();
-                    break;
+                    Reject(); break;
                 }
             }
-            else if (state == 8) // Detect ]
+            else if (state == FSMStates::MemberArrayCloseBracketDetection) // Detect ]
             {
-                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalCloseBracket)
+                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalCloseBracket)
                 {
-                    leftSubstring++;
-                    state = 9;
+                    Shift(leftSubstring); state = FSMStates::MemberArrayDetection;
                 }
                 else
                 {
-                    //cout << "Rejected" << '\n';
-                    Reject();
-                    break;
+                    Reject(); break;
                 }
             }
-            else if (state == 9) // Detect 'Begin of Members' or 'End'
+            else if (state == FSMStates::MemberArrayDetection) // Detect 'Begin of Members' or 'End'
             {
-                if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalType ||
-                    _symbols[leftSubstring] == PackParseTreeSymbols::TerminalEnd)
+                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalType ||
+                    _symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalEnd)
                 {
-                    // Reduce
-                    // Remove ]
-                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                    // Remove Numeric Literal
-                    _symbols.erase(begin(_symbols) + leftSubstring - 2);
-                    // Remove [
-                    _symbols.erase(begin(_symbols) + leftSubstring - 3);
-                    // Remove Identifier
-                    _symbols.erase(begin(_symbols) + leftSubstring - 4);
-                    // Remove Type
-                    _symbols.erase(begin(_symbols) + leftSubstring - 5);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 5, PackParseTreeSymbols::NonTerminalMember);
-                    break;
+                    ReduceArrayMember(leftSubstring, member, members); break;
                 }
                 else
                 {
-                    //cout << "Rejected" << '\n';
-                    Reject();
-                    break;
+                    Reject(); break;
                 }
             }
-            else if (state == 10) // Detect ]
+            else if (state == FSMStates::MemberListOrFooterOrNTPackDetection) // Detect Member List or Footer Detecton
             {
-                if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalMember || 
-                    _symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalMemberList)
+                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalMember || 
+                    _symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalMemberList)
                 {
-                    // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
-                    // Remove First
-                    _symbols.erase(begin(_symbols) + leftSubstring);
-                    // Remove Second
-                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 1, PackParseTreeSymbols::NonTerminalMemberList);
-                    break;
+                    ReduceMemberList(leftSubstring); break;
                 }
-                else if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalType)
+                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalType)
                 {
-                    leftSubstring++;
-                    state = 5;
+                    Shift(leftSubstring); state = FSMStates::MemberIdentifierDetection;
                 }
-                else if (_symbols[leftSubstring] == PackParseTreeSymbols::TerminalEnd)
+                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalEnd)
                 {
-                    // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
-                    // Remove First
-                    _symbols.erase(begin(_symbols) + leftSubstring);
-                    _symbols.insert(begin(_symbols) +  leftSubstring, PackParseTreeSymbols::NonTerminalFooter);
-                    break;
+                    ReduceFooter(leftSubstring); break;
                 }
-                else if (_symbols[leftSubstring] == PackParseTreeSymbols::NonTerminalFooter)
+                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalFooter)
                 {
-                    // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
-                    // Remove First
-                    _symbols.erase(begin(_symbols) + leftSubstring);
-                    // Remove Second
-                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                    // Remove Third
-                    _symbols.erase(begin(_symbols) + leftSubstring - 2);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 2, PackParseTreeSymbols::NonTerminalPack);
-                    break;
+                    ReducePack(leftSubstring); break;
                 }
                 else
                 {
-                    //cout << "Rejected" << '\n';
-                    Reject();
-                    break;
+                    Reject(); break;
                 }
             }
         }
 
         //cout << "\nOriginal : Size " << _symbols.size() << '\n';
-        for (auto token : _symbols)
-        {
-            //cout << static_cast<size_t>(token) << '\n';
-        }
     }
 
     if (IsAccepted())
-        return ExtractConstructions();
+        return make_shared<PackIntermediateRepresentation>(identifier, members, currentToken->Line, currentToken->Column);
     else
         return {};
-}
-
-std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> PackSyntacticAnalyzer:: ExtractConstructions()
-{
-    return make_shared<PackIntermediateRepresentation>();
 }
 
 void PackSyntacticAnalyzer::ExtactSymbols(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
@@ -296,32 +209,32 @@ void PackSyntacticAnalyzer::ExtactSymbols(vector<Token>::iterator& currentToken,
         return previousCondition;
     });
     
-    transform(currentToken, end, back_inserter(_symbols), [](Token x) -> auto
+    transform(currentToken, end, back_inserter(_symbols), [](Token x) -> PackCompoundSymbol
     {
         switch (x.Type)
         {
             case TokenType::KeywordPACK: 
-                return PackParseTreeSymbols::TerminalPack;
+                return {.Symbol = PackParseTreeSymbols::TerminalPack, .Lexeme  = x.Lexeme };
             case TokenType::Identifier: 
-                return PackParseTreeSymbols::TerminalIdentifier;
+                return {.Symbol = PackParseTreeSymbols::TerminalIdentifier, .Lexeme  = x.Lexeme };
             case TokenType::KeywordBYTE:
             case TokenType::KeywordWORD:
             case TokenType::KeywordDWRD:
             case TokenType::KeywordSTR:
             case TokenType::KeywordCHAR:
             case TokenType::KeywordBOOL:
-                 return PackParseTreeSymbols::TerminalType;
+                 return {.Symbol = PackParseTreeSymbols::TerminalType, .Lexeme  = x.Lexeme };
             case TokenType::SeparatorOPENBRACKETS: 
-                return PackParseTreeSymbols::TerminalOpenBracket;
+                return {.Symbol = PackParseTreeSymbols::TerminalOpenBracket, .Lexeme  = x.Lexeme };
             case TokenType::SeparatorCLOSEBRACKETS: 
-                return PackParseTreeSymbols::TerminalCloseBracket;
+                return {.Symbol = PackParseTreeSymbols::TerminalCloseBracket, .Lexeme  = x.Lexeme };
             case TokenType::LiteralNumericDECIMAL:
             case TokenType::LiteralNumericHEXADECIMAL:
             case TokenType::LiteralNumericOCTAL:
             case TokenType::LiteralNumericBINARY:
-                return PackParseTreeSymbols::TerminalNumericLiteral;
+                return {.Symbol = PackParseTreeSymbols::TerminalNumericLiteral, .Lexeme  = x.Lexeme };
             case TokenType::KeywordEND:
-                return PackParseTreeSymbols::TerminalEnd;
+                return {.Symbol = PackParseTreeSymbols::TerminalEnd, .Lexeme  = x.Lexeme };
             default:
             {
                 stringstream ss;
@@ -331,12 +244,113 @@ void PackSyntacticAnalyzer::ExtactSymbols(vector<Token>::iterator& currentToken,
             }
         }
     });
+}
 
-    /*//cout << "Original : Size " << _symbols.size() << '\n';
-    for (auto token : _symbols)
-    {
-        //cout << static_cast<size_t>(token) << '\n';
-    }*/
+inline void PackSyntacticAnalyzer::Shift(int& top)
+{
+    top++;
+}
+
+inline void PackSyntacticAnalyzer::ReduceHeader(int top, std::string& identifier)
+{
+    // Identifier has been found here
+    identifier = _symbols[top - 1].Lexeme;
+
+    // Reduce
+    // Remove Identifier
+    _symbols.erase(begin(_symbols) + top - 1);
+    // Remove PACK
+    _symbols.erase(begin(_symbols) + top - 2);
+    _symbols.insert(begin(_symbols) +  top - 2, { .Symbol = PackParseTreeSymbols::NonTerminalHeader, .Lexeme = string("") });
+}
+
+inline void PackSyntacticAnalyzer::ReduceEmptyPackFooter(int top)
+{
+    // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
+    // Remove First
+    _symbols.erase(begin(_symbols) + top);
+    _symbols.insert(begin(_symbols) +  top, { .Symbol = PackParseTreeSymbols::NonTerminalFooter, .Lexeme = string("") });
+}
+
+inline void PackSyntacticAnalyzer::ReduceEmptyPack(int top)
+{
+    // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
+    // Remove First
+    _symbols.erase(begin(_symbols) + top);
+    // Remove Second
+    _symbols.erase(begin(_symbols) + top - 1);
+    _symbols.insert(begin(_symbols) +  top - 1, { .Symbol = PackParseTreeSymbols::NonTerminalPack, .Lexeme = string("") });
+}
+
+inline void PackSyntacticAnalyzer::ReduceMember(int top, DeclaredMember& member, vector<DeclaredMember>& members)
+{
+    // Reduce
+    member.Identifier = _symbols[top - 1].Lexeme;
+    member.Type = GetTypeByName(LexemeToDeclaredMemberType::Convert(_symbols[top - 2].Lexeme));
+     member.IsArray = false;
+    member.ArrayLength = "";
+    members.push_back(std::move(member));
+    member = {};
+
+    // Remove Identifier
+    _symbols.erase(begin(_symbols) + top - 1);
+    // Remove Type
+    _symbols.erase(begin(_symbols) + top - 2);
+    _symbols.insert(begin(_symbols) +  top - 2, { .Symbol = PackParseTreeSymbols::NonTerminalMember, .Lexeme = string("") });
+}
+
+inline void PackSyntacticAnalyzer::ReduceArrayMember(int top, DeclaredMember& member, vector<DeclaredMember>& members)
+{
+    // Reduce
+    member.Identifier = _symbols[top - 4].Lexeme;
+    member.Type = GetTypeByName(LexemeToDeclaredMemberType::Convert(_symbols[top - 5].Lexeme));
+    member.IsArray = true;
+    member.ArrayLength = _symbols[top - 2].Lexeme;
+    members.push_back(std::move(member));
+    member = {};
+
+    // Reduce
+    // Remove ]
+    _symbols.erase(begin(_symbols) + top - 1);
+    // Remove Numeric Literal
+    _symbols.erase(begin(_symbols) + top - 2);
+    // Remove [
+    _symbols.erase(begin(_symbols) + top - 3);
+    // Remove Identifier
+    _symbols.erase(begin(_symbols) + top - 4);
+    // Remove Type
+    _symbols.erase(begin(_symbols) + top - 5);
+    _symbols.insert(begin(_symbols) +  top - 5, { .Symbol = PackParseTreeSymbols::NonTerminalMember, .Lexeme = string("") });
+}
+
+inline void PackSyntacticAnalyzer::ReduceMemberList(int top)
+{
+    // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
+    // Remove First
+    _symbols.erase(begin(_symbols) + top);
+    // Remove Second
+    _symbols.erase(begin(_symbols) + top - 1);
+    _symbols.insert(begin(_symbols) +  top - 1, { .Symbol = PackParseTreeSymbols::NonTerminalMemberList, .Lexeme = string("") });
+}
+
+inline void PackSyntacticAnalyzer::ReduceFooter(int top)
+{
+    // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
+    // Remove First
+    _symbols.erase(begin(_symbols) + top);
+    _symbols.insert(begin(_symbols) +  top, { .Symbol = PackParseTreeSymbols::NonTerminalFooter, .Lexeme = string("") });
+}
+
+inline void PackSyntacticAnalyzer::ReducePack(int top)
+{
+     // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
+    // Remove First
+    _symbols.erase(begin(_symbols) + top);
+    // Remove Second
+    _symbols.erase(begin(_symbols) + top - 1);
+    // Remove Third
+    _symbols.erase(begin(_symbols) + top - 2);
+    _symbols.insert(begin(_symbols) +  top - 2, { .Symbol = PackParseTreeSymbols::NonTerminalPack, .Lexeme = string("") });
 }
 
 }

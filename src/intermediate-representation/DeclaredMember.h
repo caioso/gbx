@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 
-namespace gbxasm::language
+namespace gbxasm::intermediate_representation
 {
 
 enum class TypeName
@@ -25,7 +25,7 @@ struct DataType
 struct DeclaredMember
 {
     DataType Type;
-    size_t ArrayLength;
+    std::string ArrayLength;
     bool IsArray;
     std::string Identifier;
 };
@@ -36,5 +36,7 @@ inline static DataType TypeDoubleWord = {.Name = TypeName::DoubleWord, .Size = 4
 inline static DataType TypeBool = {.Name = TypeName::Bool, .Size = 1llu};
 inline static DataType TypeChar = {.Name = TypeName::Char, .Size = 1llu};
 inline static DataType TypeString = {.Name = TypeName::String, .Size = 1llu};
+
+DataType GetTypeByName(TypeName);
 
 }
