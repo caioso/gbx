@@ -5,9 +5,11 @@ OBJ_DIR := $(CURDIR)/../obj
 TARGET_DIR := $(CURDIR)/..
 SRC_FILES := $(wildcard ./*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./interfaces/*.cc)
+SRC_FILES := $(SRC_FILES) $(wildcard ./protocol/*.cc)
 SRC_FILES := $(SRC_FILES) $(wildcard ./runtime/*.cc)
 OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
 OBJ_FILES := $(subst interfaces/,,$(OBJ_FILES))
+OBJ_FILES := $(subst protocol/,,$(OBJ_FILES))
 OBJ_FILES := $(subst runtime/,,$(OBJ_FILES))
 LDFLAGS := $(LDCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O0 -g -DDEBUG -lboost_system -pthread
 CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG 
@@ -28,6 +30,12 @@ $(OBJ_DIR)/%.o: ./interfaces/%.cc
 	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
 
 $(OBJ_DIR)/%.o: ./interfaces/%.cc ./interfaces/%.h
+	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./protocol/%.cc
+	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: ./protocol/%.cc ./protocol/%.h
 	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
 
 $(OBJ_DIR)/%.o: ./runtime/%.cc

@@ -1,15 +1,12 @@
 #pragma once
 
 #include <memory>
-#include <array>
 
 #include "DebugMessage.h"
 #include "Subject.h"
 
 namespace gbx::interfaces
 {
-
-const size_t MaxMessageBufferSize = 256;
 
 class ServerTransport : public gbxcommons::Subject
 {

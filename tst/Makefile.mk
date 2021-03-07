@@ -9,7 +9,9 @@ CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O0 -g -DDEBUG
 TARGET := gbxTest
 TARGET_DIR := $(CURDIR)/..
 INCLUDE := -I../../gbxcore/src/ -I../../gbxcommons/src/
-DEPENDECIES := $(OBJ_DIR)/Runner.o $(OBJ_DIR)/CancellationToken.o $(OBJ_DIR)/MessageHandler.o 
+DEPENDECIES := $(OBJ_DIR)/Runner.o $(OBJ_DIR)/CancellationToken.o $(OBJ_DIR)/MessageHandler.o $(OBJ_DIR)/DebugMessage.o \
+			   $(OBJ_DIR)/DebugMessageNotificationArguments.o $(OBJ_DIR)/GBXExceptions.o $(OBJ_DIR)/DebugCommand.o \
+			   $(OBJ_DIR)/ReadRegisterCommand.o
 
 $(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
 	$(CC) $(INCLUDE) -o $@ $^ $(DEPENDECIES) $(LDFLAGS)

@@ -1,33 +1,22 @@
 #pragma once
 
+#include <array>
 #include <cstdlib>
-
+#include <memory>
 namespace gbx::interfaces
 {
 
-enum class MessageType
-{
-    // Client Connected Message
-    ClientConnectedRequest,
-    // Server Status Messages
-    StatusRequest,
-    StatusResponse,
-    // Register Status Messages
-    RegisterRequest,
-    RegisterResponse,
-    UnknownMessage
-};
-
+const size_t MaxMessageBufferSize = 256;
 class DebugMessage
 {
 public:
-    DebugMessage(MessageType);
-    virtual ~DebugMessage() = default;
+    DebugMessage(std::shared_ptr<std::array<uint8_t, MaxMessageBufferSize>>);
+    ~DebugMessage() = default;
 
-    MessageType Type();
+    std::shared_ptr<std::array<uint8_t, MaxMessageBufferSize>> Buffer();
 
-protected:
-    MessageType _requestType;
+private:
+    std::shared_ptr<std::array<uint8_t, MaxMessageBufferSize>> _messageBytes;
 };
 
 }
