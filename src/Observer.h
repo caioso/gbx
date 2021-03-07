@@ -2,21 +2,23 @@
 
 #include <memory>
 
+#include "Subject.h"
+
 namespace gbxcommons
 {
 
-class NotificationArgs
+class NotificationArguments
 {
 public:
-    NotificationArgs() = default;
-    virtual ~NotificationArgs() = default;
+    NotificationArguments() = default;
+    virtual ~NotificationArguments() = default;
 };
-
+    
 class Observer
 {
 public:
     virtual ~Observer() = default;
-    virtual void Notify(std::shared_ptr<NotificationArgs>) = 0;
+    virtual void Notify(std::shared_ptr<NotificationArguments>) = 0;
 };
 
 }
