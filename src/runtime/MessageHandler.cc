@@ -39,39 +39,37 @@ void MessageHandler::ParseMessage(std::shared_ptr<interfaces::DebugMessage> mess
     }
 }
 
-shared_ptr<DebugCommand> MessageHandler::ParseReadRegisterCommand(shared_ptr<DebugMessage> message)
-{
-    // Move this to a "Parse Method" in the ReadRegisterCommand class
-    auto targetRegister = (*message->Buffer())[2];
-
-    auto validRegisters = {Register::B, Register::C, Register::D, Register::E, Register::H, Register::L,
-                        Register::A, Register::F, Register::IR, Register::PIR, Register::R, Register::PC,
-                        Register::SP, Register::IX, Register::IY,  Register::HL, Register::BC, Register::DE, Register::AF};
-
-    for (auto reg : validRegisters)
-        if (static_cast<uint8_t>(reg) == targetRegister)
-        {
-            auto command = make_shared<ReadRegisterCommand>(static_cast<gbxcore::interfaces::Register>(targetRegister));
-            return static_pointer_cast<DebugCommand>(command);
-        }
-
-    throw MessageHandlerException("Invalid target register found when parsing 'ReadRegister' command");
-}
-
 void MessageHandler::ProcessMessages(shared_ptr<Runtime> runtime)
 {
     while(_commandQueue.size() != 0)
     {
         auto command = _commandQueue.front();
+        shared_ptr<DebugMessage> response;
 
         switch(command->Type())
         {
-            case CommandID::CommandReadRegister: runtime->ReadRegister(static_pointer_cast<ReadRegisterCommand>(command)->RegisterToRead()); 
+            case CommandID::CommandReadRegister: response = RunReadRegisterCommand(command, runtime);
                  break;
         }
 
+        _transport->SendMessage(response);
         _commandQueue.pop();
     }
+}
+
+shared_ptr<DebugCommand> MessageHandler::ParseReadRegisterCommand(shared_ptr<DebugMessage> message)
+{
+    auto readRegisterCommand = make_shared<ReadRegisterCommand>();
+    readRegisterCommand->DecodeRequestMessage(message);
+    return readRegisterCommand;
+}
+
+std::shared_ptr<interfaces::DebugMessage> MessageHandler::RunReadRegisterCommand(std::shared_ptr<interfaces::DebugCommand> command, shared_ptr<Runtime> runtime)
+{
+    auto valueVariant = runtime->ReadRegister(static_pointer_cast<ReadRegisterCommand>(command)->RegisterToRead());
+    auto value = holds_alternative<uint16_t>(valueVariant) ? get<uint16_t>(valueVariant) : static_cast<uint16_t>(get<uint8_t>(valueVariant));
+    static_pointer_cast<ReadRegisterCommand>(command)->SetRegisterValue(value);
+    return command->EncodeRequestMessage();
 }
 
 size_t MessageHandler::Pending()

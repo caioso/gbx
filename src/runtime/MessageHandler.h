@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <queue>
+#include <variant>
 
 #include "../GBXExceptions.h"
 #include "../interfaces/DebugCommand.h"
@@ -36,7 +37,9 @@ public:
 
 private:
     void ParseMessage(std::shared_ptr<interfaces::DebugMessage>);
+
     std::shared_ptr<interfaces::DebugCommand> ParseReadRegisterCommand(std::shared_ptr<interfaces::DebugMessage>);
+    [[nodiscard]] std::shared_ptr<interfaces::DebugMessage> RunReadRegisterCommand(std::shared_ptr<interfaces::DebugCommand>, std::shared_ptr<gbxcore::interfaces::Runtime>);
 
     std::shared_ptr<interfaces::ServerTransport> _transport;
     std::queue<std::shared_ptr<interfaces::DebugCommand>> _commandQueue;
