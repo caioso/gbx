@@ -42,6 +42,8 @@ public:
     inline const static std::string KeywordHIGH = "HIGH";
     inline const static std::string KeywordLOW = "LOW";
     inline const static std::string KeywordIN = "IN";
+    inline const static std::string KeywordDFLT = "DFLT";
+    inline const static std::string KeywordBRK = "BRK";
     inline const static std::string KeywordOUT = "OUT";
 
     // Operators

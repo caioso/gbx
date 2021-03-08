@@ -159,6 +159,10 @@ vector<Token> LexicalAnalyzer::EvaluateLexeme(string originalLexeme, size_t colu
             token.Type = TokenType::KeywordLOW;
         else if (lexeme.first.compare(Lexemes::KeywordIN) == 0)
             token.Type = TokenType::KeywordIN;
+        else if (lexeme.first.compare(Lexemes::KeywordDFLT) == 0)
+            token.Type = TokenType::KeywordDFLT;
+        else if (lexeme.first.compare(Lexemes::KeywordBRK) == 0)
+            token.Type = TokenType::KeywordBRK;
         else if (lexeme.first.compare(Lexemes::KeywordOUT) == 0)
             token.Type = TokenType::KeywordOUT;
 

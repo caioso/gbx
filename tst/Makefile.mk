@@ -12,7 +12,7 @@ DEPENDECIES := $(OBJ_DIR)/GBXAsmExceptions.o $(OBJ_DIR)/LexicalAnalyzer.o $(OBJ_
 			   $(OBJ_DIR)/Construction.o $(OBJ_DIR)/LexemeToDeclaredMemberType.o $(OBJ_DIR)/ConstructionSyntacticAnalyzer.o \
 			   $(OBJ_DIR)/PackSyntacticAnalyzer.o $(OBJ_DIR)/ConditionalAssemblyPass.o $(OBJ_DIR)/IdentifierValidator.o \
 			   $(OBJ_DIR)/RemoveCommentsPass.o $(OBJ_DIR)/OutputStream.o  $(OBJ_DIR)/IntermediateRepresentation.o \
-			   $(OBJ_DIR)/PackIntermediateRepresentation.o $(OBJ_DIR)/DeclaredMember.o
+			   $(OBJ_DIR)/PackIntermediateRepresentation.o $(OBJ_DIR)/DeclaredMember.o $(OBJ_DIR)/FuncSyntacticAnalyzer.o
 		
 $(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
 	$(CC) -o $@ $^ $(DEPENDECIES) $(LDFLAGS)

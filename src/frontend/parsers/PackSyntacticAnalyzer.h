@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <iostream>
 #include <vector>
 #include <sstream>
 #include <stack>
@@ -64,7 +63,7 @@ private:
         MemberListOrFooterOrNTPackDetection = 10,
     };
 
-    void ExtactSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
+    void ExtractSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
     std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> ExtractConstructions();
 
     inline void Shift(int&);

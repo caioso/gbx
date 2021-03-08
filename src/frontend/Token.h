@@ -57,6 +57,8 @@ enum class TokenType
     KeywordHIGH,
     KeywordLOW,
     KeywordIN,
+    KeywordDFLT,
+    KeywordBRK,
     KeywordOUT,
 
     // Operators

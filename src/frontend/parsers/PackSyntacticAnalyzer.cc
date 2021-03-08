@@ -11,7 +11,7 @@ namespace gbxasm::frontend::parsers
 
 shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
 {
-    ExtactSymbols(currentToken, end);
+    ExtractSymbols(currentToken, end);
 
     string identifier;
     vector<DeclaredMember> members;
@@ -192,7 +192,7 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
         return {};
 }
 
-void PackSyntacticAnalyzer::ExtactSymbols(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
+void PackSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
 {
     vector<Token> constructionSymbols;
 
