@@ -116,6 +116,25 @@ Note that, the instantiation of a `PACK` with initializer lists **with an struct
 The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initializes two of its fields (X and Y). The instantiated struct-variable's X field is then loaded into the accumulator, which gets incremented by `H'04`. The accumulator is then written back to MY_SPRITE's field X. At the end, MY_SPRITE is freed, releasing its memory resources.  The second part of the example loads the accumulator with the CNSTant DEFAULT_PALETTE_INDEX and then *casts* HL to the  `PACK` type SPRITE (more specifically, the assembler will interpret HL as the base address of a SPRITE  `PACK` type and will perform field access arithmetic by using the offsets derivable from `PACK` SPRITE structure).
 
 #### `FUNC`
+
+
+CFunctions are an extension of the concept of 'function-labels' in standard assembly. They allow for expressive function calls with the `CALL` instruction and the `WITH` construction. Functions accept input and output argument lists that are automatically managed by the assembler in assembly time. They also allow for static type-check when used with the optinal `AS` keyword (allowed types are: `BOOL`, `CHAR`, `BYTE`, `WORD`, `DWORD` `STR`, their respective array types or any user-defined `PACK` type). The body of a function works exactly as their standard assembly counter-parts. 
+
+##### Example
+``` language assembly
+FUNC MY_FUNCTION
+	IN: ARGUMENT_1 AS BYTE
+	IN: ARGUMENT_2
+	OUT: RETURN_1
+	OUT: RETURN_2 AS WORD
+
+	; FUNCTION BODY
+
+END
+```
+
+In the previous example, function `MY_FUNCTION` is declared accepting two input arguments (`ARGUMENT_1` and `ARGUMENT_2`) and two output argments (`RETURN_1` and `RETURN_2`). Input argument `ARGUMENT_1` has been defined with type `BYTE` while output argument `RETURN_2` has  type `WORD`. The assembler will issue type-mismatch warnings whenever argument types do not match during a function call or when using output arguments. There is no theoritical limit on the number of input and output arguments. 
+
 #### `END`
 #### `VAR`
 #### `BOOL`
@@ -138,8 +157,24 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### `NEXT`
 #### `EXIT`
 #### `WHEN`
+switch-case style selection block.
+
+``` language assembly
+    WHEN A
+        IS 0x01: ; Do SOMETRHING;
+                 BRK
+        IS 0x02: ; Do SOMETRHING;
+                 BRK
+        DFLT:    ; Do SOMETRHING (DEFAULT);
+                 BRK
+    END
+```
+
+#### `BRK`
+#### `DFLT`
 #### `IS`
 ##### `IS` for Variable Instantiation
+##### `IS` with `WHEN` selection block
 #### `FOR`
 Repeat **for** a fixed amount of iterations.
 
