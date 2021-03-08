@@ -13,6 +13,10 @@ MessageHandlerException::MessageHandlerException(const std::string& message)
     : GBXException(message)
 {}
 
+ServerProtocolException::ServerProtocolException(const std::string& message)
+    : GBXException(message)
+{}
+
 const char* GBXException::what() const noexcept
 {
     return _message.c_str();

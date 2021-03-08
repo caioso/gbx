@@ -24,4 +24,11 @@ public:
     ~MessageHandlerException() = default;
 };
 
+class ServerProtocolException : public GBXException
+{
+public:
+    explicit ServerProtocolException(const std::string&);
+    ~ServerProtocolException() = default;
+};
+
 }
