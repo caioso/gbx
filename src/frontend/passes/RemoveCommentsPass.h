@@ -18,7 +18,12 @@ public:
     RemoveCommentsPass() = default;
     virtual ~RemoveCommentsPass() = default;
 
-    virtual void Process(std::string) override;
+    RemoveCommentsPass(const RemoveCommentsPass&) = default;
+    RemoveCommentsPass(RemoveCommentsPass&&) = default;
+    RemoveCommentsPass& operator=(const RemoveCommentsPass&) = default;
+    RemoveCommentsPass& operator=(RemoveCommentsPass&&) = default;
+
+    void Process(std::string) override;
     [[nodiscard]] virtual std::string Result() override;
 
 private:

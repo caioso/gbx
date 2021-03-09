@@ -15,6 +15,11 @@ public:
     PackIntermediateRepresentation(std::string, std::vector<DeclaredMember>, size_t, size_t);
     ~PackIntermediateRepresentation() = default;
 
+    PackIntermediateRepresentation(const PackIntermediateRepresentation&) = default;
+    PackIntermediateRepresentation(PackIntermediateRepresentation&&) = default;
+    PackIntermediateRepresentation& operator=(const PackIntermediateRepresentation&) = default;
+    PackIntermediateRepresentation& operator=(PackIntermediateRepresentation&&) = default;
+
     std::string Identifier();
     std::vector<DeclaredMember>& Members();
 

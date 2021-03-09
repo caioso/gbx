@@ -45,7 +45,12 @@ public:
     PackSyntacticAnalyzer() = default;
     virtual ~PackSyntacticAnalyzer() = default;
 
-    virtual std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> TryToAccept(std::vector<Token>::iterator&, std::vector<Token>::iterator&) override;
+    PackSyntacticAnalyzer(const PackSyntacticAnalyzer&) = default;
+    PackSyntacticAnalyzer(PackSyntacticAnalyzer&&) = default;
+    PackSyntacticAnalyzer& operator=(const PackSyntacticAnalyzer&) = default;
+    PackSyntacticAnalyzer& operator=(PackSyntacticAnalyzer&&) = default;
+
+    std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> TryToAccept(std::vector<Token>::iterator&, std::vector<Token>::iterator&) override;
 
 private:
     enum FSMStates : int
@@ -77,7 +82,6 @@ private:
     inline void ReducePack(int);
 
     std::vector<PackCompoundSymbol> _symbols;
-    std::stack<PackParseTreeSymbols> _stack;
 };
 
 }

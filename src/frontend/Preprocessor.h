@@ -18,6 +18,11 @@ public:
     PreProcessor() = default;
     ~PreProcessor() = default;
 
+    PreProcessor(const PreProcessor&) = default;
+    PreProcessor(PreProcessor&&) = default;
+    PreProcessor& operator=(const PreProcessor&) = default;
+    PreProcessor& operator=(PreProcessor&&) = default;
+
     void RegisterPass(std::shared_ptr<interfaces::Pass>, size_t);
     std::string ProcessPass(std::string, size_t);
 

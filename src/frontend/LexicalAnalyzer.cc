@@ -65,7 +65,7 @@ vector<Token> LexicalAnalyzer::EvaluateLexeme(string originalLexeme, size_t colu
     auto subLexemes = FindSubLexemes(originalLexeme, column);
     vector<Token> tokens;
 
-    for (auto lexeme : subLexemes)
+    for (const auto& lexeme : subLexemes)
     {
         Token token =
         {
@@ -406,7 +406,7 @@ inline TokenType LexicalAnalyzer::IdentifyNumericLiteral(string_view candidate)
 
 inline void LexicalAnalyzer::ValidateDecimalLiteral(string_view candidate)
 {
-    for (auto character : candidate)
+    for (const auto& character : candidate)
         if (character != '1' && character != '2' && character != '3' && character != '4' &&
             character != '5' && character != '6' && character != '7' && character != '8' &&
             character != '9' && character != '0')
@@ -419,7 +419,7 @@ inline void LexicalAnalyzer::ValidateDecimalLiteral(string_view candidate)
 
 inline void LexicalAnalyzer::ValidateOctalLiteral(string_view candidate)
 {
-    for (auto character : candidate)
+    for (const auto& character : candidate)
         if (character != '1' && character != '2' && character != '3' && character != '4' &&
             character != '5' && character != '6' && character != '7' && character != '0')
         {
@@ -431,7 +431,7 @@ inline void LexicalAnalyzer::ValidateOctalLiteral(string_view candidate)
 
 inline void LexicalAnalyzer::ValidateBinaryLiteral(string_view candidate)
 {
-    for (auto character : candidate)
+    for (const auto& character : candidate)
         if (character != '1' && character != '0')
         {
             stringstream ss;
@@ -593,7 +593,7 @@ inline string LexicalAnalyzer::ExtractPossibleSubCharLiteral(string candidate, s
     auto accumulator = string("");
     auto previous = static_cast<char>(0x00);
     auto started = false;
-    for (auto c : substring)
+    for (const auto& c : substring)
     {
         accumulator += c;
         if (!started && c == '\'')
@@ -719,7 +719,7 @@ inline void LexicalAnalyzer::ExtractAllStringTokenIfNeeded(string_view input)
 
 inline bool LexicalAnalyzer::HasUnmergedStrings()
 {
-    for (auto token : _tokens)
+    for (const auto& token : _tokens)
         if (token.Type == TokenType::SeparatorDOUBLEQUOTES)
             return true;
 

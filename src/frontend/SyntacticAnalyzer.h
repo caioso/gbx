@@ -14,7 +14,16 @@ namespace gbxasm::frontend
 class SyntacticAnalyzer
 {
 public:
+    SyntacticAnalyzer() = default;
+    ~SyntacticAnalyzer() = default;
+
+    SyntacticAnalyzer(const SyntacticAnalyzer&) = default;
+    SyntacticAnalyzer(SyntacticAnalyzer&&) = default;
+    SyntacticAnalyzer& operator=(const SyntacticAnalyzer&) = default;
+    SyntacticAnalyzer& operator=(SyntacticAnalyzer&&) = default;
+
     void Parse(std::vector<Token>);
+    
     std::vector<std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> > AcceptedStructures();
 
 private:

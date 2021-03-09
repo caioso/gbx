@@ -13,8 +13,14 @@ namespace gbxasm::interfaces
 class ConstructionSyntacticAnalyzer
 {
 public:
+    ConstructionSyntacticAnalyzer() = default;
     virtual ~ConstructionSyntacticAnalyzer() = default;
     virtual std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> TryToAccept(std::vector<frontend::Token>::iterator&, std::vector<frontend::Token>::iterator&) = 0;
+
+    ConstructionSyntacticAnalyzer(const ConstructionSyntacticAnalyzer&) = default;
+    ConstructionSyntacticAnalyzer(ConstructionSyntacticAnalyzer&&) = default;
+    ConstructionSyntacticAnalyzer& operator=(const ConstructionSyntacticAnalyzer&) = default;
+    ConstructionSyntacticAnalyzer& operator=(ConstructionSyntacticAnalyzer&&) = default;
 
     bool IsAccepted();
     bool IsRejected();

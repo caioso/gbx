@@ -16,7 +16,12 @@ public:
     OutputStream(std::optional<std::string>, std::shared_ptr<interfaces::StreamSink>);
     virtual ~OutputStream() = default;
 
-    virtual void Write(std::string, std::optional<std::string>, std::optional<size_t>, std::optional<size_t>) override;
+    OutputStream(const OutputStream&) = default;
+    OutputStream(OutputStream&&) = default;
+    OutputStream& operator=(const OutputStream&) = default;
+    OutputStream& operator=(OutputStream&&) = default;
+
+    void Write(std::string, std::optional<std::string>, std::optional<size_t>, std::optional<size_t>) override;
 
 private:
     std::shared_ptr<interfaces::StreamSink> _sink;

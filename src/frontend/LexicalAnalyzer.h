@@ -29,6 +29,11 @@ public:
     LexicalAnalyzer();
     ~LexicalAnalyzer() = default;
 
+    LexicalAnalyzer(const LexicalAnalyzer&) = default;
+    LexicalAnalyzer(LexicalAnalyzer&&) = default;
+    LexicalAnalyzer& operator=(const LexicalAnalyzer&) = default;
+    LexicalAnalyzer& operator=(LexicalAnalyzer&&) = default;
+
     void Tokenize(std::string_view);
     std::vector<Token>& Tokens();
 

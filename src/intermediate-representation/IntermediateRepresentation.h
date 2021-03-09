@@ -19,6 +19,11 @@ public:
     IntermediateRepresentation(ConstructionType, size_t, size_t);
     virtual ~IntermediateRepresentation() = default;
 
+    IntermediateRepresentation(const IntermediateRepresentation&) = default;
+    IntermediateRepresentation(IntermediateRepresentation&&) = default;
+    IntermediateRepresentation& operator=(const IntermediateRepresentation&) = default;
+    IntermediateRepresentation& operator=(IntermediateRepresentation&&) = default;
+
     ConstructionType Type();
     size_t Column();
     size_t Line();

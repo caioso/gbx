@@ -11,6 +11,11 @@ public:
     Construction(size_t line, size_t column);
     virtual ~Construction() = default;
 
+    Construction(const Construction&) = default;
+    Construction(Construction&&) = default;
+    Construction& operator=(const Construction&) = default;
+    Construction& operator=(Construction&&) = default;
+
     size_t Column();
     size_t Line();
 

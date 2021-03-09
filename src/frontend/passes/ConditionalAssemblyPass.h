@@ -55,7 +55,12 @@ public:
     ConditionalAssemblyPass(std::vector<std::string>&, std::shared_ptr<interfaces::MessageStream>);
     virtual ~ConditionalAssemblyPass() = default;
 
-    virtual void Process(std::string) override;
+    ConditionalAssemblyPass(const ConditionalAssemblyPass&) = delete;
+    ConditionalAssemblyPass(ConditionalAssemblyPass&&) = delete;
+    ConditionalAssemblyPass& operator=(const ConditionalAssemblyPass&) = delete;
+    ConditionalAssemblyPass& operator=(ConditionalAssemblyPass&&) = delete;
+
+    void Process(std::string) override;
     [[nodiscard]] virtual std::string Result() override;
 
 protected:
