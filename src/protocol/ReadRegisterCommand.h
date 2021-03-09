@@ -18,8 +18,8 @@ public:
     ~ReadRegisterCommand() = default;
 
     void SetRegisterValue(uint16_t);
-    virtual void DecodeRequestMessage(std::shared_ptr<interfaces::DebugMessage>) override;
-    virtual std::shared_ptr<interfaces::DebugMessage> EncodeRequestMessage() override;
+    void DecodeRequestMessage(std::shared_ptr<interfaces::DebugMessage>) override;
+    std::shared_ptr<interfaces::DebugMessage> EncodeRequestMessage() override;
     
     gbxcore::interfaces::Register RegisterToRead();
 

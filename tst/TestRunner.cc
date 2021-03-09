@@ -8,6 +8,7 @@
 #include <thread> 
 #include <variant> 
 
+#include "../src/interfaces/ServerTransport.h"
 #include "../src/runtime/CancellationToken.h"
 #include "../src/runtime/Runner.h"
 #include "interfaces/Runtime.h"
@@ -32,11 +33,34 @@ public:
     MOCK_METHOD(void, WriteRegister, (Register, (std::variant<uint8_t, uint16_t>)));
 };
 
+class ServerTransportMock : public gbx::interfaces::ServerTransport
+{
+public:
+    virtual ~ServerTransportMock() = default;
+    MOCK_METHOD(void, WaitForClient, ());
+    MOCK_METHOD(void, SendMessage, (std::shared_ptr<DebugMessage>));
+    MOCK_METHOD(void, Subscribe, (std::weak_ptr<gbxcommons::Observer>));
+    MOCK_METHOD(void, Unsubscribe, (std::weak_ptr<gbxcommons::Observer>));
+};
+
 TEST(TestRunner, Construction) 
 {
     auto runtime = make_shared<RuntimeMock>();
     auto pointer = static_pointer_cast<Runtime>(runtime);
     auto runner = make_shared<Runner>(pointer);
+    
+    EXPECT_EQ(RunnerMode::Runtime, runner->Mode());
+}
+
+TEST(TestRunner, ConstructionInDebugMode) 
+{
+    auto runtime = make_shared<RuntimeMock>();
+    auto runtimePointer = static_pointer_cast<Runtime>(runtime);
+    auto transport = make_shared<ServerTransportMock>();
+    auto transportPointer = static_pointer_cast<ServerTransport>(transport);
+    auto runner = make_shared<Runner>(runtimePointer, transportPointer);
+
+    EXPECT_EQ(RunnerMode::Debug, runner->Mode());
 }
 
 TEST(TestRunner, RunForANumberOfCycles) 
@@ -50,7 +74,9 @@ TEST(TestRunner, RunForANumberOfCycles)
     runner->Run(100, token);
     
     EXPECT_CALL((*runtime), Run()).Times(100);
-    runner->RunWithDebugSupport(100, token);
+    runner->Run(100, token);
+
+    EXPECT_EQ(RunnerMode::Runtime, runner->Mode());
 }
 
 TEST(TestRunner, CancellationAWithPredefinedNumberOfCycles) 
@@ -71,6 +97,7 @@ TEST(TestRunner, CancellationAWithPredefinedNumberOfCycles)
     
     cancellationThread.join();
     EXPECT_TRUE(token.IsCancelled());
+    EXPECT_EQ(RunnerMode::Runtime, runner->Mode());
 }
 
 TEST(TestRunner, RunIndefinitelyWithCancellationToken) 
@@ -91,71 +118,59 @@ TEST(TestRunner, RunIndefinitelyWithCancellationToken)
 
     cancellationThread.join();
     EXPECT_TRUE(token.IsCancelled());
+    EXPECT_EQ(RunnerMode::Runtime, runner->Mode());
 }
 
 TEST(TestRunner, RunInDebugMode) 
 {
     auto runtime = make_shared<RuntimeMock>();
     auto pointer = static_pointer_cast<Runtime>(runtime);
-    auto runner = make_shared<Runner>(pointer);
+    auto transport = make_shared<ServerTransportMock>();
+    auto transportPointer = static_pointer_cast<ServerTransport>(transport);
+    auto runner = make_shared<Runner>(pointer, transportPointer);
 
     CancellationToken token;
     std::thread cancellationThread([&]()
     { 
-        std::this_thread::sleep_for(500ms);
+        std::this_thread::sleep_for(100ms);
+        runner->ClientJoined();
+        std::this_thread::sleep_for(100ms);
         token.Cancel();
     });
 
+    EXPECT_CALL((*transport), WaitForClient());   
+    EXPECT_CALL((*transport), Subscribe(::_));
     EXPECT_CALL((*runtime), Run()).WillRepeatedly(Return());
-    runner->RunWithDebugSupport(token);
-    
+    runner->Run(token);
+
     cancellationThread.join();
     EXPECT_TRUE(token.IsCancelled());
+    EXPECT_EQ(RunnerMode::Debug, runner->Mode());
 }
 
 TEST(TestRunner, RunInDebugModeForAGivenNumberOfCycles) 
 {
     auto runtime = make_shared<RuntimeMock>();
     auto pointer = static_pointer_cast<Runtime>(runtime);
-    auto runner = make_shared<Runner>(pointer);
+    auto transport = make_shared<ServerTransportMock>();
+    auto transportPointer = static_pointer_cast<ServerTransport>(transport);
+    auto runner = make_shared<Runner>(pointer, transportPointer);
 
     CancellationToken token;
     std::thread cancellationThread([&]()
     { 
-        std::this_thread::sleep_for(500ms);
+        std::this_thread::sleep_for(100ms);
+        runner->ClientJoined();
+        std::this_thread::sleep_for(100ms);
         token.Cancel();
     });
 
+    EXPECT_CALL((*transport), WaitForClient());
+    EXPECT_CALL((*transport), Subscribe(::_));
     EXPECT_CALL((*runtime), Run()).WillRepeatedly(Return());
-    runner->RunWithDebugSupport(numeric_limits<size_t>::max(), token);
+    runner->Run(numeric_limits<size_t>::max(), token);
     
     cancellationThread.join();
     EXPECT_TRUE(token.IsCancelled());
-}
-
-TEST(TestRunner, RequestReadRegister)
-{
-    auto runTime = make_shared<RuntimeMock>();
- 
-    EXPECT_CALL((*runTime), ReadRegister(Register::A)).WillOnce(Return(static_cast<uint8_t>(0xFE)));
-    auto registerValue = runTime->ReadRegister(Register::A);
-
-    EXPECT_CALL((*runTime), ReadRegister(Register::HL)).WillOnce(Return(static_cast<uint16_t>(0xFEEF)));
-    auto registerPairValue = runTime->ReadRegister(Register::HL);
-
-    EXPECT_EQ(0xFE, get<uint8_t>(registerValue));
-    EXPECT_EQ(0xFEEF, get<uint16_t>(registerPairValue));
-}
-
-TEST(TestRunner, RequestWriteRegister)
-{
-    auto runTime = make_shared<RuntimeMock>();
- 
-    auto expectationVariant = std::variant<uint8_t, uint16_t>(static_cast<uint8_t>(0xFE));
-    EXPECT_CALL((*runTime), WriteRegister(Register::A, expectationVariant));
-    runTime->WriteRegister(Register::A, static_cast<uint8_t>(0xFE));
-
-    auto expectationPairVariant = std::variant<uint8_t, uint16_t>(static_cast<uint16_t>(0xFEEF));
-    EXPECT_CALL((*runTime), WriteRegister(Register::HL, expectationPairVariant));
-    runTime->WriteRegister(Register::HL, static_cast<uint16_t>(0xFEEF));
+    EXPECT_EQ(RunnerMode::Debug, runner->Mode());
 }

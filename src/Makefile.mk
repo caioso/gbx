@@ -14,7 +14,7 @@ OBJ_FILES := $(subst protocol/,,$(OBJ_FILES))
 OBJ_FILES := $(subst runtime/,,$(OBJ_FILES))
 OBJ_FILES := $(subst transport/,,$(OBJ_FILES))
 LDFLAGS := $(LDCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O0 -g -DDEBUG -lboost_system -pthread
-CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG 
+CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O0 -g -DDEBUG 
 INCLUDE := -I../../gbxcore/src/ -I../../gbxcommons/src/
 INCLUDE_REQUESTS := -I../../../../gbxcore/src/ -I../../../../gbxcommons/src/
 TARGET := gbx

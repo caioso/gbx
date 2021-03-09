@@ -4,6 +4,7 @@
 #include <thread>
 #include <sstream>
 
+#include "runtime/Runner.h"
 #include "ArgumentsParser.h"
 #include "ApplicationOptions.h"
 #include "GameBoyX.h"
@@ -86,20 +87,17 @@ void InitializeDebugServer()
 {
     auto gbx = make_shared<GameBoyX>();
     auto transport = make_shared<BoostAsioServerTransport>(configuration.IPAddress, configuration.Port);
-    transport->WaitForClient();
+    runtime::CancellationToken token;
 
-    //auto protocolParameters = make_shared<BoostAsioServerProtocolParameters>(configuration.IPAddress, stoi(configuration.Port), configuration.Verbose);
-    //auto debugServer = make_shared<DebugServer>(gbx, static_pointer_cast<gbx::interfaces::ServerProtocol>(protocol));
-         
-    //debugServer->Initialize(protocolParameters);
-    //debugServer->WaitForClient();
-    //debugServer->Run();
+    auto runner = make_shared<runtime::Runner>(gbx, transport);
+    runner->Run(10, token);
 }
 
 void DebugMode()
 {
     Log("Debug Mode");
     InitializeDebugServer();
+    Log("Execution Complete");
 }
 
 void RuntimeMode()

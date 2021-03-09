@@ -22,7 +22,7 @@ class BoostAsioServerTransport : public interfaces::ServerTransport
 {
 public:
     BoostAsioServerTransport(std::string, std::string);
-    ~BoostAsioServerTransport() = default;
+    ~BoostAsioServerTransport();
 
     // Blocking call
     virtual void WaitForClient() override;

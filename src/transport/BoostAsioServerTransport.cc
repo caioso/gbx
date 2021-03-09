@@ -16,10 +16,15 @@ BoostAsioServerTransport::BoostAsioServerTransport(string ip, string port)
     , _port(port)
 {}
 
+BoostAsioServerTransport::~BoostAsioServerTransport()
+{
+    if (_thread != nullptr)
+        _thread->join();
+}
+
 void BoostAsioServerTransport::WaitForClient()
 {
     _thread = make_unique<thread>([&](){ this->RunProtocol(); });
-    _thread->join();
 }
 
 void BoostAsioServerTransport::RunProtocol()
@@ -84,9 +89,16 @@ void BoostAsioServerTransport::AcceptConnection()
     acceptor.listen(MaxNumberOfConnections);
 
     cout << "Waiting for client to join..." << '\n';
-
+    
     _socket = make_unique<boost::asio::ip::tcp::socket>(ios);
     acceptor.accept(*_socket);
+
+    // FIX THIS LATER!!!
+    // Send 'Client joined message'
+    auto debugMessage = make_shared<DebugMessage>(make_shared<array<uint8_t, MaxMessageBufferSize>>());
+    (*debugMessage->Buffer())[0] = 0xFF;
+    (*debugMessage->Buffer())[1] = 0xFF;
+    NotifyObservers(debugMessage);
 
     cout << "Connection established!" << '\n';
 }

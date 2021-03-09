@@ -9,53 +9,99 @@ namespace gbx::runtime
 
 Runner::Runner(shared_ptr<Runtime> runner)
     : _runtime(runner)
+    , _mode(RunnerMode::Runtime)
 {}
+
+Runner::Runner(shared_ptr<Runtime> runner, shared_ptr<ServerTransport> transport)
+    : _runtime(runner)
+    , _transport(transport)
+    , _mode(RunnerMode::Debug)
+{}
+
+RunnerMode Runner::Mode()
+{
+    return _mode;
+}
 
 void Runner::Run(size_t numberOfCycles, CancellationToken& token)
 {
-    for (auto i = 0llu; i < numberOfCycles && !token.IsCancelled(); ++i)
-        RunHeadless();
+    if (_mode == RunnerMode::Runtime)
+        RunHeadless(numberOfCycles, token);
+    else
+        RunWithDebugger(numberOfCycles, token);
 }
 
 void Runner::Run(CancellationToken& token)
 {
-    while (!token.IsCancelled())
-        RunHeadless();
+    if (_mode == RunnerMode::Runtime)
+        RunHeadless(token);
+    else
+        RunWithDebugger(token);
 }
 
-void Runner::RunWithDebugSupport(CancellationToken& token)
+inline void Runner::RunHeadless(CancellationToken& token)
 {
     while (!token.IsCancelled())
-        RunWithDebugger();
+        _runtime->Run();
 }
 
-void Runner::RunWithDebugSupport(size_t numberOfCycles, CancellationToken& token)
+inline void Runner::RunHeadless(size_t numberOfCycles, CancellationToken& token)
 {
     for (auto i = 0llu; i < numberOfCycles && !token.IsCancelled(); ++i)
-        RunWithDebugger();
+        _runtime->Run();
 }
 
-inline void Runner::RunHeadless()
+inline void Runner::RunWithDebugger(CancellationToken& token)
 {
-    _runtime->Run();
+    InitializeDebugInfraIfNeeded();
+
+    while (!token.IsCancelled())
+        RunInDebugMode();
 }
 
-inline void Runner::RunWithDebugger()
+inline void Runner::RunWithDebugger(size_t numberOfCycles, CancellationToken& token)
 {
-    _runtime->Run();
+    InitializeDebugInfraIfNeeded();
+    for (auto i = 0llu; i < numberOfCycles && !token.IsCancelled(); ++i)
+        RunInDebugMode();
+}
 
-    while (_requestQueue.size() != 0)
+inline void Runner::InitializeDebugInfraIfNeeded()
+{
+    if (_handler == nullptr)
     {
-        auto request = _requestQueue.front();
-        // Handle Message
-        //auto response = make_shared<DebugMessage>(MessageType::UnknownMessage);
-        _requestQueue.pop();
+        _handler = make_shared<MessageHandler>(_transport);
+        _handler->Initialize();
+    }
+
+    // Initialize Transport Thread
+    _transport->WaitForClient();
+
+    while(!_clientJoined)
+    {
+        while (_handler->Pending() != 0llu)
+            _handler->ProcessMessages(_runtime, shared_from_this());
+        
+        std::this_thread::sleep_for(10ms);
     }
 }
 
-inline std::variant<uint8_t, uint16_t> Runner::ReadRegister(Register reg)
+inline void Runner::RunInDebugMode()
 {
-    return _runtime->ReadRegister(reg);
+    _runtime->Run();
+
+    while (_handler->Pending() != 0llu)
+        _handler->ProcessMessages(_runtime, shared_from_this());
+}
+
+void Runner::ClientJoined()
+{
+    _clientJoined = true;
+}
+
+void Runner::ClientLeft()
+{
+    _clientJoined = false;
 }
 
 }

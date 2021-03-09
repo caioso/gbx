@@ -4,8 +4,9 @@
 #include <memory>
 #include <random>
 
-#include "../src/interfaces/ServerTransport.h"
+#include "../src/interfaces/DebuggableRunner.h"
 #include "../src/interfaces/DebugMessage.h"
+#include "../src/interfaces/ServerTransport.h"
 #include "../src/protocol/MessageID.h"
 #include "../src/runtime/DebugMessageNotificationArguments.h"
 #include "../src/runtime/MessageHandler.h"
@@ -45,11 +46,19 @@ public:
     MOCK_METHOD(void, WriteRegister, (Register, (std::variant<uint8_t, uint16_t>)));
 };
 
+class RunnerMock : public gbx::interfaces::DebuggableRunner
+{
+public:
+    virtual ~RunnerMock() = default;
+    MOCK_METHOD(void, ClientJoined, ());
+    MOCK_METHOD(void, ClientLeft, ());
+};
+
 shared_ptr<array<uint8_t, MaxMessageBufferSize>> CreateDummyMessage(uint16_t type)
 {
     auto buffer = make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
-    (*buffer)[0] = type & 0xFF;
-    (*buffer)[1] = (type >> 8) & 0xFF;
+    (*buffer)[0] = type & 0x00;
+    (*buffer)[1] = (type >> 8) & 0x00;
     return buffer;
 }
 
@@ -59,6 +68,14 @@ shared_ptr<array<uint8_t, MaxMessageBufferSize>> CreateReadRegisterMessage(uint8
     (*buffer)[0] = 0xFE;
     (*buffer)[1] = 0xFF;
     (*buffer)[2] = targetRegister;
+    return buffer;
+}
+
+shared_ptr<array<uint8_t, MaxMessageBufferSize>> CreateClientJoinedMessage()
+{
+    auto buffer = make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
+    (*buffer)[0] = 0xFF;
+    (*buffer)[1] = 0xFF;
     return buffer;
 }
 
@@ -94,12 +111,40 @@ TEST(TestMessagHandler, DecodeReceivedUnknownMessage)
                       "Invalid debug message recieved and will be ignored");
 }
 
+TEST(TestMessagHandler, DecodeClientJoinedMessage) 
+{
+    auto transportMock = make_shared<TransportMock>();
+    auto runtimeMock = make_shared<RuntimeMock>();
+    auto messageHandler = make_shared<MessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
+    auto runnerMock = make_shared<RunnerMock>();
+
+    random_device randomDevice;
+    mt19937 engine{randomDevice()};
+    uniform_int_distribution<uint8_t> distribution{0x00, 0xFF};
+
+    auto clientJoinedMessage = make_shared<DebugMessage>(CreateClientJoinedMessage());
+    auto notificationArguments = make_shared<DebugMessageNotificationArguments>(clientJoinedMessage);
+    auto argumentsPointer = static_pointer_cast<NotificationArguments>(notificationArguments);
+
+    EXPECT_CALL((*transportMock), Subscribe(::_)).Times(1);
+    messageHandler->Initialize();
+
+    messageHandler->Notify(argumentsPointer);
+    EXPECT_EQ(1llu, messageHandler->Pending());
+
+    // Expect call to Runtime Read Register Method
+    EXPECT_CALL((*runnerMock), ClientJoined()).Times(1);
+    messageHandler->ProcessMessages(runtimeMock, runnerMock);
+    EXPECT_EQ(0llu, messageHandler->Pending());
+}
+
 TEST(TestMessagHandler, DecodeReadRegisterBankMessage8Bit) 
 {
     auto operand8BitList = {Register::B, Register::C, Register::D, Register::E, Register::H, Register::L, Register::A, Register::F };
     auto transportMock = make_shared<TransportMock>();
     auto runtimeMock = make_shared<RuntimeMock>();
     auto messageHandler = make_shared<MessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
+    auto runnerMock = make_shared<RunnerMock>();
 
     random_device randomDevice;
     mt19937 engine{randomDevice()};
@@ -129,7 +174,7 @@ TEST(TestMessagHandler, DecodeReadRegisterBankMessage8Bit)
             EXPECT_EQ(registerValue, value);
         }));
 
-        messageHandler->ProcessMessages(runtimeMock);
+        messageHandler->ProcessMessages(runtimeMock, runnerMock);
         EXPECT_EQ(0llu, messageHandler->Pending());
     }
 }
@@ -141,6 +186,7 @@ TEST(TestMessagHandler, DecodeReadRegisterBankMessage16Bit)
     auto transportMock = make_shared<TransportMock>();
     auto runtimeMock = make_shared<RuntimeMock>();
     auto messageHandler = make_shared<MessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
+    auto runnerMock = make_shared<RunnerMock>();
 
     random_device randomDevice;
     mt19937 engine{randomDevice()};
@@ -171,7 +217,7 @@ TEST(TestMessagHandler, DecodeReadRegisterBankMessage16Bit)
             EXPECT_EQ(registerValue, value);
         }));
 
-        messageHandler->ProcessMessages(runtimeMock);
+        messageHandler->ProcessMessages(runtimeMock, runnerMock);
         EXPECT_EQ(0llu, messageHandler->Pending());
     }
 }
