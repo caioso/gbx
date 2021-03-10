@@ -119,7 +119,9 @@ boost::asio::ip::address BoostAsioServerTransport::ConvertIpAddress()
 }
 
 void BoostAsioServerTransport::SendMessage(shared_ptr<DebugMessage>)
-{}
+{
+    cout << "Send Message" << '\n';
+}
 
 void BoostAsioServerTransport::Subscribe(weak_ptr<Observer> obs)
 {
@@ -131,7 +133,7 @@ void BoostAsioServerTransport::Subscribe(weak_ptr<Observer> obs)
     
     }; 
 
-    if (find_if(_observers.begin(), _observers.end(), matcher) != _observers.end())
+    if (find_if(_observers.begin(), _observers.end(), matcher) == _observers.end())
         _observers.push_back(obs);
 }
 
@@ -146,7 +148,9 @@ void BoostAsioServerTransport::Unsubscribe(weak_ptr<Observer> obs)
     }; 
 
     auto location = find_if(_observers.begin(), _observers.end(), matcher);
-    _observers.erase(location);
+
+    if (find_if(_observers.begin(), _observers.end(), matcher) != _observers.end())
+        _observers.erase(location);
 }
 
 }

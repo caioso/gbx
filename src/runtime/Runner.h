@@ -56,6 +56,7 @@ private:
     RunnerMode _mode;
 
     bool _clientJoined{};
+    bool _halted{};
 };
 
 }

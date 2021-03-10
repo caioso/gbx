@@ -16,6 +16,7 @@
 #include "../protocol/MessageID.h"
 #include "../protocol/ReadRegisterCommand.h"
 #include "../protocol/ClientJoinedCommand.h"
+#include "../protocol/RegisterBankSummaryCommand.h"
 
 #include "DebugMessageNotificationArguments.h"
 #include "interfaces/Runtime.h"
@@ -42,8 +43,10 @@ private:
 
     std::shared_ptr<interfaces::DebugCommand> ParseReadRegisterCommand(std::shared_ptr<interfaces::DebugMessage>);
     std::shared_ptr<interfaces::DebugCommand> ParseClientJoinedCommand(std::shared_ptr<interfaces::DebugMessage>);
+    std::shared_ptr<interfaces::DebugCommand> ParseRegisterBankSummaryCommand(std::shared_ptr<interfaces::DebugMessage>);
 
     [[nodiscard]] std::shared_ptr<interfaces::DebugMessage> RunReadRegisterCommand(std::shared_ptr<interfaces::DebugCommand>, std::shared_ptr<gbxcore::interfaces::Runtime>);
+    [[nodiscard]] std::shared_ptr<interfaces::DebugMessage> RunRegisterBankSummaryCommand(std::shared_ptr<interfaces::DebugCommand>, std::shared_ptr<gbxcore::interfaces::Runtime>);
     void RunClientJoinedCommand(std::shared_ptr<interfaces::DebuggableRunner>);
 
     std::shared_ptr<interfaces::ServerTransport> _transport;

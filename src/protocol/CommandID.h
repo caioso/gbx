@@ -9,7 +9,8 @@ enum CommandID : uint16_t
     // Client Joined Command
     CommandClientJoined = 0,
     // Register Bank Interaction Commands
-    CommandReadRegister = 1
+    CommandReadRegister = 1,
+    CommandRegisterBankSummary = 2
 };
 
 }

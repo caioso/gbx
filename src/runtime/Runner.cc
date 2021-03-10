@@ -88,7 +88,8 @@ inline void Runner::InitializeDebugInfraIfNeeded()
 
 inline void Runner::RunInDebugMode()
 {
-    _runtime->Run();
+    if (!_halted)
+        _runtime->Run();
 
     while (_handler->Pending() != 0llu)
         _handler->ProcessMessages(_runtime, shared_from_this());
