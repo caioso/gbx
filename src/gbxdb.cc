@@ -1,8 +1,11 @@
 #include <boost/asio.hpp>
+#include <array>
 #include <iostream>
 #include <sstream>
+#include <memory>
 
 using namespace boost;
+using namespace std;
 using std::string;
 using std::cout;
 using std::cin;
@@ -33,16 +36,27 @@ int main ()
             std::string message;
             cin >> message;
 
-            cout << "message to send: " << message << '\n'; 
-
-            if (message.compare("end") == 0)
+            if (message.compare("a") == 0)
             {
-                sock.close();
+                std::array<uint8_t, 256> debugMessage;
+                debugMessage[0] = 0xFD;
+                debugMessage[1] = 0xFF;
+                boost::system::error_code ignored_error;
+                boost::asio::write(sock, boost::asio::buffer(debugMessage), ignored_error);
             }
             else
             {
-                boost::system::error_code ignored_error;
-                boost::asio::write(sock, boost::asio::buffer(message), ignored_error);
+                cout << "message to send: " << message << '\n'; 
+
+                if (message.compare("end") == 0)
+                {
+                    sock.close();
+                }
+                else
+                {
+                    boost::system::error_code ignored_error;
+                    boost::asio::write(sock, boost::asio::buffer(message), ignored_error);
+                }
             }
         }
     }
