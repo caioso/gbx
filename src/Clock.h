@@ -19,6 +19,11 @@ class Clock : public interfaces::ClockInterface
 public:
     explicit Clock(uint64_t);
     virtual ~Clock() = default;
+    
+    Clock(const Clock&) = default;
+    Clock(Clock&&) = default;
+    Clock& operator=(const Clock&) = default;
+    Clock& operator=(Clock&&) = default;
 
     void Tick(uint64_t, uint64_t);
 

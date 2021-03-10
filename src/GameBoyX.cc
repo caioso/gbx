@@ -65,7 +65,9 @@ void GameBoyX::WriteRegister(interfaces::Register reg, variant<uint8_t, uint16_t
 
 bool GameBoyX::IsPair(interfaces::Register reg)
 {
-    return reg == Register::HL || reg == Register::BC || reg == Register::DE || reg == Register::AF;
+    return reg == Register::HL || reg == Register::BC || reg == Register::DE || 
+           reg == Register::AF || reg == Register::IR || reg == Register::PIR || 
+           reg == Register::PC || reg == Register::SP;
 }
 
 }
