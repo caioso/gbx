@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include <limits>
 #include <string>
 #include <thread>
 #include <sstream>
@@ -90,7 +91,7 @@ void InitializeDebugServer()
     runtime::CancellationToken token;
 
     auto runner = make_shared<runtime::Runner>(gbx, transport);
-    runner->Run(10, token);
+    runner->Run(token);
 }
 
 void DebugMode()

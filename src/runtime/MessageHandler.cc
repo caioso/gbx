@@ -58,7 +58,10 @@ void MessageHandler::ProcessMessages(shared_ptr<Runtime> runtime, std::shared_pt
         }
 
         if (response != nullptr)
+        {
+            cout << "Message to be sent " << static_cast<size_t>(command->Type()) << '\n';
             _transport->SendMessage(response);
+        }
 
         _commandQueue.pop();
     }

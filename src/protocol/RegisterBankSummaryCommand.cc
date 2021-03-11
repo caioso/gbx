@@ -22,14 +22,12 @@ void RegisterBankSummaryCommand::GenerateSummary(shared_ptr<Runtime> runtime)
     _registerValues[5] = get<uint8_t>(runtime->ReadRegister(Register::L));
     _registerValues[6] = get<uint8_t>(runtime->ReadRegister(Register::A));
     _registerValues[7] = get<uint8_t>(runtime->ReadRegister(Register::F));
-    _registerValues[8] = (get<uint16_t>(runtime->ReadRegister(Register::IR)) & 0xFF); 
-    _registerValues[9] = ((get<uint16_t>(runtime->ReadRegister(Register::IR)) >> 0x08) & 0xFF);
-    _registerValues[10] = (get<uint16_t>(runtime->ReadRegister(Register::PIR)) & 0xFF); 
-    _registerValues[11] = ((get<uint16_t>(runtime->ReadRegister(Register::PIR)) >> 0x08) & 0xFF);
-    _registerValues[12] = (get<uint16_t>(runtime->ReadRegister(Register::PC)) & 0xFF); 
-    _registerValues[13] = ((get<uint16_t>(runtime->ReadRegister(Register::PC)) >> 0x08) & 0xFF);
-    _registerValues[14] = (get<uint16_t>(runtime->ReadRegister(Register::SP)) & 0xFF); 
-    _registerValues[15] = ((get<uint16_t>(runtime->ReadRegister(Register::SP)) >> 0x08) & 0xFF);
+    _registerValues[8] = (get<uint8_t>(runtime->ReadRegister(Register::IR)) & 0xFF); 
+    _registerValues[9] = (get<uint8_t>(runtime->ReadRegister(Register::PIR)) & 0xFF); 
+    _registerValues[10] = (get<uint16_t>(runtime->ReadRegister(Register::PC)) & 0xFF); 
+    _registerValues[11] = ((get<uint16_t>(runtime->ReadRegister(Register::PC)) >> 0x08) & 0xFF);
+    _registerValues[12] = (get<uint16_t>(runtime->ReadRegister(Register::SP)) & 0xFF); 
+    _registerValues[13] = ((get<uint16_t>(runtime->ReadRegister(Register::SP)) >> 0x08) & 0xFF);
 }
 
 void RegisterBankSummaryCommand::DecodeRequestMessage([[maybe_unused]] shared_ptr<DebugMessage> message)

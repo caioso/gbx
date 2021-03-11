@@ -37,7 +37,7 @@ void BoostAsioServerTransport::RunProtocol()
     }
     catch (boost::system::system_error& e) 
     {
-        if (_socket != nullptr)
+        if (_socket != nullptr && !_socket->is_open())
             _socket->close();
 
         stringstream ss;
@@ -48,11 +48,24 @@ void BoostAsioServerTransport::RunProtocol()
 
 void BoostAsioServerTransport::ProtocolLoop()
 {
+    shared_ptr<DebugMessage> debugMessage;
     while(true)
     {
-        auto debugMessage = make_shared<DebugMessage>(make_shared<array<uint8_t, MaxMessageBufferSize>>());
+        
         boost::system::error_code error;
-        size_t len = _socket->read_some(buffer(*debugMessage->Buffer()), error);
+        auto len = 0llu;
+        if (_socket->available())
+        {
+            debugMessage = make_shared<DebugMessage>(make_shared<array<uint8_t, MaxMessageBufferSize>>());
+            _socketLock.lock();
+                len = _socket->read_some(buffer(*debugMessage->Buffer()), error);
+            _socketLock.unlock();
+        }
+        else
+        {
+            std::this_thread::sleep_for(400ms);
+            continue;
+        }
 
         cout << "Received: " << len << '\n';
         cout << (*debugMessage->Buffer()).data() << '\n';
@@ -90,8 +103,10 @@ void BoostAsioServerTransport::AcceptConnection()
 
     cout << "Waiting for client to join..." << '\n';
     
-    _socket = make_unique<boost::asio::ip::tcp::socket>(ios);
-    acceptor.accept(*_socket);
+    _socketLock.lock();
+        _socket = make_unique<boost::asio::ip::tcp::socket>(ios);
+        acceptor.accept(*_socket);
+    _socketLock.unlock();
 
     // FIX THIS LATER!!!
     // Send 'Client joined message'
@@ -118,9 +133,12 @@ boost::asio::ip::address BoostAsioServerTransport::ConvertIpAddress()
     return ip;
 }
 
-void BoostAsioServerTransport::SendMessage(shared_ptr<DebugMessage>)
+void BoostAsioServerTransport::SendMessage(shared_ptr<DebugMessage> message)
 {
     cout << "Send Message" << '\n';
+    _socketLock.lock();
+        _socket->write_some(boost::asio::buffer((*message->Buffer())));
+    _socketLock.unlock();
 }
 
 void BoostAsioServerTransport::Subscribe(weak_ptr<Observer> obs)

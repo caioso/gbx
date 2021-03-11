@@ -16,6 +16,7 @@ Runner::Runner(shared_ptr<Runtime> runner, shared_ptr<ServerTransport> transport
     : _runtime(runner)
     , _transport(transport)
     , _mode(RunnerMode::Debug)
+    , _halted(true)
 {}
 
 RunnerMode Runner::Mode()

@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
@@ -44,6 +45,7 @@ protected:
     std::unique_ptr<std::thread> _thread;
     std::unique_ptr<boost::asio::ip::tcp::socket> _socket;
     std::vector<std::weak_ptr<gbxcommons::Observer>> _observers;
+    std::mutex _socketLock;
 };
 
 }

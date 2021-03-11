@@ -62,7 +62,7 @@ shared_ptr<array<uint8_t, MaxMessageBufferSize>> CreateRegisterBankSummaryMessag
     return buffer;
 }
 
-TEST(TestRegisterBankSummary, ReadRegisterBankMessage8Bit) 
+TEST(TestRegisterBankSummary, RequestRegisterBankSummary) 
 {
     auto transportMock = make_shared<TransportMock>();
     auto runtimeMock = make_shared<RuntimeMock>();
@@ -88,8 +88,8 @@ TEST(TestRegisterBankSummary, ReadRegisterBankMessage8Bit)
     EXPECT_CALL((*runtimeMock), ReadRegister(Register::L)).WillOnce(Return(static_cast<uint8_t>(0x06)));
     EXPECT_CALL((*runtimeMock), ReadRegister(Register::A)).WillOnce(Return(static_cast<uint8_t>(0x07)));
     EXPECT_CALL((*runtimeMock), ReadRegister(Register::F)).WillOnce(Return(static_cast<uint8_t>(0x08)));
-    EXPECT_CALL((*runtimeMock), ReadRegister(Register::IR)).WillRepeatedly(Return(static_cast<uint16_t>(0xAAA0)));
-    EXPECT_CALL((*runtimeMock), ReadRegister(Register::PIR)).WillRepeatedly(Return(static_cast<uint16_t>(0xBBB0)));
+    EXPECT_CALL((*runtimeMock), ReadRegister(Register::IR)).WillRepeatedly(Return(static_cast<uint8_t>(0x09)));
+    EXPECT_CALL((*runtimeMock), ReadRegister(Register::PIR)).WillRepeatedly(Return(static_cast<uint8_t>(0x10)));
     EXPECT_CALL((*runtimeMock), ReadRegister(Register::PC)).WillRepeatedly(Return(static_cast<uint16_t>(0xCCC0)));
     EXPECT_CALL((*runtimeMock), ReadRegister(Register::SP)).WillRepeatedly(Return(static_cast<uint16_t>(0xDDD0)));
     EXPECT_CALL((*transportMock), SendMessage(::_)).WillOnce(testing::Invoke([&](shared_ptr<DebugMessage> argument)
@@ -103,10 +103,10 @@ TEST(TestRegisterBankSummary, ReadRegisterBankMessage8Bit)
         uint16_t registerL = (*(argument->Buffer()))[7];
         uint16_t registerA = (*(argument->Buffer()))[8];
         uint16_t registerF = (*(argument->Buffer()))[9];
-        uint16_t registerIR = (*(argument->Buffer()))[10] | (*(argument->Buffer()))[11] << 0x08;
-        uint16_t registerPIR= (*(argument->Buffer()))[12] | (*(argument->Buffer()))[13] << 0x08;
-        uint16_t registerPC = (*(argument->Buffer()))[14] | (*(argument->Buffer()))[15] << 0x08;
-        uint16_t registerSP = (*(argument->Buffer()))[16] | (*(argument->Buffer()))[17] << 0x08;
+        uint16_t registerIR = (*(argument->Buffer()))[10];
+        uint16_t registerPIR= (*(argument->Buffer()))[11];
+        uint16_t registerPC = (*(argument->Buffer()))[12] | (*(argument->Buffer()))[13] << 0x08;
+        uint16_t registerSP = (*(argument->Buffer()))[14] | (*(argument->Buffer()))[15] << 0x08;
 
         EXPECT_EQ(MessageID::MessageRegisterBankSummary, messageId);
         EXPECT_EQ(registerB, 0x01);
@@ -117,8 +117,8 @@ TEST(TestRegisterBankSummary, ReadRegisterBankMessage8Bit)
         EXPECT_EQ(registerL, 0x06);
         EXPECT_EQ(registerA, 0x07);
         EXPECT_EQ(registerF, 0x08);
-        EXPECT_EQ(registerIR, 0xAAA0);
-        EXPECT_EQ(registerPIR, 0xBBB0);
+        EXPECT_EQ(registerIR, 0x09);
+        EXPECT_EQ(registerPIR, 0x10);
         EXPECT_EQ(registerPC, 0xCCC0);
         EXPECT_EQ(registerSP, 0xDDD0);
     }));
