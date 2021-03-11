@@ -46,6 +46,7 @@ Most statements introduce their own ***keywords*** and syntactic and semantic ru
 ##### Syntax
 ``` language assembly
 PACK <PACK_TYPE_IDENTIFIER>
+BGN
     [{FIELD TYPE} {FIELD_IDENTIFIER}]+
 END
 ```
@@ -54,6 +55,7 @@ Each `PACK` must include an unique identifier and a non-empty list of fields. Fi
 ##### Example
 ``` language assembly
 PACK SPRITE
+BGN
     BYTE TILE
     BYTE PALETTE
     BYTE X
@@ -118,7 +120,7 @@ The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initial
 #### `FUNC`
 
 
-CFunctions are an extension of the concept of 'function-labels' in standard assembly. They allow for expressive function calls with the `CALL` instruction and the `WITH` construction. Functions accept input and output argument lists that are automatically managed by the assembler in assembly time. They also allow for static type-check when used with the optinal `AS` keyword (allowed types are: `BOOL`, `CHAR`, `BYTE`, `WORD`, `DWORD` `STR`, their respective array types or any user-defined `PACK` type). The body of a function works exactly as their standard assembly counter-parts. 
+Functions are an extension of the concept of 'function-labels' in standard assembly. They allow for expressive function calls with the `CALL` instruction and the `WITH` construction. Functions accept input and output argument lists that are automatically managed by the assembler in assembly time. They also allow for static type-check when used with the optinal `AS` keyword (allowed types are: `BOOL`, `CHAR`, `BYTE`, `WORD`, `DWORD` `STR`, their respective array types or any user-defined `PACK` type). The body of a function works exactly as their standard assembly counter-parts. 
 
 ##### Example
 ``` language assembly
@@ -127,6 +129,7 @@ FUNC MY_FUNCTION
 	IN: ARGUMENT_2
 	OUT: RETURN_1
 	OUT: RETURN_2 AS WORD
+BGN
 
 	; FUNCTION BODY
 
@@ -135,6 +138,7 @@ END
 
 In the previous example, function `MY_FUNCTION` is declared accepting two input arguments (`ARGUMENT_1` and `ARGUMENT_2`) and two output argments (`RETURN_1` and `RETURN_2`). Input argument `ARGUMENT_1` has been defined with type `BYTE` while output argument `RETURN_2` has  type `WORD`. The assembler will issue type-mismatch warnings whenever argument types do not match during a function call or when using output arguments. There is no theoritical limit on the number of input and output arguments. 
 
+#### `BGN`
 #### `END`
 #### `VAR`
 #### `BOOL`
@@ -161,6 +165,7 @@ switch-case style selection block.
 
 ``` language assembly
     WHEN A
+    BGN
         IS 0x01: ; Do SOMETRHING;
                  BRK
         IS 0x02: ; Do SOMETRHING;
@@ -181,6 +186,7 @@ Repeat **for** a fixed amount of iterations.
 ##### Example
 ``` language assembly
     REPT FOR 0x100
+    BGN
         ... ; Loop body
     END
 ```
@@ -190,6 +196,7 @@ Repeat **until** a condition is met.
 
 ``` language assembly
     REPT UNTL MEMORY_REGISTER != 0x01
+    BGN
         ... ; Loop body
     END
 ```
@@ -206,8 +213,10 @@ _Throwable_ block initializer (happy flow block).
 
 ``` language assembly
     TRY
+    BGN
         ... ; Throwable block
     EXPT
+    BGN
         ... ; Exception Handling
     END
 ```
@@ -216,8 +225,10 @@ _Exception_ block initializer (unhappy flow block).
 
 ``` language assembly
     TRY
+    BGN
         ... ; Throwable block
     EXPT
+    BGN
         ... ; Exception Handling
     END
 ```
@@ -346,6 +357,7 @@ Conditional assembly block. This directive instructs the pre-processor to includ
 ##### Example
 ``` language assembly
     .IFDEF PRE_PROCESSOR_SYMBOL
+    .BGN
         ... ; The content of this block *will not* be removed if PRE_PROCESSOR_SYMBOL is 
             ; found defined in any source file or is provided as command-line argument.
     .END
@@ -356,8 +368,10 @@ Complementary symbol to `.IFDEF`. The code contained within this block will only
 ##### Example
 ``` language assembly
     .IFDEF NON_EXISTING_PRE_PROCESSOR_SYMBOL
+    .BGN
         ... ; Only included if NON_EXISTING_PRE_PROCESSOR_SYMBOL is defined.
     .ELSE
+    .BGN
         ... ; This code *will* be included otherwise.
     .END
 ```
@@ -371,6 +385,7 @@ Conditional assemly block. The opposite of `.IFDEF`.
 ##### Example
 ``` language assembly
     .IFNDEF PRE_PROCESSOR_SYMBOL
+    .BGN
         ... ; The content of this block *will* be removed if PRE_PROCESSOR_SYMBOL is 
             ; found defined in any source file or is provided as command-line argument.
     .END
