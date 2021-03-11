@@ -53,6 +53,17 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
             {
                 if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalIdentifier)
                 {
+                    Shift(leftSubstring); state = FSMStates::PackBgnDetection;
+                }
+                else
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == FSMStates::PackBgnDetection) // Detect 'Bgn'
+            {
+                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalBgn)
+                {
                     Shift(leftSubstring); state = FSMStates::PackHeaderDetection;
                 }
                 else
@@ -217,6 +228,8 @@ void PackSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& currentToken
                 return {.Symbol = PackParseTreeSymbols::TerminalPack, .Lexeme  = x.Lexeme };
             case TokenType::Identifier: 
                 return {.Symbol = PackParseTreeSymbols::TerminalIdentifier, .Lexeme  = x.Lexeme };
+            case TokenType::KeywordBGN: 
+                return {.Symbol = PackParseTreeSymbols::TerminalBgn, .Lexeme  = x.Lexeme };
             case TokenType::KeywordBYTE:
             case TokenType::KeywordWORD:
             case TokenType::KeywordDWRD:
@@ -254,14 +267,16 @@ inline void PackSyntacticAnalyzer::Shift(int& top)
 inline void PackSyntacticAnalyzer::ReduceHeader(int top, std::string& identifier)
 {
     // Identifier has been found here
-    identifier = _symbols[top - 1].Lexeme;
+    identifier = _symbols[top - 2].Lexeme;
 
     // Reduce
-    // Remove Identifier
+    // Remove BGN
     _symbols.erase(begin(_symbols) + top - 1);
-    // Remove PACK
+    // Remove Identifier
     _symbols.erase(begin(_symbols) + top - 2);
-    _symbols.insert(begin(_symbols) +  top - 2, { .Symbol = PackParseTreeSymbols::NonTerminalHeader, .Lexeme = string("") });
+    // Remove PACK
+    _symbols.erase(begin(_symbols) + top - 3);
+    _symbols.insert(begin(_symbols) +  top - 3, { .Symbol = PackParseTreeSymbols::NonTerminalHeader, .Lexeme = string("") });
 }
 
 inline void PackSyntacticAnalyzer::ReduceEmptyPackFooter(int top)

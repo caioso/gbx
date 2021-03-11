@@ -14,6 +14,7 @@ enum class FuncParseTreeSymbols
 {
     TerminalFunc,
     TerminalIdentifier,
+    TerminalBgn,
     TerminalIn,
     TerminalSemicolon,
     TerminalOut,
@@ -52,6 +53,8 @@ public:
     std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> TryToAccept(std::vector<Token>::iterator&, std::vector<Token>::iterator&) override;
 
 private:
+    inline void Shift(int&);
+
     void ExtractSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
     size_t CountEndWithinFunctionBody(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
     std::vector<FuncCompoundSymbol> _symbols;

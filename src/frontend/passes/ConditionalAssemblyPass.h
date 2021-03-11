@@ -9,8 +9,6 @@
 #include <stack>
 #include <vector>
 
-#include <iostream>
-
 #include "../../interfaces/MessageStream.h"
 #include "../../interfaces/Pass.h"
 #include "../../utilities/IdentifierValidator.h"
@@ -38,6 +36,7 @@ struct BlockLimits
     size_t BlockInitializerPosition;
     size_t BlockPositionAfterSymbol;
     size_t BlockFinalizerPosition;
+    bool BlockBeginFound;
 };
 
 struct ConditionalAssemblyBlock
@@ -69,6 +68,7 @@ protected:
 
     inline void ProcessDirective(std::string_view, std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
     inline void EvaluateIfDirectives(std::string, std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
+    inline void EvaluateBgn(std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
     inline void EvaluateEnd(std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
     inline void EvaluateElse(std::stringstream&, std::stack<ConditionalAssemblyBlock>&, size_t);
     inline void EvaluateDef(std::stringstream&, size_t);
@@ -77,6 +77,7 @@ protected:
 
     inline BlockToKeepInCode DetectBlockToKeep(ConditionalAssemblyBlock);
     inline void EvaluateIdentifier(std::string, std::string);
+    inline void EvaluateBlockBgnStatus(ConditionalAssemblyBlock&, std::stringstream&, size_t);
     inline void RemoveSingleLineDirective(size_t, size_t, size_t);
     inline void RemoveIdentifierFromSymbolTable(std::string);
     inline void AddIdentifierToSymbolTable(std::string);

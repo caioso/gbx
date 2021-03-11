@@ -54,11 +54,13 @@ TEST(TestConditionalAssemblyPreProcessorPass, Construction)
 TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithoutElse)
 {
     string program = ".IFDEF MY_SYMBOL\n"
+                     ".BGN\n"
                      "\tLD SP, 0xFFFE\n"
                      "\tEI\n"
                      ".END";
 
     string ifBlock = ".IFDEF MY_SYMBOL\n"
+                     ".BGN\n"
                      "\tLD SP, 0xFFFE\n"
                      "\tEI\n"
                      ".END";
@@ -82,9 +84,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithoutElse)
 
 TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithoutElse2)
 {
-    string program = ".IFDEF MY_SYMBOL \tLD SP, 0xFFFE \tEI .END";
+    string program = ".IFDEF MY_SYMBOL .BGN \tLD SP, 0xFFFE \tEI .END";
 
-    string result =  "                 \tLD SP, 0xFFFE \tEI     ";
+    string result =  "                      \tLD SP, 0xFFFE \tEI     ";
 
     vector<string> symbolTable;
     symbolTable.push_back("MY_SYMBOL");
@@ -101,19 +103,24 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithoutElse2)
 TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithElse)
 {
     string program = ".IFDEF THE_SYMBOL\n"
+                     ".BGN\n"    
                      "\tLD A, 0xFF\n"
                      "\tINC A\n"
                      ".ELSE\n"
+                     ".BGN\n"
                      "\tCALL MY_FUNCTION\n"
                      "\tRET\n"
                      ".END\n";
 
     string ifBlock = ".IFDEF THE_SYMBOL\n"
+                     ".BGN\n"    
                      "\tLD A, 0xFF\n"
                      "\tINC A\n"
-                     ".ELSE";
+                     ".ELSE\n"
+                     ".BGN"; 
     
     string elseBlock = ".ELSE\n"
+                     ".BGN\n"    
                      "\tCALL MY_FUNCTION\n"
                      "\tRET\n"
                      ".END";
@@ -140,9 +147,9 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithElse)
 
 TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithElse2)
 {
-    string program = ".IFDEF MY_SYMBOL LD SP, 0xFFFE EI .ELSE PUSH A LD A, 0xEE .END";
+    string program = ".IFDEF MY_SYMBOL .BGN LD SP, 0xFFFE EI .ELSE .BGN PUSH A LD A, 0xEE .END";
 
-    string result =  "                                        PUSH A LD A, 0xEE     ";
+    string result =  "                                                  PUSH A LD A, 0xEE     ";
 
     vector<string> symbolTable;
     symbolTable.push_back("MY_OTHER_SYMBOL");
@@ -159,27 +166,32 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithElse2)
 TEST(TestConditionalAssemblyPreProcessorPass, NesteIfDefBlock)
 {
     string program = ".IFDEF THE_SYMBOL\n"
+                     ".BGN\n"
                      "\tLD A, 0xFF\n"
                      "\tINC A\n"
                      "\tSUB A, C"
                      "\n"
                      ".IFDEF THE_SECOND_SYMBOL\n"
+                     ".BGN\n"                     
                      "\tLD HL, 0xFF45\n"
                      "\tLD A, [HL]\n"
                      ".END\n"
                      ".END\n";
 
     string innerBlock = ".IFDEF THE_SECOND_SYMBOL\n"
+                     ".BGN\n"    
                      "\tLD HL, 0xFF45\n"
                      "\tLD A, [HL]\n"
                      ".END";
     
     string OuterBlock = ".IFDEF THE_SYMBOL\n"
+                     ".BGN\n"    
                      "\tLD A, 0xFF\n"
                      "\tINC A\n"
                      "\tSUB A, C"
                      "\n"
                      ".IFDEF THE_SECOND_SYMBOL\n"
+                     ".BGN\n" 
                      "\tLD HL, 0xFF45\n"
                      "\tLD A, [HL]\n"
                      ".END\n"
@@ -213,6 +225,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, NesteIfDefBlock)
 TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefConditionalAssemblyBlock)
 {
     string program = ".IFDEF MY_SYMBOL\n"
+                     ".BGN\n"    
                      "\tLD SP, 0xFFFE\n"
                      "\tEI\n";
 
@@ -229,6 +242,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefConditionalAssemblyB
 TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedIfDefAndTwoEndKeyword)
 {
     string program = ".IFDEF MY_SYMBOL\n"
+                     ".BGN\n"    
                      "\tLD SP, 0xFFFE\n"
                      "\tEI\n"
                      ".END\n"
@@ -244,9 +258,82 @@ TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedIfDefAndTwoEndKeyword)
                       "Unexpected '.END' directive found");
 }
 
+TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefWithoutBgn)
+{
+    string program = ".IFDEF MY_SYMBOL\n"
+                     "\tLD SP, 0xFFFE\n"
+                     "\tEI\n"
+                     ".END\n";
+
+    vector<string> symbolTable; 
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
+    
+    ASSERT_EXCEPTION( { pass->Process(program); }, 
+                      PreProcessorException, 
+                      "Malformed '.IFDEF' directive (expected '.BGN')");
+}
+
+TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfNDefWithoutBgn)
+{
+    string program = ".IFNDEF MY_SYMBOL\n"
+                     "\tLD SP, 0xFFFE\n"
+                     "\tEI\n"
+                     ".END\n";
+
+    vector<string> symbolTable; 
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
+    
+    ASSERT_EXCEPTION( { pass->Process(program); }, 
+                      PreProcessorException, 
+                      "Malformed '.IFNDEF' directive (expected '.BGN')");
+}
+
+TEST(TestConditionalAssemblyPreProcessorPass, MalformedElseInIfDefWithoutBgn)
+{
+    string program = ".IFDEF MY_SYMBOL\n"
+                     ".BGN\n"      
+                     "\tLD A, 0xFF\n"
+                     ".ELSE"
+                     "\tLD B, 0x00\n"
+                     ".END\n";
+
+    vector<string> symbolTable; 
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
+    
+    ASSERT_EXCEPTION( { pass->Process(program); }, 
+                      PreProcessorException, 
+                      "Malformed '.ELSE' directive (expected '.BGN')");
+}
+
+TEST(TestConditionalAssemblyPreProcessorPass, MalformedElseInIfNDefWithoutBgn)
+{
+    string program = ".IFNDEF MY_SYMBOL\n"
+                     ".BGN\n"      
+                     "\tLD A, 0xFF\n"
+                     ".ELSE"
+                     "\tLD B, 0x00\n"
+                     ".END\n";
+
+    vector<string> symbolTable; 
+    auto stream = make_shared<StreamMock>();
+    auto streamMock = static_pointer_cast<MessageStream>(stream);
+    auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
+    
+    ASSERT_EXCEPTION( { pass->Process(program); }, 
+                      PreProcessorException, 
+                      "Malformed '.ELSE' directive (expected '.BGN')");
+}
+
 TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfNDefConditionalAssemblyBlock)
 {
     string program = ".IFNDEF MY_SYMBOL\n"
+                     ".BGN\n"        
                      "\tLD SP, 0xFFFE\n"
                      "\tEI\n";
 
@@ -263,6 +350,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfNDefConditionalAssembly
 TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedIfNDefAndTwoEndKeyword)
 {
     string program = ".IFNDEF MY_SYMBOL\n"
+                     ".BGN\n"        
                      "\tLD SP, 0xFFFE\n"
                      "\tEI\n"
                      ".END\n"
@@ -281,6 +369,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedIfNDefAndTwoEndKeyword)
 TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedElseKeyword)
 {
     string program = ".ELSE\n"
+                     ".BGN\n"                
                      "\tLD SP, 0xFFFE\n"
                      "\tEI\n";
 
@@ -297,6 +386,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedElseKeyword)
 TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefDirective)
 {
     string program = ".IFDEF\n"
+                     ".BGN\n"        
                      "\tLD SP, 0xFFFE\n"
                      "\tEI\n";
 
@@ -313,6 +403,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefDirective)
 TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfNDefDirective)
 {
     string program = ".IFNDEF\n"
+                     ".BGN\n"        
                      "\tLD SP, 0xFFFE\n"
                      "\tEI\n";
 
@@ -329,12 +420,15 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfNDefDirective)
 TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefDirective2)
 {
     string program = ".IFDEF DEFINED\n"
+                     ".BGN\n"        
                      "\tSLA A, 1\n"
                      ".IFDEF NO_DEFINED\n"
+                     ".BGN\n"                         
                      "\tLD C, A\n"
                      "\tLD C, A\n"
                      "\tLD C, A\n"
                      ".ELSE\n"
+                     ".BGN\n"                     
                      "\tLD C, A\n"
                      ".END\n"
                      "\tSUB A, B\n"
@@ -356,6 +450,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefDirective2)
 TEST(TestConditionalAssemblyPreProcessorPass, InvalidIfDefIdentifier)
 {
     string program = ".IFDEF ^&&~AAAA\n"
+                     ".BGN\n"        
                      "\tLD SP, 0xFFFE\n"
                      "\tEI\n";
 
@@ -372,6 +467,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, InvalidIfDefIdentifier)
 TEST(TestConditionalAssemblyPreProcessorPass, InvalidIfNDefIdentifier)
 {
     string program = ".IFNDEF %#@!!@AAAAA\n"
+                     ".BGN\n"        
                      "\tLD DE, %#@!!@AAAAA\n"
                      "\tLD A, 0x00\n";
 
@@ -388,28 +484,35 @@ TEST(TestConditionalAssemblyPreProcessorPass, InvalidIfNDefIdentifier)
 TEST(TestConditionalAssemblyPreProcessorPass, TestCodeRemovalIfDef)
 {
     string program = ".IFDEF THE_SYMBOL\n"
+                     ".BGN\n"        
                      "\tLD A, 0xFF\n"
                      "\tINC A\n"
                      ".ELSE\n"
+                     ".BGN\n"                     
                      "\tCALL MY_FUNCTION\n"
                      "\tRET\n"
                      ".END\n";
     
     string result =  "                 \n"
+                     "    \n"
                      "\tLD A, 0xFF\n"
                      "\tINC A\n"
                      "     \n"
+                     "    \n"                     
                      "                 \n"
                      "    \n"
                      "    \n";
     
-    string SecondPassResult =  "                 \n"
-                     "           \n"
-                     "      \n"
-                     "     \n"
-                     "\tCALL MY_FUNCTION\n"
-                     "\tRET\n"
-                     "    \n";
+    string SecondPassResult = "                 \n"
+                              "    \n"        
+                              "           \n"
+                              "      \n"
+                              "     \n"
+                              "    \n"                     
+                              "\tCALL MY_FUNCTION\n"
+                              "\tRET\n"
+                              "    \n"; 
+
 
     vector<string> symbolTable;
     symbolTable.push_back("THE_SYMBOL");
@@ -434,11 +537,13 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestCodeRemovalIfDef)
 TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef2)
 {
     string program = ".IFDEF NO_DEFINED\n"
+                     ".BGN\n" 
                      "\tSLA A, 1\n"
                      "\tLD C, A\n"
                      ".END\n";
     
     string result = "                 \n"
+                     "    \n" 
                      "         \n"
                      "        \n"
                      "    \n";
@@ -456,24 +561,30 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef2)
 TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef3)
 {
     string program = ".IFDEF DEFINED\n"
+                     ".BGN\n" 
                      "\tSLA A, 1\n"
                      ".IFDEF NO_DEFINED\n"
+                     ".BGN\n"                      
                      "\tLD C, A\n"
                      "\tLD C, A\n"
                      "\tLD C, A\n"
                      ".ELSE\n"
+                     ".BGN\n"                     
                      "\tLD C, A\n"
                      ".END\n"
                      "\tSUB A, B\n"
                      ".END\n";
     
     string result = "              \n"
+                     "    \n"     
                      "\tSLA A, 1\n"
                      "                 \n"
+                     "    \n"                      
                      "        \n"
                      "        \n"
                      "        \n"
                      "     \n"
+                     "    \n"                     
                      "\tLD C, A\n"
                      "    \n"
                      "\tSUB A, B\n"
@@ -493,31 +604,39 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef3)
 TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef4)
 {
     string program = ".IFDEF DEFINED\n"
+                     ".BGN\n"     
                      "\tSLA A, 1\n"
                      ".IFDEF NO_DEFINED\n"
+                     ".BGN\n"                      
                      "\tLD C, A\n"
                      "\tLD C, A\n"
                      "\tLD C, A\n"
                      ".ELSE\n"
+                     ".BGN\n"                     
                      "\tLD C, A\n"
                      ".END\n"
                      "\tSUB A, B\n"
                      ".ELSE\n"
+                     ".BGN\n"                     
                      "\tSLA A, 1\n"
                      "\tLD C, A\n"
                      ".END\n";
     
     string result = "              \n"
+                     "    \n"     
                      "\tSLA A, 1\n"
                      "                 \n"
+                     "    \n"                      
                      "        \n"
                      "        \n"
                      "        \n"
                      "     \n"
+                     "    \n"                     
                      "\tLD C, A\n"
                      "    \n"
                      "\tSUB A, B\n"
                      "     \n"
+                     "    \n"                     
                      "         \n"
                      "        \n"
                      "    \n";
@@ -536,11 +655,13 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef4)
 TEST(TestConditionalAssemblyPreProcessorPass, IfNDefBlockDetectionWithoutElse)
 {
     string program = ".IFNDEF MY_UNDEFINED_SYMBOL\n"
+                     ".BGN\n"     
                      "LD A, 0xEF\n"
                      "SLA\n"
                      ".END";
 
     string ifBlock = ".IFNDEF MY_UNDEFINED_SYMBOL\n"
+                     ".BGN\n"     
                      "LD A, 0xEF\n"
                      "SLA\n"
                      ".END";
@@ -565,22 +686,27 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfNDefBlockDetectionWithoutElse)
 TEST(TestConditionalAssemblyPreProcessorPass, IfNDefBlockDetectionWithElse)
 {
     string program = ".IFNDEF THE_UNDEFINED_SYMBOL\n"
+                     ".BGN\n"     
                      "\tLD C, 0xFF\n"
                      "\tLD A, 0xFF\n"
                      "\tADD A, C\n"
                      ".ELSE\n"
+                     ".BGN\n"                     
                      "\tLD C, 0x00\n"
                      "\tLD A, 0x01\n"
                      "\tADD A, C\n"
                      ".END\n";
 
     string ifBlock = ".IFNDEF THE_UNDEFINED_SYMBOL\n"
+                     ".BGN\n"     
                      "\tLD C, 0xFF\n"
                      "\tLD A, 0xFF\n"
                      "\tADD A, C\n"
-                     ".ELSE";
+                     ".ELSE\n"
+                     ".BGN";
     
     string elseBlock = ".ELSE\n"
+                     ".BGN\n"    
                      "\tLD C, 0x00\n"
                      "\tLD A, 0x01\n"
                      "\tADD A, C\n"
@@ -609,25 +735,31 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfNDefBlockDetectionWithElse)
 TEST(TestConditionalAssemblyPreProcessorPass, TestCodeRemovalIfNDef)
 {
     string program = ".IFNDEF THE_SYMBOL\n"
+                     ".BGN\n"     
                      "\tLD HL, 0x77FA\n"
                      "\tLD A, [HL]\n"
                      ".ELSE\n"
+                     ".BGN\n"                     
                      "\tINC A\n"
                      "\tJP MY_LABEL\n"
                      ".END\n";
     
     string result =  "                  \n"
+                     "    \n"     
                      "\tLD HL, 0x77FA\n"
                      "\tLD A, [HL]\n"
                      "     \n"
+                     "    \n"                     
                      "      \n"
                      "            \n"
                      "    \n";
     
     string SecondPassResult =  "                  \n"
+                     "    \n"     
                      "              \n"
                      "           \n"
                      "     \n"
+                     "    \n"    
                      "\tINC A\n"
                      "\tJP MY_LABEL\n"
                      "    \n";
@@ -655,11 +787,13 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestCodeRemovalIfNDef)
 TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef2)
 {
     string program = ".IFNDEF NO_DEFINED\n"
+                     ".BGN\n"     
                      "\tSLA A, 1\n"
                      "\tLD C, A\n"
                      ".END\n";
     
     string result = "                  \n"
+                     "    \n" 
                      "\tSLA A, 1\n"
                      "\tLD C, A\n"
                      "    \n";
@@ -677,24 +811,34 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef2)
 TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef3)
 {
     string program = ".IFNDEF DEFINED\n"
+                     ".BGN\n"     
+                     "    \n"     
                      "\tSLA A, 1\n"
                      ".IFNDEF NO_DEFINED\n"
+                     ".BGN\n"     
+                     "    \n"                      
                      "\tLD C, A\n"
                      "\tLD C, A\n"
                      "\tLD C, A\n"
                      ".ELSE\n"
+                     ".BGN\n"                     
                      "\tLD C, A\n"
                      ".END\n"
                      "\tSUB A, B\n"
                      ".END\n";
     
     string result = "               \n"
+                     "    \n"     
+                     "    \n"     
                      "\tSLA A, 1\n"
                      "                  \n"
+                     "    \n"     
+                     "    \n"                      
                      "        \n"
                      "        \n"
                      "        \n"
                      "     \n"
+                     "    \n"                     
                      "\tLD C, A\n"
                      "    \n"
                      "\tSUB A, B\n"
@@ -714,31 +858,39 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef3)
 TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef4)
 {
     string program = ".IFNDEF DEFINED\n"
+                     ".BGN\n"     
                      "\tSLA A, 1\n"
                      ".IFNDEF NO_DEFINED\n"
+                     ".BGN\n"                      
                      "\tLD C, A\n"
                      "\tLD C, A\n"
                      "\tLD C, A\n"
                      ".ELSE\n"
+                     ".BGN\n"                     
                      "\tLD C, A\n"
                      ".END\n"
                      "\tSUB A, B\n"
                      ".ELSE\n"
+                     ".BGN\n"                     
                      "\tSLA A, 1\n"
                      "\tLD C, A\n"
                      ".END\n";
     
     string result = "               \n"
+                     "    \n"     
                      "\tSLA A, 1\n"
                      "                  \n"
+                     "    \n"                      
                      "        \n"
                      "        \n"
                      "        \n"
                      "     \n"
+                     "    \n"                     
                      "\tLD C, A\n"
                      "    \n"
                      "\tSUB A, B\n"
                      "     \n"
+                     "    \n"                     
                      "         \n"
                      "        \n"
                      "    \n";

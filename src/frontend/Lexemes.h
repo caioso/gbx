@@ -44,6 +44,7 @@ public:
     inline const static std::string KeywordIN = "IN";
     inline const static std::string KeywordDFLT = "DFLT";
     inline const static std::string KeywordBRK = "BRK";
+    inline const static std::string KeywordBGN = "BGN";
     inline const static std::string KeywordOUT = "OUT";
 
     // Operators
@@ -135,6 +136,7 @@ public:
     // PreProcessor
     inline const static std::string PreProcessorIFDEF = ".IFDEF";
     inline const static std::string PreProcessorIFNDEF = ".IFNDEF";
+    inline const static std::string PreProcessorBGN = ".BGN";
     inline const static std::string PreProcessorEND = ".END";
     inline const static std::string PreProcessorELSE = ".ELSE";
     inline const static std::string PreProcessorDEF = ".DEF";

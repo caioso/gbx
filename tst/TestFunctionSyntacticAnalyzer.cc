@@ -22,6 +22,7 @@ using namespace std;
 TEST(TestFunctionSyntacticAnalyzer, SanityCheckFuncTokenization)
 {
     const string func = "FUNC MY_FUNCTION\n"
+                        "BGN\n"
                         "\tIN: INPUT_1\n"
                         "\tIN: INPUT_2 AS BYTE\n"
                         "\tIN: INPUT_3 AS MY_TYPE\n"
@@ -40,6 +41,8 @@ TEST(TestFunctionSyntacticAnalyzer, SanityCheckFuncTokenization)
 
     auto tokenTypes = { // FUNC MY_FUNCTION
                         TokenType::KeywordFUNC, TokenType::Identifier,
+                        // BGN
+                        TokenType::KeywordBGN,
                         // IN: INPUT_1
                         TokenType::KeywordIN, TokenType::OperatorSEMICOLON, TokenType::Identifier,
                         // IN: INPUT_2 AS BYTE
@@ -68,6 +71,8 @@ TEST(TestFunctionSyntacticAnalyzer, SanityCheckFuncTokenization)
 
     auto lexemes = { // FUNC MY_FUNCTION
                         Lexemes::KeywordFUNC.c_str(), "MY_FUNCTION",
+                        // BGN
+                        Lexemes::KeywordBGN.c_str(),
                         // IN: INPUT_1
                         Lexemes::KeywordIN.c_str(), Lexemes::OperatorSEMICOLON.c_str(), "INPUT_1",
                         // IN: INPUT_2 AS BYTE
@@ -96,6 +101,8 @@ TEST(TestFunctionSyntacticAnalyzer, SanityCheckFuncTokenization)
 
     auto columns = { // FUNC MY_FUNCTION
                      1llu, 6llu,
+                     // BGN
+                     1llu,
                      // IN: INPUT_1
                      2llu, 4llu, 6llu,
                      // IN: INPUT_2 AS BYTE
@@ -122,28 +129,30 @@ TEST(TestFunctionSyntacticAnalyzer, SanityCheckFuncTokenization)
     
     auto lines = {   // FUNC MY_FUNCTION
                      1llu, 1llu,
+                     // BGN
+                     2llu,
                      // IN: INPUT_1
-                     2llu, 2llu, 2llu,
+                     3llu, 3llu, 3llu,
                      // IN: INPUT_2 AS BYTE
-                     3llu, 3llu, 3llu, 3llu, 3llu,
-                     // IN: INPUT_3 AS WORD
                      4llu, 4llu, 4llu, 4llu, 4llu,
+                     // IN: INPUT_3 AS WORD
+                     5llu, 5llu, 5llu, 5llu, 5llu,
                      // IN: INPUT_4 AS MY_ARRAY_TYPE[10]
-                     5llu, 5llu, 5llu, 5llu, 5llu, 5llu, 5llu, 5llu,
+                     6llu, 6llu, 6llu, 6llu, 6llu, 6llu, 6llu, 6llu,
                      // OUT: OUTPUT_1
-                     6llu, 6llu, 6llu,
+                     7llu, 7llu, 7llu,
                      // OUT: OUTPUT_2 AS BOOL
-                     7llu, 7llu, 7llu, 7llu, 7llu,
+                     8llu, 8llu, 8llu, 8llu, 8llu,
                      // OUT: OUTPUT_3 AS WORD[0b10]
-                     8llu, 8llu, 8llu, 8llu, 8llu, 8llu, 8llu, 8llu,
+                     9llu, 9llu, 9llu, 9llu, 9llu, 9llu, 9llu, 9llu,
                      // LD A, 0xFF
-                     9llu, 9llu, 9llu, 9llu,
-                     // LD OUTPUT_1, A
                      10llu, 10llu, 10llu, 10llu,
-                     // LD OUTPUT_2, TRUE
+                     // LD OUTPUT_1, A
                      11llu, 11llu, 11llu, 11llu,
+                     // LD OUTPUT_2, TRUE
+                     12llu, 12llu, 12llu, 12llu,
                      // END
-                     12llu,
+                     13llu,
                    };
 
 
@@ -166,6 +175,7 @@ TEST(TestFunctionSyntacticAnalyzer, ParseFunc)
                         "\tOUT: OUTPUT_1\n"
                         "\tOUT: OUTPUT_2 AS BOOL\n"
                         "\tOUT: OUTPUT_3 AS WORD[0b10]\n"
+                        "BGN\n"
                         "\tLD A, 0xFF\n"
                         "\tLD OUTPUT_1, A\n"
                         "\tLD OUTPUT_2, TRUE\n"

@@ -15,11 +15,46 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
     {        
         auto leftSubstring = -1;
         auto state = 0;
-        
         while(true)
         {
-            Reject();
-            break;
+            if (state == 0)
+            {
+                Shift(leftSubstring);
+                state++;
+            }
+            else if (state == 1) // Detect 'FUNC'
+            {
+                if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalFunc)
+                {
+                    Shift(leftSubstring);
+                    state++;
+                }
+                else 
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == 2) // Detect function's identifier
+            {
+                if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIdentifier)
+                {
+                    Shift(leftSubstring);
+                    state++;
+                }
+                else 
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == 3) // Try to reduce 
+            {
+                Accept();
+                return{};
+            }
+            else 
+            {
+                Reject(); break;
+            }
         }
     }
 
@@ -64,6 +99,8 @@ void FuncSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& beginIt, vec
             case TokenType::LiteralNumericOCTAL:
             case TokenType::LiteralNumericBINARY:
                 return {.Symbol = FuncParseTreeSymbols::TerminalOpenNumericLiteral, .Lexeme  = x.Lexeme };
+             case TokenType::KeywordBGN: 
+                return {.Symbol = FuncParseTreeSymbols::TerminalBgn, .Lexeme  = x.Lexeme };
             default:
                 return {.Symbol = FuncParseTreeSymbols::TerminalIgnore, .Lexeme  = x.Lexeme };
         }
@@ -104,6 +141,11 @@ size_t FuncSyntacticAnalyzer::CountEndWithinFunctionBody(vector<Token>::iterator
     }
 
     return position;
+}
+
+inline void FuncSyntacticAnalyzer::Shift(int& top)
+{
+    top++;
 }
 
 }

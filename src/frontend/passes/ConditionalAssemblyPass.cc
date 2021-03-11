@@ -141,6 +141,8 @@ inline void ConditionalAssemblyPass::ProcessDirective(string_view lexeme, string
     if (upperCaseLexeme.compare(Lexemes::PreProcessorIFDEF.c_str()) == 0 ||
         upperCaseLexeme.compare(Lexemes::PreProcessorIFNDEF.c_str()) == 0)
         EvaluateIfDirectives(upperCaseLexeme, stream, blocksStack, globalCounter);
+    else if (upperCaseLexeme.compare(Lexemes::PreProcessorBGN.c_str()) == 0)
+        EvaluateBgn(stream, blocksStack, globalCounter);
     else if (upperCaseLexeme.compare(Lexemes::PreProcessorEND.c_str()) == 0)
         EvaluateEnd(stream, blocksStack, globalCounter);
     else if (upperCaseLexeme.compare(Lexemes::PreProcessorELSE.c_str()) == 0)
@@ -188,6 +190,20 @@ inline void ConditionalAssemblyPass::EvaluateIfDirectives(string lexeme, strings
     blocksStack.push(block);
 }
 
+inline void ConditionalAssemblyPass::EvaluateBgn(stringstream& stream, stack<ConditionalAssemblyBlock>& blocksStack, size_t globalCounter)
+{
+    if (blocksStack.top().ElseBlock == nullopt)
+    {
+        blocksStack.top().IfBlock.BlockBeginFound = true;
+        blocksStack.top().IfBlock.BlockPositionAfterSymbol = globalCounter + static_cast<size_t>(stream.tellg());
+    }
+    else
+    {
+        blocksStack.top().ElseBlock.value().BlockBeginFound = true;
+        blocksStack.top().IfBlock.BlockFinalizerPosition = globalCounter + static_cast<size_t>(stream.tellg());
+    }
+}
+
 inline void ConditionalAssemblyPass::EvaluateEnd(stringstream& stream, stack<ConditionalAssemblyBlock>& blocksStack, size_t globalCounter)
 {
     if (blocksStack.size() == 0)
@@ -196,12 +212,41 @@ inline void ConditionalAssemblyPass::EvaluateEnd(stringstream& stream, stack<Con
     auto block = blocksStack.top();
     blocksStack.pop();
 
-    if (block.ElseBlock == nullopt)
-        block.IfBlock.BlockFinalizerPosition = globalCounter + static_cast<size_t>(stream.tellg());
-    else
-        block.ElseBlock.value().BlockFinalizerPosition = globalCounter + static_cast<size_t>(stream.tellg());
+    EvaluateBlockBgnStatus(block, stream, globalCounter);
 
     _conditionalAssemblyBlocks.push_back(block);
+}
+
+inline void ConditionalAssemblyPass::EvaluateBlockBgnStatus(ConditionalAssemblyBlock& block, stringstream& stream, size_t globalCounter)
+{
+    if (block.ElseBlock == nullopt)
+    {
+        if (!block.IfBlock.BlockBeginFound)
+        {
+            stringstream ss;
+            ss << "Malformed '" << (block.Type == BlockType::IfDef? ".IFDEF" : ".IFNDEF") << "' directive (expected '.BGN')";
+            throw PreProcessorException(ss.str());
+        }
+
+        block.IfBlock.BlockFinalizerPosition = globalCounter + static_cast<size_t>(stream.tellg());
+    }
+    else
+    {
+        if (!block.IfBlock.BlockBeginFound)
+        {
+            stringstream ss;
+            ss << "Malformed '" << (block.Type == BlockType::IfDef? ".IFDEF" : ".IFNDEF") << "' directive (expected '.BGN')";
+            throw PreProcessorException(ss.str());
+        }
+        if (!block.ElseBlock.value().BlockBeginFound)
+        {
+            stringstream ss;
+            ss << "Malformed '" << ".ELSE" << "' directive (expected '.BGN')";
+            throw PreProcessorException(ss.str());
+        }
+
+        block.ElseBlock.value().BlockFinalizerPosition = globalCounter + static_cast<size_t>(stream.tellg());
+    }
 }
 
 inline void ConditionalAssemblyPass::EvaluateElse(stringstream& stream, stack<ConditionalAssemblyBlock>& blocksStack, size_t globalCounter)

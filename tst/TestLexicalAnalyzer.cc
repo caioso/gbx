@@ -311,6 +311,7 @@ TEST(TestLexicalAnalyzer, EvaluateAllKeywords)
                            "IN\n"
                            "DFLT\n"
                            "BRK\n"
+                           "BGN\n"
                            "OUT\n";
 
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -327,7 +328,7 @@ TEST(TestLexicalAnalyzer, EvaluateAllKeywords)
                            Lexemes::KeywordTAG, Lexemes::KeywordTRY, Lexemes::KeywordEXPT, 
                            Lexemes::KeywordTHRW, Lexemes::KeywordTEST, Lexemes::KeywordMOVE, 
                            Lexemes::KeywordHIGH, Lexemes::KeywordLOW, Lexemes::KeywordIN, Lexemes::KeywordDFLT, 
-                           Lexemes::KeywordBRK, Lexemes::KeywordOUT};
+                           Lexemes::KeywordBRK, Lexemes::KeywordBGN, Lexemes::KeywordOUT};
 
     auto keywordsTokens = {TokenType::KeywordPACK, TokenType::KeywordFUNC, TokenType::KeywordEND, 
                            TokenType::KeywordVAR, TokenType::KeywordBOOL, TokenType::KeywordCHAR, TokenType::KeywordBYTE, 
@@ -339,7 +340,7 @@ TEST(TestLexicalAnalyzer, EvaluateAllKeywords)
                            TokenType::KeywordTAG, TokenType::KeywordTRY, TokenType::KeywordEXPT, 
                            TokenType::KeywordTHRW, TokenType::KeywordTEST,TokenType::KeywordMOVE,
                            TokenType::KeywordHIGH, TokenType::KeywordLOW, TokenType::KeywordIN, 
-                           TokenType::KeywordDFLT, TokenType::KeywordBRK, TokenType::KeywordOUT};
+                           TokenType::KeywordDFLT, TokenType::KeywordBRK, TokenType::KeywordBGN, TokenType::KeywordOUT};
 
     auto counter = 0;
     for (auto i = static_cast<size_t>(0); i < keywordsString.size(); ++i)

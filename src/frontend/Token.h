@@ -59,6 +59,7 @@ enum class TokenType
     KeywordIN,
     KeywordDFLT,
     KeywordBRK,
+    KeywordBGN,
     KeywordOUT,
 
     // Operators

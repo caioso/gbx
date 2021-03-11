@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <iostream>
 #include <vector>
 #include <sstream>
 #include <stack>
@@ -19,6 +20,7 @@ namespace gbxasm::frontend::parsers
 enum class PackParseTreeSymbols
 {
     TerminalPack,
+    TerminalBgn,
     TerminalType,
     TerminalIdentifier,
     TerminalOpenBracket,
@@ -58,14 +60,15 @@ private:
         InitialState = 0,
         InitialPackHeaderOrNTPackDetection = 1,
         PackIdentifierDetection = 2,
-        PackHeaderDetection = 3,
-        InitialMemberDetectionOrFooterOrNTPackDetection = 4,
-        MemberIdentifierDetection = 5,
-        MemberArrayOpenBracketDetection = 6,
-        ArrayDimensionDetection = 7,
-        MemberArrayCloseBracketDetection = 8,
-        MemberArrayDetection = 9,
-        MemberListOrFooterOrNTPackDetection = 10,
+        PackBgnDetection = 3,
+        PackHeaderDetection = 4,
+        InitialMemberDetectionOrFooterOrNTPackDetection = 5,
+        MemberIdentifierDetection = 6,
+        MemberArrayOpenBracketDetection = 7,
+        ArrayDimensionDetection = 8,
+        MemberArrayCloseBracketDetection = 9,
+        MemberArrayDetection = 10,
+        MemberListOrFooterOrNTPackDetection = 11,
     };
 
     void ExtractSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);

@@ -25,6 +25,7 @@ using namespace std;
 TEST(TestPackSyntacticAnalyzer, SanityCheckPackTokenization)
 {
     const string pack = "PACK MY_PACK\n"
+                        "BGN\n"
                         "    BYTE MY_BYTE_MEMBER\n"
                         "    WORD MY_WORD_MEMBER\n"
                         "    BOOL MY_BOOL_MEMBER\n"
@@ -40,6 +41,8 @@ TEST(TestPackSyntacticAnalyzer, SanityCheckPackTokenization)
 
     auto tokenTypes = { // PACK MY_PACK
                         TokenType::KeywordPACK, TokenType::Identifier,
+                        // BGN
+                        TokenType::KeywordBGN,
                         // BYTE MY_BYTE_MEMBER
                         TokenType::KeywordBYTE, TokenType::Identifier,
                         // WORD MY_WORD_MEMBER
@@ -58,6 +61,8 @@ TEST(TestPackSyntacticAnalyzer, SanityCheckPackTokenization)
 
     auto lexemes = { // PACK MY_PACK
                         Lexemes::KeywordPACK.c_str(), "MY_PACK",
+                        // BGN
+                        Lexemes::KeywordBGN.c_str(),
                         // BYTE MY_BYTE_MEMBER
                         Lexemes::KeywordBYTE.c_str(), "MY_BYTE_MEMBER",
                         // WORD MY_WORD_MEMBER
@@ -76,6 +81,8 @@ TEST(TestPackSyntacticAnalyzer, SanityCheckPackTokenization)
 
     auto columns = { //PACK MY_PACK
                      1llu, 6llu,
+                     //BGN
+                     1llu, 
                      //    BYTE MY_BYTE_MEMBER
                      5llu, 10llu, 
                      //    WORD MY_WORD_MEMBER
@@ -94,20 +101,22 @@ TEST(TestPackSyntacticAnalyzer, SanityCheckPackTokenization)
     
     auto lines = {   //PACK MY_PACK
                      1llu, 1llu,
+                     //BGN
+                     2llu,
                      //    BYTE MY_BYTE_MEMBER
-                     2llu, 2llu, 
-                     //    WORD MY_WORD_MEMBER
                      3llu, 3llu, 
-                     //    BOOL MY_BOOL_MEMBER
+                     //    WORD MY_WORD_MEMBER
                      4llu, 4llu, 
-                     //    CHAR MY_CHAR_MEMBER
+                     //    BOOL MY_BOOL_MEMBER
                      5llu, 5llu, 
-                     //    DWRD MY_DWRD_MEMBER
+                     //    CHAR MY_CHAR_MEMBER
                      6llu, 6llu, 
+                     //    DWRD MY_DWRD_MEMBER
+                     7llu, 7llu, 
                      //    STR MY_STRING_MEMBER[20]
-                     7llu, 7llu, 7llu, 7llu, 7llu,
+                     8llu, 8llu, 8llu, 8llu, 8llu,
                      //END
-                     8llu
+                     9llu
                    };
 
     for (auto i = 0llu; i < lexemes.size(); ++i)
@@ -122,6 +131,7 @@ TEST(TestPackSyntacticAnalyzer, SanityCheckPackTokenization)
 TEST(TestPackSyntacticAnalyzer, ParsePack)
 {
     const string pack = "PACK MY_PACK\n"
+                        "BGN\n"
                         "    BYTE MY_BYTE_MEMBER\n"
                         "    WORD MY_WORD_MEMBER\n"
                         "    BOOL MY_BOOL_MEMBER\n"
@@ -145,6 +155,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePack)
 TEST(TestPackSyntacticAnalyzer, ParsePackFormat2)
 {
     const string pack = "PACK MY_PACK\n"
+                        "BGN\n"
                         "    BYTE MY_BYTE_MEMBER\n"
                         "END";
 
@@ -161,6 +172,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat2)
 TEST(TestPackSyntacticAnalyzer, ParsePackFormat3)
 {
     const string pack = "PACK MY_PACK\n"
+                        "BGN\n"
                         "END";
 
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -176,6 +188,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat3)
 TEST(TestPackSyntacticAnalyzer, ParsePackFormat4)
 {
     const string pack = "PACK MY_PACK\n"
+                        "BGN\n"
                         "    BYTE MY_BYTE_MEMBER[19990]\n"
                         "END";
 
@@ -192,6 +205,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat4)
 TEST(TestPackSyntacticAnalyzer, ParsePackFormat5)
 {
     const string pack = "PACK \n"
+                        "BGN\n"
                         "    BYTE MY_BYTE_MEMBER[19990]\n"
                         "END";
 
@@ -208,6 +222,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat5)
 TEST(TestPackSyntacticAnalyzer, ParsePackFormat6)
 {
     const string pack = "MY_PACK \n"
+                        "BGN\n"
                         "    BYTE MY_BYTE_MEMBER[19990]\n"
                         "END";
 
@@ -224,6 +239,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat6)
 TEST(TestPackSyntacticAnalyzer, ParsePackFormat7)
 {
     const string pack = "PACK MY_PACK \n"
+                        "BGN\n"
                         "    BYTE MY_BYTE_MEMBER[19990]\n";
 
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -236,9 +252,27 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat7)
     EXPECT_FALSE(parser->IsAccepted());
 }
 
+TEST(TestPackSyntacticAnalyzer, ParsePackFormat12)
+{
+    const string pack = "PACK MY_PACK \n"
+                        "    BYTE MY_BYTE_MEMBER[19990]\n"
+                        "END\n";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<PackSyntacticAnalyzer>();
+    lexer->Tokenize(pack);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser->IsAccepted());
+}
+
+
 TEST(TestPackSyntacticAnalyzer, ParsePackFormat8)
 {
     const string pack = "PACK MY_PACK \n"
+                        "BGN\n"
                         "    MY_BYTE MY_BYTE_MEMBER[19990]\n"
                         "END\n";
 
@@ -255,6 +289,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat8)
 TEST(TestPackSyntacticAnalyzer, ParsePackFormat9)
 {
     const string pack = "PACK MY_PACK \n"
+                        "BGN\n"
                         "    BITE MY_BYTE_MEMBER\n"
                         "END\n";
 
@@ -271,6 +306,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat9)
 TEST(TestPackSyntacticAnalyzer, ParsePackFormat10)
 {
     const string pack = "PACK MY_PACK \n"
+                        "BGN\n"
                         "    CHAR MY_BYTE_MEMBER[]\n"
                         "END\n";
 
@@ -287,6 +323,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat10)
 TEST(TestPackSyntacticAnalyzer, ParsePackFormat11)
 {
     const string pack = "PACK MY_PACK\n"
+                        "BGN\n"
                         "    BYTE MY_BYTE_MEMBER   STR MY_STRING_MEMBER\n"
                         "END";
 
@@ -303,6 +340,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat11)
 TEST(TestPackSyntacticAnalyzer, PackIntermediateRepresentationWithSingleMember)
 {
     const string pack = "PACK FLAG_REGISTER\n"
+                        "BGN\n"
                         "    BYTE FLAGS[2]\n"
                         "END";
 
@@ -333,6 +371,7 @@ TEST(TestPackSyntacticAnalyzer, PackIntermediateRepresentationWithSingleMember)
 TEST(TestPackSyntacticAnalyzer, PackIntermediateRepresentationWithMultipleMembers)
 {
     const string pack = "PACK MY_PACK\n"
+                        "BGN\n"
                         "    BYTE MY_BYTE_MEMBER\n"
                         "    WORD MY_WORD_MEMBER\n"
                         "    BYTE MY_BYTE_ARRAY_MEMBER[0x100]\n"
