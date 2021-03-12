@@ -10,7 +10,11 @@ enum MessageID : uint16_t
     
     // Register Bank Interaction Messages
     MessageReadRegister = 0xFFFE,
-    MessageRegisterBankSummary = 0xFFFD
+    MessageRegisterBankSummary = 0xFFFD,
+    MessageWriteRegister = 0xFFFC,
+
+    // Message Error
+    MessageError = 0x0001
 };
 
 }

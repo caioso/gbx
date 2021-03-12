@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <iostream>
 #include <memory>
 #include <queue>
 #include <variant>
@@ -13,10 +12,13 @@
 #include "../interfaces/ServerTransport.h"
 
 #include "../protocol/CommandID.h"
+#include "../protocol/ErrorID.h"
 #include "../protocol/MessageID.h"
+#include "../protocol/ErrorCommand.h"
 #include "../protocol/ReadRegisterCommand.h"
 #include "../protocol/ClientJoinedCommand.h"
 #include "../protocol/RegisterBankSummaryCommand.h"
+#include "../protocol/WriteRegisterCommand.h"
 
 #include "DebugMessageNotificationArguments.h"
 #include "interfaces/Runtime.h"
@@ -44,10 +46,14 @@ private:
     std::shared_ptr<interfaces::DebugCommand> ParseReadRegisterCommand(std::shared_ptr<interfaces::DebugMessage>);
     std::shared_ptr<interfaces::DebugCommand> ParseClientJoinedCommand(std::shared_ptr<interfaces::DebugMessage>);
     std::shared_ptr<interfaces::DebugCommand> ParseRegisterBankSummaryCommand(std::shared_ptr<interfaces::DebugMessage>);
+    std::shared_ptr<interfaces::DebugCommand> ParseWriteRegisterCommand(std::shared_ptr<interfaces::DebugMessage>);
+
+    void RunClientJoinedCommand(std::shared_ptr<interfaces::DebuggableRunner>);
+    [[nodiscard]] std::shared_ptr<interfaces::DebugMessage> RunErrorCommand(std::shared_ptr<interfaces::DebugCommand>);
 
     [[nodiscard]] std::shared_ptr<interfaces::DebugMessage> RunReadRegisterCommand(std::shared_ptr<interfaces::DebugCommand>, std::shared_ptr<gbxcore::interfaces::Runtime>);
     [[nodiscard]] std::shared_ptr<interfaces::DebugMessage> RunRegisterBankSummaryCommand(std::shared_ptr<interfaces::DebugCommand>, std::shared_ptr<gbxcore::interfaces::Runtime>);
-    void RunClientJoinedCommand(std::shared_ptr<interfaces::DebuggableRunner>);
+    [[nodiscard]] std::shared_ptr<interfaces::DebugMessage> RunWriteRegisterCommand(std::shared_ptr<interfaces::DebugCommand>, std::shared_ptr<gbxcore::interfaces::Runtime>);
 
     std::shared_ptr<interfaces::ServerTransport> _transport;
     std::queue<std::shared_ptr<interfaces::DebugCommand>> _commandQueue;
