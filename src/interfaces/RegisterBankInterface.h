@@ -183,6 +183,12 @@ public:
                 throw RegisterBankException("invalid register pair");
         }
     }
+        
+    inline static bool IsPair(interfaces::Register reg)
+    {
+        return reg == Register::HL || reg == Register::BC || reg == Register::DE || 
+               reg == Register::AF || reg == Register::PC || reg == Register::SP;
+    }
 };
 
 }

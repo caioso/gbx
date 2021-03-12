@@ -49,7 +49,7 @@ void GameBoyX::Run()
 
 variant<uint8_t, uint16_t> GameBoyX::ReadRegister(interfaces::Register reg)
 {
-    if (IsPair(reg))
+    if (RegisterBankInterface::IsPair(reg))
         return _registers->ReadPair(reg);
     else
         return _registers->Read(reg);
@@ -57,17 +57,10 @@ variant<uint8_t, uint16_t> GameBoyX::ReadRegister(interfaces::Register reg)
 
 void GameBoyX::WriteRegister(interfaces::Register reg, variant<uint8_t, uint16_t> value)
 {
-    if (IsPair(reg))
+    if (RegisterBankInterface::IsPair(reg))
         return _registers->WritePair(reg, get<uint16_t>(value));
     else
         return _registers->Write(reg, get<uint8_t>(value));
-}
-
-bool GameBoyX::IsPair(interfaces::Register reg)
-{
-    return reg == Register::HL || reg == Register::BC || reg == Register::DE || 
-           reg == Register::AF || reg == Register::IR || reg == Register::PIR || 
-           reg == Register::PC || reg == Register::SP;
 }
 
 }
