@@ -1,24 +1,19 @@
-TEST_DIRS = $(wildcard */)
-
 CC = clang++
-LD = ld
 
 LDFLAGS = $(LDCOVERAGE_FLAGS)
 CPPFLAGS = $(CCCOVERAGE_FLAGS) $(GLOBAL_CPP_FLAGS)
 INCLUDE = -I$(INCLUDE_ASSEMBLER_TOP) -I$(INCLUDE_ASSEMBLER_FRONTEND_TOP) -I$(INCLUDE_ASSEMBLER_FRONTEND_PARSERS) \
 		  -I$(INCLUDE_ASSEMBLER_FRONTEND_PASSES) -I$(INCLUDE_ASSEMBLER_INTERFACES) -I$(INCLUDE_ASSEMBLER_INTERMEDIATE_REPRESENTATION) \
 		  -I$(INCLUDE_ASSEMBLER_STREAMS) -I$(INCLUDE_ASSEMBLER_UTILITIES)
-
-SRC_FILES = $(notdir $(wildcard */*.cc))
+		  
+SRC_FILES = $(notdir $(wildcard ./*.cc)) $(notdir $(wildcard */*.cc))
 OBJ_FILES = $(patsubst %.cc,$(BUILD_TEMP)/%.o,$(SRC_FILES))
-TARGET = $(ASM_TESTS)
+DEP_FILES = $(patsubst %.o,%.d,$(OBJ_FILES))
 
-.PHONY: tests $(TARGET)
+.PHONY: all
 
-all: tests $(TARGET)
+all: $(OBJ_FILES)
 
-tests:
-	for TEST in $(TEST_DIRS); do $(MAKE) -C $$TEST -f Makefile.mk; done ||:
-
-$(TARGET): $(OBJ_FILES)
-	$(LD) -r -o $(TARGET) $(OBJ_FILES)
+-include $(DEP_FILES)
+$(BUILD_TEMP)/%.o: $(CURDIR)/%.cc
+	$(CC) $(INCLUDE) $(CPPFLAGS) -MMD -MT"$@" -c $< -o $@ 

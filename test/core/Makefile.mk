@@ -11,8 +11,6 @@ SRC_FILES = $(notdir $(wildcard */*.cc))
 OBJ_FILES = $(patsubst %.cc,$(BUILD_TEMP)/%.o,$(SRC_FILES))
 TARGET = $(CORE_TESTS)
 
-$(info $(TEST_DIRS))
-
 .PHONY: tests $(TARGET)
 
 all: tests $(TARGET)

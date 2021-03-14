@@ -1,23 +1,25 @@
-# Prepare build variables
-SUBDIRS = core
-
 TEST_UTILS = $(TEST_TOP)/test_utils
 CORE_TESTS = $(BUILD_TEMP)/coretests.o
+ASM_TESTS = $(BUILD_TEMP)/asmtests.o
 
 export CORE_TESTS 
+export ASM_TESTS 
 export TEST_UTILS
 
 # Build targets
 TARGET = $(GBX_TEST)
 
-.PHONY: $(SUBDIRS) $(TARGET)
+.PHONY: $(CORE_TESTS) $(ASM_TESTS) $(TARGET)
 
-all: $(SUBDIRS) $(TARGET)
+all: $(CORE_TESTS) $(ASM_TESTS) $(TARGET)
 
-$(SUBDIRS):
+$(CORE_TESTS):
 	$(call MakeTarget, core)
 
-$(TARGET): $(CORE_TESTS) $(CORE_LIB)
+$(ASM_TESTS):
+	$(call MakeTarget, assembler)
+
+$(TARGET): $(CORE_TESTS) $(ASM_TESTS) $(CORE_LIB) $(ASM_LIB)
 	@$(MAKE) -f Makefile.sub.mk
 
 define MakeTarget

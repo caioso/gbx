@@ -1,91 +1,35 @@
-CC := clang++
-#CCCOVERAGE_FLAGS = -fprofile-instr-generate -fcoverage-mapping
-#LDCOVERAGE_FLAGS = -fprofile-instr-generate
-OBJ_DIR := $(CURDIR)/../obj
-TARGET_DIR := $(CURDIR)/..
-SRC_FILES := $(wildcard ./*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./interfaces/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./language/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./frontend/parsers/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./frontend/passes/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./frontend/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./intermediate-representation/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./utilities/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./streams/*.cc)
-OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
-OBJ_FILES := $(subst interfaces/,,$(OBJ_FILES))
-OBJ_FILES := $(subst language/,,$(OBJ_FILES))
-OBJ_FILES := $(subst frontend/parsers/,,$(OBJ_FILES))
-OBJ_FILES := $(subst frontend/passes/,,$(OBJ_FILES))
-OBJ_FILES := $(subst frontend/,,$(OBJ_FILES))
-OBJ_FILES := $(subst intermediate-representation/,,$(OBJ_FILES))
-OBJ_FILES := $(subst utilities/,,$(OBJ_FILES))
-OBJ_FILES := $(subst streams/,,$(OBJ_FILES))
-LDFLAGS := $(LDCOVERAGE_FLAGS)
-CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG
-TARGET := gbxasm
+SUBDIRS = frontend frontend/parsers frontend/passes interfaces intermediate_representation streams utilities 
+CC = clang++
+AR = ar
 
-$(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
-	$(CC) -o $@ $^ $(LDFLAGS)
+LDFLAGS = $(LDCOVERAGE_FLAGS)
+CPPFLAGS = $(CCCOVERAGE_FLAGS) $(GLOBAL_CPP_FLAGS)
+INCLUDE = -I$(INCLUDE_ASSEMBLER_TOP) -I$(INCLUDE_ASSEMBLER_FRONTEND_TOP) -I$(INCLUDE_ASSEMBLER_FRONTEND_PARSERS) \
+		  -I$(INCLUDE_ASSEMBLER_FRONTEND_PASSES) -I$(INCLUDE_ASSEMBLER_INTERFACES) -I$(INCLUDE_ASSEMBLER_INTERMEDIATE_REPRESENTATION) \
+		  -I$(INCLUDE_ASSEMBLER_STREAMS) -I$(INCLUDE_ASSEMBLER_UTILITIES)
 
-$(OBJ_DIR)/%.o: %.cc %.h
-	$(CC) $(CPPFLAGS) -c -o $@ $<
+SRC_FILES = $(notdir $(wildcard ./*.cc)) $(notdir $(wildcard ./*/*.cc)) $(notdir $(wildcard ./*/*/*.cc))
+OBJ_FILES = $(patsubst %.cc,$(BUILD_TEMP)/%.o,$(SRC_FILES))
+DEP_FILES = $(patsubst %.o,%.d,$(OBJ_FILES))
 
-$(OBJ_DIR)/%.o: %.cc
-	$(CC) $(CPPFLAGS) -c -o $@ $<
+TARGET = $(ASM_LIB)
 
-$(OBJ_DIR)/%.o: ./interfaces/%.cc
-	$(CC) $(CPPFLAGS) -c -o $@ $<
+.PHONY: subdirs $(TARGET)
 
-$(OBJ_DIR)/%.o: ./interfaces/%.cc ./interfaces/%.h
-	$(CC) $(CPPFLAGS) -c -o $@ $<
+all: subdirs $(TARGET)
 
-$(OBJ_DIR)/%.o: ./language/%.cc
-	$(CC) $(CPPFLAGS) -c -o $@ $<
+subdirs:
+	for TEST in $(SUBDIRS); do $(MAKE) -C $$TEST -f Makefile.mk; done ||:
 
-$(OBJ_DIR)/%.o: ./language/%.cc ./language/%.h
-	$(CC) $(CPPFLAGS) -c -o $@ $<
+$(TARGET): $(OBJ_FILES) 
+	$(AR) rcs $@ $(OBJ_FILES) 
+	
+-include $(DEP_FILES)
+$(BUILD_TEMP)/%.o: $(CURDIR)/%.cc
+	$(CC) $(INCLUDE) $(CPPFLAGS) -MMD -MT"$@" -c $< -o  $@ 
 
-$(OBJ_DIR)/%.o: ./frontend/%.cc
-	$(CC) $(CPPFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./frontend/%.cc ./frontend/%.h
-	$(CC) $(CPPFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./frontend/parsers/%.cc
-	$(CC) $(CPPFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./utilities/%.cc ./utilities/%.h
-	$(CC) $(CPPFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./utilities/%.cc
-	$(CC) $(CPPFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./intermediate-representation/%.cc ./intermediate-representation/%.h
-	$(CC) $(CPPFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./intermediate-representation/%.cc
-	$(CC) $(CPPFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./frontend/parsers/%.cc ./frontend/parsers/%.h
-	$(CC) $(CPPFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./frontend/passes/%.cc
-	$(CC) $(CPPFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./frontend/passes/%.cc ./frontend/passes/%.h
-	$(CC) $(CPPFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./streams/%.cc
-	$(CC) $(CPPFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./streams/%.h
-	$(CC) $(CPPFLAGS) -c -o $@ $<
-
-
-clean:
-	rm -rf *.o  *.so  *.stackdump  *.a  *.exe
-
-.PHONY: all clean run
-
-
+define MakeTarget
+	$(call EnteringMessage, ${1})
+	@$(MAKE) -C ${1} -f Makefile.mk
+	$(call ExitingMessage, ${1})
+endef
