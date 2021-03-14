@@ -1,1 +1,1 @@
-GAME BOY X Documentation
+GAME BOY X Documentation Folder

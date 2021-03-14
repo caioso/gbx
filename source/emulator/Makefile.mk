@@ -1,63 +1,33 @@
-CC := clang++
-#CCCOVERAGE_FLAGS = -fprofile-instr-generate -fcoverage-mapping
-#LDCOVERAGE_FLAGS = -fprofile-instr-generate
-OBJ_DIR := $(CURDIR)/../obj
-TARGET_DIR := $(CURDIR)/..
-SRC_FILES := $(wildcard ./*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./interfaces/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./protocol/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./runtime/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./transport/*.cc)
-OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
-OBJ_FILES := $(subst interfaces/,,$(OBJ_FILES))
-OBJ_FILES := $(subst protocol/,,$(OBJ_FILES))
-OBJ_FILES := $(subst runtime/,,$(OBJ_FILES))
-OBJ_FILES := $(subst transport/,,$(OBJ_FILES))
-LDFLAGS := $(LDCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O0 -g -DDEBUG -lboost_system -pthread
-CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O0 -g -DDEBUG 
-INCLUDE := -I../../gbxcore/src/ -I../../gbxcommons/src/
-INCLUDE_REQUESTS := -I../../../../gbxcore/src/ -I../../../../gbxcommons/src/
-TARGET := gbx
+SUBDIRS = interfaces protocol runtime transport
+CC = clang++
+AR = ar
 
-$(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
-	$(CC) $(CPPFLAGS) $(INCLUDE) ../../gbxcore/libgbxcore.a ../../gbxcommons/libgbxcommons.a -o $@ $(OBJ_FILES)  $(LDFLAGS)
+LDFLAGS = $(LDCOVERAGE_FLAGS)
+CPPFLAGS = $(CCCOVERAGE_FLAGS) $(GLOBAL_CPP_FLAGS)
+INCLUDE = -I$(INCLUDE_EMULATOR_TOP) -I$(INCLUDE_EMULATOR_INTERFACES) -I$(INCLUDE_EMULATOR_PROTOCOL) -I$(INCLUDE_EMULATOR_RUNTIME) -I$(INCLUDE_EMULATOR_TRANSPORT)
 
-$(OBJ_DIR)/%.o: %.cc %.h
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+SRC_FILES = $(notdir $(wildcard ./*.cc)) $(notdir $(wildcard */*.cc))
+OBJ_FILES = $(patsubst %.cc,$(BUILD_TEMP)/%.o,$(SRC_FILES))
+DEP_FILES = $(patsubst %.o,%.d,$(OBJ_FILES))
 
-$(OBJ_DIR)/%.o: %.cc
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+TARGET = $(EMU_LIB)
 
-$(OBJ_DIR)/%.o: ./interfaces/%.cc
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+.PHONY: subdirs $(TARGET)
 
-$(OBJ_DIR)/%.o: ./interfaces/%.cc ./interfaces/%.h
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+all: subdirs $(TARGET)
 
-$(OBJ_DIR)/%.o: ./protocol/%.cc
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+subdirs:
+	for TEST in $(SUBDIRS); do $(MAKE) -C $$TEST -f Makefile.mk; done ||:
 
-$(OBJ_DIR)/%.o: ./protocol/%.cc ./protocol/%.h
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+$(TARGET): $(OBJ_FILES) 
+	$(AR) rcs $@ $(OBJ_FILES) 
+	
+-include $(DEP_FILES)
+$(BUILD_TEMP)/%.o: $(CURDIR)/%.cc
+	$(CC) $(INCLUDE) $(CPPFLAGS) -MMD -MT"$@" -c $< -o  $@ 
 
-$(OBJ_DIR)/%.o: ./runtime/%.cc
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./runtime/%.cc ./runtime/%.h
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./transport/%.cc
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: ./transport/%.cc ./transport/%.h
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
-
-clean:
-	rm -rf *.o  *.so  *.stackdump  *.a  *.exe
-
-run:
-	./gbx
-
-.PHONY: all clean run
-
-
+define MakeTarget
+	$(call EnteringMessage, ${1})
+	@$(MAKE) -C ${1} -f Makefile.mk
+	$(call ExitingMessage, ${1})
+endef

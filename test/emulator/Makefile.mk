@@ -1,28 +1,22 @@
-CC := clang++
-#CCOVERAGE_FLAGS = -fprofile-instr-generate -fcoverage-mapping
-#LDCOVERAGE_FLAGS = -fprofile-instr-generate
-OBJ_DIR := $(CURDIR)/../obj
-SRC_FILES := $(wildcard ./*.cc)
-OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
-LDFLAGS := -lgtest -lgmock $(LDCOVERAGE_FLAGS) -pthread
-CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O0 -g -DDEBUG
-TARGET := gbxTest
-TARGET_DIR := $(CURDIR)/..
-INCLUDE := -I../../gbxcore/src/ -I../../gbxcommons/src/
-DEPENDECIES := $(OBJ_DIR)/Runner.o $(OBJ_DIR)/CancellationToken.o $(OBJ_DIR)/MessageHandler.o $(OBJ_DIR)/DebugMessage.o \
-			   $(OBJ_DIR)/DebugMessageNotificationArguments.o $(OBJ_DIR)/GBXExceptions.o $(OBJ_DIR)/DebugCommand.o \
-			   $(OBJ_DIR)/ReadRegisterCommand.o $(OBJ_DIR)/ClientJoinedCommand.o $(OBJ_DIR)/RegisterBankSummaryCommand.o \
-			   $(OBJ_DIR)/BoostAsioServerTransport.o $(OBJ_DIR)/WriteRegisterCommand.o $(OBJ_DIR)/ErrorCommand.o 
+TEST_DIRS = $(wildcard */)
 
-$(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
-	$(CC) $(INCLUDE) -o $@ $^ $(DEPENDECIES) $(LDFLAGS)
+CC = clang++
+LD = ld
 
-$(OBJ_DIR)/%.o: %.cc
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+LDFLAGS = $(LDCOVERAGE_FLAGS)
+CPPFLAGS = $(CCCOVERAGE_FLAGS) $(GLOBAL_CPP_FLAGS)
+INCLUDE = -I$(INCLUDE_CORE_TOP) -I$(INCLUDE_CORE_INSTRUCTIONS)
 
-clean:
-	rm -rf *.o  *.so  *.stackdump  *.a  *.exe
+SRC_FILES = $(notdir $(wildcard */*.cc))
+OBJ_FILES = $(patsubst %.cc,$(BUILD_TEMP)/%.o,$(SRC_FILES))
+TARGET = $(EMU_TESTS)
 
-.PHONY: all clean run
+.PHONY: tests $(TARGET)
 
+all: tests $(TARGET)
 
+tests:
+	for TEST in $(TEST_DIRS); do $(MAKE) -C $$TEST -f Makefile.mk; done ||:
+
+$(TARGET): $(OBJ_FILES)
+	$(LD) -r -o $(TARGET) $(OBJ_FILES)

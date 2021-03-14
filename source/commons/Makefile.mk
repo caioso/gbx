@@ -1,34 +1,29 @@
-CC := clang++
-AR := ar
-#CCCOVERAGE_FLAGS = -fprofile-instr-generate -fcoverage-mapping
-#LDCOVERAGE_FLAGS = -fprofile-instr-generate
-OBJ_DIR := $(CURDIR)/../obj
-TARGET_DIR := $(CURDIR)/..
-SRC_FILES := $(wildcard ./*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./interfaces/*.cc)
-SRC_FILES := $(SRC_FILES) $(wildcard ./requests/*.cc)
-OBJ_FILES := $(patsubst ./%.cc,$(OBJ_DIR)/%.o,$(SRC_FILES))
-OBJ_FILES := $(subst interfaces/,,$(OBJ_FILES))
-OBJ_FILES := $(subst requests/,,$(OBJ_FILES))
-LDFLAGS := $(LDCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O0 -g -DDEBUG
-CPPFLAGS := $(CCCOVERAGE_FLAGS) -Wall -Wextra -std=c++2a -O3 -g -DDEBUG 
-TARGET := libgbxcommons.a
+CC = clang++
+AR = ar
 
-$(TARGET_DIR)/$(TARGET): $(OBJ_FILES)
-	$(AR) rcs $@ $(OBJ_FILES)
+LDFLAGS = $(LDCOVERAGE_FLAGS)
+CPPFLAGS = $(CCCOVERAGE_FLAGS) $(GLOBAL_CPP_FLAGS)
+INCLUDE = -I$(INCLUDE_COMMONS_TOP)
 
-$(OBJ_DIR)/%.o: %.cc %.h
-	$(CC) $(CPPFLAGS) -c -o $@ $<
+SRC_FILES = $(notdir $(wildcard ./*.cc)) $(notdir $(wildcard */*.cc))
+OBJ_FILES = $(patsubst %.cc,$(BUILD_TEMP)/%.o,$(SRC_FILES))
+DEP_FILES = $(patsubst %.o,%.d,$(OBJ_FILES))
 
-$(OBJ_DIR)/%.o: %.cc
-	$(CC) $(CPPFLAGS) -c -o $@ $<
+TARGET = $(COMMONS_LIB)
 
-clean:
-	rm -rf *.o  *.so  *.stackdump  *.a  *.exe
+.PHONY: $(TARGET)
 
-run:
-	./gbx
+all: $(TARGET)
 
-.PHONY: all clean run
+$(TARGET): $(OBJ_FILES) 
+	$(AR) rcs $@ $(OBJ_FILES) 
+	
+-include $(DEP_FILES)
+$(BUILD_TEMP)/%.o: $(CURDIR)/%.cc
+	$(CC) $(INCLUDE) $(CPPFLAGS) -MMD -MT"$@" -c $< -o  $@ 
 
-
+define MakeTarget
+	$(call EnteringMessage, ${1})
+	@$(MAKE) -C ${1} -f Makefile.mk
+	$(call ExitingMessage, ${1})
+endef
