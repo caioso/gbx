@@ -22,12 +22,12 @@ enum class RunnerMode
     Debug
 };
 
-class Runner : public interfaces::DebuggableRunner
+class Runner : public gbxdb::interfaces::DebuggableRunner
              , public std::enable_shared_from_this<Runner>
 {
 public:
     Runner(std::shared_ptr<gbxcore::interfaces::Runtime>);
-    Runner(std::shared_ptr<gbxcore::interfaces::Runtime>, std::shared_ptr<interfaces::ServerTransport>);
+    Runner(std::shared_ptr<gbxcore::interfaces::Runtime>, std::shared_ptr<gbxdb::interfaces::ServerTransport>);
     virtual ~Runner() = default;
 
     void Run(CancellationToken&);
@@ -47,11 +47,11 @@ private:
     inline void InitializeDebugInfraIfNeeded();
 
     std::shared_ptr<gbxcore::interfaces::Runtime> _runtime;
-    std::shared_ptr<interfaces::ServerTransport> _transport;
+    std::shared_ptr<gbxdb::interfaces::ServerTransport> _transport;
     
     std::shared_ptr<MessageHandler> _handler;
     
-    std::queue<std::shared_ptr<interfaces::DebugMessage>> _requestQueue;
+    std::queue<std::shared_ptr<gbxdb::interfaces::DebugMessage>> _requestQueue;
     
     RunnerMode _mode;
 

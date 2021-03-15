@@ -1,6 +1,7 @@
 #include "Runner.h"
 
-using namespace gbx::interfaces;
+using namespace gbxdb;
+using namespace gbxdb::interfaces;
 using namespace gbxcore::interfaces;
 using namespace std;
 
