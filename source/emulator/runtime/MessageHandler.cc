@@ -1,8 +1,9 @@
 #include "MessageHandler.h"
 
-using namespace gbx::interfaces;
-using namespace gbx::protocol;
 using namespace gbx;
+using namespace gbxdb;
+using namespace gbxdb::interfaces;
+using namespace gbxdb::protocol;
 using namespace gbxcommons;
 using namespace gbxcore::interfaces;
 using namespace std;

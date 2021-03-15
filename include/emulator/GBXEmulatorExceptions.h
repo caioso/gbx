@@ -17,18 +17,4 @@ protected:
     std::string _message;
 };
 
-class MessageHandlerException : public GBXEmulatorExceptions
-{
-public:
-    explicit MessageHandlerException(const std::string&);
-    ~MessageHandlerException() = default;
-};
-
-class ServerProtocolException : public GBXEmulatorExceptions
-{
-public:
-    explicit ServerProtocolException(const std::string&);
-    ~ServerProtocolException() = default;
-};
-
 }

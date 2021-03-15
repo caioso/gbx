@@ -9,7 +9,7 @@ namespace gbxasm
 class GBXAsmException : std::exception
 {
 public:
-    GBXAsmException(const std::string);
+    GBXAsmException(const std::string&);
     virtual ~GBXAsmException() = default;
     virtual const char* what() const noexcept;
 
@@ -20,28 +20,28 @@ protected:
 class PreProcessorException : public GBXAsmException
 {
 public:
-    PreProcessorException(const std::string);
+    PreProcessorException(const std::string&);
     ~PreProcessorException() = default;
 };
 
 class LexicalAnalyzerException : public GBXAsmException
 {
 public:
-    LexicalAnalyzerException(const std::string);
+    LexicalAnalyzerException(const std::string&);
     ~LexicalAnalyzerException() = default;
 };
 
 class SyntacticAnalyzerException : public GBXAsmException
 {
 public:
-    SyntacticAnalyzerException(const std::string);
+    SyntacticAnalyzerException(const std::string&);
     ~SyntacticAnalyzerException() = default;
 };
 
 class ConversionException : public GBXAsmException
 {
 public:
-    ConversionException(const std::string);
+    ConversionException(const std::string&);
     ~ConversionException() = default;
 };
 }

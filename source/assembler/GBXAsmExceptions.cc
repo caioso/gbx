@@ -5,23 +5,23 @@ using namespace std;
 namespace gbxasm
 {
 
-GBXAsmException::GBXAsmException(const std::string message)
+GBXAsmException::GBXAsmException(const string& message)
     : _message(message)
 {}
 
-PreProcessorException::PreProcessorException(const std::string message)
+PreProcessorException::PreProcessorException(const string& message)
     : GBXAsmException(message)
 {}
 
-LexicalAnalyzerException::LexicalAnalyzerException(const std::string message)
+LexicalAnalyzerException::LexicalAnalyzerException(const string& message)
     : GBXAsmException(message)
 {}
 
-SyntacticAnalyzerException::SyntacticAnalyzerException(const std::string message)
+SyntacticAnalyzerException::SyntacticAnalyzerException(const string& message)
     : GBXAsmException(message)
 {}
 
-ConversionException::ConversionException(const std::string message)
+ConversionException::ConversionException(const string& message)
     : GBXAsmException(message)
 {}
 

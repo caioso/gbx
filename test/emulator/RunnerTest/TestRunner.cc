@@ -17,7 +17,8 @@
 using namespace std;
 using namespace std::chrono_literals;
 using namespace gbx;
-using namespace gbx::interfaces;
+using namespace gbxdb;
+using namespace gbxdb::interfaces;
 using namespace gbx::runtime;
 using namespace gbxcore::interfaces;
 
@@ -33,7 +34,7 @@ public:
     MOCK_METHOD(void, WriteRegister, (Register, (std::variant<uint8_t, uint16_t>)));
 };
 
-class ServerTransportMock : public gbx::interfaces::ServerTransport
+class ServerTransportMock : public interfaces::ServerTransport
 {
 public:
     virtual ~ServerTransportMock() = default;
