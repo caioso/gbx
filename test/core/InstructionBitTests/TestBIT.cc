@@ -30,7 +30,7 @@ public:
     }
 };
 
-TEST(TestBit, DecodeBitRegisterMode)
+TEST(CoreTests_BIT, DecodeBitRegisterMode)
 {
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     auto registerBank = make_shared<RegisterBank>();
@@ -56,7 +56,7 @@ TEST(TestBit, DecodeBitRegisterMode)
     }
 }
 
-TEST(TestBit, ExecuteBitRegisterMode)
+TEST(CoreTests_BIT, ExecuteBitRegisterMode)
 {
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     auto registerBank = make_shared<RegisterBank>();
@@ -98,7 +98,7 @@ TEST(TestBit, ExecuteBitRegisterMode)
         EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
     }
 }
-TEST(TestBit, DecodeBitRegisterIndirectMode)
+TEST(CoreTests_BIT, DecodeBitRegisterIndirectMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -120,7 +120,7 @@ TEST(TestBit, DecodeBitRegisterIndirectMode)
     }
 }
 
-TEST(TestBit, ExecuteBitRegisterIndirectMode)
+TEST(CoreTests_BIT, ExecuteBitRegisterIndirectMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     

@@ -11,8 +11,6 @@ DEP_FILES = $(patsubst %.o,%.d,$(OBJ_FILES))
 
 TARGET = $(COMMONS_LIB)
 
-.PHONY: $(TARGET)
-
 all: $(TARGET)
 
 $(TARGET): $(OBJ_FILES) 

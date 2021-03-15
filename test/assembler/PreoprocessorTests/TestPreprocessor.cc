@@ -57,12 +57,12 @@ private:
     string _passResult;
 };
 
-TEST(TestPreProcessor, Construction)
+TEST(AssemblerTests_Preprocessor, Construction)
 {
     auto preprocessor = make_shared<PreProcessor>();
 }
 
-TEST(TestPreProcessor, RegisterPass)
+TEST(AssemblerTests_Preprocessor, RegisterPass)
 {
     vector<string> symbolTable;
     auto stream = make_shared<StreamMock>();
@@ -75,7 +75,7 @@ TEST(TestPreProcessor, RegisterPass)
     ASSERT_EQ(1llu, preprocessor->Passes().size());
 }
 
-TEST(TestPreProcessor, RegisterMultiplePasses)
+TEST(AssemblerTests_Preprocessor, RegisterMultiplePasses)
 {
     vector<string> symbolTable;
     auto stream = make_shared<StreamMock>();
@@ -91,7 +91,7 @@ TEST(TestPreProcessor, RegisterMultiplePasses)
     ASSERT_EQ(2llu, preprocessor->Passes().size());
 }
 
-TEST(TestPreProcessor, RegisterPassOutOfBounds)
+TEST(AssemblerTests_Preprocessor, RegisterPassOutOfBounds)
 {
     vector<string> symbolTable;
     auto stream = make_shared<StreamMock>();
@@ -106,7 +106,7 @@ TEST(TestPreProcessor, RegisterPassOutOfBounds)
                         "Attempted to register pass at index '100', which is out of bounds");
 }
 
-TEST(TestPreProcessor, ProcessPass)
+TEST(AssemblerTests_Preprocessor, ProcessPass)
 {
     string inputCode = "this is my ";
     auto preprocessor = make_shared<PreProcessorWrapper>();
@@ -119,7 +119,7 @@ TEST(TestPreProcessor, ProcessPass)
     EXPECT_STREQ("this is my source code", result.c_str());
 }
 
-TEST(TestPreProcessor, ProcessInvalidPass)
+TEST(AssemblerTests_Preprocessor, ProcessInvalidPass)
 {
     string inputCode = "this is my ";
     auto preprocessor = make_shared<PreProcessorWrapper>();

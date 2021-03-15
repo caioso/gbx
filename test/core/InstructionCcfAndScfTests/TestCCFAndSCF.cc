@@ -31,7 +31,7 @@ public:
     }
 };
 
-TEST(TestCcfAndScf, DecodeCcf)
+TEST(CoreTests_CCFAndSCF, DecodeCcf)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -49,7 +49,7 @@ TEST(TestCcfAndScf, DecodeCcf)
     EXPECT_EQ(0x00, alu.GetInstructionData().InstructionExtraOperand);
 }
 
-TEST(TestCcfAndScf, ExecuteCcf)
+TEST(CoreTests_CCFAndSCF, ExecuteCcf)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -87,7 +87,7 @@ TEST(TestCcfAndScf, ExecuteCcf)
     ASSERT_EQ(0, registerBank->ReadFlag(Flag::Z));
 }
 
-TEST(TestCcfAndScf, DecodeScf)
+TEST(CoreTests_CCFAndSCF, DecodeScf)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -105,7 +105,7 @@ TEST(TestCcfAndScf, DecodeScf)
     EXPECT_EQ(0x00, alu.GetInstructionData().InstructionExtraOperand);
 }
 
-TEST(TestCcfAndScf, ExecuteScf)
+TEST(CoreTests_CCFAndSCF, ExecuteScf)
 {
     auto registerBank = make_shared<RegisterBank>();
     

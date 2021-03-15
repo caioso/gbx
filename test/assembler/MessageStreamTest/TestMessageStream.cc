@@ -23,14 +23,14 @@ public:
     MOCK_METHOD(void, Write, (std::string));
 };
 
-TEST(TestRemoveCommentsPass, OutputStreamConstruction)
+TEST(AssemblerTests_RemoveCommentsPass, OutputStreamConstruction)
 {
     auto sinkMock = make_shared<SinkMock>();
     auto sinkPointer = static_pointer_cast<StreamSink>(sinkMock);
     auto outputStream = make_shared<streams::OutputStream>(nullopt, sinkPointer);
 }
 
-TEST(TestRemoveCommentsPass, OutputMessage)
+TEST(AssemblerTests_RemoveCommentsPass, OutputMessage)
 {
     auto sinkMock = make_shared<SinkMock>();
     auto sinkPointer = static_pointer_cast<StreamSink>(sinkMock);
@@ -40,7 +40,7 @@ TEST(TestRemoveCommentsPass, OutputMessage)
     outputStream->Write("Test Message", nullopt, nullopt, nullopt);
 }
 
-TEST(TestRemoveCommentsPass, OutputWithPrefixMessage)
+TEST(AssemblerTests_RemoveCommentsPass, OutputWithPrefixMessage)
 {
     auto sinkMock = make_shared<SinkMock>();
     auto sinkPointer = static_pointer_cast<StreamSink>(sinkMock);
@@ -50,7 +50,7 @@ TEST(TestRemoveCommentsPass, OutputWithPrefixMessage)
     outputStream->Write("Test Message", nullopt, nullopt, nullopt);
 }
 
-TEST(TestRemoveCommentsPass, OutputWithPrefixMessageAndLocation)
+TEST(AssemblerTests_RemoveCommentsPass, OutputWithPrefixMessageAndLocation)
 {
     auto sinkMock = make_shared<SinkMock>();
     auto sinkPointer = static_pointer_cast<StreamSink>(sinkMock);
@@ -60,7 +60,7 @@ TEST(TestRemoveCommentsPass, OutputWithPrefixMessageAndLocation)
     outputStream->Write("Test Message", "MyFile.z80", 44, 20);
 }
 
-TEST(TestRemoveCommentsPass, OutputWithIncompleteInformation)
+TEST(AssemblerTests_RemoveCommentsPass, OutputWithIncompleteInformation)
 {
     auto sinkMock = make_shared<SinkMock>();
     auto sinkPointer = static_pointer_cast<StreamSink>(sinkMock);

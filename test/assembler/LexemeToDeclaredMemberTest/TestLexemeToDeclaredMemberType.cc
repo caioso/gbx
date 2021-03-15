@@ -17,43 +17,43 @@ using namespace std;
 using ::testing::Return;
 using ::testing::_;
 
-TEST(TestLexemeToDeclaredMemberType, ConvertByte)
+TEST(AssemblerTests_LexemeToMemberType, ConvertByte)
 {
     auto type = LexemeToDeclaredMemberType::Convert(Lexemes::KeywordBYTE);
     ASSERT_EQ(TypeName::Byte, type);
 }
 
-TEST(TestLexemeToDeclaredMemberType, ConvertWord)
+TEST(AssemblerTests_LexemeToMemberType, ConvertWord)
 {
     auto type = LexemeToDeclaredMemberType::Convert(Lexemes::KeywordWORD);
     ASSERT_EQ(TypeName::Word, type);
 }
 
-TEST(TestLexemeToDeclaredMemberType, ConvertDoubleWord)
+TEST(AssemblerTests_LexemeToMemberType, ConvertDoubleWord)
 {
     auto type = LexemeToDeclaredMemberType::Convert(Lexemes::KeywordDWRD);
     ASSERT_EQ(TypeName::DoubleWord, type);
 }
 
-TEST(TestLexemeToDeclaredMemberType, ConvertBool)
+TEST(AssemblerTests_LexemeToMemberType, ConvertBool)
 {
     auto type = LexemeToDeclaredMemberType::Convert(Lexemes::KeywordBOOL);
     ASSERT_EQ(TypeName::Bool, type);
 }
 
-TEST(TestLexemeToDeclaredMemberType, ConvertChar)
+TEST(AssemblerTests_LexemeToMemberType, ConvertChar)
 {
     auto type = LexemeToDeclaredMemberType::Convert(Lexemes::KeywordCHAR);
     ASSERT_EQ(TypeName::Char, type);
 }
 
-TEST(TestLexemeToDeclaredMemberType, ConvertString)
+TEST(AssemblerTests_LexemeToMemberType, ConvertString)
 {
     auto type = LexemeToDeclaredMemberType::Convert(Lexemes::KeywordSTR);
     ASSERT_EQ(TypeName::String, type);
 }
 
-TEST(TestLexemeToDeclaredMemberType, ConvertUnknownType)
+TEST(AssemblerTests_LexemeToMemberType, ConvertUnknownType)
 {
     ASSERT_EXCEPTION( { [[maybe_unused]] auto type = LexemeToDeclaredMemberType::Convert("Unknown"); } , 
                     ConversionException, 

@@ -30,7 +30,7 @@ public:
     }
 };
 
-TEST(TestCall, DecodeUnconditionalCall)
+TEST(CoreTests_CALL, DecodeUnconditionalCall)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -48,7 +48,7 @@ TEST(TestCall, DecodeUnconditionalCall)
     EXPECT_EQ(0xFF, alu.GetInstructionData().InstructionExtraOperand);
 }
 
-TEST(TestCall, ExecuteUnconditionalCall)
+TEST(CoreTests_CALL, ExecuteUnconditionalCall)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -70,7 +70,7 @@ TEST(TestCall, ExecuteUnconditionalCall)
     EXPECT_EQ(alu.GetInstructionData().MemoryResult2, static_cast<uint8_t>(0x00));
 }
 
-TEST(TestCall, DecodeConditionalCall)
+TEST(CoreTests_CALL, DecodeConditionalCall)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -91,7 +91,7 @@ TEST(TestCall, DecodeConditionalCall)
     }
 }
 
-TEST(TestCall, ExecuteConditionalCall)
+TEST(CoreTests_CALL, ExecuteConditionalCall)
 {
     auto registerBank = make_shared<RegisterBank>();
     

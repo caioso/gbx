@@ -16,12 +16,12 @@ using namespace gbxasm::utilities;
 using namespace std;
 
 
-TEST(TestLexicalAnalyzer, Construction)
+TEST(AssemblerTests_LexicalAnalyzer, Construction)
 {
     auto lexer = make_shared<LexicalAnalyzer>();
 }
 
-TEST(TestLexicalAnalyzer, AcquireReferenceOfTokensVector)
+TEST(AssemblerTests_LexicalAnalyzer, AcquireReferenceOfTokensVector)
 {
     auto lexer = make_shared<LexicalAnalyzer>();
     auto tokens = lexer->Tokens();
@@ -29,7 +29,7 @@ TEST(TestLexicalAnalyzer, AcquireReferenceOfTokensVector)
     EXPECT_EQ(static_cast<size_t>(0), tokens.size());
 }
 
-TEST(TestLexicalAnalyzer, BasicTokenization)
+TEST(AssemblerTests_LexicalAnalyzer, BasicTokenization)
 {
     const string program = "";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -39,7 +39,7 @@ TEST(TestLexicalAnalyzer, BasicTokenization)
     EXPECT_EQ(static_cast<size_t>(0), tokens.size());
 }
 
-TEST(TestLexicalAnalyzer, BasicKeywordTokenization)
+TEST(AssemblerTests_LexicalAnalyzer, BasicKeywordTokenization)
 {
     const string program = "PACK";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -51,7 +51,7 @@ TEST(TestLexicalAnalyzer, BasicKeywordTokenization)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateBasicLexeme)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateBasicLexeme)
 {
     const string program = "PACK";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -64,7 +64,7 @@ TEST(TestLexicalAnalyzer, EvaluateBasicLexeme)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateLexemeWithOperator)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateLexemeWithOperator)
 {
     const string program = "PACK+ +PACK +PACK+";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -107,7 +107,7 @@ TEST(TestLexicalAnalyzer, EvaluateLexemeWithOperator)
     EXPECT_EQ(static_cast<size_t>(18), tokens[6].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateLexemeWothMultiCharacterOperator)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateLexemeWothMultiCharacterOperator)
 {
     const string program = "PACK== PACK<=>";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -125,7 +125,7 @@ TEST(TestLexicalAnalyzer, EvaluateLexemeWothMultiCharacterOperator)
     EXPECT_EQ(static_cast<size_t>(5), tokens[1].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateOperatorMixedWithKeyword)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateOperatorMixedWithKeyword)
 {
     const string program = "P+ACK\nPAC=K P+K";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -178,7 +178,7 @@ TEST(TestLexicalAnalyzer, EvaluateOperatorMixedWithKeyword)
     EXPECT_EQ(static_cast<size_t>(9), tokens[8].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateSeparator)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateSeparator)
 {
     const string program = "PACK,(PACK)";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -211,7 +211,7 @@ TEST(TestLexicalAnalyzer, EvaluateSeparator)
     EXPECT_EQ(static_cast<size_t>(11), tokens[4].Column);
 }
 
-TEST(TestLexicalAnalyzer, TestNestedSeparatorsAndOperators)
+TEST(AssemblerTests_LexicalAnalyzer, TestNestedSeparatorsAndOperators)
 {
     const string program = "{([PACK=PACK])}";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -264,7 +264,7 @@ TEST(TestLexicalAnalyzer, TestNestedSeparatorsAndOperators)
     EXPECT_EQ(static_cast<size_t>(15), tokens[8].Column);
 }
 
-TEST(TestLexicalAnalyzer, TestUnknownSeparator)
+TEST(AssemblerTests_LexicalAnalyzer, TestUnknownSeparator)
 {
     const string program = "PACK? \\";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -274,7 +274,7 @@ TEST(TestLexicalAnalyzer, TestUnknownSeparator)
                       "Invalid identifier 'PACK?'");
 }
 
-TEST(TestLexicalAnalyzer, EvaluateAllKeywords)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllKeywords)
 {
     const string program = "PACK\n"
                            "FUNC\n"
@@ -352,7 +352,7 @@ TEST(TestLexicalAnalyzer, EvaluateAllKeywords)
     }
 }
 
-TEST(TestLexicalAnalyzer, EvaluateAllOperators)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllOperators)
 {
     const string program = "=\n"
                            "==\n"
@@ -406,7 +406,7 @@ TEST(TestLexicalAnalyzer, EvaluateAllOperators)
     }
 }
 
-TEST(TestLexicalAnalyzer, EvaluateNumericLiterals)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateNumericLiterals)
 {
     const string program = "0x12AB\n"
                            "0d1289\n"
@@ -450,7 +450,7 @@ TEST(TestLexicalAnalyzer, EvaluateNumericLiterals)
     EXPECT_EQ(static_cast<size_t>(1), tokens[5].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateNumericLiteralsWithModifier)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateNumericLiteralsWithModifier)
 {
     const string program = "0xFFFF.LOW\n"
                            "0d456.HIGH\n"
@@ -570,7 +570,7 @@ TEST(TestLexicalAnalyzer, EvaluateNumericLiteralsWithModifier)
     EXPECT_EQ(static_cast<size_t>(2), tokens[20].Column);
 }
 
-TEST(TestLexicalAnalyzer, InvalidHexadecimalLiterals)
+TEST(AssemblerTests_LexicalAnalyzer, InvalidHexadecimalLiterals)
 {
     const string number1 = "0x889y";
     const string number2 = "F7AA"; // This is an IDENTIFIER (variable name etc.);
@@ -605,7 +605,7 @@ TEST(TestLexicalAnalyzer, InvalidHexadecimalLiterals)
                       "Invalid decimal numeric literal '84FF'");
 }
 
-TEST(TestLexicalAnalyzer, InvalidDecimalLiterals)
+TEST(AssemblerTests_LexicalAnalyzer, InvalidDecimalLiterals)
 {
     const string number1 = "0d889Tj";
     const string number2 = "231p";
@@ -631,7 +631,7 @@ TEST(TestLexicalAnalyzer, InvalidDecimalLiterals)
                       "Invalid decimal numeric literal '12FF51'");
 }
 
-TEST(TestLexicalAnalyzer, InvalidOctalLiterals)
+TEST(AssemblerTests_LexicalAnalyzer, InvalidOctalLiterals)
 {
     const string number1 = "0o4511k";
     const string number2 = "0o99999";
@@ -652,7 +652,7 @@ TEST(TestLexicalAnalyzer, InvalidOctalLiterals)
                       "Invalid octal numeric literal 'ABCDEF'");
 }
 
-TEST(TestLexicalAnalyzer, InvalidBinaryLiterals)
+TEST(AssemblerTests_LexicalAnalyzer, InvalidBinaryLiterals)
 {
     const string number1 = "0b11110877r";
     const string number2 = "0b23456789";
@@ -673,7 +673,7 @@ TEST(TestLexicalAnalyzer, InvalidBinaryLiterals)
                       "Invalid binary numeric literal 'ABCDEF'");
 }
 
-TEST(TestLexicalAnalyzer, EvaluateBooleanLiterals)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateBooleanLiterals)
 {
     const string program = "TRUE\n"
                            "FALSE\n";
@@ -693,7 +693,7 @@ TEST(TestLexicalAnalyzer, EvaluateBooleanLiterals)
     EXPECT_EQ(static_cast<size_t>(1), tokens[1].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateStringLiteral)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateStringLiteral)
 {
     const string string = "\"basic-test\"";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -707,7 +707,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateStringLiteral2)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateStringLiteral2)
 {
     const string string = "\" basic test \"";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -722,7 +722,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral2)
     
 }
 
-TEST(TestLexicalAnalyzer, EvaluateStringLiteral3)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateStringLiteral3)
 {
     const string test1 = "\"\nbasic\ntest\n\"";
     const string test2 = "\"\n basic \n test 2\n\"";
@@ -772,7 +772,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral3)
     EXPECT_EQ(static_cast<size_t>(9), tokens[1].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateStringLiteral4)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateStringLiteral4)
 {
     const string string = "CNST MY_STRING {\"my-string\"}";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -806,7 +806,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral4)
     EXPECT_EQ(static_cast<size_t>(28), tokens[4].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateStringLiteral5)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateStringLiteral5)
 {
     const string string = "PACK\n\"\tmessy   string\"(A + 1)";
 
@@ -852,7 +852,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral5)
     EXPECT_EQ(static_cast<size_t>(24), tokens[6].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateStringLiteral6)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateStringLiteral6)
 {
     const string test1 = "\"\"";
     const string test2 = "\"'\\\"++*+\"";
@@ -897,7 +897,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral6)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateStringLiteral7)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateStringLiteral7)
 {
     const string string = "\n\n\n\n\n\n\n\n\n\"sfjfashkjfhdjkfshdjkdashfkajshfjasfhakjsdhfakjsfhajskfhsjkdfheiwuyuscbvmrijeurhaBSXASJDNEN\"";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -911,7 +911,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral7)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateStringLiteral8)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateStringLiteral8)
 {
     const string text = "\"basic test \"";
     const string text2 = "\" basic test\"";
@@ -946,7 +946,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral8)
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);   
 }
 
-TEST(TestLexicalAnalyzer, EvaluateStringLiteral9)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateStringLiteral9)
 {
     const string string = "0x67{\"\":}";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -982,7 +982,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral9)
 }
 
 
-TEST(TestLexicalAnalyzer, EvaluateStringLiteral10)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateStringLiteral10)
 {
     const string string = "\"string1\" + \"\" + \"string2\"";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -1017,7 +1017,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral10)
     EXPECT_EQ(static_cast<size_t>(18), tokens[4].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateStringLiteral11)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateStringLiteral11)
 {
     const string string = "\"'string1'\"\"' string2 '\"";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -1037,7 +1037,7 @@ TEST(TestLexicalAnalyzer, EvaluateStringLiteral11)
     EXPECT_EQ(static_cast<size_t>(12), tokens[1].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateUnterminatedString)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateUnterminatedString)
 {
     const string string = "\"never-ending string";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -1047,7 +1047,7 @@ TEST(TestLexicalAnalyzer, EvaluateUnterminatedString)
                       "Non-terminated string literal found");
 }
 
-TEST(TestLexicalAnalyzer, EvaluateUnterminatedString1)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateUnterminatedString1)
 {
     const string string = " IF \n \"never-ending string PACK \" \n \" Another string";
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -1057,7 +1057,7 @@ TEST(TestLexicalAnalyzer, EvaluateUnterminatedString1)
                       "Non-terminated string literal found");
 }
 
-TEST(TestLexicalAnalyzer, EvaluateCharLiteral)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateCharLiteral)
 {
     const string program = "'a' 'b' 'c' 'd'";
 
@@ -1086,7 +1086,7 @@ TEST(TestLexicalAnalyzer, EvaluateCharLiteral)
     EXPECT_EQ(static_cast<size_t>(13), tokens[3].Column);
 }
 
-TEST(TestLexicalAnalyzer, EvaluateNotClosedCharLiteral)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateNotClosedCharLiteral)
 {
     const string program = "'a' '";
 
@@ -1097,7 +1097,7 @@ TEST(TestLexicalAnalyzer, EvaluateNotClosedCharLiteral)
                       "Non-terminated char literal found");
 }
 
-TEST(TestLexicalAnalyzer, EvaluateNotClosedCharLiteral2)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateNotClosedCharLiteral2)
 {
     const string program = "'''";
 
@@ -1108,7 +1108,7 @@ TEST(TestLexicalAnalyzer, EvaluateNotClosedCharLiteral2)
                       "Non-terminated char literal found");
 }
 
-TEST(TestLexicalAnalyzer, EvaluateInvalidCharLiteral)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateInvalidCharLiteral)
 {
     const string program = "'abcdefgh'";
 
@@ -1119,7 +1119,7 @@ TEST(TestLexicalAnalyzer, EvaluateInvalidCharLiteral)
                       "invalid char literal found ('abcdefgh')");
 }
 
-TEST(TestLexicalAnalyzer, EvaluateInvalidCharLiteral2)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateInvalidCharLiteral2)
 {
     const string program = "' a '";
 
@@ -1130,7 +1130,7 @@ TEST(TestLexicalAnalyzer, EvaluateInvalidCharLiteral2)
                       "Non-terminated char literal found");
 }
 
-TEST(TestLexicalAnalyzer, EvaluateInvalidCharLiteral3)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateInvalidCharLiteral3)
 {
     const string program = "'\\ra'";
 
@@ -1141,7 +1141,7 @@ TEST(TestLexicalAnalyzer, EvaluateInvalidCharLiteral3)
                       "invalid char literal found ('\\ra')");
 }
 
-TEST(TestLexicalAnalyzer, EvaluateValidCharLiteral)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateValidCharLiteral)
 {
     const string program = "'\\s' '!' '\\\"' '#'"
                            "'$' '%' '&' '\\''"
@@ -1212,7 +1212,7 @@ TEST(TestLexicalAnalyzer, EvaluateValidCharLiteral)
     }
 }
 
-TEST(TestLexicalAnalyzer, InvalidScapedCharLiterals)
+TEST(AssemblerTests_LexicalAnalyzer, InvalidScapedCharLiterals)
 {
     const string sequence1 = "'\\w'";
     const string sequence2 = "'\\0'";
@@ -1238,7 +1238,7 @@ TEST(TestLexicalAnalyzer, InvalidScapedCharLiterals)
                       "invalid char literal found ('€')");
 }
 
-TEST(TestLexicalAnalyzer, EvaluateAllInstructionMnemonics)
+TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllInstructionMnemonics)
 {
     const string program = "NOP\n"
                            "LD\n"
@@ -1327,7 +1327,7 @@ TEST(TestLexicalAnalyzer, EvaluateAllInstructionMnemonics)
     }
 }
 
-TEST(TestLexicalAnalyzer, SimpleInstructionTest)
+TEST(AssemblerTests_LexicalAnalyzer, SimpleInstructionTest)
 {
     const string instruction = "LD A, 0xFF";
 
@@ -1356,7 +1356,7 @@ TEST(TestLexicalAnalyzer, SimpleInstructionTest)
     EXPECT_EQ(static_cast<size_t>(7), tokens[3].Column);
 }
 
-TEST(TestLexicalAnalyzer, SimpleInstructionTest2)
+TEST(AssemblerTests_LexicalAnalyzer, SimpleInstructionTest2)
 {
     const string instruction = "ADD A_REGISTER_ALIAS,54";
 
@@ -1385,7 +1385,7 @@ TEST(TestLexicalAnalyzer, SimpleInstructionTest2)
     EXPECT_EQ(static_cast<size_t>(22), tokens[3].Column);
 }
 
-TEST(TestLexicalAnalyzer, TestIdentifierParsing)
+TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing)
 {
     const string program = "BYTE MY_VAR1";
 
@@ -1406,7 +1406,7 @@ TEST(TestLexicalAnalyzer, TestIdentifierParsing)
     EXPECT_EQ(static_cast<size_t>(6), tokens[1].Column);
 }
 
-TEST(TestLexicalAnalyzer, TestIdentifierParsing2)
+TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing2)
 {
     const string program = "BYTE CammelCaseVariableName\n"
                            "WORD Identifier_with_underscore";
@@ -1438,7 +1438,7 @@ TEST(TestLexicalAnalyzer, TestIdentifierParsing2)
     EXPECT_EQ(static_cast<size_t>(6), tokens[3].Column);
 }
 
-TEST(TestLexicalAnalyzer, TestIdentifierWithInvalidCharacter)
+TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierWithInvalidCharacter)
 {
     const string program = "BYTE My%identifier";
 
@@ -1449,7 +1449,7 @@ TEST(TestLexicalAnalyzer, TestIdentifierWithInvalidCharacter)
                       "Invalid identifier 'My%identifier'");
 }
 
-TEST(TestLexicalAnalyzer, TestIdentifierWithInvalidCharacter2)
+TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierWithInvalidCharacter2)
 {
     const string program = "BYTE 34MyTest";
 
@@ -1460,7 +1460,7 @@ TEST(TestLexicalAnalyzer, TestIdentifierWithInvalidCharacter2)
                       "Invalid character 'M' near numeric literal '34MyTest'");
 }
 
-TEST(TestLexicalAnalyzer, TestIdentifierParsing3)
+TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing3)
 {
     const string program = "BYTE ThisIs-TwoIdentifiers\n";
 

@@ -13,7 +13,7 @@
 using namespace std;
 using namespace gbxcore;
 
-TEST(TestClock, Construction) 
+TEST(CoreTests_Clock, Construction) 
 {
     constexpr double GBCPeriod = 119;
     Clock clock(EngineParameters::GBCClockPeriod);
@@ -21,7 +21,7 @@ TEST(TestClock, Construction)
     EXPECT_DOUBLE_EQ(GBCPeriod, clock.Period());
 }
 
-TEST(TestClock, SingleTickNoDelay)
+TEST(CoreTests_Clock, SingleTickNoDelay)
 {
     constexpr uint64_t GBCPeriodInNanoSeconds = 119;
     Clock clock(EngineParameters::GBCClockPeriod);
@@ -36,7 +36,7 @@ TEST(TestClock, SingleTickNoDelay)
     EXPECT_TRUE(duration <= chrono::nanoseconds(static_cast<uint64_t>(GBCPeriodInNanoSeconds * 4)));
 }
 
-TEST(TestClock, MultipleTickNoDelay)
+TEST(CoreTests_Clock, MultipleTickNoDelay)
 {
     constexpr uint64_t GBCPeriodInNanoSeconds = 119;
     Clock clock(EngineParameters::GBCClockPeriod);
@@ -51,7 +51,7 @@ TEST(TestClock, MultipleTickNoDelay)
     EXPECT_TRUE(duration <= chrono::nanoseconds(static_cast<uint64_t>(GBCPeriodInNanoSeconds * 6)));
 }
 
-TEST(TestClock, MultipkleTickWithDelay)
+TEST(CoreTests_Clock, MultipkleTickWithDelay)
 {
     constexpr uint64_t GBCPeriodInNanoSeconds = 119;
     Clock clock(EngineParameters::GBCClockPeriod);

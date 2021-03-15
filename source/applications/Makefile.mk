@@ -1,5 +1,3 @@
-$(info ------> Here)
-
 .PHONY: all
 
 all:

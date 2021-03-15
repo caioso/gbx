@@ -30,7 +30,7 @@ public:
     }
 };
 
-TEST(TestAddAndAdc, DecodeAddRegisterMode)
+TEST(CoreTests_ADDAndADC, DecodeAddRegisterMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -53,7 +53,7 @@ TEST(TestAddAndAdc, DecodeAddRegisterMode)
     }
 }
 
-TEST(TestAddAndAdc, DecodeAddImmediateMode)
+TEST(CoreTests_ADDAndADC, DecodeAddImmediateMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -70,7 +70,7 @@ TEST(TestAddAndAdc, DecodeAddImmediateMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestAddAndAdc, DecodeAddRegisterIndirectMode)
+TEST(CoreTests_ADDAndADC, DecodeAddRegisterIndirectMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -87,7 +87,7 @@ TEST(TestAddAndAdc, DecodeAddRegisterIndirectMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestAddAndAdc, DecodeAdcRegisterMode)
+TEST(CoreTests_ADDAndADC, DecodeAdcRegisterMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -109,7 +109,7 @@ TEST(TestAddAndAdc, DecodeAdcRegisterMode)
     }
 }
 
-TEST(TestAddAndAdc, DecodeAdcRegisterImmediate)
+TEST(CoreTests_ADDAndADC, DecodeAdcRegisterImmediate)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -126,7 +126,7 @@ TEST(TestAddAndAdc, DecodeAdcRegisterImmediate)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestAddAndAdc, DecodeAdcRegisterIndirect)
+TEST(CoreTests_ADDAndADC, DecodeAdcRegisterIndirect)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -143,7 +143,7 @@ TEST(TestAddAndAdc, DecodeAdcRegisterIndirect)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestAddAndAdc, ExecuteAddRegisterMode)
+TEST(CoreTests_ADDAndADC, ExecuteAddRegisterMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -263,7 +263,7 @@ TEST(TestAddAndAdc, ExecuteAddRegisterMode)
     EXPECT_EQ(0x02, registerBank->Read(Register::A));
 }
 
-TEST(TestAddAndAdc, ExecuteAddImmediateMode)
+TEST(CoreTests_ADDAndADC, ExecuteAddImmediateMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -359,7 +359,7 @@ TEST(TestAddAndAdc, ExecuteAddImmediateMode)
     EXPECT_EQ(0xFF, registerBank->Read(Register::A));
 }
 
-TEST(TestAddAndAdc, ExecuteAddRegisterIndirectMode)
+TEST(CoreTests_ADDAndADC, ExecuteAddRegisterIndirectMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -447,7 +447,7 @@ TEST(TestAddAndAdc, ExecuteAddRegisterIndirectMode)
 }
 
 
-TEST(TestAddAndAdc, ExecuteAdcRegisterMode)
+TEST(CoreTests_ADDAndADC, ExecuteAdcRegisterMode)
 {
     auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     auto registerBank = make_shared<RegisterBank>();
@@ -573,7 +573,7 @@ TEST(TestAddAndAdc, ExecuteAdcRegisterMode)
     EXPECT_EQ(0x00, registerBank->Read(Register::A));
 }
 
-TEST(TestAddAndAdc, ExecuteAdcImmediateMode)
+TEST(CoreTests_ADDAndADC, ExecuteAdcImmediateMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -688,7 +688,7 @@ TEST(TestAddAndAdc, ExecuteAdcImmediateMode)
     EXPECT_EQ(0x00, registerBank->Read(Register::A));
 }
 
-TEST(TestAddAndAdc, ExecuteAdcRegisterIndirectMode)
+TEST(CoreTests_ADDAndADC, ExecuteAdcRegisterIndirectMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -803,7 +803,7 @@ TEST(TestAddAndAdc, ExecuteAdcRegisterIndirectMode)
     EXPECT_EQ(0x00, registerBank->Read(Register::A));
 }
 
-TEST(TestAddAndAdc, DecodeAddRegisterPairMode)
+TEST(CoreTests_ADDAndADC, DecodeAddRegisterPairMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -826,7 +826,7 @@ TEST(TestAddAndAdc, DecodeAddRegisterPairMode)
     }
 }
 
-TEST(TestAddAndAdc, ExecuteAddRegisterPairMode)
+TEST(CoreTests_ADDAndADC, ExecuteAddRegisterPairMode)
 {
     auto sourceList = { Register::BC, Register::DE, Register::HL, Register::SP };
     auto registerBank = make_shared<RegisterBank>();
@@ -932,7 +932,7 @@ TEST(TestAddAndAdc, ExecuteAddRegisterPairMode)
     EXPECT_EQ(0xFFFF, registerBank->ReadPair(Register::HL));
 }
 
-TEST(TestAddAndAdc, DecodeAddToSPImmediaterMode)
+TEST(CoreTests_ADDAndADC, DecodeAddToSPImmediaterMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -950,7 +950,7 @@ TEST(TestAddAndAdc, DecodeAddToSPImmediaterMode)
     EXPECT_EQ(Register::SP, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestAddAndAdc, ExecuteAddToSPImmediaterMode)
+TEST(CoreTests_ADDAndADC, ExecuteAddToSPImmediaterMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     

@@ -5,7 +5,7 @@
 using namespace std;
 using namespace gbxcore;
 
-TEST(TestAddressRange, RangeAllInclusive) 
+TEST(CoreTests_AddressRange, RangeAllInclusive) 
 {
     AddressRange range(0x0010, 0x0020, RangeType::AllInclusive);
 
@@ -13,7 +13,7 @@ TEST(TestAddressRange, RangeAllInclusive)
     ASSERT_EQ(0x0020, range.End());
 }
 
-TEST(TestAddressRange, RangeBeginInclusive) 
+TEST(CoreTests_AddressRange, RangeBeginInclusive) 
 {
     AddressRange range(0x0010, 0x0020, RangeType::BeginInclusive);
 
@@ -21,7 +21,7 @@ TEST(TestAddressRange, RangeBeginInclusive)
     ASSERT_EQ(0x001F, range.End());
 }
 
-TEST(TestAddressRange, RangeEndInclusive) 
+TEST(CoreTests_AddressRange, RangeEndInclusive) 
 {
     AddressRange range(0x0010, 0x0020, RangeType::EndInclusive);
 
@@ -29,7 +29,7 @@ TEST(TestAddressRange, RangeEndInclusive)
     ASSERT_EQ(0x0020, range.End());
 }
 
-TEST(TestAddressRange, RangeNoneInclusive) 
+TEST(CoreTests_AddressRange, RangeNoneInclusive) 
 {
     AddressRange range(0x0010, 0x0020, RangeType::NoneInclusive);
 

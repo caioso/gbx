@@ -1,3 +1,5 @@
+SUBDIRS = parsers passes
+
 CC = clang++
 
 LDFLAGS = $(LDCOVERAGE_FLAGS)
@@ -10,10 +12,19 @@ SRC_FILES = $(notdir $(wildcard ./*.cc)) $(notdir $(wildcard */*.cc))
 OBJ_FILES = $(patsubst %.cc,$(BUILD_TEMP)/%.o,$(SRC_FILES))
 DEP_FILES = $(patsubst %.o,%.d,$(OBJ_FILES))
 
-.PHONY: all
+.PHONY: $(SUBDIRS)
 
-all: $(OBJ_FILES)
+all: $(SUBDIRS) $(TARGET) $(OBJ_FILES)
+
+$(SUBDIRS):
+	$(call MakeTarget, $@)
 
 -include $(DEP_FILES)
 $(BUILD_TEMP)/%.o: $(CURDIR)/%.cc
 	$(CC) $(INCLUDE) $(CPPFLAGS) -MMD -MT"$@" -c $< -o $@ 
+
+define MakeTarget
+	$(call EnteringMessage, ${1})
+	@$(MAKE) -C ${1} -f Makefile.mk
+	$(call ExitingMessage, ${1})
+endef

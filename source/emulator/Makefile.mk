@@ -12,13 +12,13 @@ DEP_FILES = $(patsubst %.o,%.d,$(OBJ_FILES))
 
 TARGET = $(EMU_LIB)
 
-.PHONY: subdirs $(TARGET)
+.PHONY: $(SUBDIRS)
 
-all: subdirs $(TARGET)
+all: $(SUBDIRS) $(TARGET)
 
-subdirs:
-	for TEST in $(SUBDIRS); do $(MAKE) -C $$TEST -f Makefile.mk; done ||:
-
+$(SUBDIRS):
+	$(call MakeTarget, $@)
+	
 $(TARGET): $(OBJ_FILES) 
 	$(AR) rcs $@ $(OBJ_FILES) 
 	

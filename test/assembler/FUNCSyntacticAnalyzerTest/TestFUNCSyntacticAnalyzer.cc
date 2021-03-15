@@ -19,7 +19,7 @@ using namespace gbxasm::frontend::parsers;
 using namespace gbxasm::utilities;
 using namespace std;
 
-TEST(TestFunctionSyntacticAnalyzer, SanityCheckFuncTokenization)
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, SanityCheckFuncTokenization)
 {
     const string func = "FUNC MY_FUNCTION\n"
                         "BGN\n"
@@ -165,7 +165,7 @@ TEST(TestFunctionSyntacticAnalyzer, SanityCheckFuncTokenization)
     }
 }
 
-TEST(TestFunctionSyntacticAnalyzer, ParseFunc)
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFunc)
 {
     const string func = "FUNC MY_FUNCTION\n"
                         "\tIN: INPUT_1\n"
@@ -192,7 +192,7 @@ TEST(TestFunctionSyntacticAnalyzer, ParseFunc)
 }
 
 /*
-TEST(TestFunctionSyntacticAnalyzer, ParseFuncWithInternalIfBlocks)
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalIfBlocks)
 {
     const string func = "FUNC MY_FUNCTION\n"
                         "\tIN: INPUT_1\n"
@@ -217,7 +217,7 @@ TEST(TestFunctionSyntacticAnalyzer, ParseFuncWithInternalIfBlocks)
     EXPECT_TRUE(parser->IsAccepted());
 }
 
-TEST(TestFunctionSyntacticAnalyzer, ParseFuncWithInternalPackBlocks)
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalPackBlocks)
 {
     const string func = "FUNC MY_FUNCTION\n"
                         "\tIN: INPUT_1\n"
@@ -242,7 +242,7 @@ TEST(TestFunctionSyntacticAnalyzer, ParseFuncWithInternalPackBlocks)
     EXPECT_TRUE(parser->IsAccepted());
 }
 
-TEST(TestFunctionSyntacticAnalyzer, ParseFuncWithInternalWhenBlocks)
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalWhenBlocks)
 {
     const string func = "FUNC MY_FUNCTION\n"
                         "\tIN: INPUT_1\n"
@@ -273,7 +273,7 @@ TEST(TestFunctionSyntacticAnalyzer, ParseFuncWithInternalWhenBlocks)
     EXPECT_TRUE(parser->IsAccepted());
 }
 
-TEST(TestFunctionSyntacticAnalyzer, ParseFuncWithInternalReptBlocks)
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalReptBlocks)
 {
     const string func = "FUNC MY_FUNCTION\n"
                         "\tIN: INPUT_1\n"
@@ -296,7 +296,7 @@ TEST(TestFunctionSyntacticAnalyzer, ParseFuncWithInternalReptBlocks)
     EXPECT_TRUE(parser->IsAccepted());
 }
 
-TEST(TestFunctionSyntacticAnalyzer, ParseFuncWithInternalTryBlock)
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalTryBlock)
 {
     const string func = "FUNC MY_FUNCTION\n"
                         "\tIN: INPUT_1\n"
@@ -321,7 +321,7 @@ TEST(TestFunctionSyntacticAnalyzer, ParseFuncWithInternalTryBlock)
     EXPECT_TRUE(parser->IsAccepted());
 }
 
-TEST(TestFunctionSyntacticAnalyzer, ParseFuncWithInternalFuncBlock)
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalFuncBlock)
 {
     const string func = "FUNC MY_FUNCTION\n"
                         "\tIN: INPUT_1\n"

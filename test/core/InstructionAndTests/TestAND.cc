@@ -30,7 +30,7 @@ public:
     }
 };
 
-TEST(TestAnd, DecodeAndRegisterMode)
+TEST(CoreTests_AND, DecodeAndRegisterMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -51,7 +51,7 @@ TEST(TestAnd, DecodeAndRegisterMode)
     }
 }
 
-TEST(TestAnd, ExecuteAndRegisterMode)
+TEST(CoreTests_AND, ExecuteAndRegisterMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -99,7 +99,7 @@ TEST(TestAnd, ExecuteAndRegisterMode)
     }
 }
 
-TEST(TestAnd, DecodeAndImmediateMode)
+TEST(CoreTests_AND, DecodeAndImmediateMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -116,7 +116,7 @@ TEST(TestAnd, DecodeAndImmediateMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestAnd, ExecuteAndImmediateMode)
+TEST(CoreTests_AND, ExecuteAndImmediateMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -154,7 +154,7 @@ TEST(TestAnd, ExecuteAndImmediateMode)
     }
 }
 
-TEST(TestAnd, DecodeAndRegisterIndirectMode)
+TEST(CoreTests_AND, DecodeAndRegisterIndirectMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -171,7 +171,7 @@ TEST(TestAnd, DecodeAndRegisterIndirectMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestAnd, ExecuteAndRegisterIndirecteMode)
+TEST(CoreTests_AND, ExecuteAndRegisterIndirecteMode)
 {
     auto registerBank = make_shared<RegisterBank>();
     

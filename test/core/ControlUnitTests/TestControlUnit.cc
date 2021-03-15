@@ -46,7 +46,7 @@ public:
     MOCK_METHOD(void, UnregisterMemoryResource, ((std::shared_ptr<MemoryInterface>)));
 };
 
-TEST(TestControlUnit, FetchPCMessage)
+TEST(CoreTests_ControlUnit, FetchPCMessage)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -68,7 +68,7 @@ TEST(TestControlUnit, FetchPCMessage)
     EXPECT_EQ(0x0001, programCounter);
 }
 
-TEST(TestControlUnit, TestAcquireSingleImmediateOperand)
+TEST(CoreTests_ControlUnit, TestAcquireSingleImmediateOperand)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -90,7 +90,7 @@ TEST(TestControlUnit, TestAcquireSingleImmediateOperand)
     EXPECT_EQ(0xAA, registerBank->Read(Register::H));
 }
 
-TEST(TestControlUnit, TestAcquireSingleRegisterIndirectOperand)
+TEST(CoreTests_ControlUnit, TestAcquireSingleRegisterIndirectOperand)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -115,7 +115,7 @@ TEST(TestControlUnit, TestAcquireSingleRegisterIndirectOperand)
     EXPECT_EQ(0xCC, registerBank->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestAcquireSingleRegisterIndirectBCOperand)
+TEST(CoreTests_ControlUnit, TestAcquireSingleRegisterIndirectBCOperand)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -140,7 +140,7 @@ TEST(TestControlUnit, TestAcquireSingleRegisterIndirectBCOperand)
     EXPECT_EQ(0xDD, registerBank->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDEOperand)
+TEST(CoreTests_ControlUnit, TestAcquireSingleRegisterIndirectDEOperand)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -164,7 +164,7 @@ TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDEOperand)
     EXPECT_EQ(0x22, registerBank->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDestinationHL)
+TEST(CoreTests_ControlUnit, TestAcquireSingleRegisterIndirectDestinationHL)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -187,7 +187,7 @@ TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDestinationHL)
     controlUnit->RunCycle();
 }
 
-TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDestinationDE)
+TEST(CoreTests_ControlUnit, TestAcquireSingleRegisterIndirectDestinationDE)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -210,7 +210,7 @@ TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDestinationDE)
     controlUnit->RunCycle();
 }
 
-TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDestinationBC)
+TEST(CoreTests_ControlUnit, TestAcquireSingleRegisterIndirectDestinationBC)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -233,7 +233,7 @@ TEST(TestControlUnit, TestAcquireSingleRegisterIndirectDestinationBC)
     controlUnit->RunCycle();
 }
 
-TEST(TestControlUnit, TestIndexedSourceOpcodeIX)
+TEST(CoreTests_ControlUnit, TestIndexedSourceOpcodeIX)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -259,7 +259,7 @@ TEST(TestControlUnit, TestIndexedSourceOpcodeIX)
     EXPECT_EQ(0x11, registerBank->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestIndexedSourceOpcodeIY)
+TEST(CoreTests_ControlUnit, TestIndexedSourceOpcodeIY)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -285,7 +285,7 @@ TEST(TestControlUnit, TestIndexedSourceOpcodeIY)
     EXPECT_EQ(0xCA, registerBank->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestIndexedSourceOpcodeIXNegativeDisplacement)
+TEST(CoreTests_ControlUnit, TestIndexedSourceOpcodeIXNegativeDisplacement)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -311,7 +311,7 @@ TEST(TestControlUnit, TestIndexedSourceOpcodeIXNegativeDisplacement)
     EXPECT_EQ(0x10, registerBank->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestIndexedDestinantionOpcodeIX)
+TEST(CoreTests_ControlUnit, TestIndexedDestinantionOpcodeIX)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -335,7 +335,7 @@ TEST(TestControlUnit, TestIndexedDestinantionOpcodeIX)
     controlUnit->RunCycle();
 }
 
-TEST(TestControlUnit, TestExtendedSource)
+TEST(CoreTests_ControlUnit, TestExtendedSource)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -358,7 +358,7 @@ TEST(TestControlUnit, TestExtendedSource)
     EXPECT_EQ(0x9E, registerBank->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestExtendedDestination)
+TEST(CoreTests_ControlUnit, TestExtendedDestination)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -381,7 +381,7 @@ TEST(TestControlUnit, TestExtendedDestination)
     controlUnit->RunCycle();
 }
 
-TEST(TestControlUnit, TestImmediateRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestImmediateRegisterIndirect)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -403,7 +403,7 @@ TEST(TestControlUnit, TestImmediateRegisterIndirect)
     controlUnit->RunCycle();
 }
 
-TEST(TestControlUnit, TestRegisterIndirectSourceIncrement)
+TEST(CoreTests_ControlUnit, TestRegisterIndirectSourceIncrement)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -427,7 +427,7 @@ TEST(TestControlUnit, TestRegisterIndirectSourceIncrement)
     EXPECT_EQ(0x99AB, registerBank->ReadPair(Register::HL));
 }
 
-TEST(TestControlUnit, TestRegisterIndirectSourceDecrement)
+TEST(CoreTests_ControlUnit, TestRegisterIndirectSourceDecrement)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -451,7 +451,7 @@ TEST(TestControlUnit, TestRegisterIndirectSourceDecrement)
     EXPECT_EQ(0x88BA, registerBank->ReadPair(Register::HL));
 }
 
-TEST(TestControlUnit, TestRegisterIndirectDestinationIncrement)
+TEST(CoreTests_ControlUnit, TestRegisterIndirectDestinationIncrement)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -475,7 +475,7 @@ TEST(TestControlUnit, TestRegisterIndirectDestinationIncrement)
     EXPECT_EQ(0x1235, registerBank->ReadPair(Register::HL));
 }
 
-TEST(TestControlUnit, TestRegisterIndirectDestinationDecrement)
+TEST(CoreTests_ControlUnit, TestRegisterIndirectDestinationDecrement)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -499,7 +499,7 @@ TEST(TestControlUnit, TestRegisterIndirectDestinationDecrement)
     EXPECT_EQ(0x7649, registerBank->ReadPair(Register::HL));
 }
 
-TEST(TestControlUnit, TestImplicitRegisterSource)
+TEST(CoreTests_ControlUnit, TestImplicitRegisterSource)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -522,7 +522,7 @@ TEST(TestControlUnit, TestImplicitRegisterSource)
     EXPECT_EQ(0xD0, registerBank->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestImplicitRegisterDestination)
+TEST(CoreTests_ControlUnit, TestImplicitRegisterDestination)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -544,7 +544,7 @@ TEST(TestControlUnit, TestImplicitRegisterDestination)
     controlUnit->RunCycle();
 }
 
-TEST(TestControlUnit, TestImplicitImmediateSource)
+TEST(CoreTests_ControlUnit, TestImplicitImmediateSource)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -566,7 +566,7 @@ TEST(TestControlUnit, TestImplicitImmediateSource)
     EXPECT_EQ(0x09, registerBank->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestImplicitImmediateDestination)
+TEST(CoreTests_ControlUnit, TestImplicitImmediateDestination)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -588,7 +588,7 @@ TEST(TestControlUnit, TestImplicitImmediateDestination)
     controlUnit->RunCycle();
 }
 
-TEST(TestControlUnit, TestImmediatePair)
+TEST(CoreTests_ControlUnit, TestImmediatePair)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -625,7 +625,7 @@ TEST(TestControlUnit, TestImmediatePair)
     EXPECT_EQ(0xCE24, registerBank->ReadPair(Register::SP));
 }
 
-TEST(TestControlUnit, TestTransferToSP)
+TEST(CoreTests_ControlUnit, TestTransferToSP)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -646,7 +646,7 @@ TEST(TestControlUnit, TestTransferToSP)
     EXPECT_EQ(0x65A1, registerBank->ReadPair(Register::SP));
 }
 
-TEST(TestControlUnit, TestAddRegister)
+TEST(CoreTests_ControlUnit, TestAddRegister)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
     shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
@@ -671,7 +671,7 @@ TEST(TestControlUnit, TestAddRegister)
     EXPECT_EQ(0xC7, registerBank->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestAddImmediate)
+TEST(CoreTests_ControlUnit, TestAddImmediate)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -697,7 +697,7 @@ TEST(TestControlUnit, TestAddImmediate)
     EXPECT_EQ(0x97, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestAddRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestAddRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -725,7 +725,7 @@ TEST(TestControlUnit, TestAddRegisterIndirect)
     EXPECT_EQ(0xA0, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestAdcRegister)
+TEST(CoreTests_ControlUnit, TestAdcRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -762,7 +762,7 @@ TEST(TestControlUnit, TestAdcRegister)
     EXPECT_EQ(0x1A, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestAdcImmediate)
+TEST(CoreTests_ControlUnit, TestAdcImmediate)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -798,7 +798,7 @@ TEST(TestControlUnit, TestAdcImmediate)
     EXPECT_EQ(0x10, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestAdcRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestAdcRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -836,7 +836,7 @@ TEST(TestControlUnit, TestAdcRegisterIndirect)
     EXPECT_EQ(0x10, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestSubRegister)
+TEST(CoreTests_ControlUnit, TestSubRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -861,7 +861,7 @@ TEST(TestControlUnit, TestSubRegister)
     EXPECT_EQ(0xC0, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestSubImmediate)
+TEST(CoreTests_ControlUnit, TestSubImmediate)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -886,7 +886,7 @@ TEST(TestControlUnit, TestSubImmediate)
     EXPECT_EQ(0x02, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestSubRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestSubRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -913,7 +913,7 @@ TEST(TestControlUnit, TestSubRegisterIndirect)
     EXPECT_EQ(0x00, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestSbcRegister)
+TEST(CoreTests_ControlUnit, TestSbcRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -943,7 +943,7 @@ TEST(TestControlUnit, TestSbcRegister)
     EXPECT_EQ(0x00, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestSbcImmediate)
+TEST(CoreTests_ControlUnit, TestSbcImmediate)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -971,7 +971,7 @@ TEST(TestControlUnit, TestSbcImmediate)
     EXPECT_EQ(0x00, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestSbcRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestSbcRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1005,7 +1005,7 @@ TEST(TestControlUnit, TestSbcRegisterIndirect)
     EXPECT_EQ(0xFD, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestAndRegister)
+TEST(CoreTests_ControlUnit, TestAndRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1031,7 +1031,7 @@ TEST(TestControlUnit, TestAndRegister)
     EXPECT_EQ(0x81, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestAndImmediate)
+TEST(CoreTests_ControlUnit, TestAndImmediate)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1057,7 +1057,7 @@ TEST(TestControlUnit, TestAndImmediate)
     EXPECT_EQ(0x0A, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestAndRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestAndRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1084,7 +1084,7 @@ TEST(TestControlUnit, TestAndRegisterIndirect)
     EXPECT_EQ(0x00, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestOrRegister)
+TEST(CoreTests_ControlUnit, TestOrRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1110,7 +1110,7 @@ TEST(TestControlUnit, TestOrRegister)
     EXPECT_EQ(0xFF, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestOrImmediate)
+TEST(CoreTests_ControlUnit, TestOrImmediate)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1136,7 +1136,7 @@ TEST(TestControlUnit, TestOrImmediate)
     EXPECT_EQ(0xFF, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestOrRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestOrRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1163,7 +1163,7 @@ TEST(TestControlUnit, TestOrRegisterIndirect)
     EXPECT_EQ(0x8F, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestXorRegister)
+TEST(CoreTests_ControlUnit, TestXorRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1189,7 +1189,7 @@ TEST(TestControlUnit, TestXorRegister)
     EXPECT_EQ(0x00, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestXorImmediate)
+TEST(CoreTests_ControlUnit, TestXorImmediate)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1215,7 +1215,7 @@ TEST(TestControlUnit, TestXorImmediate)
     EXPECT_EQ(0x86, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestXorRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestXorRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1242,7 +1242,7 @@ TEST(TestControlUnit, TestXorRegisterIndirect)
     EXPECT_EQ(0xFF, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestCpRegister)
+TEST(CoreTests_ControlUnit, TestCpRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1269,7 +1269,7 @@ TEST(TestControlUnit, TestCpRegister)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z)); // A is different then D
 }
 
-TEST(TestControlUnit, TestCpImmediate)
+TEST(CoreTests_ControlUnit, TestCpImmediate)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1305,7 +1305,7 @@ TEST(TestControlUnit, TestCpImmediate)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::CY));
 }
 
-TEST(TestControlUnit, TestCpRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestCpRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1335,7 +1335,7 @@ TEST(TestControlUnit, TestCpRegisterIndirect)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::CY));
 }
 
-TEST(TestControlUnit, TestIncRegister)
+TEST(CoreTests_ControlUnit, TestIncRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1360,7 +1360,7 @@ TEST(TestControlUnit, TestIncRegister)
     EXPECT_EQ(0x09, registers->Read(Register::H));
 }
 
-TEST(TestControlUnit, TestIncRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestIncRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1397,7 +1397,7 @@ TEST(TestControlUnit, TestIncRegisterIndirect)
     EXPECT_EQ(registers->ReadPair(Register::PC), 0x0002);
 }
 
-TEST(TestControlUnit, TestDecRegister)
+TEST(CoreTests_ControlUnit, TestDecRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1422,7 +1422,7 @@ TEST(TestControlUnit, TestDecRegister)
     EXPECT_EQ(0x4D, registers->Read(Register::H));
 }
 
-TEST(TestControlUnit, TestDecRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestDecRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1460,7 +1460,7 @@ TEST(TestControlUnit, TestDecRegisterIndirect)
 
 }
 
-TEST(TestControlUnit, TestPush)
+TEST(CoreTests_ControlUnit, TestPush)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1525,7 +1525,7 @@ TEST(TestControlUnit, TestPush)
 }
 
 
-TEST(TestControlUnit, TestPop)
+TEST(CoreTests_ControlUnit, TestPop)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1599,7 +1599,7 @@ TEST(TestControlUnit, TestPop)
     }
 }
 
-TEST(TestControlUnit, TestLdhlRegister)
+TEST(CoreTests_ControlUnit, TestLdhlRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1625,7 +1625,7 @@ TEST(TestControlUnit, TestLdhlRegister)
     EXPECT_EQ(0x31E0, registers->ReadPair(Register::HL));
 }
 
-TEST(TestControlUnit, TestSPTransferToMemory)
+TEST(CoreTests_ControlUnit, TestSPTransferToMemory)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1651,7 +1651,7 @@ TEST(TestControlUnit, TestSPTransferToMemory)
     controlUnit->RunCycle();
 }
 
-TEST(TestControlUnit, TestSPImmediate)
+TEST(CoreTests_ControlUnit, TestSPImmediate)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1688,7 +1688,7 @@ TEST(TestControlUnit, TestSPImmediate)
     EXPECT_EQ(0x0000, registers->ReadPair(Register::SP));
 }
 
-TEST(TestControlUnit, TestIncRegisterPair)
+TEST(CoreTests_ControlUnit, TestIncRegisterPair)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1724,7 +1724,7 @@ TEST(TestControlUnit, TestIncRegisterPair)
 }
 
 
-TEST(TestControlUnit, TestDecRegisterPair)
+TEST(CoreTests_ControlUnit, TestDecRegisterPair)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1763,7 +1763,7 @@ TEST(TestControlUnit, TestDecRegisterPair)
     EXPECT_EQ(0x0008, registers->ReadPair(Register::DE));
 }
 
-TEST(TestControlUnit, TestRlca)
+TEST(CoreTests_ControlUnit, TestRlca)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1792,7 +1792,7 @@ TEST(TestControlUnit, TestRlca)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestRla)
+TEST(CoreTests_ControlUnit, TestRla)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1822,7 +1822,7 @@ TEST(TestControlUnit, TestRla)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestRrca)
+TEST(CoreTests_ControlUnit, TestRrca)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1851,7 +1851,7 @@ TEST(TestControlUnit, TestRrca)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestRra)
+TEST(CoreTests_ControlUnit, TestRra)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1880,7 +1880,7 @@ TEST(TestControlUnit, TestRra)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestRlcRegister)
+TEST(CoreTests_ControlUnit, TestRlcRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1910,7 +1910,7 @@ TEST(TestControlUnit, TestRlcRegister)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestRlcRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestRlcRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1940,7 +1940,7 @@ TEST(TestControlUnit, TestRlcRegisterIndirect)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestRlRegister)
+TEST(CoreTests_ControlUnit, TestRlRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -1971,7 +1971,7 @@ TEST(TestControlUnit, TestRlRegister)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestRlRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestRlRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2001,7 +2001,7 @@ TEST(TestControlUnit, TestRlRegisterIndirect)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestRrcRegister)
+TEST(CoreTests_ControlUnit, TestRrcRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2033,7 +2033,7 @@ TEST(TestControlUnit, TestRrcRegister)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestRrcRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestRrcRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2063,7 +2063,7 @@ TEST(TestControlUnit, TestRrcRegisterIndirect)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestRrRegister)
+TEST(CoreTests_ControlUnit, TestRrRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2095,7 +2095,7 @@ TEST(TestControlUnit, TestRrRegister)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestRrRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestRrRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2126,7 +2126,7 @@ TEST(TestControlUnit, TestRrRegisterIndirect)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestSlaRegister)
+TEST(CoreTests_ControlUnit, TestSlaRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2157,7 +2157,7 @@ TEST(TestControlUnit, TestSlaRegister)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestSlaRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestSlaRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2188,7 +2188,7 @@ TEST(TestControlUnit, TestSlaRegisterIndirect)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestSraRegister)
+TEST(CoreTests_ControlUnit, TestSraRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2219,7 +2219,7 @@ TEST(TestControlUnit, TestSraRegister)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestSraRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestSraRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2250,7 +2250,7 @@ TEST(TestControlUnit, TestSraRegisterIndirect)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestSrlRegister)
+TEST(CoreTests_ControlUnit, TestSrlRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2281,7 +2281,7 @@ TEST(TestControlUnit, TestSrlRegister)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestSrlRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestSrlRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2312,7 +2312,7 @@ TEST(TestControlUnit, TestSrlRegisterIndirect)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestSwapRegister)
+TEST(CoreTests_ControlUnit, TestSwapRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2343,7 +2343,7 @@ TEST(TestControlUnit, TestSwapRegister)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestSwapRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestSwapRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2374,7 +2374,7 @@ TEST(TestControlUnit, TestSwapRegisterIndirect)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestBitRegister)
+TEST(CoreTests_ControlUnit, TestBitRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2418,7 +2418,7 @@ TEST(TestControlUnit, TestBitRegister)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestBitRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestBitRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2462,7 +2462,7 @@ TEST(TestControlUnit, TestBitRegisterIndirect)
     EXPECT_EQ(0x00, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestSetRegister)
+TEST(CoreTests_ControlUnit, TestSetRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2513,7 +2513,7 @@ TEST(TestControlUnit, TestSetRegister)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestSetRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestSetRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2548,7 +2548,7 @@ TEST(TestControlUnit, TestSetRegisterIndirect)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestResRegister)
+TEST(CoreTests_ControlUnit, TestResRegister)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2599,7 +2599,7 @@ TEST(TestControlUnit, TestResRegister)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestResRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestResRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2634,7 +2634,7 @@ TEST(TestControlUnit, TestResRegisterIndirect)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestJpUnconditional)
+TEST(CoreTests_ControlUnit, TestJpUnconditional)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2673,7 +2673,7 @@ TEST(TestControlUnit, TestJpUnconditional)
     EXPECT_EQ(0x0E00, registers->ReadPair(Register::PC));
 }
 
-TEST(TestControlUnit, TestJpConditional)
+TEST(CoreTests_ControlUnit, TestJpConditional)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2705,7 +2705,7 @@ TEST(TestControlUnit, TestJpConditional)
     EXPECT_EQ(0x8000, registers->ReadPair(Register::PC));
 }
 
-TEST(TestControlUnit, TestJrUnconditional)
+TEST(CoreTests_ControlUnit, TestJrUnconditional)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2761,7 +2761,7 @@ TEST(TestControlUnit, TestJrUnconditional)
 }
 
 
-TEST(TestControlUnit, TestJrConditional)
+TEST(CoreTests_ControlUnit, TestJrConditional)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2793,7 +2793,7 @@ TEST(TestControlUnit, TestJrConditional)
     EXPECT_EQ(0x0006, registers->ReadPair(Register::PC));
 }
 
-TEST(TestControlUnit, TestJpUnconditionalRegisterIndirect)
+TEST(CoreTests_ControlUnit, TestJpUnconditionalRegisterIndirect)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2819,7 +2819,7 @@ TEST(TestControlUnit, TestJpUnconditionalRegisterIndirect)
     EXPECT_EQ(0x6755, registers->ReadPair(Register::PC));
 }
 
-TEST(TestControlUnit, TestUnconditionalCall)
+TEST(CoreTests_ControlUnit, TestUnconditionalCall)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2867,7 +2867,7 @@ TEST(TestControlUnit, TestUnconditionalCall)
     EXPECT_EQ(0x01, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestConditionalCall)
+TEST(CoreTests_ControlUnit, TestConditionalCall)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2918,7 +2918,7 @@ TEST(TestControlUnit, TestConditionalCall)
     EXPECT_EQ(0xFF, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestRet)
+TEST(CoreTests_ControlUnit, TestRet)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -2977,7 +2977,7 @@ TEST(TestControlUnit, TestRet)
     EXPECT_EQ(0xFF, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestConditionalRet)
+TEST(CoreTests_ControlUnit, TestConditionalRet)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -3028,7 +3028,7 @@ TEST(TestControlUnit, TestConditionalRet)
     EXPECT_EQ(0x7005, registers->ReadPair(Register::PC));
 }
 
-TEST(TestControlUnit, TestReti)
+TEST(CoreTests_ControlUnit, TestReti)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -3091,7 +3091,7 @@ TEST(TestControlUnit, TestReti)
     EXPECT_FALSE(arithmeticLogicUnit->ClearInterruptStatusSignal());
 }
 
-TEST(TestControlUnit, TestRst)
+TEST(CoreTests_ControlUnit, TestRst)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -3128,7 +3128,7 @@ TEST(TestControlUnit, TestRst)
     EXPECT_EQ(0x0018, registers->ReadPair(Register::PC));
 }
 
-TEST(TestControlUnit, TestDaa)
+TEST(CoreTests_ControlUnit, TestDaa)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -3191,7 +3191,7 @@ TEST(TestControlUnit, TestDaa)
     EXPECT_EQ(0x45, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestCpl)
+TEST(CoreTests_ControlUnit, TestCpl)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -3218,7 +3218,7 @@ TEST(TestControlUnit, TestCpl)
     EXPECT_EQ(0xCA, registers->Read(Register::A));
 }
 
-TEST(TestControlUnit, TestNop)
+TEST(CoreTests_ControlUnit, TestNop)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -3266,7 +3266,7 @@ TEST(TestControlUnit, TestNop)
     EXPECT_EQ(0x0004, registers->ReadPair(Register::PC));
 }
 
-TEST(TestControlUnit, TestHalt)
+TEST(CoreTests_ControlUnit, TestHalt)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -3288,7 +3288,7 @@ TEST(TestControlUnit, TestHalt)
     EXPECT_TRUE(arithmeticLogicUnit->HaltSignal());
 }
 
-TEST(TestControlUnit, TestStop)
+TEST(CoreTests_ControlUnit, TestStop)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -3311,7 +3311,7 @@ TEST(TestControlUnit, TestStop)
     EXPECT_TRUE(arithmeticLogicUnit->StopSignal());
 }
 
-TEST(TestControlUnit, TestEi)
+TEST(CoreTests_ControlUnit, TestEi)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -3333,7 +3333,7 @@ TEST(TestControlUnit, TestEi)
     EXPECT_TRUE(arithmeticLogicUnit->InterruptMasterEnable());
 }
 
-TEST(TestControlUnit, TestDi)
+TEST(CoreTests_ControlUnit, TestDi)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -3355,7 +3355,7 @@ TEST(TestControlUnit, TestDi)
     EXPECT_FALSE(arithmeticLogicUnit->InterruptMasterEnable());
 }
 
-TEST(TestControlUnit, TestCcf)
+TEST(CoreTests_ControlUnit, TestCcf)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -3385,7 +3385,7 @@ TEST(TestControlUnit, TestCcf)
     EXPECT_EQ(1, registers->ReadFlag(Flag::Z));
 }
 
-TEST(TestControlUnit, TestScf)
+TEST(CoreTests_ControlUnit, TestScf)
 {
     shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();

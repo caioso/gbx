@@ -43,7 +43,7 @@ public:
     }
 };
 
-TEST(TestConditionalAssemblyPreProcessorPass, Construction)
+TEST(AssemblerTests_ConditionalAssemblyPass, Construction)
 {
     vector<string> symbolTable;
     auto stream = make_shared<StreamMock>();
@@ -51,7 +51,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, Construction)
     auto pass = make_shared<ConditionalAssemblyPassWrapper>(symbolTable, streamMock);
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithoutElse)
+TEST(AssemblerTests_ConditionalAssemblyPass, IfDefBlockDetectionWithoutElse)
 {
     string program = ".IFDEF MY_SYMBOL\n"
                      ".BGN\n"
@@ -82,7 +82,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithoutElse)
     EXPECT_STREQ(ifBlock.c_str(), processedIfBlock.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithoutElse2)
+TEST(AssemblerTests_ConditionalAssemblyPass, IfDefBlockDetectionWithoutElse2)
 {
     string program = ".IFDEF MY_SYMBOL .BGN \tLD SP, 0xFFFE \tEI .END";
 
@@ -100,7 +100,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithoutElse2)
     EXPECT_STREQ(result.c_str(), processedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithElse)
+TEST(AssemblerTests_ConditionalAssemblyPass, IfDefBlockDetectionWithElse)
 {
     string program = ".IFDEF THE_SYMBOL\n"
                      ".BGN\n"    
@@ -145,7 +145,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithElse)
     EXPECT_STREQ(elseBlock.c_str(), processedElseBlock.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithElse2)
+TEST(AssemblerTests_ConditionalAssemblyPass, IfDefBlockDetectionWithElse2)
 {
     string program = ".IFDEF MY_SYMBOL .BGN LD SP, 0xFFFE EI .ELSE .BGN PUSH A LD A, 0xEE .END";
 
@@ -163,7 +163,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfDefBlockDetectionWithElse2)
     EXPECT_STREQ(result.c_str(), processedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, NesteIfDefBlock)
+TEST(AssemblerTests_ConditionalAssemblyPass, NesteIfDefBlock)
 {
     string program = ".IFDEF THE_SYMBOL\n"
                      ".BGN\n"
@@ -222,7 +222,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, NesteIfDefBlock)
     EXPECT_STREQ(OuterBlock.c_str(), processedOuterBlock.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefConditionalAssemblyBlock)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedIfDefConditionalAssemblyBlock)
 {
     string program = ".IFDEF MY_SYMBOL\n"
                      ".BGN\n"    
@@ -239,7 +239,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefConditionalAssemblyB
                       "Malformed conditional assembly block (expected '.END')");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedIfDefAndTwoEndKeyword)
+TEST(AssemblerTests_ConditionalAssemblyPass, UnexpectedIfDefAndTwoEndKeyword)
 {
     string program = ".IFDEF MY_SYMBOL\n"
                      ".BGN\n"    
@@ -258,7 +258,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedIfDefAndTwoEndKeyword)
                       "Unexpected '.END' directive found");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefWithoutBgn)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedIfDefWithoutBgn)
 {
     string program = ".IFDEF MY_SYMBOL\n"
                      "\tLD SP, 0xFFFE\n"
@@ -275,7 +275,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefWithoutBgn)
                       "Malformed '.IFDEF' directive (expected '.BGN')");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfNDefWithoutBgn)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedIfNDefWithoutBgn)
 {
     string program = ".IFNDEF MY_SYMBOL\n"
                      "\tLD SP, 0xFFFE\n"
@@ -292,7 +292,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfNDefWithoutBgn)
                       "Malformed '.IFNDEF' directive (expected '.BGN')");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedElseInIfDefWithoutBgn)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedElseInIfDefWithoutBgn)
 {
     string program = ".IFDEF MY_SYMBOL\n"
                      ".BGN\n"      
@@ -311,7 +311,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedElseInIfDefWithoutBgn)
                       "Malformed '.ELSE' directive (expected '.BGN')");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedElseInIfNDefWithoutBgn)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedElseInIfNDefWithoutBgn)
 {
     string program = ".IFNDEF MY_SYMBOL\n"
                      ".BGN\n"      
@@ -330,7 +330,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedElseInIfNDefWithoutBgn)
                       "Malformed '.ELSE' directive (expected '.BGN')");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfNDefConditionalAssemblyBlock)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedIfNDefConditionalAssemblyBlock)
 {
     string program = ".IFNDEF MY_SYMBOL\n"
                      ".BGN\n"        
@@ -347,7 +347,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfNDefConditionalAssembly
                       "Malformed conditional assembly block (expected '.END')");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedIfNDefAndTwoEndKeyword)
+TEST(AssemblerTests_ConditionalAssemblyPass, UnexpectedIfNDefAndTwoEndKeyword)
 {
     string program = ".IFNDEF MY_SYMBOL\n"
                      ".BGN\n"        
@@ -366,7 +366,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedIfNDefAndTwoEndKeyword)
                       "Unexpected '.END' directive found");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedElseKeyword)
+TEST(AssemblerTests_ConditionalAssemblyPass, UnexpectedElseKeyword)
 {
     string program = ".ELSE\n"
                      ".BGN\n"                
@@ -383,7 +383,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, UnexpectedElseKeyword)
                       "Unexpected '.ELSE' directive found");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefDirective)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedIfDefDirective)
 {
     string program = ".IFDEF\n"
                      ".BGN\n"        
@@ -400,7 +400,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefDirective)
                       "Malformed '.IFDEF' directive (identifier expected)");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfNDefDirective)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedIfNDefDirective)
 {
     string program = ".IFNDEF\n"
                      ".BGN\n"        
@@ -417,7 +417,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfNDefDirective)
                       "Malformed '.IFNDEF' directive (identifier expected)");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefDirective2)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedIfDefDirective2)
 {
     string program = ".IFDEF DEFINED\n"
                      ".BGN\n"        
@@ -447,7 +447,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIfDefDirective2)
                        "Unexpected '.END' directive found");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, InvalidIfDefIdentifier)
+TEST(AssemblerTests_ConditionalAssemblyPass, InvalidIfDefIdentifier)
 {
     string program = ".IFDEF ^&&~AAAA\n"
                      ".BGN\n"        
@@ -464,7 +464,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, InvalidIfDefIdentifier)
                       "Invalid Pre-Assembly symbol identifier '^&&~AAAA'");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, InvalidIfNDefIdentifier)
+TEST(AssemblerTests_ConditionalAssemblyPass, InvalidIfNDefIdentifier)
 {
     string program = ".IFNDEF %#@!!@AAAAA\n"
                      ".BGN\n"        
@@ -481,7 +481,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, InvalidIfNDefIdentifier)
                       "Invalid Pre-Assembly symbol identifier '%#@!!@AAAAA'");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, TestCodeRemovalIfDef)
+TEST(AssemblerTests_ConditionalAssemblyPass, TestCodeRemovalIfDef)
 {
     string program = ".IFDEF THE_SYMBOL\n"
                      ".BGN\n"        
@@ -534,7 +534,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestCodeRemovalIfDef)
     EXPECT_STREQ(SecondPassResult.c_str(), secondPassProcessedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef2)
+TEST(AssemblerTests_ConditionalAssemblyPass, TestRemovalIfDef2)
 {
     string program = ".IFDEF NO_DEFINED\n"
                      ".BGN\n" 
@@ -558,7 +558,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef2)
     EXPECT_STREQ(result.c_str(), processedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef3)
+TEST(AssemblerTests_ConditionalAssemblyPass, TestRemovalIfDef3)
 {
     string program = ".IFDEF DEFINED\n"
                      ".BGN\n" 
@@ -601,7 +601,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef3)
     EXPECT_STREQ(result.c_str(), processedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef4)
+TEST(AssemblerTests_ConditionalAssemblyPass, TestRemovalIfDef4)
 {
     string program = ".IFDEF DEFINED\n"
                      ".BGN\n"     
@@ -652,7 +652,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfDef4)
     EXPECT_STREQ(result.c_str(), processedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, IfNDefBlockDetectionWithoutElse)
+TEST(AssemblerTests_ConditionalAssemblyPass, IfNDefBlockDetectionWithoutElse)
 {
     string program = ".IFNDEF MY_UNDEFINED_SYMBOL\n"
                      ".BGN\n"     
@@ -683,7 +683,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfNDefBlockDetectionWithoutElse)
     EXPECT_STREQ(ifBlock.c_str(), processedIfBlock.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, IfNDefBlockDetectionWithElse)
+TEST(AssemblerTests_ConditionalAssemblyPass, IfNDefBlockDetectionWithElse)
 {
     string program = ".IFNDEF THE_UNDEFINED_SYMBOL\n"
                      ".BGN\n"     
@@ -732,7 +732,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, IfNDefBlockDetectionWithElse)
     EXPECT_STREQ(elseBlock.c_str(), processedElseBlock.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, TestCodeRemovalIfNDef)
+TEST(AssemblerTests_ConditionalAssemblyPass, TestCodeRemovalIfNDef)
 {
     string program = ".IFNDEF THE_SYMBOL\n"
                      ".BGN\n"     
@@ -784,7 +784,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestCodeRemovalIfNDef)
     EXPECT_STREQ(SecondPassResult.c_str(), secondPassProcessedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef2)
+TEST(AssemblerTests_ConditionalAssemblyPass, TestRemovalIfNDef2)
 {
     string program = ".IFNDEF NO_DEFINED\n"
                      ".BGN\n"     
@@ -808,7 +808,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef2)
     EXPECT_STREQ(result.c_str(), processedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef3)
+TEST(AssemblerTests_ConditionalAssemblyPass, TestRemovalIfNDef3)
 {
     string program = ".IFNDEF DEFINED\n"
                      ".BGN\n"     
@@ -855,7 +855,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef3)
     EXPECT_STREQ(result.c_str(), processedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef4)
+TEST(AssemblerTests_ConditionalAssemblyPass, TestRemovalIfNDef4)
 {
     string program = ".IFNDEF DEFINED\n"
                      ".BGN\n"     
@@ -906,7 +906,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, TestRemovalIfNDef4)
     EXPECT_STREQ(result.c_str(), processedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, SymbolDefintion)
+TEST(AssemblerTests_ConditionalAssemblyPass, SymbolDefintion)
 {
     string program = ".DEF MY_SYMBOL\n";
     string output = "              \n";
@@ -923,7 +923,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolDefintion)
     EXPECT_STREQ(output.c_str(), processedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MultipleSymbolDefintion)
+TEST(AssemblerTests_ConditionalAssemblyPass, MultipleSymbolDefintion)
 {
     string program = ".DEF MY_SYMBOL_1\n"
                      ".DEF MY_SYMBOL_2\n"
@@ -954,7 +954,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MultipleSymbolDefintion)
     EXPECT_STREQ(output.c_str(), processedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedDefDirective)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedDefDirective)
 {
     string program = ".DEF\n";
 
@@ -968,7 +968,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedDefDirective)
                       "Malformed '.DEF' directive (identifier expected)");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedDefDirective2)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedDefDirective2)
 {
     string program = ".DEF";
 
@@ -982,7 +982,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedDefDirective2)
                       "Malformed '.DEF' directive (identifier expected)");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedDefDirective3)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedDefDirective3)
 {
     string program = ".DEF              ";
 
@@ -996,7 +996,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedDefDirective3)
                       "Malformed '.DEF' directive (identifier expected)");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedIdentifier1)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedIdentifier1)
 {
     string program = ".DEF .DEF";
 
@@ -1010,7 +1010,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIdentifier1)
                       "Invalid Pre-Assembly symbol identifier '.DEF'");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedIdentifier2)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedIdentifier2)
 {
     string program = ".DEF $$%AGGHJAYYS";
 
@@ -1024,7 +1024,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIdentifier2)
                       "Invalid Pre-Assembly symbol identifier '$$%AGGHJAYYS'");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedIdentifier3)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedIdentifier3)
 {
     string program = ".DEF 12223";
 
@@ -1038,7 +1038,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIdentifier3)
                       "Invalid Pre-Assembly symbol identifier '12223'");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedIdentifier4)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedIdentifier4)
 {
     string program = ".DEF 0xFFFF";
 
@@ -1052,7 +1052,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedIdentifier4)
                       "Invalid Pre-Assembly symbol identifier '0xFFFF'");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MultipleStatementesInOneLine)
+TEST(AssemblerTests_ConditionalAssemblyPass, MultipleStatementesInOneLine)
 {
     string program = ".DEF MY_SYMBOL LD A, 0xFF\n";
     string output =  "               LD A, 0xFF\n";
@@ -1069,7 +1069,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MultipleStatementesInOneLine)
     EXPECT_STREQ(output.c_str(), processedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion)
+TEST(AssemblerTests_ConditionalAssemblyPass, SymbolUnDefintion)
 {
     string program = ".UNDEF MY_SYMBOL\n";
     string output =  "                \n";
@@ -1086,7 +1086,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion)
     EXPECT_STREQ(output.c_str(), processedCode.c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion1)
+TEST(AssemblerTests_ConditionalAssemblyPass, SymbolUnDefintion1)
 {
     string program1 = ".DEF MY_SYMBOL\n";
     string program2 = ".UNDEF MY_SYMBOL\n";
@@ -1104,7 +1104,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion1)
     EXPECT_EQ(0llu, symbolTable.size());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion2)
+TEST(AssemblerTests_ConditionalAssemblyPass, SymbolUnDefintion2)
 {
     string program1 = ".DEF MY_SYMBOL\n"
                       ".DEF MY_SYMBOL_1\n"
@@ -1128,7 +1128,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion2)
     EXPECT_STREQ("MY_SYMBOL_2", symbolTable[1].c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion3)
+TEST(AssemblerTests_ConditionalAssemblyPass, SymbolUnDefintion3)
 {
     string program1 = ".DEF MY_SYMBOL\n"
                       ".DEF MY_SYMBOL_1\n"
@@ -1152,7 +1152,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion3)
     EXPECT_STREQ("MY_SYMBOL_1", symbolTable[1].c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion4)
+TEST(AssemblerTests_ConditionalAssemblyPass, SymbolUnDefintion4)
 {
     string program1 = ".DEF MY_SYMBOL\n"
                       ".DEF MY_SYMBOL_1\n"
@@ -1176,7 +1176,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion4)
     EXPECT_STREQ("MY_SYMBOL_2", symbolTable[1].c_str());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion5)
+TEST(AssemblerTests_ConditionalAssemblyPass, SymbolUnDefintion5)
 {
     string program1 = ".DEF MY_SYMBOL\n"
                       ".DEF MY_SYMBOL_1\n"
@@ -1200,7 +1200,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintion5)
     EXPECT_EQ(0llu, symbolTable.size());
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionOfNotDefinedIdentifier)
+TEST(AssemblerTests_ConditionalAssemblyPass, SymbolUnDefintionOfNotDefinedIdentifier)
 {
     string program1 = ".UNDEF MY_SYMBOL\n";
 
@@ -1215,7 +1215,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, SymbolUnDefintionOfNotDefinedIdent
 }
 
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefDirective)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedUnDefDirective)
 {
     string program = ".UNDEF\n";
 
@@ -1229,7 +1229,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefDirective)
                       "Malformed '.UNDEF' directive (identifier expected)");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefDirective2)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedUnDefDirective2)
 {
     string program = ".UNDEF";
 
@@ -1243,7 +1243,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefDirective2)
                       "Malformed '.UNDEF' directive (identifier expected)");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefDirective3)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedUnDefDirective3)
 {
     string program = ".UNDEF              ";
 
@@ -1257,7 +1257,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefDirective3)
                       "Malformed '.UNDEF' directive (identifier expected)");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefIdentifier1)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedUnDefIdentifier1)
 {
     string program = ".UNDEF .IFDEF";
 
@@ -1271,7 +1271,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefIdentifier1)
                       "Invalid Pre-Assembly symbol identifier '.IFDEF'");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefIdentifier2)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedUnDefIdentifier2)
 {
     string program = ".UNDEF &&*()()(**)";
 
@@ -1285,7 +1285,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefIdentifier2)
                       "Invalid Pre-Assembly symbol identifier '&&*()()(**)'");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefIdentifier3)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedUnDefIdentifier3)
 {
     string program = ".UNDEF 6789";
 
@@ -1299,7 +1299,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefIdentifier3)
                       "Invalid Pre-Assembly symbol identifier '6789'");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefIdentifier4)
+TEST(AssemblerTests_ConditionalAssemblyPass, MalformedUnDefIdentifier4)
 {
     string program = ".UNDEF 0o3344";
 
@@ -1313,7 +1313,7 @@ TEST(TestConditionalAssemblyPreProcessorPass, MalformedUnDefIdentifier4)
                       "Invalid Pre-Assembly symbol identifier '0o3344'");
 }
 
-TEST(TestConditionalAssemblyPreProcessorPass, MultipleStatementesInOneLineWithUnDef)
+TEST(AssemblerTests_ConditionalAssemblyPass, MultipleStatementesInOneLineWithUnDef)
 {
     string program = ".UNDEF MY_SYMBOL LD B, 0x5A\n";
     string output =  "                 LD B, 0x5A\n";

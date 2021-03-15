@@ -11,12 +11,12 @@ SRC_FILES = $(notdir $(wildcard */*.cc))
 OBJ_FILES = $(patsubst %.cc,$(BUILD_TEMP)/%.o,$(SRC_FILES))
 TARGET = $(EMU_TESTS)
 
-.PHONY: tests $(TARGET)
+.PHONY: $(TARGET) $(TEST_DIRS)
 
-all: tests $(TARGET)
+all: $(TEST_DIRS) $(TARGET)
 
-tests:
-	for TEST in $(TEST_DIRS); do $(MAKE) -C $$TEST -f Makefile.mk; done ||:
-
+$(TEST_DIRS):
+	$(MAKE) -C $@ -f Makefile.mk
+	
 $(TARGET): $(OBJ_FILES)
 	$(LD) -r -o $(TARGET) $(OBJ_FILES)

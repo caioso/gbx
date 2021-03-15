@@ -30,7 +30,7 @@ public:
     }
 };
 
-TEST(TestCpl, DecodeCpl)
+TEST(CoreTests_CPL, DecodeCpl)
 {
     auto registerBank = make_shared<RegisterBank>();
     
@@ -48,7 +48,7 @@ TEST(TestCpl, DecodeCpl)
     EXPECT_EQ(0x00, alu.GetInstructionData().InstructionExtraOperand);
 }
 
-TEST(TestCpl, ExecuteCpl)
+TEST(CoreTests_CPL, ExecuteCpl)
 {
     auto registerBank = make_shared<RegisterBank>();
     

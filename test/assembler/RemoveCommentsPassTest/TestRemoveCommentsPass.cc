@@ -11,12 +11,12 @@ using namespace std;
 using namespace gbxasm::frontend::passes;
 using namespace gbxasm;
 
-TEST(TestRemoveCommentsPass, ConstructionTest)
+TEST(AssemblerTests_RemoveCommentsPass, ConstructionTest)
 {
     auto removeComments = make_shared<RemoveCommentsPass>();
 }
 
-TEST(TestRemoveCommentsPass, CallResultWithoutProcessing)
+TEST(AssemblerTests_RemoveCommentsPass, CallResultWithoutProcessing)
 {
     auto removeComments = make_shared<RemoveCommentsPass>();
     
@@ -25,7 +25,7 @@ TEST(TestRemoveCommentsPass, CallResultWithoutProcessing)
                       "Attempted to read a result without calling 'Process'");
 }
 
-TEST(TestRemoveCommentsPass, PreserveSourceWithoutComments)
+TEST(AssemblerTests_RemoveCommentsPass, PreserveSourceWithoutComments)
 {
     const string input =  "LD HL 0xFFE1 \n"
                           "LD A, [HL]   \n";
@@ -39,7 +39,7 @@ TEST(TestRemoveCommentsPass, PreserveSourceWithoutComments)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, FullyRemoveSingleLineComment)
+TEST(AssemblerTests_RemoveCommentsPass, FullyRemoveSingleLineComment)
 {
     const string input =  "; Single Line Comment\n";
     const string output = "                     \n";
@@ -51,7 +51,7 @@ TEST(TestRemoveCommentsPass, FullyRemoveSingleLineComment)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, FullyRemoveSingleLineCommentWithoutEndline)
+TEST(AssemblerTests_RemoveCommentsPass, FullyRemoveSingleLineCommentWithoutEndline)
 {
     const string input =  "; Comment at the end of the file";
     const string output = "                                ";
@@ -63,7 +63,7 @@ TEST(TestRemoveCommentsPass, FullyRemoveSingleLineCommentWithoutEndline)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, MultipleCommentLines)
+TEST(AssemblerTests_RemoveCommentsPass, MultipleCommentLines)
 {
     const string input =  "; Line 1 Commment\n"
                           "; Line 2 Commment\n"
@@ -81,7 +81,7 @@ TEST(TestRemoveCommentsPass, MultipleCommentLines)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, FullyRemoveMultipleLineComment)
+TEST(AssemblerTests_RemoveCommentsPass, FullyRemoveMultipleLineComment)
 {
     const string input =  ";: Multiple  \n"
                           "   Line      \n"
@@ -98,7 +98,7 @@ TEST(TestRemoveCommentsPass, FullyRemoveMultipleLineComment)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, FullyRemoveMultipleLineCommentAtTheEndOfTheFile)
+TEST(AssemblerTests_RemoveCommentsPass, FullyRemoveMultipleLineCommentAtTheEndOfTheFile)
 {
     const string input =  ";: Multiple  \n"
                           "   Line      \n"
@@ -115,7 +115,7 @@ TEST(TestRemoveCommentsPass, FullyRemoveMultipleLineCommentAtTheEndOfTheFile)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, MalformedMultipleLineComment)
+TEST(AssemblerTests_RemoveCommentsPass, MalformedMultipleLineComment)
 {
     const string noEnding =  ";: Wrong   \n"
                           "   Comment \n"
@@ -148,7 +148,7 @@ TEST(TestRemoveCommentsPass, MalformedMultipleLineComment)
                       "Expected ';:' in multiple line comment");
 }
 
-TEST(TestRemoveCommentsPass, FullyRemoveMultipleLineCommentAndKeepCodeIntact)
+TEST(AssemblerTests_RemoveCommentsPass, FullyRemoveMultipleLineCommentAndKeepCodeIntact)
 {
     const string input =  ";: Multiple  \n"
                           "   Line      \n"
@@ -170,7 +170,7 @@ TEST(TestRemoveCommentsPass, FullyRemoveMultipleLineCommentAndKeepCodeIntact)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, MultipleLineCommentAmongCode)
+TEST(AssemblerTests_RemoveCommentsPass, MultipleLineCommentAmongCode)
 {
     const string input =  "ADD A;:, [DE]:;, [HL]\n";
     const string output = "ADD A          , [HL]\n";
@@ -183,7 +183,7 @@ TEST(TestRemoveCommentsPass, MultipleLineCommentAmongCode)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinString1)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinString1)
 {
     const string input =  "\"; This is not a comment\"";
     const string output = "\"; This is not a comment\"";
@@ -196,7 +196,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinString1)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinString2)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinString2)
 {
     const string input =  "\"; This is not a comment";
     const string output = "\"; This is not a comment";
@@ -209,7 +209,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinString2)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinString3)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinString3)
 {
     const string input =  "\"; This is not a comment\";LD A, 0xFF";
     const string output = "\"; This is not a comment\"           ";
@@ -222,7 +222,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinString3)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinString4)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinString4)
 {
     const string input =  "\"; This is not a comment\" ; This is a Comment";
     const string output = "\"; This is not a comment\"                    ";
@@ -235,7 +235,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinString4)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinString5)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinString5)
 {
     const string input =  "\";: This is not a comment :;\"; This is a Comment";
     const string output = "\";: This is not a comment :;\"                   ";
@@ -248,7 +248,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinString5)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinString6)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinString6)
 {
     const string input =  "\";: This is not a comment :;\"\n"
                           ";: Real Comment Here :;";
@@ -263,7 +263,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinString6)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinString7)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinString7)
 {
     const string input =  "\";: This is not a comment :;\"";
     const string output = "\";: This is not a comment :;\"";
@@ -276,7 +276,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinString7)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinString8)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinString8)
 {
     const string input =  "\";: This is not a comment :;";
     const string output = "\";: This is not a comment :;";
@@ -289,7 +289,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinString8)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinString9)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinString9)
 {
     const string input =  ";: This is not a comment :;\"";
     const string output = "                           \"";
@@ -302,7 +302,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinString9)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinString10)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinString10)
 {
     const string input =  ";  This is not a comment   \n\"";
     const string output = "                           \n\"";
@@ -315,7 +315,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinString10)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinString11)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinString11)
 {
     const string input =  "; This is a comment\n"
                           "\"; This is NOT is a comment\"\n"
@@ -335,7 +335,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinString11)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinCharBase)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinCharBase)
 {
     const string input =  "';'";
     const string output = "';'";
@@ -348,7 +348,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinCharBase)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinCharBase2)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinCharBase2)
 {
     const string input =  "';::;'";
     const string output = "';::;'";
@@ -361,7 +361,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinCharBase2)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar1)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinChar1)
 {
     const string input =  "'; This is not a comment'";
     const string output = "'; This is not a comment'";
@@ -374,7 +374,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar1)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar2)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinChar2)
 {
     const string input =  "'; This is not a comment";
     const string output = "'; This is not a comment";
@@ -387,7 +387,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar2)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar3)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinChar3)
 {
     const string input =  "'; This is not a comment';LD A, 0xFF";
     const string output = "'; This is not a comment'           ";
@@ -400,7 +400,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar3)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar4)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinChar4)
 {
     const string input =  "'; This is not a comment' ; This is a Comment";
     const string output = "'; This is not a comment'                    ";
@@ -413,7 +413,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar4)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar5)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinChar5)
 {
     const string input =  "';: This is not a comment :;'; This is a Comment";
     const string output = "';: This is not a comment :;'                   ";
@@ -426,7 +426,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar5)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar6)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinChar6)
 {
     const string input =  "';: This is not a comment :;'\n"
                           ";: Real Comment Here :;";
@@ -441,7 +441,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar6)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar7)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinChar7)
 {
     const string input =  "';: This is not a comment :;'";
     const string output = "';: This is not a comment :;'";
@@ -454,7 +454,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar7)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar8)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinChar8)
 {
     const string input =  "';: This is not a comment :;";
     const string output = "';: This is not a comment :;";
@@ -467,7 +467,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar8)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar9)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinChar9)
 {
     const string input =  ";: This is not a comment :;'";
     const string output = "                           '";
@@ -480,7 +480,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar9)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar10)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinChar10)
 {
     const string input =  ";  This is not a comment   \n'";
     const string output = "                           \n'";
@@ -493,7 +493,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar10)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar11)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsWithinChar11)
 {
     const string input =  "; This is a comment\n"
                           "'; This is NOT is a comment'\n"
@@ -514,7 +514,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsWithinChar11)
 }
 
 
-TEST(TestRemoveCommentsPass, AvoidCommentsCombinedTest)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsCombinedTest)
 {
     const string input =  "\"'; This is a com'\";ment\n";
 
@@ -528,7 +528,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsCombinedTest)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsCombinedTest2)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsCombinedTest2)
 {
     const string input =  "\"\"'; This is a com'\";ment\n";
 
@@ -542,7 +542,7 @@ TEST(TestRemoveCommentsPass, AvoidCommentsCombinedTest2)
     EXPECT_STREQ(output.c_str(), result.c_str());
 }
 
-TEST(TestRemoveCommentsPass, AvoidCommentsCombinedTest3)
+TEST(AssemblerTests_RemoveCommentsPass, AvoidCommentsCombinedTest3)
 {
     const string input =  "\"';: This is a com :;\"';ment\n";
 

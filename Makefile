@@ -1,3 +1,7 @@
+ARGS = $(filter-out $(KNOWN_TARGETS),$(MAKECMDGOALS))
+ASM_TESTS_FLAG = asm
+CORE_TESTS_FLAG = core
+
 # Prepare build variables
 BUILD_TOP = $(CURDIR)/build
 BUILD_LIB = $(BUILD_TOP)/lib
@@ -111,7 +115,21 @@ clean:
 	rm -f $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(EMU_LIB) $(GBX_TEST) $(RUNTIME) $(CLI_DEBUGGER)
 
 test:
-	./build/test/gbxtest
+ifeq ($(word 2,$(ARGS)), $(ASM_TESTS_FLAG))
+	./build/test/gbxtest --gtest_filter="AssemblerTests_*" 
+else
+ifeq ($(word 2,$(ARGS)), $(CORE_TESTS_FLAG))
+	./build/test/gbxtest --gtest_filter="CoreTests_*" 
+else
+	./build/test/gbxtest 
+endif
+endif
+
+asm:
+	@true
+
+core:
+	@true
 
 define MakeTarget
 	$(call EnteringMessage, ${1})

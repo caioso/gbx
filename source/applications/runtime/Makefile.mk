@@ -1,5 +1,5 @@
 CC = clang++
-$(info ------> Here)
+
 LDFLAGS = $(LDCOVERAGE_FLAGS) -lboost_system -pthread
 CPPFLAGS = $(CCCOVERAGE_FLAGS) $(GLOBAL_CPP_FLAGS)
 
@@ -11,8 +11,6 @@ DEP_FILES = $(BUILD_TEMP)/gbx.d
 
 TARGET_SOURCE = gbx.cc
 TARGET = $(RUNTIME)
-
-.PHONY: all
 
 all: $(TARGET)
 

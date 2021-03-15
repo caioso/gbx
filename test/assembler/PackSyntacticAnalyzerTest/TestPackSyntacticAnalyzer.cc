@@ -22,7 +22,7 @@ using namespace gbxasm::intermediate_representation;
 using namespace gbxasm::utilities;
 using namespace std;
 
-TEST(TestPackSyntacticAnalyzer, SanityCheckPackTokenization)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, SanityCheckPackTokenization)
 {
     const string pack = "PACK MY_PACK\n"
                         "BGN\n"
@@ -128,7 +128,7 @@ TEST(TestPackSyntacticAnalyzer, SanityCheckPackTokenization)
     }
 }
 
-TEST(TestPackSyntacticAnalyzer, ParsePack)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePack)
 {
     const string pack = "PACK MY_PACK\n"
                         "BGN\n"
@@ -152,7 +152,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePack)
 }
 
 
-TEST(TestPackSyntacticAnalyzer, ParsePackFormat2)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat2)
 {
     const string pack = "PACK MY_PACK\n"
                         "BGN\n"
@@ -169,7 +169,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat2)
     EXPECT_TRUE(parser->IsAccepted());
 }
 
-TEST(TestPackSyntacticAnalyzer, ParsePackFormat3)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat3)
 {
     const string pack = "PACK MY_PACK\n"
                         "BGN\n"
@@ -185,7 +185,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat3)
     EXPECT_TRUE(parser->IsAccepted());
 }
 
-TEST(TestPackSyntacticAnalyzer, ParsePackFormat4)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat4)
 {
     const string pack = "PACK MY_PACK\n"
                         "BGN\n"
@@ -202,7 +202,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat4)
     EXPECT_TRUE(parser->IsAccepted());
 }
 
-TEST(TestPackSyntacticAnalyzer, ParsePackFormat5)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat5)
 {
     const string pack = "PACK \n"
                         "BGN\n"
@@ -219,7 +219,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat5)
     EXPECT_FALSE(parser->IsAccepted());
 }
 
-TEST(TestPackSyntacticAnalyzer, ParsePackFormat6)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat6)
 {
     const string pack = "MY_PACK \n"
                         "BGN\n"
@@ -236,7 +236,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat6)
     EXPECT_FALSE(parser->IsAccepted());
 }
 
-TEST(TestPackSyntacticAnalyzer, ParsePackFormat7)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat7)
 {
     const string pack = "PACK MY_PACK \n"
                         "BGN\n"
@@ -252,7 +252,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat7)
     EXPECT_FALSE(parser->IsAccepted());
 }
 
-TEST(TestPackSyntacticAnalyzer, ParsePackFormat12)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat12)
 {
     const string pack = "PACK MY_PACK \n"
                         "    BYTE MY_BYTE_MEMBER[19990]\n"
@@ -269,7 +269,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat12)
 }
 
 
-TEST(TestPackSyntacticAnalyzer, ParsePackFormat8)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat8)
 {
     const string pack = "PACK MY_PACK \n"
                         "BGN\n"
@@ -286,7 +286,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat8)
     EXPECT_FALSE(parser->IsAccepted());
 }
 
-TEST(TestPackSyntacticAnalyzer, ParsePackFormat9)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat9)
 {
     const string pack = "PACK MY_PACK \n"
                         "BGN\n"
@@ -303,7 +303,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat9)
     EXPECT_FALSE(parser->IsAccepted());
 }
 
-TEST(TestPackSyntacticAnalyzer, ParsePackFormat10)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat10)
 {
     const string pack = "PACK MY_PACK \n"
                         "BGN\n"
@@ -320,7 +320,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat10)
     EXPECT_FALSE(parser->IsAccepted());
 }
 
-TEST(TestPackSyntacticAnalyzer, ParsePackFormat11)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat11)
 {
     const string pack = "PACK MY_PACK\n"
                         "BGN\n"
@@ -337,7 +337,7 @@ TEST(TestPackSyntacticAnalyzer, ParsePackFormat11)
     EXPECT_TRUE(parser->IsAccepted());
 }
 
-TEST(TestPackSyntacticAnalyzer, PackIntermediateRepresentationWithSingleMember)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, PackIntermediateRepresentationWithSingleMember)
 {
     const string pack = "PACK FLAG_REGISTER\n"
                         "BGN\n"
@@ -368,7 +368,7 @@ TEST(TestPackSyntacticAnalyzer, PackIntermediateRepresentationWithSingleMember)
     EXPECT_EQ("2", packRepresentation->Members()[0].ArrayLength);
 }
 
-TEST(TestPackSyntacticAnalyzer, PackIntermediateRepresentationWithMultipleMembers)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, PackIntermediateRepresentationWithMultipleMembers)
 {
     const string pack = "PACK MY_PACK\n"
                         "BGN\n"

@@ -12,7 +12,7 @@ DEP_FILES = $(patsubst %.o,%.d,$(OBJ_FILES))
 
 TARGET = $(CORE_LIB)
 
-.PHONY: $(SUBDIRS) $(TARGET)
+.PHONY: $(SUBDIRS)
 
 all: $(SUBDIRS) $(TARGET)
 
