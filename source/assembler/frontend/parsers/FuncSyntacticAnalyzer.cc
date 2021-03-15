@@ -27,7 +27,12 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                 if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalFunc)
                 {
                     Shift(leftSubstring);
-                    state++;
+                    state = 2;
+                }
+                else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::NonTerminalHeader)
+                {
+                    Shift(leftSubstring);
+                    state = 4;
                 }
                 else 
                 {
@@ -39,17 +44,63 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                 if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIdentifier)
                 {
                     Shift(leftSubstring);
-                    state++;
+                    state = 3;
                 }
                 else 
                 {
                     Reject(); break;
                 }
             }
-            else if (state == 3) // Try to reduce 
+            else if (state == 3) // Try to reduce [BGN found]
             {
-                Accept();
-                return{};
+                if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalBgn)
+                {
+                    // Reduce
+                    // Remove Identifier
+                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
+                    // Remove FUNC
+                    _symbols.erase(begin(_symbols) + leftSubstring - 2);
+                    _symbols.insert(begin(_symbols) +  leftSubstring - 2, { .Symbol = FuncParseTreeSymbols::NonTerminalHeader, .Lexeme = string("") });
+                    break;
+                }
+                else 
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == 4) // Detect BGN
+            {
+                if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalBgn)
+                {
+                    Shift(leftSubstring);
+                    state = 5;
+                }
+            }
+            else if (state == 5) // skip the function body
+            {
+                if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIgnore)
+                {
+                    Shift(leftSubstring);
+                    state = 5;
+                }
+                else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalEnd)
+                {
+                    Shift(leftSubstring);
+                    state = 6;
+                }
+            }
+            else if (state == 6) // Try to reduce [the function body]
+            {
+                if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalEnd)
+                {
+                    cout << "Body finished" << '\n';
+                    Accept();
+                    break;
+                }
+                else 
+                {
+                    Reject(); break;
+                }
             }
             else 
             {
@@ -64,11 +115,15 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
 void FuncSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& beginIt, vector<Token>::iterator& endIt)
 {
     auto functionEnd = beginIt + CountEndWithinFunctionBody(beginIt, endIt);
+    auto bgnFound = false;
 
     // (functionEnd - 1) because only the last END must be converted to 'TerminalEnd'
     // Anything in between becomes 'TerminalIgnore'. Thats why TokenType::KeywordEND is not in the switch block.
-    transform(beginIt, (functionEnd - 1), back_inserter(_symbols), [](Token x) -> FuncCompoundSymbol
+    transform(beginIt, (functionEnd - 1), back_inserter(_symbols), [&](Token x) -> FuncCompoundSymbol
     {
+        if (bgnFound && x.Type != TokenType::KeywordEND)
+            return {.Symbol = FuncParseTreeSymbols::TerminalIgnore, .Lexeme  = x.Lexeme };
+
         switch (x.Type)
         {
             case TokenType::KeywordFUNC: 
@@ -100,6 +155,7 @@ void FuncSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& beginIt, vec
             case TokenType::LiteralNumericBINARY:
                 return {.Symbol = FuncParseTreeSymbols::TerminalOpenNumericLiteral, .Lexeme  = x.Lexeme };
              case TokenType::KeywordBGN: 
+                bgnFound = true; // If bgn has been found, the body of the function started. Ignore everything up to the target end.
                 return {.Symbol = FuncParseTreeSymbols::TerminalBgn, .Lexeme  = x.Lexeme };
             default:
                 return {.Symbol = FuncParseTreeSymbols::TerminalIgnore, .Lexeme  = x.Lexeme };

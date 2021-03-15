@@ -29,7 +29,6 @@ enum class FuncParseTreeSymbols
     NonTerminalArgument,
     NonTerminalArgumentList,
     NonTerminalBody,
-    NonTerminalFooter,
 };
 
 typedef struct FuncCompoundSymbol_t
