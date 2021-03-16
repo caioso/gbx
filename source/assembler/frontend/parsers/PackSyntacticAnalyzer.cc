@@ -358,7 +358,7 @@ inline void PackSyntacticAnalyzer::ReduceFooter(int top)
 
 inline void PackSyntacticAnalyzer::ReducePack(int top)
 {
-     // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
+    // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
     // Remove First
     _symbols.erase(begin(_symbols) + top);
     // Remove Second
