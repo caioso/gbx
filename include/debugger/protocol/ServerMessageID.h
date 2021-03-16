@@ -3,7 +3,7 @@
 namespace gbxdb::protocol
 {
 
-enum MessageID : uint16_t
+enum ServerMessageID : uint16_t
 {
     // Client Jointed
     MessageClientJoined = 0xFFFF,

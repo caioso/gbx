@@ -8,7 +8,7 @@ namespace gbxdb::protocol
 {
 
 RegisterBankSummaryCommand::RegisterBankSummaryCommand()
-    : DebugCommand(CommandID::CommandRegisterBankSummary)
+    : DebugCommand(ServerCommandID::CommandRegisterBankSummary)
 {}
 
 
@@ -36,8 +36,8 @@ void RegisterBankSummaryCommand::DecodeRequestMessage([[maybe_unused]] shared_pt
 shared_ptr<DebugMessage> RegisterBankSummaryCommand::EncodeRequestMessage()
 {
     auto buffer = make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
-    (*buffer)[0] = static_cast<uint16_t>(MessageID::MessageRegisterBankSummary) & 0xFF;
-    (*buffer)[1] = ((static_cast<uint16_t>(MessageID::MessageRegisterBankSummary)) >> 0x08) & 0xFF;
+    (*buffer)[0] = static_cast<uint16_t>(ServerMessageID::MessageRegisterBankSummary) & 0xFF;
+    (*buffer)[1] = ((static_cast<uint16_t>(ServerMessageID::MessageRegisterBankSummary)) >> 0x08) & 0xFF;
     
     copy(_registerValues.begin(), _registerValues.end(), (*buffer).begin() + 2);
 

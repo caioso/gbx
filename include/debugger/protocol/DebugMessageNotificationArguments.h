@@ -7,7 +7,6 @@
 
 namespace gbxdb::protocol
 {
-
 class DebugMessageNotificationArguments : public gbxcommons::NotificationArguments
 {
 public:

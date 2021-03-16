@@ -7,8 +7,8 @@
 #include "DebugMessage.h"
 #include "GBXDebuggerExceptions.h"
 #include "RegisterBankInterface.h"
-#include "CommandID.h"
-#include "MessageID.h"
+#include "ServerCommandID.h"
+#include "ServerMessageID.h"
 
 namespace gbxdb::protocol
 {

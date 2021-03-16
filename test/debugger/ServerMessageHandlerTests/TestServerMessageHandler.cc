@@ -6,17 +6,16 @@
 
 #include "DebuggableRunner.h"
 #include "DebugMessage.h"
-#include "ServerTransport.h"
-#include "MessageID.h"
 #include "DebugMessageNotificationArguments.h"
-#include "MessageHandler.h"
 #include "GBXEmulatorExceptions.h"
+#include "ServerMessageID.h"
 #include "Runtime.h"
+#include "ServerMessageHandler.h"
+#include "ServerTransport.h"
 
 #include "TestUtils.h"
 
 using namespace gbx;
-using namespace gbx::runtime;
 using namespace gbxdb;
 using namespace gbxdb::interfaces;
 using namespace gbxdb::protocol;
@@ -71,25 +70,25 @@ shared_ptr<array<uint8_t, MaxMessageBufferSize>> CreateClientJoinedMessage()
     return buffer;
 }
 
-TEST(TestMessagHandler, Construction) 
+TEST(ServerServerTestMessagHandler, Construction) 
 {
     auto transportMock = make_shared<TransportMock>();
-    auto messageHandler = make_shared<MessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
+    auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
 }
 
-TEST(TestMessagHandler, Initialize) 
+TEST(ServerTestMessagHandler, Initialize) 
 {
     auto transportMock = make_shared<TransportMock>();
-    auto messageHandler = make_shared<MessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
+    auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
 
     EXPECT_CALL((*transportMock), Subscribe(::_)).Times(1);
     messageHandler->Initialize();
 }
 
-TEST(TestMessagHandler, DecodeReceivedUnknownMessage) 
+TEST(ServerTestMessagHandler, DecodeReceivedUnknownMessage) 
 {
     auto transportMock = make_shared<TransportMock>();
-    auto messageHandler = make_shared<MessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
+    auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
     
     auto dummyMessage = make_shared<DebugMessage>(CreateDummyMessage(0x0000));
     auto notificationArguments = make_shared<DebugMessageNotificationArguments>(dummyMessage);
@@ -103,17 +102,13 @@ TEST(TestMessagHandler, DecodeReceivedUnknownMessage)
                       "Invalid debug message recieved and will be ignored");
 }
 
-TEST(TestMessagHandler, DecodeClientJoinedMessage) 
+TEST(ServerTestMessagHandler, DecodeClientJoinedMessage) 
 {
     auto transportMock = make_shared<TransportMock>();
     auto runtimeMock = make_shared<RuntimeMock>();
-    auto messageHandler = make_shared<MessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
+    auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
     auto runnerMock = make_shared<RunnerMock>();
-
-    random_device randomDevice;
-    mt19937 engine{randomDevice()};
-    uniform_int_distribution<uint8_t> distribution{0x00, 0xFF};
-
+    
     auto clientJoinedMessage = make_shared<DebugMessage>(CreateClientJoinedMessage());
     auto notificationArguments = make_shared<DebugMessageNotificationArguments>(clientJoinedMessage);
     auto argumentsPointer = static_pointer_cast<NotificationArguments>(notificationArguments);

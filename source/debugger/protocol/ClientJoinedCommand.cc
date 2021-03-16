@@ -4,7 +4,7 @@ namespace gbxdb::protocol
 {
 
 ClientJoinedCommand::ClientJoinedCommand()
-     : DebugCommand(static_cast<uint16_t>(CommandID::CommandClientJoined))
+     : DebugCommand(static_cast<uint16_t>(ServerCommandID::CommandClientJoined))
 {}
     
 void ClientJoinedCommand::DecodeRequestMessage([[maybe_unused]] std::shared_ptr<interfaces::DebugMessage> message)

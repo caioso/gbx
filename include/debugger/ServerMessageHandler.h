@@ -11,11 +11,11 @@
 #include "DebugMessage.h"
 #include "ServerTransport.h"
 
-#include "CommandID.h"
 #include "ErrorID.h"
-#include "MessageID.h"
 #include "ErrorCommand.h"
 #include "ReadRegisterCommand.h"
+#include "ServerCommandID.h"
+#include "ServerMessageID.h"
 #include "ClientJoinedCommand.h"
 #include "RegisterBankSummaryCommand.h"
 #include "WriteRegisterCommand.h"
@@ -24,15 +24,15 @@
 #include "Runtime.h"
 #include "Observer.h"
 
-namespace gbx::runtime
+namespace gbxdb
 {
 
-class MessageHandler : public gbxcommons::Observer, 
-                       public std::enable_shared_from_this<MessageHandler>
+class ServerMessageHandler : public gbxcommons::Observer, 
+                             public std::enable_shared_from_this<ServerMessageHandler>
 {
 public:
-    MessageHandler(std::shared_ptr<gbxdb::interfaces::ServerTransport>);
-    ~MessageHandler() = default;
+    ServerMessageHandler(std::shared_ptr<gbxdb::interfaces::ServerTransport>);
+    ~ServerMessageHandler() = default;
     
     void Initialize();
     size_t Pending();

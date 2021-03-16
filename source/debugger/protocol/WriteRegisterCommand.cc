@@ -8,7 +8,7 @@ namespace gbxdb::protocol
 {
 
 WriteRegisterCommand::WriteRegisterCommand()
-    : DebugCommand(CommandID::CommandWriteRegister)
+    : DebugCommand(ServerCommandID::CommandWriteRegister)
 {}
 
 void WriteRegisterCommand::DecodeRequestMessage(shared_ptr<DebugMessage> message)
@@ -66,8 +66,8 @@ gbxcore::interfaces::Register WriteRegisterCommand::Register()
 shared_ptr<DebugMessage> WriteRegisterCommand::EncodeRequestMessage()
 {
     auto buffer = make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
-    (*buffer)[0] = static_cast<uint16_t>(MessageID::MessageWriteRegister) & 0xFF;
-    (*buffer)[1] = ((static_cast<uint16_t>(MessageID::MessageWriteRegister)) >> 0x08) & 0xFF;
+    (*buffer)[0] = static_cast<uint16_t>(ServerMessageID::MessageWriteRegister) & 0xFF;
+    (*buffer)[1] = ((static_cast<uint16_t>(ServerMessageID::MessageWriteRegister)) >> 0x08) & 0xFF;
     (*buffer)[2] = static_cast<uint8_t>(_register);
     (*buffer)[3] = _registerValue & 0xff;
     (*buffer)[4] = (_registerValue >> 0x08) & 0xff;

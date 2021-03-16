@@ -7,7 +7,7 @@ using namespace std;
 namespace gbxdb::protocol
 {
 ReadRegisterCommand::ReadRegisterCommand()
-    : DebugCommand(static_cast<uint16_t>(CommandID::CommandReadRegister))
+    : DebugCommand(static_cast<uint16_t>(ServerCommandID::CommandReadRegister))
 {}
 
 gbxcore::interfaces::Register ReadRegisterCommand::RegisterToRead()
@@ -37,8 +37,8 @@ void ReadRegisterCommand::DecodeRequestMessage(std::shared_ptr<DebugMessage> mes
 std::shared_ptr<DebugMessage> ReadRegisterCommand::EncodeRequestMessage()
 {
     auto buffer = make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
-    (*buffer)[0] = static_cast<uint16_t>(MessageID::MessageReadRegister) & 0xFF;
-    (*buffer)[1] = ((static_cast<uint16_t>(MessageID::MessageReadRegister)) >> 0x08) & 0xFF;
+    (*buffer)[0] = static_cast<uint16_t>(ServerMessageID::MessageReadRegister) & 0xFF;
+    (*buffer)[1] = ((static_cast<uint16_t>(ServerMessageID::MessageReadRegister)) >> 0x08) & 0xFF;
     (*buffer)[2] = _registerValue & 0xff;
     (*buffer)[3] = (_registerValue >> 0x08) & 0xff;
 

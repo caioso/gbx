@@ -6,17 +6,16 @@
 
 #include "DebuggableRunner.h"
 #include "DebugMessage.h"
-#include "ServerTransport.h"
-#include "MessageID.h"
 #include "DebugMessageNotificationArguments.h"
-#include "MessageHandler.h"
 #include "GBXEmulatorExceptions.h"
+#include "ServerMessageID.h"
 #include "Runtime.h"
+#include "ServerMessageHandler.h"
+#include "ServerTransport.h"
 
 #include "TestUtils.h"
 
 using namespace gbx;
-using namespace gbx::runtime;
 using namespace gbxdb;
 using namespace gbxdb::interfaces;
 using namespace gbxdb::protocol;
@@ -67,7 +66,7 @@ TEST(TestRegisterBankSummary, RequestRegisterBankSummary)
 {
     auto transportMock = make_shared<TransportMock>();
     auto runtimeMock = make_shared<RuntimeMock>();
-    auto messageHandler = make_shared<MessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
+    auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
     auto runnerMock = make_shared<RunnerMock>();
 
     auto readRegisterBankMessage = make_shared<DebugMessage>(CreateRegisterBankSummaryMessage());
@@ -109,7 +108,7 @@ TEST(TestRegisterBankSummary, RequestRegisterBankSummary)
         uint16_t registerPC = (*(argument->Buffer()))[12] | (*(argument->Buffer()))[13] << 0x08;
         uint16_t registerSP = (*(argument->Buffer()))[14] | (*(argument->Buffer()))[15] << 0x08;
 
-        EXPECT_EQ(MessageID::MessageRegisterBankSummary, messageId);
+        EXPECT_EQ(ServerMessageID::MessageRegisterBankSummary, messageId);
         EXPECT_EQ(registerB, 0x01);
         EXPECT_EQ(registerC, 0x02);
         EXPECT_EQ(registerD, 0x03);

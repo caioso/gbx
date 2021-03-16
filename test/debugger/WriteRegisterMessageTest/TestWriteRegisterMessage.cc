@@ -7,18 +7,17 @@
 
 #include "DebuggableRunner.h"
 #include "DebugMessage.h"
-#include "ServerTransport.h"
-#include "ErrorID.h"
-#include "MessageID.h"
 #include "DebugMessageNotificationArguments.h"
-#include "MessageHandler.h"
+#include "ErrorID.h"
 #include "GBXEmulatorExceptions.h"
+#include "ServerMessageID.h"
 #include "Runtime.h"
+#include "ServerTransport.h"
+#include "ServerMessageHandler.h"
 
 #include "TestUtils.h"
 
 using namespace gbx;
-using namespace gbx::runtime;
 using namespace gbxdb; 
 using namespace gbxdb::interfaces; 
 using namespace gbxdb::protocol;
@@ -73,7 +72,7 @@ TEST(TestWriteRegisterMessage, Write8bitRegisterWithRandomValue)
     auto operand8BitList = {Register::B, Register::C, Register::D, Register::E, Register::H, Register::L, Register::A, Register::F };
     auto transportMock = make_shared<TransportMock>();
     auto runtimeMock = make_shared<RuntimeMock>();
-    auto messageHandler = make_shared<MessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
+    auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
     auto runnerMock = make_shared<RunnerMock>();
 
     random_device randomDevice;
@@ -105,7 +104,7 @@ TEST(TestWriteRegisterMessage, Write8bitRegisterWithRandomValue)
             // Written value
             uint16_t targetValue = (*(argument->Buffer()))[3] | ((*(argument->Buffer()))[4] << 0x08);
 
-            EXPECT_EQ(MessageID::MessageWriteRegister, messageId);
+            EXPECT_EQ(ServerMessageID::MessageWriteRegister, messageId);
             EXPECT_EQ(targetRegister, static_cast<uint8_t>(operand));
             EXPECT_EQ(targetValue, static_cast<uint16_t>(registerValue));
         }));
@@ -121,7 +120,7 @@ TEST(TestWriteRegisterMessage, Write16bitRegisterWithRandomValue)
     auto operand16BitList = {Register::PC, Register::SP, Register::HL, Register::BC, Register::DE, Register::AF};
     auto transportMock = make_shared<TransportMock>();
     auto runtimeMock = make_shared<RuntimeMock>();
-    auto messageHandler = make_shared<MessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
+    auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
     auto runnerMock = make_shared<RunnerMock>();
 
     random_device randomDevice;
@@ -153,7 +152,7 @@ TEST(TestWriteRegisterMessage, Write16bitRegisterWithRandomValue)
             // Written value
             uint16_t targetValue = (*(argument->Buffer()))[3] | ((*(argument->Buffer()))[4] << 0x08);
 
-            EXPECT_EQ(MessageID::MessageWriteRegister, messageId);
+            EXPECT_EQ(ServerMessageID::MessageWriteRegister, messageId);
             EXPECT_EQ(targetRegister, static_cast<uint8_t>(operand));
             EXPECT_EQ(targetValue, registerValue);
         }));
@@ -168,7 +167,7 @@ TEST(TestWriteRegisterMessage, WriteInvalidRegisterAddress)
 {
     auto transportMock = make_shared<TransportMock>();
     auto runtimeMock = make_shared<RuntimeMock>();
-    auto messageHandler = make_shared<MessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
+    auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
     auto runnerMock = make_shared<RunnerMock>();
 
     auto readRegisterBankMessage = make_shared<DebugMessage>(CreateWriteRegisterMessage(0xFF, 0x1111));
@@ -190,7 +189,7 @@ TEST(TestWriteRegisterMessage, WriteInvalidRegisterAddress)
         // Error Code
         uint16_t targetError = (*(argument->Buffer()))[2] | (*(argument->Buffer()))[3] << 0x08;
       
-        EXPECT_EQ(MessageID::MessageError, messageId);
+        EXPECT_EQ(ServerMessageID::MessageError, messageId);
         EXPECT_EQ(ErrorID::InvalidRegister, targetError);
     }));
 

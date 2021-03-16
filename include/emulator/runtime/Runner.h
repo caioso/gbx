@@ -9,7 +9,7 @@
 #include "DebugMessage.h"
 #include "DebuggableRunner.h"
 #include "ServerTransport.h"
-#include "MessageHandler.h"
+#include "ServerMessageHandler.h"
 #include "Runtime.h"
 #include "CancellationToken.h"
 
@@ -49,7 +49,7 @@ private:
     std::shared_ptr<gbxcore::interfaces::Runtime> _runtime;
     std::shared_ptr<gbxdb::interfaces::ServerTransport> _transport;
     
-    std::shared_ptr<MessageHandler> _handler;
+    std::shared_ptr<gbxdb::ServerMessageHandler> _handler;
     
     std::queue<std::shared_ptr<gbxdb::interfaces::DebugMessage>> _requestQueue;
     

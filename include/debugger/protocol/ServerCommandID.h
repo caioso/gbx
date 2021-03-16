@@ -4,7 +4,7 @@
 namespace gbxdb::protocol
 {
 
-enum CommandID : uint16_t
+enum ServerCommandID : uint16_t
 {
     // Client Joined Command
     CommandClientJoined = 0x0000,

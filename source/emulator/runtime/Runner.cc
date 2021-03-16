@@ -72,7 +72,7 @@ inline void Runner::InitializeDebugInfraIfNeeded()
 {
     if (_handler == nullptr)
     {
-        _handler = make_shared<MessageHandler>(_transport);
+        _handler = make_shared<ServerMessageHandler>(_transport);
         _handler->Initialize();
     }
 
