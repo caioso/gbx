@@ -57,6 +57,7 @@ void BoostAsioServerTransport::ProtocolLoop()
         if (_socket->available())
         {
             debugMessage = make_shared<DebugMessage>(make_shared<array<uint8_t, MaxMessageBufferSize>>());
+            // Use lock guard
             _socketLock.lock();
                 len = _socket->read_some(buffer(*debugMessage->Buffer()), error);
             _socketLock.unlock();

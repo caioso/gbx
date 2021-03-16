@@ -16,12 +16,12 @@ using namespace gbxcommons;
 using ::testing::Return;
 using ::testing::_;
 
-TEST(CommandLineArgumentsParser, Construction)
+TEST(CommonsTests_CommandLineArgumentsParser, Construction)
 {
     auto parser = make_shared<ArgumentsParser>("");
 }
 
-TEST(CommandLineArgumentsParser, OptionalFlagArgumentParsing)
+TEST(CommonsTests_CommandLineArgumentsParser, OptionalFlagArgumentParsing)
 {
     // Constants
     char* verboseFlag = strdup("-v");
@@ -45,7 +45,7 @@ TEST(CommandLineArgumentsParser, OptionalFlagArgumentParsing)
     EXPECT_EQ(nullopt, parsedOption.Value);
 }
 
-TEST(CommandLineArgumentsParser, RequiredFlagArgumentParsing)
+TEST(CommonsTests_CommandLineArgumentsParser, RequiredFlagArgumentParsing)
 {
     // Constants
     char* verboseFlag = strdup("-v");
@@ -69,7 +69,7 @@ TEST(CommandLineArgumentsParser, RequiredFlagArgumentParsing)
     EXPECT_EQ(nullopt, parsedOption.Value);
 }
 
-TEST(CommandLineArgumentsParser, DoNotProvideRequiredFlagArgumentParsing)
+TEST(CommonsTests_CommandLineArgumentsParser, DoNotProvideRequiredFlagArgumentParsing)
 {
     // Setup object
     auto parser = make_shared<ArgumentsParser>("");
@@ -84,7 +84,7 @@ TEST(CommandLineArgumentsParser, DoNotProvideRequiredFlagArgumentParsing)
                       "Option -v/--verbose is required");
 }
 
-TEST(CommandLineArgumentsParser, OptionalPairArgumentParsing)
+TEST(CommonsTests_CommandLineArgumentsParser, OptionalPairArgumentParsing)
 {
     // Constants
     char* ipFlag = strdup("-i");
@@ -107,7 +107,7 @@ TEST(CommandLineArgumentsParser, OptionalPairArgumentParsing)
     EXPECT_STREQ("192.168.1.1", parsedOption.Value.value_or(string("")).c_str());
 }
 
-TEST(CommandLineArgumentsParser, ParseUnknownFlagArgument)
+TEST(CommonsTests_CommandLineArgumentsParser, ParseUnknownFlagArgument)
 {
     // Constants
     char* unknownFlag = strdup("-f");
@@ -129,7 +129,7 @@ TEST(CommandLineArgumentsParser, ParseUnknownFlagArgument)
     EXPECT_FALSE(debugFound);
 }
 
-TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument)
+TEST(CommonsTests_CommandLineArgumentsParser, RetrieveNonParsedArgument)
 {
     // Constants
     char* verboseFlag = strdup("-v");
@@ -150,7 +150,7 @@ TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument)
 }
 
 
-TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument2)
+TEST(CommonsTests_CommandLineArgumentsParser, RetrieveNonParsedArgument2)
 {
     // Constants
     char* unknownFlag = strdup("-f");
@@ -171,7 +171,7 @@ TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument2)
                       "Option -z has not been parsed");
 }
 
-TEST(CommandLineArgumentsParser, RetrieveHelp1)
+TEST(CommonsTests_CommandLineArgumentsParser, RetrieveHelp1)
 {
     // Constants
     char* helpFlag = strdup("-h");
@@ -190,7 +190,7 @@ TEST(CommandLineArgumentsParser, RetrieveHelp1)
     EXPECT_TRUE(helpFound);
 }
 
-TEST(CommandLineArgumentsParser, RetrieveHelp2)
+TEST(CommonsTests_CommandLineArgumentsParser, RetrieveHelp2)
 {
     // Constants
     char* helpFlag = strdup("--help");
@@ -210,7 +210,7 @@ TEST(CommandLineArgumentsParser, RetrieveHelp2)
 }
 
 
-TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument3)
+TEST(CommonsTests_CommandLineArgumentsParser, RetrieveNonParsedArgument3)
 {
     // Constants
     char* ipFlag = strdup("-i");
@@ -231,7 +231,7 @@ TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument3)
                       "Option -v has not been parsed");
 }
 
-TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument4)
+TEST(CommonsTests_CommandLineArgumentsParser, RetrieveNonParsedArgument4)
 {
     // Constants
     char* ipFlag = strdup("-i");
@@ -252,7 +252,7 @@ TEST(CommandLineArgumentsParser, RetrieveNonParsedArgument4)
                       "Option -v has not been parsed");
 }
 
-TEST(CommandLineArgumentsParser, DoNotProvideRequiredFlagArgument)
+TEST(CommonsTests_CommandLineArgumentsParser, DoNotProvideRequiredFlagArgument)
 {
     // Constants
     char* flag = strdup("-f");
@@ -270,7 +270,7 @@ TEST(CommandLineArgumentsParser, DoNotProvideRequiredFlagArgument)
                       "Option -v/--verbose is required");
 }
 
-TEST(CommandLineArgumentsParser, RequiredPairArgumentParsing)
+TEST(CommonsTests_CommandLineArgumentsParser, RequiredPairArgumentParsing)
 {
     // Constants
     char* ipFlag = strdup("-i");
@@ -294,7 +294,7 @@ TEST(CommandLineArgumentsParser, RequiredPairArgumentParsing)
 }
 
 
-TEST(CommandLineArgumentsParser, DoNotProvideRequiredPairArgumentParsing)
+TEST(CommonsTests_CommandLineArgumentsParser, DoNotProvideRequiredPairArgumentParsing)
 {
     // Constants
     char* otherFlag = strdup("-z");
@@ -313,7 +313,7 @@ TEST(CommandLineArgumentsParser, DoNotProvideRequiredPairArgumentParsing)
                       "Option -i/--ip is required");
 }
 
-TEST(CommandLineArgumentsParser, DoNotProvideValueToPairOption)
+TEST(CommonsTests_CommandLineArgumentsParser, DoNotProvideValueToPairOption)
 {
     // Constants
     char* ipFlag = strdup("-i");
@@ -331,7 +331,7 @@ TEST(CommandLineArgumentsParser, DoNotProvideValueToPairOption)
                       "Option -i/--ip requires a value");
 }
 
-TEST(CommandLineArgumentsParser, DisplayHelpMessage)
+TEST(CommonsTests_CommandLineArgumentsParser, DisplayHelpMessage)
 {
     const string helpMessage = "USAGE: MyTool -i <input> -o <output> [-v/--verbose | -t/--timeout <timeout>]\n"
                                "----------------------------------------------------------------------------\n"
@@ -354,7 +354,7 @@ TEST(CommandLineArgumentsParser, DisplayHelpMessage)
 }
 
 
-TEST(CommandLineArgumentsParser, EnableVerboseMode)
+TEST(CommonsTests_CommandLineArgumentsParser, EnableVerboseMode)
 {
     char* verboseFlag = strdup("-v");
     char* arguments[] = {verboseFlag};
@@ -372,7 +372,7 @@ TEST(CommandLineArgumentsParser, EnableVerboseMode)
     EXPECT_TRUE(veboseFound);
 }
 
-TEST(CommandLineArgumentsParser, EnableVerboseModeExtended)
+TEST(CommonsTests_CommandLineArgumentsParser, EnableVerboseModeExtended)
 {
     char* verboseFlag = strdup("--verbose");
     char* arguments[] = {verboseFlag};
@@ -390,7 +390,7 @@ TEST(CommandLineArgumentsParser, EnableVerboseModeExtended)
     EXPECT_TRUE(veboseFound);
 }
 
-TEST(CommandLineArgumentsParser, SetUpDebugModeWithIPAndPort)
+TEST(CommonsTests_CommandLineArgumentsParser, SetUpDebugModeWithIPAndPort)
 {
     char* debugFlag = strdup("-d");
     char* ipFlag = strdup("-i");
@@ -422,7 +422,7 @@ TEST(CommandLineArgumentsParser, SetUpDebugModeWithIPAndPort)
     EXPECT_STREQ("5555", portOption.Value.value().c_str());
 }
 
-TEST(CommandLineArgumentsParser, SetUpDebugModeWithIPAndPortExtended)
+TEST(CommonsTests_CommandLineArgumentsParser, SetUpDebugModeWithIPAndPortExtended)
 {
     char* debugFlag = strdup("--debug");
     char* ipFlag = strdup("--ip");
