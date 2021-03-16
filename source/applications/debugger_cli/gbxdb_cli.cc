@@ -107,6 +107,26 @@ int main ()
                 boost::system::error_code ignored_error;
                 boost::asio::write(sock, boost::asio::buffer(debugMessage), ignored_error);
             }
+            else if (message.compare("write-register") == 0)
+            {
+                std::string targetReg;
+                std::string registerValue;
+                cout << "Register: ";
+                cin >> targetReg;
+                cout << "Register Value: ";
+                cin >> registerValue;
+                uint8_t targetRegister = std::stoi(targetReg);
+                uint16_t numericValue = std::stoi(registerValue);
+
+                std::array<uint8_t, 256> debugMessage;
+                debugMessage[0] = 0xFC;
+                debugMessage[1] = 0xFF;
+                debugMessage[2] = targetRegister & 0xFF;;
+                debugMessage[3] = numericValue & 0xFF;;
+                debugMessage[4] = (numericValue >> 0x08) & 0xFF;
+                boost::system::error_code ignored_error;
+                boost::asio::write(sock, boost::asio::buffer(debugMessage), ignored_error);
+            }
             else
             {
                 cout << "message to send: " << message << '\n'; 

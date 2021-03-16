@@ -16,7 +16,7 @@
 
 using namespace std;
 using namespace gbx;
-using namespace gbx::transport;
+using namespace gbxdb::transport;
 using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcommons;
