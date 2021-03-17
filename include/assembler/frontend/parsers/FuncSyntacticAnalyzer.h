@@ -21,7 +21,7 @@ enum class FuncParseTreeSymbols
     TerminalAs,
     TerminalType,
     TerminalOpenBracket,
-    TerminalOpenNumericLiteral,
+    TerminalNumericLiteral,
     TerminalCloseBracket,
     TerminalEnd,
     TerminalIgnore,

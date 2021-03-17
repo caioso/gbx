@@ -58,7 +58,8 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
             else if (state == 3) // Try to reduce [BGN found]
             {
                 if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalBgn ||
-                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn)
+                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
+                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut)
                 {
                     // Reduce
                     // Remove Identifier
@@ -80,17 +81,12 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     Shift(leftSubstring);
                     state = 5;
                 }
-                else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::NonTerminalBody) // 'Body'
-                {
-                    // Reduce
-                    // Remove Body
-                    _symbols.erase(begin(_symbols) + leftSubstring);
-                    // Remove Header
-                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                    _symbols.push_back({ .Symbol = FuncParseTreeSymbols::NonTerminalFunc, .Lexeme = string("") });
-                    break;
-                }
                 else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn) // Detect Argument
+                {
+                    Shift(leftSubstring);
+                    state = 7;
+                }
+                else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut) // Detect Argument
                 {
                     Shift(leftSubstring);
                     state = 7;
@@ -104,6 +100,16 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                 {
                     Shift(leftSubstring);
                     state = 11;
+                }
+                else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::NonTerminalBody) // 'Body'
+                {
+                    // Reduce
+                    // Remove Body
+                    _symbols.erase(begin(_symbols) + leftSubstring);
+                    // Remove Header
+                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
+                    _symbols.push_back({ .Symbol = FuncParseTreeSymbols::NonTerminalFunc, .Lexeme = string("") });
+                    break;
                 }
                 else 
                 {
@@ -178,8 +184,14 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
             }        
             else if (state == 9) // detect Identifier
             {
-                if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalBgn ||
-                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn)
+                if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalAs) // detect AS
+                {
+                    Shift(leftSubstring);
+                    state = 12;
+                }
+                else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalBgn ||
+                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
+                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut) // detect next argument or body's begin
                 {
                     cout << "Reduce argument" << '\n';
 
@@ -188,10 +200,118 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     _symbols.erase(begin(_symbols) + leftSubstring - 1);
                     // Remove Colon
                     _symbols.erase(begin(_symbols) + leftSubstring - 2);
-                    // Remove IN
+                    // Remove IN/Out
                     _symbols.erase(begin(_symbols) + leftSubstring - 3);
-                    // Add nonterminal body
+                    // Add nonterminal argument
                     _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = FuncParseTreeSymbols::NonTerminalArgument, .Lexeme = string("") });
+                    break;
+                }
+                else
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == 12) // Detect Type
+            {
+                if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalType ||
+                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIdentifier) // Try to reduce
+                {
+                    Shift(leftSubstring);
+                    state = 13;
+                }
+                else
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == 13) // detect '[' or reduce argument
+            {
+                if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOpenBracket)
+                {
+                    Shift(leftSubstring);
+                    state = 14;
+                }
+                else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalBgn ||
+                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
+                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut) // detect next argument or body's begin
+                {
+                    cout << "Reduce argument with Type" << '\n';
+
+                    // Reduce
+                    // Remove Type
+                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
+                    // Remove AS
+                    _symbols.erase(begin(_symbols) + leftSubstring - 2);
+                    // Remove identifier
+                    _symbols.erase(begin(_symbols) + leftSubstring - 3);
+                    // Remove Colon
+                    _symbols.erase(begin(_symbols) + leftSubstring - 4);
+                    // Remove IN/Out
+                    _symbols.erase(begin(_symbols) + leftSubstring - 5);
+                    // Add nonterminal argument
+                    _symbols.insert(begin(_symbols) +  leftSubstring - 5, { .Symbol = FuncParseTreeSymbols::NonTerminalArgument, .Lexeme = string("") });
+                    break;
+                }
+                else
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == 14) // Detect dimensions
+            {
+                if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalNumericLiteral)
+                {
+                    Shift(leftSubstring);
+                    state = 15;
+                }
+                else
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == 15) // Detect ']'
+            {
+                if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalCloseBracket)
+                {
+                    Shift(leftSubstring);
+                    state = 16;
+                }
+                else
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == 16) // reduce array argument
+            {
+                if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalBgn ||
+                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
+                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut) // detect next argument or body's begin
+                {
+                    cout << "Reduce Array with Type" << '\n';
+
+                    // Reduce
+                    // Remove ]
+                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
+                    // Remove Numeric Literal
+                    _symbols.erase(begin(_symbols) + leftSubstring - 2);
+                    // Remove [
+                    _symbols.erase(begin(_symbols) + leftSubstring - 3);
+                    // Remove Type
+                    _symbols.erase(begin(_symbols) + leftSubstring - 4);
+                    // Remove AS
+                    _symbols.erase(begin(_symbols) + leftSubstring - 5);
+                    // Remove identifier
+                    _symbols.erase(begin(_symbols) + leftSubstring - 6);
+                    // Remove Colon
+                    _symbols.erase(begin(_symbols) + leftSubstring - 7);
+                    // Remove IN/Out
+                    _symbols.erase(begin(_symbols) + leftSubstring - 8);
+                    // Add nonterminal argument
+                    _symbols.insert(begin(_symbols) +  leftSubstring - 8, { .Symbol = FuncParseTreeSymbols::NonTerminalArgument, .Lexeme = string("") });
+                    
+                    cout << "After removing array argument" << '\n';
+                    for (auto symbol : _symbols)
+                        cout << static_cast<size_t>(symbol.Symbol) << " -> " << symbol.Lexeme << '\n';
                     break;
                 }
                 else
@@ -202,7 +322,8 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
             else if (state == 10) // Detect Argument
             {
                 if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalBgn || 
-                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn)
+                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
+                    _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut)
                 {
                     cout << "Reduce Non Terminal arg into list" << '\n';
                     // Reduce
@@ -224,6 +345,12 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     Shift(leftSubstring);
                     state = 5;
                 }
+                else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
+                         _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut)
+                {
+                    Shift(leftSubstring);
+                    state = 7;
+                }
                 else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::NonTerminalArgument)
                 {
                     cout << "Combine argument with the argment list" << '\n';
@@ -235,11 +362,6 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                         cout << static_cast<size_t>(symbol.Symbol) << " -> " << symbol.Lexeme << '\n';
                     break;
                 }
-                else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn)
-                {
-                    Shift(leftSubstring);
-                    state = 7;
-                }
                 else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::NonTerminalBody)
                 {
                     cout << "Non Terminal Body Detected, with args list" << '\n';
@@ -247,9 +369,9 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     // Remove Body
                     _symbols.erase(begin(_symbols) + leftSubstring);
                     // Remove ArguementList
-                    _symbols.erase(begin(_symbols) + leftSubstring - 2);
+                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
                     // Remove Header
-                    _symbols.erase(begin(_symbols) + leftSubstring - 3);
+                    _symbols.erase(begin(_symbols) + leftSubstring - 2);
                     _symbols.push_back({ .Symbol = FuncParseTreeSymbols::NonTerminalFunc, .Lexeme = string("") });
                     break;
                 }
@@ -309,7 +431,7 @@ void FuncSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& beginIt, vec
             case TokenType::LiteralNumericHEXADECIMAL:
             case TokenType::LiteralNumericOCTAL:
             case TokenType::LiteralNumericBINARY:
-                return {.Symbol = FuncParseTreeSymbols::TerminalOpenNumericLiteral, .Lexeme  = x.Lexeme };
+                return {.Symbol = FuncParseTreeSymbols::TerminalNumericLiteral, .Lexeme  = x.Lexeme };
              case TokenType::KeywordBGN: 
                 bgnFound = true; // If bgn has been found, the body of the function started. Ignore everything up to the target end.
                 return {.Symbol = FuncParseTreeSymbols::TerminalBgn, .Lexeme  = x.Lexeme };

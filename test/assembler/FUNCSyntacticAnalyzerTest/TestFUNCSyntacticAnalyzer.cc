@@ -220,6 +220,23 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWitOneInputArgument)
     EXPECT_TRUE(parser->IsAccepted());
 }
 
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWitOneInputArgumentWithNoBody)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tIN: INPUT_1\n"
+                        "BGN\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArguments)
 {
     const string func = "FUNC MY_FUNCTION\n"
@@ -304,15 +321,343 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArgument2No
     EXPECT_TRUE(parser->IsAccepted());
 }
 
-/*
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithOneOutputArgument)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tOUT: OUTPUT_1\n"
+                        "BGN\n"
+                        "\tINC A\n"
+                        "\tINC A\n"
+                        "\tLD OUTPUT_1, A\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithOneOutputArgumentWithNoBody)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tOUT: OUTPUT_1\n"
+                        "BGN\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleOutputArgument2)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tOUT: OUTPUT_1\n"
+                        "\tOUT: OUTPUT_2\n"
+                        "\tOUT: OUTPUT_3\n"
+                        "\tOUT: OUTPUT_4\n"
+                        "\tOUT: OUTPUT_5\n"
+                        "\tOUT: OUTPUT_6\n"
+                        "BGN\n"
+                        "\tINC A\n"
+                        "\tINC A\n"
+                        "\tLD OUTPUT_1, A\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleOutputArgumentWithNoBody2)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tOUT: OUTPUT_1\n"
+                        "\tOUT: OUTPUT_2\n"
+                        "\tOUT: OUTPUT_3\n"
+                        "\tOUT: OUTPUT_4\n"
+                        "\tOUT: OUTPUT_5\n"
+                        "\tOUT: OUTPUT_6\n"
+                        "BGN\n"
+                        "\tINC A\n"
+                        "\tINC A\n"
+                        "\tLD OUTPUT_1, A\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMixedInputAndOutputArguments)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tIN: INPUT_1\n"
+                        "\tIN: INPUT_2\n"
+                        "\tIN: INPUT_3\n"
+                        "\tOUT: OUTPUT_1\n"
+                        "\tOUT: OUTPUT_2\n"
+                        "BGN\n"
+                        "\t\tLD OUTPUT_1, A\n"
+                        "\t\tTHRW 0x99\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMixedInputAndOutputArgumentsNoBody)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tIN: INPUT_1\n"
+                        "\tIN: INPUT_2\n"
+                        "\tIN: INPUT_3\n"
+                        "\tOUT: OUTPUT_1\n"
+                        "\tOUT: OUTPUT_2\n"
+                        "BGN\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifier)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tIN: INPUT_1 AS BYTE\n"
+                        "\tOUT: OUTPUT_1 AS BYTE\n"
+                        "BGN\n"
+                        "\tINC A\n"
+                        "\tINC A\n"
+                        "\tLD OUTPUT_1, A\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifierWithNoBody)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tIN: INPUT_1 AS BYTE\n"
+                        "\tOUT: OUTPUT_1 AS BYTE\n"
+                        "BGN\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithPACKType)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tIN: INPUT_1 AS MY_TYPE_1\n"
+                        "\tOUT: OUTPUT_1 AS MY_TYPE_2\n"
+                        "BGN\n"
+                        "\tINC A\n"
+                        "\tINC A\n"
+                        "\tLD OUTPUT_1, A\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithPACKTypeNoBody)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tIN: INPUT_1 AS MY_TYPE_1\n"
+                        "\tOUT: OUTPUT_1 AS MY_TYPE_2\n"
+                        "BGN\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithMixedTypeAndDeclarationFormats)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tIN: INPUT_1 AS MY_TYPE_1\n"
+                        "\tIN: INPUT_3\n"
+                        "\tIN: INPUT_2 AS BYTE\n"
+                        "\tOUT: OUTPUT_1\n"
+                        "\tOUT: OUTPUT_2 AS MY_TYPE_2\n"
+                        "\tOUT: OUTPUT_3 AS STR\n"
+                        "BGN\n"
+                        "\tINC A\n"
+                        "\tINC A\n"
+                        "\tLD OUTPUT_1, A\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithMixedTypeAndDeclarationFormats2)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tIN: INPUT_1\n"
+                        "\tIN: INPUT_3 AS OTHER\n"
+                        "\tIN: INPUT_2 AS DWRD\n"
+                        "\tOUT: OUTPUT_2 AS _2\n"
+                        "\tOUT: OUTPUT_3 AS STR\n"
+                        "\tOUT: OUTPUT_1\n"
+                        "BGN\n"
+                        "\tINC A\n"
+                        "\tINC A\n"
+                        "\tLD OUTPUT_1, A\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifierAndArrayType)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tIN: INPUT_1 AS BYTE[0x67]\n"
+                        "\tOUT: OUTPUT_1 AS BYTE[0o1233]\n"
+                        "BGN\n"
+                        "\tINC A\n"
+                        "\tINC A\n"
+                        "\tLD OUTPUT_1, A\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifierAndArrayTypeNoBody)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tIN: INPUT_1 AS BYTE[0x67]\n"
+                        "\tOUT: OUTPUT_1 AS BYTE[0o1233]\n"
+                        "BGN\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithMixedTypeAndDeclarationFormats3)
+{
+    const string func = "FUNC MY_FUNCTION\n"
+                        "\tIN: INPUT_1 AS MY_TYPE_1\n"
+                        "\tIN: INPUT_3\n"
+                        "\tIN: INPUT_2 AS BYTE\n"
+                        "\tIN: INPUT_3 AS BYTE[90]\n"
+                        "\tIN: INPUT_4 AS ANOTHER_TYPE[0b0101010]\n"
+                        "\tOUT: OUTPUT_1\n"
+                        "\tOUT: OUTPUT_2 AS MY_TYPE_2\n"
+                        "\tOUT: OUTPUT_3 AS STR\n"
+                        "\tOUT: OUTPUT_4 AS BOOL[100]\n"
+                        "\tOUT: OUTPUT_5 AS MY_TRISTATE[0d10]\n"
+                        "BGN\n"
+                        "\tINC A\n"
+                        "\tINC A\n"
+                        "\tLD OUTPUT_1, A\n"
+                        "END";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<FuncSyntacticAnalyzer>();
+    lexer->Tokenize(func);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser->IsAccepted());
+}
+
+
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalIfBlocks)
 {
     const string func = "FUNC MY_FUNCTION\n"
                         "\tIN: INPUT_1\n"
                         "\tIN: INPUT_2 AS BYTE\n"
-                        "\tIN: INPUT_3 AS WORD\n"
+                        "\tIN: INPUT_3 AS WORD[2]\n"
                         "\tOUT: OUTPUT_1\n"
                         "\tOUT: OUTPUT_2 AS BOOL\n"
+                        "BGN\n"
                         "\tIF A != 0x00 THEN\n"
                         "\t\tLD OUTPUT_1, A\n"
                         "\tELSE\n"
@@ -337,7 +682,8 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalPackBlocks)
                         "\tIN: INPUT_2 AS BYTE\n"
                         "\tIN: INPUT_3 AS WORD\n"
                         "\tOUT: OUTPUT_1\n"
-                        "\tOUT: OUTPUT_2 AS BOOL\n"
+                        "\tOUT: OUTPUT_2 AS ANOTHER_TYPE[0x199]\n"
+                        "BGN\n"
                         "\tPACK MY_PACK\n"
                         "\t\tBYTE FIELD_1\n"
                         "\t\tBYTE FIELD_2[10]\n"
@@ -358,11 +704,12 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalPackBlocks)
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalWhenBlocks)
 {
     const string func = "FUNC MY_FUNCTION\n"
-                        "\tIN: INPUT_1\n"
+                        "\tIN: INPUT_1 AS TYPE[1000]\n"
                         "\tIN: INPUT_2 AS BYTE\n"
                         "\tIN: INPUT_3 AS WORD\n"
                         "\tOUT: OUTPUT_1\n"
                         "\tOUT: OUTPUT_2 AS BOOL\n"
+                        "BGN"
                         "\tWHEN MY_VARIABLE\n"
                         "\t\tIS 0x00:\n"
                         "\t\t\tLD A, 0x00\n"
@@ -389,11 +736,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalWhenBlocks)
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalReptBlocks)
 {
     const string func = "FUNC MY_FUNCTION\n"
-                        "\tIN: INPUT_1\n"
-                        "\tIN: INPUT_2 AS BYTE\n"
-                        "\tIN: INPUT_3 AS WORD\n"
-                        "\tOUT: OUTPUT_1\n"
-                        "\tOUT: OUTPUT_2 AS BOOL\n"
+                        "BGN\n"
                         "\tREPT FOR 0x10\n"
                         "\t\tINC A\n"
                         "\tEND\n"
@@ -412,11 +755,9 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalReptBlocks)
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalTryBlock)
 {
     const string func = "FUNC MY_FUNCTION\n"
-                        "\tIN: INPUT_1\n"
-                        "\tIN: INPUT_2 AS BYTE\n"
-                        "\tIN: INPUT_3 AS WORD\n"
                         "\tOUT: OUTPUT_1\n"
                         "\tOUT: OUTPUT_2 AS BOOL\n"
+                        "BGN\n"
                         "\tTRY\n"
                         "\t\tLD A, 0x00\n"
                         "\tEXPT\n"
@@ -437,11 +778,10 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalTryBlock)
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalFuncBlock)
 {
     const string func = "FUNC MY_FUNCTION\n"
-                        "\tIN: INPUT_1\n"
+                        "\tIN: INPUT_1 AS STR[100]\n"
                         "\tIN: INPUT_2 AS BYTE\n"
                         "\tIN: INPUT_3 AS WORD\n"
-                        "\tOUT: OUTPUT_1\n"
-                        "\tOUT: OUTPUT_2 AS BOOL\n"
+                        "BGN\n"
                         "\tFUNC INNER_FUNC\n"
                         "\t\tIN: INNER_INPUT_1\n"
                         "\t\tOUT: INNER_OUTPUT_1\n"
@@ -457,4 +797,4 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalFuncBlock)
     parser->TryToAccept(currentToken, endIterator);
 
     EXPECT_TRUE(parser->IsAccepted());
-}*/
+}

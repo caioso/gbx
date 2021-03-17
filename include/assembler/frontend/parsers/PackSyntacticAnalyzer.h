@@ -64,11 +64,12 @@ private:
         PackHeaderDetection = 4,
         InitialMemberDetectionOrFooterOrNTPackDetection = 5,
         MemberIdentifierDetection = 6,
-        MemberArrayOpenBracketDetection = 7,
+        NonArrayMemberReduction = 7,
         ArrayDimensionDetection = 8,
         MemberArrayCloseBracketDetection = 9,
-        MemberArrayDetection = 10,
+        MemberTypeAndDimensionDetection = 10,
         MemberListOrFooterOrNTPackDetection = 11,
+        MemberArrayIdentifierDetected = 12,
     };
 
     void ExtractSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);

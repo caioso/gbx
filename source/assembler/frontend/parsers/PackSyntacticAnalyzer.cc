@@ -111,23 +111,23 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
             {
                 if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalIdentifier)
                 {
-                    Shift(leftSubstring); state = FSMStates::MemberArrayOpenBracketDetection;
+                    Shift(leftSubstring); state = FSMStates::NonArrayMemberReduction;
+                }
+                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalOpenBracket)
+                {
+                    Shift(leftSubstring); state = FSMStates::ArrayDimensionDetection;
                 }
                 else
                 {
                     Reject(); break;
                 }
             }
-            else if (state == FSMStates::MemberArrayOpenBracketDetection) // Detect 'Begin of Members' or 'End' or '['
+            else if (state == FSMStates::NonArrayMemberReduction) // Detect 'Begin of Members' or 'End' or '['
             {
                 if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalType ||
                     _symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalEnd)
                 {
                     ReduceMember(leftSubstring, member, members); break;
-                }
-                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalOpenBracket)
-                {
-                    Shift(leftSubstring); state = FSMStates::ArrayDimensionDetection;
                 }
                 else
                 {
@@ -149,14 +149,25 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
             {
                 if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalCloseBracket)
                 {
-                    Shift(leftSubstring); state = FSMStates::MemberArrayDetection;
+                    Shift(leftSubstring); state = FSMStates::MemberTypeAndDimensionDetection;
                 }
                 else
                 {
                     Reject(); break;
                 }
             }
-            else if (state == FSMStates::MemberArrayDetection) // Detect 'Begin of Members' or 'End'
+            else if (state == FSMStates::MemberTypeAndDimensionDetection) // Detect 'Begin of Members' or 'End'
+            {
+                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalIdentifier)
+                {
+                    Shift(leftSubstring); state = FSMStates::MemberArrayIdentifierDetected;
+                }
+                else
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == FSMStates::MemberArrayIdentifierDetected)
             {
                 if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalType ||
                     _symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalEnd)
@@ -317,21 +328,21 @@ inline void PackSyntacticAnalyzer::ReduceMember(int top, DeclaredMember& member,
 inline void PackSyntacticAnalyzer::ReduceArrayMember(int top, DeclaredMember& member, vector<DeclaredMember>& members)
 {
     // Reduce
-    member.Identifier = _symbols[top - 4].Lexeme;
+    member.Identifier = _symbols[top - 1].Lexeme;
     member.Type = GetTypeByName(LexemeToDeclaredMemberType::Convert(_symbols[top - 5].Lexeme));
     member.IsArray = true;
-    member.ArrayLength = _symbols[top - 2].Lexeme;
+    member.ArrayLength = _symbols[top - 3].Lexeme;
     members.push_back(std::move(member));
     member = {};
 
     // Reduce
-    // Remove ]
-    _symbols.erase(begin(_symbols) + top - 1);
-    // Remove Numeric Literal
-    _symbols.erase(begin(_symbols) + top - 2);
-    // Remove [
-    _symbols.erase(begin(_symbols) + top - 3);
     // Remove Identifier
+    _symbols.erase(begin(_symbols) + top - 1);
+    // Remove [
+    _symbols.erase(begin(_symbols) + top - 2);
+    // Remove Numeric Literal
+    _symbols.erase(begin(_symbols) + top - 3);
+    // Remove ]
     _symbols.erase(begin(_symbols) + top - 4);
     // Remove Type
     _symbols.erase(begin(_symbols) + top - 5);
