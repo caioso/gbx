@@ -5,21 +5,78 @@
 #include <memory>
 #include <thread>
 
-using namespace boost;
+#include "ArgumentsParser.h"
+
+/*using namespace boost;
 using namespace boost::asio;
 using namespace boost::system;
-using namespace std;
 using std::string;
 using std::array;
 using std::cout;
 using std::cin;
 using std::endl;
+*/
 
-int main ()
+using namespace gbxcommons;
+using namespace std;
+
+struct ApplicationConfiguration
 {
-    boost::asio::io_service io_service;
-    cout << "GAME BOY X Debugger" << '\n' ;
+    bool Verbose{};
+    string IPAddress{};
+    string Port{};
+};
 
+ApplicationConfiguration ParseCommandLine(int argc, char** argv)
+{
+    ApplicationConfiguration configuration;
+    ArgumentsParser parser("gbxdb_cl -i/--ip <ip> -p/--port <port> [-v/--verbose]");
+    parser.RegisterOption("-i", "--ip", "GBX Debug Server IP Address", OptionType::Pair, OptionRequirement::Required);
+    parser.RegisterOption("-p", "--port", "GBX Debug Server Port Number", OptionType::Pair, OptionRequirement::Required);
+    parser.RegisterOption("-v", "--verbose", "Verbose mode", OptionType::Flag, OptionRequirement::Optional);
+
+    try
+    {
+        parser.Parse(argv, argc);
+
+        if (parser.HasBeenFound("-h"))
+        {
+            cout << parser.Help() << '\n';
+            exit(0);
+        }
+
+
+        if (parser.HasBeenFound("-v"))
+            configuration.Verbose = true;
+        
+        if (parser.HasBeenFound("-i") && parser.HasBeenFound("-p"))
+        {
+            configuration.IPAddress = parser.RetrieveOption("-i").Value.value();
+            configuration.Port = parser.RetrieveOption("-p").Value.value();
+        }
+        else
+        {
+            cout << parser.Help() << '\n';
+            exit(1);
+        }
+
+    }
+    catch(const GBXCommonsException& e)
+    {
+        cout << e.what() << '\n';
+        cout << parser.Help() << '\n';
+        exit(2);
+    }
+
+    return configuration;
+}
+
+int main (int argc, char** argv)
+{
+    cout << "GAME BOY X Debugger" << '\n' ;
+    ParseCommandLine(argc, argv);
+
+    /*boost::asio::io_service io_service;
     std::string raw_ip_address = "127.0.0.1";
     unsigned short port_num = 5678;
 
@@ -147,5 +204,5 @@ int main ()
     {
         std::cout << "Error occured! Error code = " << e.code() << ". Message: " << e.what();
     }
-
+*/
 }

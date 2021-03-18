@@ -1,13 +1,17 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <vector>
 
 #include "ClientTransport.h"
 #include "DebugMessage.h"
 #include "DebugMessageNotificationArguments.h"
-#include "ClientMessageID.h"
+#include "GBXDebuggerExceptions.h"
 #include "Observer.h"
+
+#include "ClientMessageID.h"
+#include "ClientJoinedServerCommand.h"
 
 namespace gbxdb
 {
@@ -25,6 +29,10 @@ public:
     bool IsConnected();
 
 private:
+    void ParseMessage(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
+
+    void HandleJoinedServerCommand(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
+
     std::shared_ptr<gbxdb::interfaces::ClientTransport> _transport;
     bool _isConnected{};
 };

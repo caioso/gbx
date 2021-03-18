@@ -53,13 +53,13 @@ public:
     MOCK_METHOD(void, Unsubscribe, (weak_ptr<Observer>));
 };
 
-TEST(TestClientMessagHandler, Construction) 
+TEST(DebuggerTests_ClientMessageHandler, Construction) 
 {
     auto transportMock = make_shared<TransportMock>();
     auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock));
 }
 
-TEST(TestClientMessagHandler, InitializationTest) 
+TEST(DebuggerTests_ClientMessageHandler, InitializationTest) 
 {
     auto transportMock = make_shared<TransportMock>();
     auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock));
@@ -68,7 +68,7 @@ TEST(TestClientMessagHandler, InitializationTest)
     messageHandler->Initialize();
 }
 
-TEST(TestClientMessagHandler, JoinServerMessage) 
+TEST(DebuggerTests_ClientMessageHandler, JoinServerMessage) 
 {
     auto transportMock = make_shared<TransportMock>();
     auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock));

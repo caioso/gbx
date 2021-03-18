@@ -1,4 +1,4 @@
-#include "WriteRegisterCommand.h"
+#include "WriteRegisterServerCommand.h"
 
 using namespace gbxdb::interfaces;
 using namespace gbxcore::interfaces;

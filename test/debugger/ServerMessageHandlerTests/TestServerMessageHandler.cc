@@ -70,7 +70,7 @@ shared_ptr<array<uint8_t, MaxMessageBufferSize>> CreateClientJoinedMessage()
     return buffer;
 }
 
-TEST(ServerServerTestMessagHandler, Construction) 
+TEST(DebuggerTests_ServerMessageHandler, Construction) 
 {
     auto transportMock = make_shared<TransportMock>();
     auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));

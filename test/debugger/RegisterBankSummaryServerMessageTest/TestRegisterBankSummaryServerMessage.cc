@@ -62,7 +62,7 @@ shared_ptr<array<uint8_t, MaxMessageBufferSize>> CreateRegisterBankSummaryMessag
     return buffer;
 }
 
-TEST(TestRegisterBankSummary, RequestRegisterBankSummary) 
+TEST(DebuggerTests_RegisterBankSummaryServerMessage, RequestRegisterBankSummary) 
 {
     auto transportMock = make_shared<TransportMock>();
     auto runtimeMock = make_shared<RuntimeMock>();

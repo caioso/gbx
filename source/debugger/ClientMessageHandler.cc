@@ -25,15 +25,27 @@ bool ClientMessageHandler::IsConnected()
 void ClientMessageHandler::Notify(shared_ptr<NotificationArguments> args)
 {
     auto debugMessageArgs = static_pointer_cast<DebugMessageNotificationArguments>(args);
-    auto bufferRef = debugMessageArgs->Message()->Buffer();
+    ParseMessage(debugMessageArgs->Message());
+}
 
-    uint16_t messageID = (*bufferRef)[0] | ((*bufferRef)[1] << 0x08);
+void ClientMessageHandler::ParseMessage(shared_ptr<DebugMessage> message)
+{
+    uint16_t messageID = (*message->Buffer())[0] | ((*message->Buffer())[1] << 0x08);
 
     // Client messages are handled directly -> *HOWEVER* DebugCommands Still are gonna be generated out of the raw messages.
-    if (messageID == ClientMessageID::JoinedServer)
+    switch (messageID)
     {
-        _isConnected = true;
+        case ClientMessageID::JoinedServer: HandleJoinedServerCommand(message);
+             return;           
+        default:
+            // Send an error command back here!!!!!
+            throw MessageHandlerException("Invalid debug message recieved and will be ignored");
     }
+}
+
+void ClientMessageHandler::HandleJoinedServerCommand([[maybe_unused]] shared_ptr<DebugMessage> message)
+{
+    _isConnected = true;
 }
 
 }

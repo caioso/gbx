@@ -1,4 +1,4 @@
-#include "RegisterBankSummaryCommand.h"
+#include "RegisterBankSummaryServerCommand.h"
 
 using namespace gbxdb::interfaces;
 using namespace gbxcore::interfaces;
@@ -7,12 +7,12 @@ using namespace std;
 namespace gbxdb::protocol
 {
 
-RegisterBankSummaryCommand::RegisterBankSummaryCommand()
+RegisterBankSummaryServerCommand::RegisterBankSummaryServerCommand()
     : DebugCommand(ServerCommandID::CommandRegisterBankSummary)
 {}
 
 
-void RegisterBankSummaryCommand::GenerateSummary(shared_ptr<Runtime> runtime)
+void RegisterBankSummaryServerCommand::GenerateSummary(shared_ptr<Runtime> runtime)
 {
     _registerValues[0] = get<uint8_t>(runtime->ReadRegister(Register::B));
     _registerValues[1] = get<uint8_t>(runtime->ReadRegister(Register::C));
@@ -30,10 +30,10 @@ void RegisterBankSummaryCommand::GenerateSummary(shared_ptr<Runtime> runtime)
     _registerValues[13] = ((get<uint16_t>(runtime->ReadRegister(Register::SP)) >> 0x08) & 0xFF);
 }
 
-void RegisterBankSummaryCommand::DecodeRequestMessage([[maybe_unused]] shared_ptr<DebugMessage> message)
+void RegisterBankSummaryServerCommand::DecodeRequestMessage([[maybe_unused]] shared_ptr<DebugMessage> message)
 {}
 
-shared_ptr<DebugMessage> RegisterBankSummaryCommand::EncodeRequestMessage()
+shared_ptr<DebugMessage> RegisterBankSummaryServerCommand::EncodeRequestMessage()
 {
     auto buffer = make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
     (*buffer)[0] = static_cast<uint16_t>(ServerMessageID::MessageRegisterBankSummary) & 0xFF;

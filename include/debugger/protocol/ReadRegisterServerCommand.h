@@ -12,16 +12,16 @@
 namespace gbxdb::protocol
 {
 
-class ReadRegisterCommand : public interfaces::DebugCommand
+class ReadRegisterServerCommand : public interfaces::DebugCommand
 {
 public:
-    ReadRegisterCommand();
-    ~ReadRegisterCommand() = default;
+    ReadRegisterServerCommand();
+    ~ReadRegisterServerCommand() = default;
 
-    ReadRegisterCommand(const ReadRegisterCommand&) = default;
-    ReadRegisterCommand(ReadRegisterCommand&&) = default;
-    ReadRegisterCommand& operator=(const ReadRegisterCommand&) = default;
-    ReadRegisterCommand& operator=(ReadRegisterCommand&&) = default;
+    ReadRegisterServerCommand(const ReadRegisterServerCommand&) = default;
+    ReadRegisterServerCommand(ReadRegisterServerCommand&&) = default;
+    ReadRegisterServerCommand& operator=(const ReadRegisterServerCommand&) = default;
+    ReadRegisterServerCommand& operator=(ReadRegisterServerCommand&&) = default;
 
     void SetRegisterValue(uint16_t);
     void DecodeRequestMessage(std::shared_ptr<interfaces::DebugMessage>) override;

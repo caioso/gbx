@@ -15,16 +15,16 @@
 namespace gbxdb::protocol
 {
 
-class RegisterBankSummaryCommand : public interfaces::DebugCommand
+class RegisterBankSummaryServerCommand : public interfaces::DebugCommand
 {
 public:
-    RegisterBankSummaryCommand();
-    ~RegisterBankSummaryCommand() = default;
+    RegisterBankSummaryServerCommand();
+    ~RegisterBankSummaryServerCommand() = default;
 
-    RegisterBankSummaryCommand(const RegisterBankSummaryCommand&) = default;
-    RegisterBankSummaryCommand(RegisterBankSummaryCommand&&) = default;
-    RegisterBankSummaryCommand& operator=(const RegisterBankSummaryCommand&) = default;
-    RegisterBankSummaryCommand& operator=(RegisterBankSummaryCommand&&) = default;
+    RegisterBankSummaryServerCommand(const RegisterBankSummaryServerCommand&) = default;
+    RegisterBankSummaryServerCommand(RegisterBankSummaryServerCommand&&) = default;
+    RegisterBankSummaryServerCommand& operator=(const RegisterBankSummaryServerCommand&) = default;
+    RegisterBankSummaryServerCommand& operator=(RegisterBankSummaryServerCommand&&) = default;
 
     void GenerateSummary(std::shared_ptr<gbxcore::interfaces::Runtime>);
     void DecodeRequestMessage(std::shared_ptr<interfaces::DebugMessage>) override;

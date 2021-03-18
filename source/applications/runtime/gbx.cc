@@ -21,7 +21,6 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcommons;
 
-// Test Only
 struct ApplicationConfiguration
 {
     bool Verbose;
@@ -65,7 +64,7 @@ ApplicationConfiguration ParseCommandLine(int argc, char** argv)
             else
             {
                 cout << parser->Help() << '\n';
-                exit(0);
+                exit(1);
             }
         }
 
@@ -74,7 +73,7 @@ ApplicationConfiguration ParseCommandLine(int argc, char** argv)
     catch(const GBXCommonsException& e)
     {
         cout << e.what() << '\n';
-        exit(1);
+        exit(2);
     }
 }
 

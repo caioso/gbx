@@ -71,7 +71,7 @@ void ServerMessageHandler::ProcessMessages(shared_ptr<Runtime> runtime, shared_p
 
 shared_ptr<DebugCommand> ServerMessageHandler::ParseReadRegisterCommand(shared_ptr<DebugMessage> message)
 {
-    auto readRegisterCommand = make_shared<ReadRegisterCommand>();
+    auto readRegisterCommand = make_shared<ReadRegisterServerCommand>();
     
     try
     {
@@ -87,14 +87,14 @@ shared_ptr<DebugCommand> ServerMessageHandler::ParseReadRegisterCommand(shared_p
 
 shared_ptr<DebugCommand> ServerMessageHandler::ParseClientJoinedCommand(shared_ptr<DebugMessage> message)
 {
-    auto clientJoinedCommand = make_shared<ClientJoinedCommand>();
+    auto clientJoinedCommand = make_shared<ClientJoinedServerCommand>();
     clientJoinedCommand->DecodeRequestMessage(message);
     return clientJoinedCommand;
 }
 
 shared_ptr<DebugCommand> ServerMessageHandler::ParseRegisterBankSummaryCommand(shared_ptr<DebugMessage> message)
 {
-    auto registerBankSummaryCommand = make_shared<RegisterBankSummaryCommand>();
+    auto registerBankSummaryCommand = make_shared<RegisterBankSummaryServerCommand>();
     registerBankSummaryCommand->DecodeRequestMessage(message);
     return registerBankSummaryCommand;
 }
@@ -127,15 +127,15 @@ shared_ptr<DebugMessage> ServerMessageHandler::RunErrorCommand(shared_ptr<DebugC
 
 shared_ptr<DebugMessage> ServerMessageHandler::RunReadRegisterCommand(shared_ptr<DebugCommand> command, shared_ptr<Runtime> runtime)
 {
-    auto valueVariant = runtime->ReadRegister(static_pointer_cast<ReadRegisterCommand>(command)->RegisterToRead());
+    auto valueVariant = runtime->ReadRegister(static_pointer_cast<ReadRegisterServerCommand>(command)->RegisterToRead());
     auto value = holds_alternative<uint16_t>(valueVariant) ? get<uint16_t>(valueVariant) : static_cast<uint16_t>(get<uint8_t>(valueVariant));
-    static_pointer_cast<ReadRegisterCommand>(command)->SetRegisterValue(value);
+    static_pointer_cast<ReadRegisterServerCommand>(command)->SetRegisterValue(value);
     return command->EncodeRequestMessage();
 }
 
 shared_ptr<DebugMessage> ServerMessageHandler::RunRegisterBankSummaryCommand(shared_ptr<DebugCommand> command, shared_ptr<gbxcore::interfaces::Runtime> runtime)
 {
-    static_pointer_cast<RegisterBankSummaryCommand>(command)->GenerateSummary(runtime);
+    static_pointer_cast<RegisterBankSummaryServerCommand>(command)->GenerateSummary(runtime);
     return command->EncodeRequestMessage();
 }
 

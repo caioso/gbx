@@ -1,4 +1,4 @@
-#include "ReadRegisterCommand.h"
+#include "ReadRegisterServerCommand.h"
 
 using namespace gbxdb::interfaces;
 using namespace gbxcore::interfaces;
@@ -6,18 +6,18 @@ using namespace std;
 
 namespace gbxdb::protocol
 {
-ReadRegisterCommand::ReadRegisterCommand()
+ReadRegisterServerCommand::ReadRegisterServerCommand()
     : DebugCommand(static_cast<uint16_t>(ServerCommandID::CommandReadRegister))
 {}
 
-gbxcore::interfaces::Register ReadRegisterCommand::RegisterToRead()
+gbxcore::interfaces::Register ReadRegisterServerCommand::RegisterToRead()
 {
     return _register;
 }
 
-void ReadRegisterCommand::DecodeRequestMessage(std::shared_ptr<DebugMessage> message)
+void ReadRegisterServerCommand::DecodeRequestMessage(std::shared_ptr<DebugMessage> message)
 {
-    // Move this to a "Parse Method" in the ReadRegisterCommand class
+    // Move this to a "Parse Method" in the ReadRegisterServerCommand class
     auto targetRegister = (*message->Buffer())[2];
 
     auto validRegisters = {Register::B, Register::C, Register::D, Register::E, Register::H, Register::L,
@@ -34,7 +34,7 @@ void ReadRegisterCommand::DecodeRequestMessage(std::shared_ptr<DebugMessage> mes
     throw MessageHandlerException("Invalid target register found when parsing 'ReadRegister' command");
 }
 
-std::shared_ptr<DebugMessage> ReadRegisterCommand::EncodeRequestMessage()
+std::shared_ptr<DebugMessage> ReadRegisterServerCommand::EncodeRequestMessage()
 {
     auto buffer = make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
     (*buffer)[0] = static_cast<uint16_t>(ServerMessageID::MessageReadRegister) & 0xFF;
@@ -45,7 +45,7 @@ std::shared_ptr<DebugMessage> ReadRegisterCommand::EncodeRequestMessage()
     return make_shared<DebugMessage>(buffer);
 }
 
-void ReadRegisterCommand::SetRegisterValue(uint16_t registerValue)
+void ReadRegisterServerCommand::SetRegisterValue(uint16_t registerValue)
 {
     _registerValue = registerValue;
 }
