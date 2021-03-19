@@ -75,6 +75,7 @@
         "vector": "cpp",
         "regex": "cpp",
         "random": "cpp",
-        "numeric": "cpp"
+        "numeric": "cpp",
+        "*.ipp": "cpp"
     }
 }

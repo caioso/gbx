@@ -31,4 +31,11 @@ public:
     ~ServerProtocolException() = default;
 };
 
+class CommandLineInputException : public GBXDebuggerExceptions
+{
+public:
+    CommandLineInputException(const std::string&);
+    ~CommandLineInputException() = default;
+};
+
 }

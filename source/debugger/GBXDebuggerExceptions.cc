@@ -17,6 +17,10 @@ ServerProtocolException::ServerProtocolException(const string& message)
     : GBXDebuggerExceptions(message)
 {}
 
+CommandLineInputException::CommandLineInputException(const string& message)
+    : GBXDebuggerExceptions(message)
+{}
+
 const char* GBXDebuggerExceptions::what() const noexcept
 {
     return _message.c_str();
