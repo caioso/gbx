@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "FUNCIntermediateRepresentation.h"
 #include "ConstructionSyntacticAnalyzer.h"
 #include "Token.h"
 
@@ -54,10 +55,13 @@ public:
 
 private:
     inline void Shift(int&);
-
     void ExtractSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
     size_t CountEndWithinFunctionBody(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
+    
     std::vector<FuncCompoundSymbol> _symbols;
+    size_t _line;
+    size_t _column;
+    std::vector<Token> _bodyTokens;
 };
 
 }

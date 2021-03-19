@@ -20,7 +20,7 @@ public:
     PackIntermediateRepresentation& operator=(const PackIntermediateRepresentation&) = default;
     PackIntermediateRepresentation& operator=(PackIntermediateRepresentation&&) = default;
 
-    std::string Identifier();
+    std::string_view Identifier();
     std::vector<DeclaredMember>& Members();
 
 private:

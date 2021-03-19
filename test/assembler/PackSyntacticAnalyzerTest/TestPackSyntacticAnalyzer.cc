@@ -391,7 +391,7 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, PackIntermediateRepresentationWithSin
     auto packRepresentation = dynamic_pointer_cast<PackIntermediateRepresentation>(intermediateRepresentation);
     EXPECT_NE(nullptr, packRepresentation);
 
-    EXPECT_STREQ("FLAG_REGISTER", packRepresentation->Identifier().c_str());
+    EXPECT_STREQ("FLAG_REGISTER", string(packRepresentation->Identifier()).c_str());
     EXPECT_EQ(1llu, packRepresentation->Line());
     EXPECT_EQ(1llu, packRepresentation->Column());
     EXPECT_EQ(1llu, packRepresentation->Members().size());
@@ -428,7 +428,7 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, PackIntermediateRepresentationWithMul
     auto packRepresentation = dynamic_pointer_cast<PackIntermediateRepresentation>(intermediateRepresentation);
     EXPECT_NE(nullptr, packRepresentation);
 
-    EXPECT_STREQ("MY_PACK", packRepresentation->Identifier().c_str());
+    EXPECT_STREQ("MY_PACK", string(packRepresentation->Identifier()).c_str());
     EXPECT_EQ(1llu, packRepresentation->Line());
     EXPECT_EQ(1llu, packRepresentation->Column());
     EXPECT_EQ(7llu, packRepresentation->Members().size());

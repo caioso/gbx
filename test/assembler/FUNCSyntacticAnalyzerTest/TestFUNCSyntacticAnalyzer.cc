@@ -9,12 +9,14 @@
 
 #include "LexicalAnalyzer.h"
 #include "Lexemes.h"
+#include "FUNCIntermediateRepresentation.h"
 #include "FuncSyntacticAnalyzer.h"
 #include "Construction.h"
 #include "GBXAsmExceptions.h"
 
 using namespace gbxasm;
 using namespace gbxasm::frontend;
+using namespace gbxasm::intermediate_representation;
 using namespace gbxasm::frontend::parsers;
 using namespace gbxasm::utilities;
 using namespace std;
@@ -35,9 +37,9 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, SanityCheckFuncTokenization)
                         "\tLD OUTPUT_2, TRUE\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    lexer->Tokenize(func);
-    auto tokens = lexer->Tokens();
+    LexicalAnalyzer lexer;
+    lexer.Tokenize(func);
+    auto tokens = lexer.Tokens();
 
     auto tokenTypes = { // FUNC MY_FUNCTION
                         TokenType::KeywordFUNC, TokenType::Identifier,
@@ -174,14 +176,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseBaseFunc)
                         "\tLD OUTPUT_2, TRUE\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseBaseFuncNoBody)
@@ -190,14 +193,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseBaseFuncNoBody)
                         "BGN\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWitOneInputArgument)
@@ -210,14 +214,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWitOneInputArgument)
                         "\tLD OUTPUT_2, TRUE\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWitOneInputArgumentWithNoBody)
@@ -227,14 +232,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWitOneInputArgumentWithNoBod
                         "BGN\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArguments)
@@ -248,14 +254,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArguments)
                         "\tLD OUTPUT_2, TRUE\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArgumentNoBody)
@@ -266,14 +273,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArgumentNoB
                         "BGN\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArgument2)
@@ -290,14 +298,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArgument2)
                         "\tLD OUTPUT_2, TRUE\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArgument2NoBody)
@@ -311,14 +320,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArgument2No
                         "BGN\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithOneOutputArgument)
@@ -331,14 +341,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithOneOutputArgument)
                         "\tLD OUTPUT_1, A\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithOneOutputArgumentWithNoBody)
@@ -348,14 +359,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithOneOutputArgumentWithNoB
                         "BGN\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleOutputArgument2)
@@ -373,14 +385,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleOutputArgument2)
                         "\tLD OUTPUT_1, A\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleOutputArgumentWithNoBody2)
@@ -398,14 +411,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleOutputArgumentWi
                         "\tLD OUTPUT_1, A\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMixedInputAndOutputArguments)
@@ -421,14 +435,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMixedInputAndOutputArgum
                         "\t\tTHRW 0x99\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMixedInputAndOutputArgumentsNoBody)
@@ -442,14 +457,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMixedInputAndOutputArgum
                         "BGN\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifier)
@@ -463,14 +479,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifier)
                         "\tLD OUTPUT_1, A\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifierWithNoBody)
@@ -481,14 +498,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifierWithNoBod
                         "BGN\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithPACKType)
@@ -502,14 +520,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithPACKType)
                         "\tLD OUTPUT_1, A\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithPACKTypeNoBody)
@@ -520,14 +539,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithPACKTypeNoBody)
                         "BGN\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithMixedTypeAndDeclarationFormats)
@@ -545,14 +565,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithMixedTypeAndDeclarationF
                         "\tLD OUTPUT_1, A\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithMixedTypeAndDeclarationFormats2)
@@ -570,14 +591,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithMixedTypeAndDeclarationF
                         "\tLD OUTPUT_1, A\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifierAndArrayType)
@@ -591,14 +613,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifierAndArrayT
                         "\tLD OUTPUT_1, A\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifierAndArrayTypeNoBody)
@@ -609,14 +632,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifierAndArrayT
                         "BGN\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithMixedTypeAndDeclarationFormats3)
@@ -638,14 +662,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithMixedTypeAndDeclarationF
                         "\tLD OUTPUT_1, A\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 
@@ -665,14 +690,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalIfBlocks)
                         "\tEND\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_TRUE(parser->IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalPackBlocks)
@@ -691,14 +717,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalPackBlocks)
                         "\tLD OUTPUT_1, A\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
 
-    EXPECT_TRUE(parser->IsAccepted());
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalWhenBlocks)
@@ -723,14 +750,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalWhenBlocks)
                         "\tEND\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
 
-    EXPECT_TRUE(parser->IsAccepted());
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalReptBlocks)
@@ -742,14 +770,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalReptBlocks)
                         "\tEND\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
 
-    EXPECT_TRUE(parser->IsAccepted());
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalTryBlock)
@@ -765,14 +794,15 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalTryBlock)
                         "\tEND\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
 
-    EXPECT_TRUE(parser->IsAccepted());
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalFuncBlock)
@@ -789,12 +819,92 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalFuncBlock)
                         "\tEND\n"
                         "END";
 
-    auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<FuncSyntacticAnalyzer>();
-    lexer->Tokenize(func);
-    auto currentToken = begin(lexer->Tokens());
-    auto endIterator = end(lexer->Tokens());
-    parser->TryToAccept(currentToken, endIterator);
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
 
-    EXPECT_TRUE(parser->IsAccepted());
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, FuncIntermediateRepresentation)
+{
+    const string func = "\nFUNC DOES_NOTHING\n"
+                        "\tIN: INPUT_1 \n"
+                        "\tIN: INPUT_2 AS BYTE\n"
+                        "\tIN: INPUT_3 AS MY_TYPE_0\n"
+                        "\tIN: INPUT_4 AS BOOL[0b111]\n"
+                        "\tIN: INPUT_4 AS MY_TYPE_1[0o765]\n"
+                        "\tOUT: OUTPUT_1\n"
+                        "\tOUT: OUTPUT_2 AS DWRD\n"
+                        "\tOUT: OUTPUT_3 AS MY_TYPE_2\n"
+                        "\tOUT: OUTPUT_4 AS STR[100]\n"
+                        "\tOUT: OUTPUT_5 AS MY_TYPE_3[0x80]\n"
+                        "BGN\n"
+                        "\tINC A\n"
+                        "\tDEC A\n"
+                        "\tLD OUTPUT_1, A\n"
+                        "END";
+
+    LexicalAnalyzer lexer;
+    FuncSyntacticAnalyzer parser;
+
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+
+    auto funcRepresentation = dynamic_pointer_cast<FUNCIntermediateRepresentation>(intermediateRepresentation);
+    EXPECT_NE(nullptr, funcRepresentation);
+
+    EXPECT_STREQ("DOES_NOTHING", string(funcRepresentation->Identifier()).c_str());
+    EXPECT_EQ(2llu, funcRepresentation->Line());
+    EXPECT_EQ(1llu, funcRepresentation->Column());
+    EXPECT_EQ(8llu, funcRepresentation->BodyTokens().size());
+
+    // Check body content
+    EXPECT_EQ(TokenType::InstructionMnemonicINC, funcRepresentation->BodyTokens()[0].Type);
+    EXPECT_STREQ(Lexemes::InstructionMnemonicINC.c_str(), funcRepresentation->BodyTokens()[0].Lexeme.c_str());
+    EXPECT_EQ(14llu, funcRepresentation->BodyTokens()[0].Line);
+    EXPECT_EQ(2llu, funcRepresentation->BodyTokens()[0].Column);
+    
+    EXPECT_EQ(TokenType::Identifier, funcRepresentation->BodyTokens()[1].Type);
+    EXPECT_STREQ("A", funcRepresentation->BodyTokens()[1].Lexeme.c_str());
+    EXPECT_EQ(14llu, funcRepresentation->BodyTokens()[1].Line);
+    EXPECT_EQ(6llu, funcRepresentation->BodyTokens()[1].Column);
+    
+    EXPECT_EQ(TokenType::InstructionMnemonicDEC, funcRepresentation->BodyTokens()[2].Type);
+    EXPECT_STREQ(Lexemes::InstructionMnemonicDEC.c_str(), funcRepresentation->BodyTokens()[2].Lexeme.c_str());
+    EXPECT_EQ(15llu, funcRepresentation->BodyTokens()[2].Line);
+    EXPECT_EQ(2llu, funcRepresentation->BodyTokens()[2].Column);
+    
+    EXPECT_EQ(TokenType::Identifier, funcRepresentation->BodyTokens()[3].Type);
+    EXPECT_STREQ("A", funcRepresentation->BodyTokens()[3].Lexeme.c_str());
+    EXPECT_EQ(15llu, funcRepresentation->BodyTokens()[3].Line);
+    EXPECT_EQ(6llu, funcRepresentation->BodyTokens()[3].Column);
+    
+    EXPECT_EQ(TokenType::InstructionMnemonicLD, funcRepresentation->BodyTokens()[4].Type);
+    EXPECT_STREQ(Lexemes::InstructionMnemonicLD.c_str(), funcRepresentation->BodyTokens()[4].Lexeme.c_str());
+    EXPECT_EQ(16llu, funcRepresentation->BodyTokens()[4].Line);
+    EXPECT_EQ(2llu, funcRepresentation->BodyTokens()[4].Column);
+    
+    EXPECT_EQ(TokenType::Identifier, funcRepresentation->BodyTokens()[5].Type);
+    EXPECT_STREQ("OUTPUT_1", funcRepresentation->BodyTokens()[5].Lexeme.c_str());
+    EXPECT_EQ(16llu, funcRepresentation->BodyTokens()[5].Line);
+    EXPECT_EQ(5llu, funcRepresentation->BodyTokens()[5].Column);
+    
+    EXPECT_EQ(TokenType::SeparatorCOMMA, funcRepresentation->BodyTokens()[6].Type);
+    EXPECT_STREQ(Lexemes::SeparatorCOMMA.c_str(), funcRepresentation->BodyTokens()[6].Lexeme.c_str());
+    EXPECT_EQ(16llu, funcRepresentation->BodyTokens()[6].Line);
+    EXPECT_EQ(13llu, funcRepresentation->BodyTokens()[6].Column);
+
+    EXPECT_EQ(TokenType::Identifier, funcRepresentation->BodyTokens()[7].Type);
+    EXPECT_STREQ("A", funcRepresentation->BodyTokens()[7].Lexeme.c_str());
+    EXPECT_EQ(16llu, funcRepresentation->BodyTokens()[7].Line);
+    EXPECT_EQ(15llu, funcRepresentation->BodyTokens()[7].Column);
 }

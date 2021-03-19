@@ -2,6 +2,7 @@
 
 using namespace gbxasm;
 using namespace gbxasm::frontend;
+using namespace gbxasm::intermediate_representation;
 using namespace std;
 
 namespace gbxasm::frontend::parsers
@@ -9,6 +10,7 @@ namespace gbxasm::frontend::parsers
 
 shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> FuncSyntacticAnalyzer::TryToAccept(vector<Token>::iterator& beginIt, vector<Token>::iterator& endIt)
 {
+    string identifier{};
     ExtractSymbols(beginIt, endIt);
 
     while (!IsAccepted() && !IsRejected())
@@ -61,6 +63,8 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut)
                 {
+                    identifier = _symbols[leftSubstring - 1].Lexeme;
+
                     // Reduce
                     // Remove Identifier
                     _symbols.erase(begin(_symbols) + leftSubstring - 1);
@@ -147,10 +151,6 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     _symbols.erase(functionBegin, begin(_symbols) + leftSubstring);
                     // Add nonterminal body
                     _symbols.push_back({ .Symbol = FuncParseTreeSymbols::NonTerminalBody, .Lexeme = string("") });
-
-                    cout << "After removing the body" << '\n';
-                    for (auto symbol : _symbols)
-                        cout << static_cast<size_t>(symbol.Symbol) << " -> " << symbol.Lexeme << '\n';
                     break;
                 }
                 else 
@@ -193,8 +193,6 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut) // detect next argument or body's begin
                 {
-                    cout << "Reduce argument" << '\n';
-
                     // Reduce
                     // Remove identifier
                     _symbols.erase(begin(_symbols) + leftSubstring - 1);
@@ -235,8 +233,6 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut) // detect next argument or body's begin
                 {
-                    cout << "Reduce argument with Type" << '\n';
-
                     // Reduce
                     // Remove Type
                     _symbols.erase(begin(_symbols) + leftSubstring - 1);
@@ -287,8 +283,6 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut) // detect next argument or body's begin
                 {
-                    cout << "Reduce Array with Type" << '\n';
-
                     // Reduce
                     // Remove ]
                     _symbols.erase(begin(_symbols) + leftSubstring - 1);
@@ -308,10 +302,6 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     _symbols.erase(begin(_symbols) + leftSubstring - 8);
                     // Add nonterminal argument
                     _symbols.insert(begin(_symbols) +  leftSubstring - 8, { .Symbol = FuncParseTreeSymbols::NonTerminalArgument, .Lexeme = string("") });
-                    
-                    cout << "After removing array argument" << '\n';
-                    for (auto symbol : _symbols)
-                        cout << static_cast<size_t>(symbol.Symbol) << " -> " << symbol.Lexeme << '\n';
                     break;
                 }
                 else
@@ -325,7 +315,6 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut)
                 {
-                    cout << "Reduce Non Terminal arg into list" << '\n';
                     // Reduce
                     // Remove Argument
                     _symbols.erase(begin(_symbols) + leftSubstring - 1);
@@ -353,18 +342,13 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                 }
                 else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::NonTerminalArgument)
                 {
-                    cout << "Combine argument with the argment list" << '\n';
                     // Reduce
                     // Remove Argument (only argument list remain)
                     _symbols.erase(begin(_symbols) + leftSubstring);
-
-                    for (auto symbol : _symbols)
-                        cout << static_cast<size_t>(symbol.Symbol) << " -> " << symbol.Lexeme << '\n';
                     break;
                 }
                 else if (_symbols[leftSubstring].Symbol == FuncParseTreeSymbols::NonTerminalBody)
                 {
-                    cout << "Non Terminal Body Detected, with args list" << '\n';
                     // Reduce
                     // Remove Body
                     _symbols.erase(begin(_symbols) + leftSubstring);
@@ -387,7 +371,8 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
         }
     }
 
-    return {};
+    auto intermediateRepresentation = make_shared<FUNCIntermediateRepresentation>(identifier, _bodyTokens, _line, _column);
+    return intermediateRepresentation;
 }
 
 void FuncSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& beginIt, vector<Token>::iterator& endIt)
@@ -395,12 +380,19 @@ void FuncSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& beginIt, vec
     auto functionEnd = beginIt + CountEndWithinFunctionBody(beginIt, endIt);
     auto bgnFound = false;
 
+    _line = (*beginIt).Line;
+    _column = (*beginIt).Column;
+
     // (functionEnd - 1) because only the last END must be converted to 'TerminalEnd'
     // Anything in between becomes 'TerminalIgnore'. Thats why TokenType::KeywordEND is not in the switch block.
     transform(beginIt, (functionEnd - 1), back_inserter(_symbols), [&](Token x) -> FuncCompoundSymbol
     {
         if (bgnFound && x.Type != TokenType::KeywordEND)
+        {
+            // Save the body tokens, but the parse tree symbols are top be ignored
+            _bodyTokens.push_back(x);
             return {.Symbol = FuncParseTreeSymbols::TerminalIgnore, .Lexeme  = x.Lexeme };
+        }
 
         switch (x.Type)
         {
@@ -449,9 +441,6 @@ void FuncSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& beginIt, vec
     {
         // Something when wrong.
     }
-
-    for (auto symbol : _symbols)
-        cout << static_cast<size_t>(symbol.Symbol) << " -> " << symbol.Lexeme << '\n';
 }
 
 size_t FuncSyntacticAnalyzer::CountEndWithinFunctionBody(vector<Token>::iterator& beginIt, vector<Token>::iterator& endIt)
