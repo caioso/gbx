@@ -1,4 +1,5 @@
 #include <boost/asio.hpp>
+#include <algorithm>
 #include <array>
 #include <iostream>
 #include <sstream>
@@ -6,6 +7,7 @@
 #include <thread>
 
 #include "ArgumentsParser.h"
+#include "CommandLineParser.h"
 
 /*using namespace boost;
 using namespace boost::asio;
@@ -18,6 +20,8 @@ using std::endl;
 */
 
 using namespace gbxcommons;
+using namespace gbxdb;
+using namespace gbxdb::input;
 using namespace std;
 
 struct ApplicationConfiguration
@@ -71,10 +75,65 @@ ApplicationConfiguration ParseCommandLine(int argc, char** argv)
     return configuration;
 }
 
+void RunDebugClient()
+{
+    CommandLineParser parser;
+    auto command = string("");
+
+    parser.Initialize();
+    
+    while (true)
+    {
+        cin >> command;
+        if (command.compare("exit") == 0)
+        {
+            auto option = string("");
+
+            while (option.compare("y") != 0 && option.compare("yes") != 0 && 
+                   option.compare("n") != 0 && option.compare("no") != 0)
+            {
+                cout << "Terminate current debug session? [Y/n] ";
+                cin >> option;
+                std::for_each(option.begin(), option.end(), [](char & c) -> auto
+                {
+                    c = ::tolower(c);
+                });
+
+                if (option.size() == 0 || option.compare("y") == 0 || option.compare("yes") == 0 ||
+                    option.compare("n") == 0 || option.compare("no") == 0)
+                    break;
+
+                cout << "Invalid option '" << option << "'" << '\n'; 
+            }
+                    
+            if (option.size() == 0 || option.compare("y") == 0 || option.compare("yes") == 0)
+            {
+                cout << "Debug session terminated" << '\n';
+                break;
+            }
+            
+            if (option.compare("n") == 0 || option.compare("no") == 0)
+                continue;
+        }
+        else
+        {
+            try
+            {
+                parser.Parse(command);
+            }
+            catch (const CommandLineInputException& exception)
+            {
+                cout << exception.what() << '\n';
+            }
+        }
+    }
+}
+
 int main (int argc, char** argv)
 {
     cout << "GAME BOY X Debugger" << '\n' ;
     ParseCommandLine(argc, argv);
+    RunDebugClient();
 
     /*boost::asio::io_service io_service;
     std::string raw_ip_address = "127.0.0.1";
