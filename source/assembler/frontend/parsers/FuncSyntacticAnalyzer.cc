@@ -3,6 +3,7 @@
 using namespace gbxasm;
 using namespace gbxasm::frontend;
 using namespace gbxasm::intermediate_representation;
+using namespace gbxasm::utilities;
 using namespace std;
 
 namespace gbxasm::frontend::parsers
@@ -11,6 +12,9 @@ namespace gbxasm::frontend::parsers
 shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> FuncSyntacticAnalyzer::TryToAccept(vector<Token>::iterator& beginIt, vector<Token>::iterator& endIt)
 {
     string identifier{};
+    vector<DeclaredArgument> inputArgs;
+    vector<DeclaredArgument> outputArgs;
+
     ExtractSymbols(beginIt, endIt);
 
     while (!IsAccepted() && !IsRejected())
@@ -193,6 +197,18 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut) // detect next argument or body's begin
                 {
+                    DeclaredArgument arg;
+                    arg.Identifier = _symbols[leftSubstring - 1].Lexeme;
+                    arg.Direction = _symbols[leftSubstring - 3].Lexeme.compare(Lexemes::KeywordIN) == 0? ArgumentDirection::Input : ArgumentDirection::Output;
+                    arg.Type = TypeUnknown;
+                    arg.ArrayLength = "0";
+                    arg.IsArray = false;
+
+                    if (arg.Direction == ArgumentDirection::Input)
+                        inputArgs.push_back(arg);
+                    else
+                        outputArgs.push_back(arg);
+
                     // Reduce
                     // Remove identifier
                     _symbols.erase(begin(_symbols) + leftSubstring - 1);
@@ -233,6 +249,23 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut) // detect next argument or body's begin
                 {
+                    DeclaredArgument arg;
+                    arg.Identifier = _symbols[leftSubstring - 3].Lexeme;
+                    arg.Direction = _symbols[leftSubstring - 5].Lexeme.compare(Lexemes::KeywordIN) == 0? ArgumentDirection::Input : ArgumentDirection::Output;
+                    
+                    if (_symbols[leftSubstring - 1].Symbol == FuncParseTreeSymbols::TerminalIdentifier)
+                        arg.Type = {.Name = TypeName::Custom, .LexicalTypeName = _symbols[leftSubstring - 1].Lexeme, .Size = numeric_limits<size_t>::max()};
+                    else
+                        arg.Type = GetTypeByName(LexemeToDeclaredMemberType::Convert(_symbols[leftSubstring - 1].Lexeme));
+
+                    arg.ArrayLength = "0";
+                    arg.IsArray = false;
+
+                    if (arg.Direction == ArgumentDirection::Input)
+                        inputArgs.push_back(arg);
+                    else
+                        outputArgs.push_back(arg);
+
                     // Reduce
                     // Remove Type
                     _symbols.erase(begin(_symbols) + leftSubstring - 1);
@@ -283,6 +316,23 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalIn ||
                     _symbols[leftSubstring].Symbol == FuncParseTreeSymbols::TerminalOut) // detect next argument or body's begin
                 {
+                    DeclaredArgument arg;
+                    arg.Identifier = _symbols[leftSubstring - 6].Lexeme;
+                    arg.Direction = _symbols[leftSubstring - 8].Lexeme.compare(Lexemes::KeywordIN) == 0? ArgumentDirection::Input : ArgumentDirection::Output;
+                    
+                    if (_symbols[leftSubstring - 4].Symbol == FuncParseTreeSymbols::TerminalIdentifier)
+                        arg.Type = {.Name = TypeName::Custom, .LexicalTypeName = _symbols[leftSubstring - 4].Lexeme, .Size = numeric_limits<size_t>::max()};
+                    else
+                        arg.Type = GetTypeByName(LexemeToDeclaredMemberType::Convert(_symbols[leftSubstring - 4].Lexeme));
+
+                    arg.ArrayLength = _symbols[leftSubstring - 2].Lexeme;
+                    arg.IsArray = true;
+
+                    if (arg.Direction == ArgumentDirection::Input)
+                        inputArgs.push_back(arg);
+                    else
+                        outputArgs.push_back(arg);
+
                     // Reduce
                     // Remove ]
                     _symbols.erase(begin(_symbols) + leftSubstring - 1);
@@ -371,7 +421,13 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Func
         }
     }
 
-    auto intermediateRepresentation = make_shared<FUNCIntermediateRepresentation>(identifier, _bodyTokens, _line, _column);
+    if (IsRejected())
+    {
+        _bodyTokens.resize(0);
+        return {};
+    }
+
+    auto intermediateRepresentation = make_shared<FUNCIntermediateRepresentation>(identifier, _bodyTokens, inputArgs, outputArgs, _line, _column);
     return intermediateRepresentation;
 }
 

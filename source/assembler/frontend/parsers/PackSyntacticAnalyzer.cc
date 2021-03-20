@@ -313,7 +313,7 @@ inline void PackSyntacticAnalyzer::ReduceMember(int top, DeclaredMember& member,
     // Reduce
     member.Identifier = _symbols[top - 1].Lexeme;
     member.Type = GetTypeByName(LexemeToDeclaredMemberType::Convert(_symbols[top - 2].Lexeme));
-     member.IsArray = false;
+    member.IsArray = false;
     member.ArrayLength = "";
     members.push_back(std::move(member));
     member = {};

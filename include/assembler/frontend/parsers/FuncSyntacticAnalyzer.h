@@ -1,11 +1,15 @@
 #pragma once
 
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <vector>
 
-#include "FUNCIntermediateRepresentation.h"
 #include "ConstructionSyntacticAnalyzer.h"
+#include "DeclaredMember.h"
+#include "FUNCIntermediateRepresentation.h"
+#include "Lexemes.h"
+#include "LexemeToDeclaredMemberType.h"
 #include "Token.h"
 
 namespace gbxasm::frontend::parsers
