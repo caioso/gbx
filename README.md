@@ -1,6 +1,27 @@
-# GAME BOY X Platform
-GAME BOY Architectural Exploration Platform
+<p align="center">
+  <a href="https://github.com/caioso/gbx">
+    <img src="https://github.com/caioso/gbx/blob/master/docs/resources/gbx_logo.png" alt="Bootstrap logo" width="40%">
+  </a>
+</p>
 
+<h3 align="center">GAME BOY Architectural Exploration Platform</h3>
+
+<p align="center">
+  A fresh new approach to GAME BOY Emulation and Game Development
+  <br>
+  <br>
+  <h10 style="font-size:10px">
+    Hi-Fi 8-bit <b>2D Graphics</b> and <b>Sound</b>
+  ·
+  <b>3D</b> (GBFX Virtual Chip)
+  ·
+  <b>Expressive Assembly Language</b>
+  ·
+  <b>IDE</b>
+  </h10>
+</p>
+
+-----------
 
 ### Project Status
 This repository is currently in active development. The code is constantly changed and new features will be added as the development proceeds. ***the project has currently no release date planned and no releases available***. As soon as they become available , you'll be able to download them from this page.
