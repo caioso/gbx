@@ -25,7 +25,7 @@
 
 <p align="left">
   <a href="https://github.com/caioso/gbx">
-    <img src="https://github.com/caioso/gbx/blob/master/docs/resources/title1.png" alt="What is GAME BOY X?" width="40%">
+    <img src="https://github.com/caioso/gbx/blob/master/docs/resources/title1.png" alt="What is GAME BOY X?">
   </a>
 </p>
 
@@ -34,7 +34,7 @@
 <br/>
 <p align="left">
   <a href="https://github.com/caioso/gbx">
-    <img src="https://github.com/caioso/gbx/blob/master/docs/resources/title2.png" alt="Why GAME BOY X?" width="40%">
+    <img src="https://github.com/caioso/gbx/blob/master/docs/resources/title2.png" alt="Why GAME BOY X?">
   </a>
 </p>
 
@@ -45,7 +45,7 @@
 <br/>
 <p align="left">
   <a href="https://github.com/caioso/gbx">
-    <img src="https://github.com/caioso/gbx/blob/master/docs/resources/title3.png" alt="Feartures" width="40%">
+    <img src="https://github.com/caioso/gbx/blob/master/docs/resources/title3.png" alt="Feartures">
   </a>
 </p>
 
@@ -65,7 +65,7 @@
 <br/>
 <p align="left">
   <a href="https://github.com/caioso/gbx">
-    <img src="https://github.com/caioso/gbx/blob/master/docs/resources/title4.png" alt="Project Status" width="40%">
+    <img src="https://github.com/caioso/gbx/blob/master/docs/resources/title4.png" alt="Project Status">
   </a>
 </p>
 
