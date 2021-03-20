@@ -15,8 +15,6 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> PACK
 
     string identifier;
     vector<DeclaredMember> members;
-
-    // current member attributes
     DeclaredMember member;
 
     while (!IsAccepted() && !IsRejected())

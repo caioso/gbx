@@ -8,7 +8,6 @@
 
 namespace gbxasm::intermediate_representation
 {
-
 class PACKIntermediateRepresentation : public IntermediateRepresentation
 {
 public:

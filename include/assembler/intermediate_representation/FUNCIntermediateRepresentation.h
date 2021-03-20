@@ -9,7 +9,6 @@
 
 namespace gbxasm::intermediate_representation
 {
-
 class FUNCIntermediateRepresentation : public IntermediateRepresentation
 {
 public:

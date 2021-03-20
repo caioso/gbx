@@ -2,7 +2,6 @@
 
 using namespace gbxasm::frontend;
 using namespace std;
-
 namespace gbxasm::intermediate_representation
 {
 

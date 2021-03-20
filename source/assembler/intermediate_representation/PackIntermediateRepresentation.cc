@@ -15,7 +15,7 @@ string_view PACKIntermediateRepresentation::Identifier()
 {
     return _identifier;
 }
-
+ 
 vector<DeclaredMember>& PACKIntermediateRepresentation::Members()
 {
     return _members;

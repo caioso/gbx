@@ -19,7 +19,7 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> FUNC
 
     while (!IsAccepted() && !IsRejected())
     {        
-        auto leftSubstring = -1;
+        auto leftSubstring = -1; 
         auto state = FSMStates::InitialState;
 
         while(true)
