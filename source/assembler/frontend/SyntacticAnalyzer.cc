@@ -27,7 +27,7 @@ vector<std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresen
 
 shared_ptr<ConstructionSyntacticAnalyzer> SyntacticAnalyzer::ChooseParser([[maybe_unused]] vector<Token>::iterator currentToken)
 {
-    return make_shared<PackSyntacticAnalyzer>();
+    return make_shared<PACKSyntacticAnalyzer>();
 }
 
 }

@@ -1,4 +1,4 @@
-#include "PackSyntacticAnalyzer.h"
+#include "PACKSyntacticAnalyzer.h"
 
 using namespace gbxasm::frontend;
 using namespace gbxasm::interfaces;
@@ -9,7 +9,7 @@ using namespace std;
 namespace gbxasm::frontend::parsers
 {
 
-shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> PackSyntacticAnalyzer::TryToAccept(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
+shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> PACKSyntacticAnalyzer::TryToAccept(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
 {
     ExtractSymbols(currentToken, end);
 
@@ -32,15 +32,15 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
             }
             else if (state == FSMStates::InitialPackHeaderOrNTPackDetection) // Detect 'PACK'
             {
-                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalPack)
+                if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalPack)
                 {
                     Shift(leftSubstring); state = FSMStates::PackIdentifierDetection;
                 }
-                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalHeader)
+                else if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::NonTerminalHeader)
                 {
                     Shift(leftSubstring); state = FSMStates::InitialMemberDetectionOrFooterOrNTPackDetection;
                 }
-                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalPack)
+                else if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::NonTerminalPack)
                 {
                     Accept(); break;
                 }
@@ -51,7 +51,7 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
             }
             else if (state == FSMStates::PackIdentifierDetection) // Detect 'Identifier'
             {
-                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalIdentifier)
+                if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalIdentifier)
                 {
                     Shift(leftSubstring); state = FSMStates::PackBgnDetection;
                 }
@@ -62,7 +62,7 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
             }
             else if (state == FSMStates::PackBgnDetection) // Detect 'Bgn'
             {
-                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalBgn)
+                if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalBgn)
                 {
                     Shift(leftSubstring); state = FSMStates::PackHeaderDetection;
                 }
@@ -73,8 +73,8 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
             }
             else if (state == FSMStates::PackHeaderDetection) // Detect 'Begin of Members' or 'End'
             {
-                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalType ||
-                    _symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalEnd)
+                if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalType ||
+                    _symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalEnd)
                 {
                     ReduceHeader(leftSubstring, identifier); break;
                 }
@@ -85,20 +85,20 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
             }
             else if (state == FSMStates::InitialMemberDetectionOrFooterOrNTPackDetection) // Detect Members Type
             {
-                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalType)
+                if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalType)
                 {
                     Shift(leftSubstring); state = FSMStates::MemberIdentifierDetection;
                 }
-                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalMember || 
-                         _symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalMemberList)
+                else if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::NonTerminalMember || 
+                         _symbols[leftSubstring].Symbol == PACKParseTreeSymbols::NonTerminalMemberList)
                 {
                     Shift(leftSubstring); state = FSMStates::MemberListOrFooterOrNTPackDetection;
                 }
-                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalEnd)
+                else if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalEnd)
                 {
                     ReduceEmptyPackFooter(leftSubstring); break;
                 }
-                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalFooter)
+                else if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::NonTerminalFooter)
                 {
                     ReduceEmptyPack(leftSubstring); break;
                 }
@@ -109,23 +109,11 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
             }
             else if (state == FSMStates::MemberIdentifierDetection) // Detect Members Identifier
             {
-                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalIdentifier)
+                if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalIdentifier)
                 {
-                    Shift(leftSubstring); state = FSMStates::MemberArrayOpenBracketDetection;
+                    Shift(leftSubstring); state = FSMStates::NonArrayMemberReduction;
                 }
-                else
-                {
-                    Reject(); break;
-                }
-            }
-            else if (state == FSMStates::MemberArrayOpenBracketDetection) // Detect 'Begin of Members' or 'End' or '['
-            {
-                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalType ||
-                    _symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalEnd)
-                {
-                    ReduceMember(leftSubstring, member, members); break;
-                }
-                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalOpenBracket)
+                else if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalOpenBracket)
                 {
                     Shift(leftSubstring); state = FSMStates::ArrayDimensionDetection;
                 }
@@ -134,9 +122,21 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
                     Reject(); break;
                 }
             }
+            else if (state == FSMStates::NonArrayMemberReduction) // Detect 'Begin of Members' or 'End' or '['
+            {
+                if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalType ||
+                    _symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalEnd)
+                {
+                    ReduceMember(leftSubstring, member, members); break;
+                }
+                else
+                {
+                    Reject(); break;
+                }
+            }
             else if (state == FSMStates::ArrayDimensionDetection) // Detect numeric literal
             {
-                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalNumericLiteral)
+                if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalNumericLiteral)
                 {
                     Shift(leftSubstring); state = FSMStates::MemberArrayCloseBracketDetection;
                 }
@@ -147,19 +147,30 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
             }
             else if (state == FSMStates::MemberArrayCloseBracketDetection) // Detect ]
             {
-                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalCloseBracket)
+                if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalCloseBracket)
                 {
-                    Shift(leftSubstring); state = FSMStates::MemberArrayDetection;
+                    Shift(leftSubstring); state = FSMStates::MemberTypeAndDimensionDetection;
                 }
                 else
                 {
                     Reject(); break;
                 }
             }
-            else if (state == FSMStates::MemberArrayDetection) // Detect 'Begin of Members' or 'End'
+            else if (state == FSMStates::MemberTypeAndDimensionDetection) // Detect 'Begin of Members' or 'End'
             {
-                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalType ||
-                    _symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalEnd)
+                if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalIdentifier)
+                {
+                    Shift(leftSubstring); state = FSMStates::MemberArrayIdentifierDetected;
+                }
+                else
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == FSMStates::MemberArrayIdentifierDetected)
+            {
+                if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalType ||
+                    _symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalEnd)
                 {
                     ReduceArrayMember(leftSubstring, member, members); break;
                 }
@@ -170,20 +181,20 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
             }
             else if (state == FSMStates::MemberListOrFooterOrNTPackDetection) // Detect Member List or Footer Detecton
             {
-                if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalMember || 
-                    _symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalMemberList)
+                if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::NonTerminalMember || 
+                    _symbols[leftSubstring].Symbol == PACKParseTreeSymbols::NonTerminalMemberList)
                 {
                     ReduceMemberList(leftSubstring); break;
                 }
-                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalType)
+                else if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalType)
                 {
                     Shift(leftSubstring); state = FSMStates::MemberIdentifierDetection;
                 }
-                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::TerminalEnd)
+                else if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::TerminalEnd)
                 {
                     ReduceFooter(leftSubstring); break;
                 }
-                else if (_symbols[leftSubstring].Symbol == PackParseTreeSymbols::NonTerminalFooter)
+                else if (_symbols[leftSubstring].Symbol == PACKParseTreeSymbols::NonTerminalFooter)
                 {
                     ReducePack(leftSubstring); break;
                 }
@@ -198,12 +209,12 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> Pack
     }
 
     if (IsAccepted())
-        return make_shared<PackIntermediateRepresentation>(identifier, members, currentToken->Line, currentToken->Column);
+        return make_shared<PACKIntermediateRepresentation>(identifier, members, currentToken->Line, currentToken->Column);
     else
         return {};
 }
 
-void PackSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
+void PACKSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& currentToken, vector<Token>::iterator& end)
 {
     vector<Token> constructionSymbols;
 
@@ -220,34 +231,34 @@ void PackSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& currentToken
         return previousCondition;
     });
     
-    transform(currentToken, end, back_inserter(_symbols), [](Token x) -> PackCompoundSymbol
+    transform(currentToken, end, back_inserter(_symbols), [](Token x) -> PACKCompoundSymbol
     {
         switch (x.Type)
         {
             case TokenType::KeywordPACK: 
-                return {.Symbol = PackParseTreeSymbols::TerminalPack, .Lexeme  = x.Lexeme };
+                return {.Symbol = PACKParseTreeSymbols::TerminalPack, .Lexeme  = x.Lexeme };
             case TokenType::Identifier: 
-                return {.Symbol = PackParseTreeSymbols::TerminalIdentifier, .Lexeme  = x.Lexeme };
+                return {.Symbol = PACKParseTreeSymbols::TerminalIdentifier, .Lexeme  = x.Lexeme };
             case TokenType::KeywordBGN: 
-                return {.Symbol = PackParseTreeSymbols::TerminalBgn, .Lexeme  = x.Lexeme };
+                return {.Symbol = PACKParseTreeSymbols::TerminalBgn, .Lexeme  = x.Lexeme };
             case TokenType::KeywordBYTE:
             case TokenType::KeywordWORD:
             case TokenType::KeywordDWRD:
             case TokenType::KeywordSTR:
             case TokenType::KeywordCHAR:
             case TokenType::KeywordBOOL:
-                 return {.Symbol = PackParseTreeSymbols::TerminalType, .Lexeme  = x.Lexeme };
+                 return {.Symbol = PACKParseTreeSymbols::TerminalType, .Lexeme  = x.Lexeme };
             case TokenType::SeparatorOPENBRACKETS: 
-                return {.Symbol = PackParseTreeSymbols::TerminalOpenBracket, .Lexeme  = x.Lexeme };
+                return {.Symbol = PACKParseTreeSymbols::TerminalOpenBracket, .Lexeme  = x.Lexeme };
             case TokenType::SeparatorCLOSEBRACKETS: 
-                return {.Symbol = PackParseTreeSymbols::TerminalCloseBracket, .Lexeme  = x.Lexeme };
+                return {.Symbol = PACKParseTreeSymbols::TerminalCloseBracket, .Lexeme  = x.Lexeme };
             case TokenType::LiteralNumericDECIMAL:
             case TokenType::LiteralNumericHEXADECIMAL:
             case TokenType::LiteralNumericOCTAL:
             case TokenType::LiteralNumericBINARY:
-                return {.Symbol = PackParseTreeSymbols::TerminalNumericLiteral, .Lexeme  = x.Lexeme };
+                return {.Symbol = PACKParseTreeSymbols::TerminalNumericLiteral, .Lexeme  = x.Lexeme };
             case TokenType::KeywordEND:
-                return {.Symbol = PackParseTreeSymbols::TerminalEnd, .Lexeme  = x.Lexeme };
+                return {.Symbol = PACKParseTreeSymbols::TerminalEnd, .Lexeme  = x.Lexeme };
             default:
             {
                 stringstream ss;
@@ -259,12 +270,12 @@ void PackSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& currentToken
     });
 }
 
-inline void PackSyntacticAnalyzer::Shift(int& top)
+inline void PACKSyntacticAnalyzer::Shift(int& top)
 {
     top++;
 }
 
-inline void PackSyntacticAnalyzer::ReduceHeader(int top, std::string& identifier)
+inline void PACKSyntacticAnalyzer::ReduceHeader(int top, std::string& identifier)
 {
     // Identifier has been found here
     identifier = _symbols[top - 2].Lexeme;
@@ -276,33 +287,33 @@ inline void PackSyntacticAnalyzer::ReduceHeader(int top, std::string& identifier
     _symbols.erase(begin(_symbols) + top - 2);
     // Remove PACK
     _symbols.erase(begin(_symbols) + top - 3);
-    _symbols.insert(begin(_symbols) +  top - 3, { .Symbol = PackParseTreeSymbols::NonTerminalHeader, .Lexeme = string("") });
+    _symbols.insert(begin(_symbols) +  top - 3, { .Symbol = PACKParseTreeSymbols::NonTerminalHeader, .Lexeme = string("") });
 }
 
-inline void PackSyntacticAnalyzer::ReduceEmptyPackFooter(int top)
+inline void PACKSyntacticAnalyzer::ReduceEmptyPackFooter(int top)
 {
     // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
     // Remove First
     _symbols.erase(begin(_symbols) + top);
-    _symbols.insert(begin(_symbols) +  top, { .Symbol = PackParseTreeSymbols::NonTerminalFooter, .Lexeme = string("") });
+    _symbols.insert(begin(_symbols) +  top, { .Symbol = PACKParseTreeSymbols::NonTerminalFooter, .Lexeme = string("") });
 }
 
-inline void PackSyntacticAnalyzer::ReduceEmptyPack(int top)
+inline void PACKSyntacticAnalyzer::ReduceEmptyPack(int top)
 {
     // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
     // Remove First
     _symbols.erase(begin(_symbols) + top);
     // Remove Second
     _symbols.erase(begin(_symbols) + top - 1);
-    _symbols.insert(begin(_symbols) +  top - 1, { .Symbol = PackParseTreeSymbols::NonTerminalPack, .Lexeme = string("") });
+    _symbols.insert(begin(_symbols) +  top - 1, { .Symbol = PACKParseTreeSymbols::NonTerminalPack, .Lexeme = string("") });
 }
 
-inline void PackSyntacticAnalyzer::ReduceMember(int top, DeclaredMember& member, vector<DeclaredMember>& members)
+inline void PACKSyntacticAnalyzer::ReduceMember(int top, DeclaredMember& member, vector<DeclaredMember>& members)
 {
     // Reduce
     member.Identifier = _symbols[top - 1].Lexeme;
     member.Type = GetTypeByName(LexemeToDeclaredMemberType::Convert(_symbols[top - 2].Lexeme));
-     member.IsArray = false;
+    member.IsArray = false;
     member.ArrayLength = "";
     members.push_back(std::move(member));
     member = {};
@@ -311,61 +322,61 @@ inline void PackSyntacticAnalyzer::ReduceMember(int top, DeclaredMember& member,
     _symbols.erase(begin(_symbols) + top - 1);
     // Remove Type
     _symbols.erase(begin(_symbols) + top - 2);
-    _symbols.insert(begin(_symbols) +  top - 2, { .Symbol = PackParseTreeSymbols::NonTerminalMember, .Lexeme = string("") });
+    _symbols.insert(begin(_symbols) +  top - 2, { .Symbol = PACKParseTreeSymbols::NonTerminalMember, .Lexeme = string("") });
 }
 
-inline void PackSyntacticAnalyzer::ReduceArrayMember(int top, DeclaredMember& member, vector<DeclaredMember>& members)
+inline void PACKSyntacticAnalyzer::ReduceArrayMember(int top, DeclaredMember& member, vector<DeclaredMember>& members)
 {
     // Reduce
-    member.Identifier = _symbols[top - 4].Lexeme;
+    member.Identifier = _symbols[top - 1].Lexeme;
     member.Type = GetTypeByName(LexemeToDeclaredMemberType::Convert(_symbols[top - 5].Lexeme));
     member.IsArray = true;
-    member.ArrayLength = _symbols[top - 2].Lexeme;
+    member.ArrayLength = _symbols[top - 3].Lexeme;
     members.push_back(std::move(member));
     member = {};
 
     // Reduce
-    // Remove ]
-    _symbols.erase(begin(_symbols) + top - 1);
-    // Remove Numeric Literal
-    _symbols.erase(begin(_symbols) + top - 2);
-    // Remove [
-    _symbols.erase(begin(_symbols) + top - 3);
     // Remove Identifier
+    _symbols.erase(begin(_symbols) + top - 1);
+    // Remove [
+    _symbols.erase(begin(_symbols) + top - 2);
+    // Remove Numeric Literal
+    _symbols.erase(begin(_symbols) + top - 3);
+    // Remove ]
     _symbols.erase(begin(_symbols) + top - 4);
     // Remove Type
     _symbols.erase(begin(_symbols) + top - 5);
-    _symbols.insert(begin(_symbols) +  top - 5, { .Symbol = PackParseTreeSymbols::NonTerminalMember, .Lexeme = string("") });
+    _symbols.insert(begin(_symbols) +  top - 5, { .Symbol = PACKParseTreeSymbols::NonTerminalMember, .Lexeme = string("") });
 }
 
-inline void PackSyntacticAnalyzer::ReduceMemberList(int top)
+inline void PACKSyntacticAnalyzer::ReduceMemberList(int top)
 {
     // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
     // Remove First
     _symbols.erase(begin(_symbols) + top);
     // Remove Second
     _symbols.erase(begin(_symbols) + top - 1);
-    _symbols.insert(begin(_symbols) +  top - 1, { .Symbol = PackParseTreeSymbols::NonTerminalMemberList, .Lexeme = string("") });
+    _symbols.insert(begin(_symbols) +  top - 1, { .Symbol = PACKParseTreeSymbols::NonTerminalMemberList, .Lexeme = string("") });
 }
 
-inline void PackSyntacticAnalyzer::ReduceFooter(int top)
+inline void PACKSyntacticAnalyzer::ReduceFooter(int top)
 {
     // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
     // Remove First
     _symbols.erase(begin(_symbols) + top);
-    _symbols.insert(begin(_symbols) +  top, { .Symbol = PackParseTreeSymbols::NonTerminalFooter, .Lexeme = string("") });
+    _symbols.insert(begin(_symbols) +  top, { .Symbol = PACKParseTreeSymbols::NonTerminalFooter, .Lexeme = string("") });
 }
 
-inline void PackSyntacticAnalyzer::ReducePack(int top)
+inline void PACKSyntacticAnalyzer::ReducePack(int top)
 {
-     // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
+    // Reduce (note that since this is a combination step, leftSubstring is not incremented twice).
     // Remove First
     _symbols.erase(begin(_symbols) + top);
     // Remove Second
     _symbols.erase(begin(_symbols) + top - 1);
     // Remove Third
     _symbols.erase(begin(_symbols) + top - 2);
-    _symbols.insert(begin(_symbols) +  top - 2, { .Symbol = PackParseTreeSymbols::NonTerminalPack, .Lexeme = string("") });
+    _symbols.insert(begin(_symbols) +  top - 2, { .Symbol = PACKParseTreeSymbols::NonTerminalPack, .Lexeme = string("") });
 }
 
 }

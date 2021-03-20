@@ -1,22 +1,22 @@
-#include "PackIntermediateRepresentation.h"
+#include "PACKIntermediateRepresentation.h"
 
 using namespace std;
 
 namespace gbxasm::intermediate_representation
 {
 
-PackIntermediateRepresentation::PackIntermediateRepresentation(std::string identifier, std::vector<DeclaredMember> members, size_t line, size_t column)
-    : IntermediateRepresentation(ConstructionType::Pack, line, column)
+PACKIntermediateRepresentation::PACKIntermediateRepresentation(std::string identifier, std::vector<DeclaredMember> members, size_t line, size_t column)
+    : IntermediateRepresentation(ConstructionType::PACK, line, column)
     , _identifier(identifier)
     , _members(members)
 {}
 
-string PackIntermediateRepresentation::Identifier()
+string_view PACKIntermediateRepresentation::Identifier()
 {
     return _identifier;
 }
 
-vector<DeclaredMember>& PackIntermediateRepresentation::Members()
+vector<DeclaredMember>& PACKIntermediateRepresentation::Members()
 {
     return _members;
 }
