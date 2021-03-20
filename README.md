@@ -59,8 +59,13 @@
 - **GBFX**: Advanced Graphics Coprocessor for real time polygonal 3D graphics. Developers can use the coprocessor to render fully textured geometry, providing real 3D graphics to the GAME BOY Platforms (only available for games targeting the GAME BOY X platform)
 - **MODE X**: Advanced 2D Graphics rendering mode, providing up to 2MB of character and background memory, while allowing for up to 16 rendering layers (background/foreground) and 128 simultaneously sprites on screen. MODE X also provides native sprite and background/foreground afine transform, per scanline scrolling, 4 sets of 7 color palettes (4 colors each) and dithering transparency. Sprites can also be rendered in a new extended 64x64 pixels mode.
 - **HarmoniX**: Extended Audio Synthesis Unit providing 2 Configurable wave channels, with Pulse Wave, Square Wave, Triangule Wave, Sawtooth Wave, 2 Arbitarty wave channels and 2 Noise channels.
-- **GBXpressive Assembly**: The GAME BOY X requires developers to use Z80's assembly language for game development. In order to make the development friendlier and more approachable to newcomers, a new _expressive_ assembly language has been developed. Using the GBXASM assembler, developers can create debug and test games targeting the DMG, CGB and GBX platforms.
-- **GBX Builder**: Development IDE providing a syntax-highlighted Code Editor, Graphical Debugger, Graphics Editor (2D/3D) and Sound Editor.
+- **Xpansions**: Advanced _Code Bank Controller_ allowing developers to create DLC-like expansions for games targeting the GAME BOY X platform.
+
+#### GBXpressive Assembly Language
+The GAME BOY X requires developers to use Z80's assembly language for game development. In order to make the development friendlier and more approachable to newcomers, a new _expressive_ assembly language has been developed. Using the GBXASM assembler, developers can create debug and test games targeting the DMG, CGB and GBX platforms.
+
+#### GBX Builder
+Development IDE providing a syntax-highlighted Code Editor, Graphical Debugger, Graphics Editor (2D/3D) and Sound Editor.
 
 <br/>
 <p align="left">
