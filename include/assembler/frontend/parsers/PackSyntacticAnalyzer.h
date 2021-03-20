@@ -9,15 +9,14 @@
 #include "GBXAsmExceptions.h"
 #include "ConstructionSyntacticAnalyzer.h"
 #include "IntermediateRepresentation.h"
-#include "PackIntermediateRepresentation.h"
-#include "PackIntermediateRepresentation.h"
+#include "PACKIntermediateRepresentation.h"
 #include "DeclaredMember.h"
 #include "LexemeToDeclaredMemberType.h"
 
 namespace gbxasm::frontend::parsers
 {
 
-enum class PackParseTreeSymbols
+enum class PACKParseTreeSymbols
 {
     TerminalPack,
     TerminalBgn,
@@ -34,23 +33,23 @@ enum class PackParseTreeSymbols
     NonTerminalPack,
 };
 
-typedef struct PackCompoundSymbol_t
+typedef struct PACKCompoundSymbol_t
 {
     std::string Lexeme;
-    PackParseTreeSymbols Symbol;
+    PACKParseTreeSymbols Symbol;
 }
-PackCompoundSymbol;
+PACKCompoundSymbol;
 
-class PackSyntacticAnalyzer : public interfaces::ConstructionSyntacticAnalyzer
+class PACKSyntacticAnalyzer : public interfaces::ConstructionSyntacticAnalyzer
 {
 public:
-    PackSyntacticAnalyzer() = default;
-    virtual ~PackSyntacticAnalyzer() = default;
+    PACKSyntacticAnalyzer() = default;
+    virtual ~PACKSyntacticAnalyzer() = default;
 
-    PackSyntacticAnalyzer(const PackSyntacticAnalyzer&) = default;
-    PackSyntacticAnalyzer(PackSyntacticAnalyzer&&) = default;
-    PackSyntacticAnalyzer& operator=(const PackSyntacticAnalyzer&) = default;
-    PackSyntacticAnalyzer& operator=(PackSyntacticAnalyzer&&) = default;
+    PACKSyntacticAnalyzer(const PACKSyntacticAnalyzer&) = default;
+    PACKSyntacticAnalyzer(PACKSyntacticAnalyzer&&) = default;
+    PACKSyntacticAnalyzer& operator=(const PACKSyntacticAnalyzer&) = default;
+    PACKSyntacticAnalyzer& operator=(PACKSyntacticAnalyzer&&) = default;
 
     std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> TryToAccept(std::vector<Token>::iterator&, std::vector<Token>::iterator&) override;
 
@@ -85,7 +84,7 @@ private:
     inline void ReduceFooter(int);
     inline void ReducePack(int);
 
-    std::vector<PackCompoundSymbol> _symbols;
+    std::vector<PACKCompoundSymbol> _symbols;
 };
 
 }

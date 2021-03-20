@@ -12,7 +12,7 @@
 #include "LexicalAnalyzer.h"
 #include "Lexemes.h"
 #include "FUNCIntermediateRepresentation.h"
-#include "FuncSyntacticAnalyzer.h"
+#include "FUNCSyntacticAnalyzer.h"
 #include "Construction.h"
 #include "GBXAsmExceptions.h"
 
@@ -179,7 +179,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseBaseFunc)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -196,7 +196,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseBaseFuncNoBody)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -217,7 +217,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWitOneInputArgument)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -235,7 +235,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWitOneInputArgumentWithNoBod
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -257,7 +257,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArguments)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -276,7 +276,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArgumentNoB
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -301,7 +301,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArgument2)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -323,7 +323,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleInputArgument2No
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -344,7 +344,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithOneOutputArgument)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -362,7 +362,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithOneOutputArgumentWithNoB
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -388,7 +388,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleOutputArgument2)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -414,7 +414,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMultipleOutputArgumentWi
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -438,7 +438,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMixedInputAndOutputArgum
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -460,7 +460,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithMixedInputAndOutputArgum
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -482,7 +482,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifier)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -501,7 +501,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifierWithNoBod
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -523,7 +523,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithPACKType)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -542,7 +542,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithPACKTypeNoBody)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -568,7 +568,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithMixedTypeAndDeclarationF
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -594,7 +594,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithMixedTypeAndDeclarationF
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -616,7 +616,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifierAndArrayT
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -635,7 +635,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithASTypeSpecifierAndArrayT
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -665,7 +665,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ArgumentsWithMixedTypeAndDeclarationF
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -693,7 +693,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalIfBlocks)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
     
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -720,7 +720,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalPackBlocks)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
 
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -753,7 +753,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalWhenBlocks)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
 
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -773,7 +773,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalReptBlocks)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
 
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -797,7 +797,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalTryBlock)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
 
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -822,7 +822,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalFuncBlock)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
 
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -852,7 +852,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, FuncIntermediateRepresentation)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
 
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -1003,7 +1003,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, FuncIntermediateRepresentation2)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
 
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -1078,7 +1078,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, FuncIntermediateRepresentation3)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
 
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());
@@ -1151,7 +1151,7 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, FuncIntermediateRepresentation4)
                         "END";
 
     LexicalAnalyzer lexer;
-    FuncSyntacticAnalyzer parser;
+    FUNCSyntacticAnalyzer parser;
 
     lexer.Tokenize(func);
     auto currentToken = begin(lexer.Tokens());

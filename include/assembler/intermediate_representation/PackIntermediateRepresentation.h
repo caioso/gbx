@@ -9,16 +9,16 @@
 namespace gbxasm::intermediate_representation
 {
 
-class PackIntermediateRepresentation : public IntermediateRepresentation
+class PACKIntermediateRepresentation : public IntermediateRepresentation
 {
 public:
-    PackIntermediateRepresentation(std::string, std::vector<DeclaredMember>, size_t, size_t);
-    ~PackIntermediateRepresentation() = default;
+    PACKIntermediateRepresentation(std::string, std::vector<DeclaredMember>, size_t, size_t);
+    ~PACKIntermediateRepresentation() = default;
 
-    PackIntermediateRepresentation(const PackIntermediateRepresentation&) = default;
-    PackIntermediateRepresentation(PackIntermediateRepresentation&&) = default;
-    PackIntermediateRepresentation& operator=(const PackIntermediateRepresentation&) = default;
-    PackIntermediateRepresentation& operator=(PackIntermediateRepresentation&&) = default;
+    PACKIntermediateRepresentation(const PACKIntermediateRepresentation&) = default;
+    PACKIntermediateRepresentation(PACKIntermediateRepresentation&&) = default;
+    PACKIntermediateRepresentation& operator=(const PACKIntermediateRepresentation&) = default;
+    PACKIntermediateRepresentation& operator=(PACKIntermediateRepresentation&&) = default;
 
     std::string_view Identifier();
     std::vector<DeclaredMember>& Members();
