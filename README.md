@@ -74,4 +74,11 @@ Internally, GAME BOY X implements a Zilog Z80 processor core, along with a main 
   - Own assembly language, providing on expressive assembly-like statements
   - Compatible with DMG and CGB systems
 - Full backwards compatibility with Nintendo GAME BOY and GAM BOY Color systems
-
+</p>
+</p>
+</p>
+<p align="center">
+  <a href="https://github.com/caioso/gbx">
+    <img src="https://github.com/caioso/gbx/blob/master/docs/resources/footer.png" alt="Bootstrap logo" width="100%">
+  </a>
+</p>
