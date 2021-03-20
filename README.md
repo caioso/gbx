@@ -82,3 +82,4 @@ This repository is currently in active development. The code is constantly chang
     <img src="https://github.com/caioso/gbx/blob/master/docs/resources/footer.png" alt="Bootstrap logo" width="100%">
   </a>
 </p>
+Graphics by [The UI Soup](https://www.behance.net/marcelso)
