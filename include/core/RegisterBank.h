@@ -12,6 +12,8 @@
 namespace gbxcore
 {
 
+const size_t RegisterBankSizeInBytes = 20;
+
 class RegisterBank : public interfaces::RegisterBankInterface 
 {
 public: 
@@ -54,8 +56,8 @@ private:
     inline uint8_t PairToHighIndex(interfaces::Register);
     inline uint8_t PairToLowIndex(interfaces::Register);
 
-    std::array<std::uint8_t, 19> _registers;
-    std::array<std::uint8_t, 19> _alternates;
+    std::array<std::uint8_t, RegisterBankSizeInBytes> _registers;
+    std::array<std::uint8_t, RegisterBankSizeInBytes> _alternates;
 };
 
 }

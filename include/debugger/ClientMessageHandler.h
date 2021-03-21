@@ -9,6 +9,7 @@
 #include "DebugMessageNotificationArguments.h"
 #include "GBXDebuggerExceptions.h"
 #include "Observer.h"
+#include "OutputDriver.h"
 
 #include "MessageID.h"
 #include "ClientJoinedCommand.h"
@@ -21,7 +22,7 @@ class ClientMessageHandler : public std::enable_shared_from_this<ClientMessageHa
                            , public gbxcommons::Observer
 {
 public:
-    ClientMessageHandler(std::shared_ptr<gbxdb::interfaces::ClientTransport>);
+    ClientMessageHandler(std::shared_ptr<gbxdb::interfaces::ClientTransport>, gbxdb::output::OutputDriver&);
     ~ClientMessageHandler() = default;
 
     void Initialize();
@@ -39,6 +40,7 @@ private:
 
     std::shared_ptr<gbxdb::interfaces::ClientTransport> _transport;
     bool _isConnected{};
+    gbxdb::output::OutputDriver& _outputDriver;
 };
 
 }

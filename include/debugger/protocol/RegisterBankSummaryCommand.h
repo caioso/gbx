@@ -8,6 +8,7 @@
 #include "DebugMessage.h"
 #include "GBXDebuggerExceptions.h"
 #include "RegisterBankInterface.h"
+#include "RegisterBank.h"
 #include "Runtime.h"
 #include "CommandID.h"
 #include "MessageID.h"
@@ -31,8 +32,10 @@ public:
     void DecodeResponseMessage(std::shared_ptr<interfaces::DebugMessage>) override;
     std::shared_ptr<interfaces::DebugMessage> EncodeCommandMessage() override;
 
+    std::array<uint8_t, gbxcore::RegisterBankSizeInBytes> RegisterValues();
+
 private:
-    std::array<uint8_t, 16> _registerValues{};
+    std::array<uint8_t, gbxcore::RegisterBankSizeInBytes> _registerValues{};
 };
 
 }

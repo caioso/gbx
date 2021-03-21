@@ -11,15 +11,19 @@
 #include "DebugMessage.h"
 #include "DebugMessageNotificationArguments.h"
 #include "Observer.h"
+#include "OutputDriver.h"
 #include "Runtime.h"
+#include "RegisterBank.h"
 
 #include "TestUtils.h"
 
+using namespace gbxcore;
 using namespace gbxcommons;
 using namespace gbxcore::interfaces;
 using namespace gbxdb;
 using namespace gbxdb::interfaces;
 using namespace gbxdb::protocol;
+using namespace gbxdb::output;
 using namespace std;
 
 using ::testing::Return;
@@ -33,6 +37,13 @@ std::shared_ptr<std::array<uint8_t, MaxMessageBufferSize>> CreateJoinedServerMes
 
     return message;
 }
+
+class OutputDriverMock : public OutputDriver
+{
+public:
+    virtual ~OutputDriverMock() = default;
+    MOCK_METHOD(void, DisplayRegisterbank, ((array<uint8_t, RegisterBankSizeInBytes>)));
+};
 
 class RuntimeMock : public Runtime
 {
@@ -55,14 +66,16 @@ public:
 
 TEST(DebuggerTests_ClientMessageHandler, Construction) 
 {
+    OutputDriverMock outputMock;
     auto transportMock = make_shared<TransportMock>();
-    auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock));
+    auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock), outputMock);
 }
 
 TEST(DebuggerTests_ClientMessageHandler, InitializationTest) 
 {
+    OutputDriverMock outputMock;
     auto transportMock = make_shared<TransportMock>();
-    auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock));
+    auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock), outputMock);
 
     EXPECT_CALL((*transportMock), Subscribe(::_)).Times(1);
     messageHandler->Initialize();
@@ -70,8 +83,9 @@ TEST(DebuggerTests_ClientMessageHandler, InitializationTest)
 
 TEST(DebuggerTests_ClientMessageHandler, JoinServerMessage) 
 {
+    OutputDriverMock outputMock;
     auto transportMock = make_shared<TransportMock>();
-    auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock));
+    auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock), outputMock);
 
     auto clientJoinedMessage = make_shared<DebugMessage>(CreateJoinedServerMessage());
     auto notificationArguments = make_shared<DebugMessageNotificationArguments>(clientJoinedMessage);

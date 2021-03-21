@@ -29,6 +29,12 @@ void RegisterBankSummaryCommand::SetSummary(shared_ptr<Runtime> runtime)
     _registerValues[11] = ((get<uint16_t>(runtime->ReadRegister(Register::PC)) >> 0x08) & 0xFF);
     _registerValues[12] = (get<uint16_t>(runtime->ReadRegister(Register::SP)) & 0xFF); 
     _registerValues[13] = ((get<uint16_t>(runtime->ReadRegister(Register::SP)) >> 0x08) & 0xFF);
+    _registerValues[14] = 0x00; // IX MSB
+    _registerValues[15] = 0x00; // IX LSB
+    _registerValues[16] = 0x00; // IY LSB
+    _registerValues[17] = 0x00; // IY MSB
+    _registerValues[18] = 0x00; // RESERVED
+    _registerValues[19] = 0x00; // RESERVED
 }
 
 void RegisterBankSummaryCommand::DecodeResponseMessage(shared_ptr<DebugMessage> message)
@@ -52,8 +58,18 @@ void RegisterBankSummaryCommand::DecodeResponseMessage(shared_ptr<DebugMessage> 
     _registerValues[11] = (*buffer)[13];
     _registerValues[12] = (*buffer)[14];
     _registerValues[13] = (*buffer)[15];
+    _registerValues[14] = 0x00; // IX MSB
+    _registerValues[15] = 0x00; // IX LSB
+    _registerValues[16] = 0x00; // IY LSB
+    _registerValues[17] = 0x00; // IY MSB
+    _registerValues[18] = 0x00; // RESERVED
+    _registerValues[19] = 0x00; // RESERVED
 }
 
+std::array<uint8_t, gbxcore::RegisterBankSizeInBytes> RegisterBankSummaryCommand::RegisterValues()
+{
+    return _registerValues;
+}
 
 void RegisterBankSummaryCommand::DecodeRequestMessage([[maybe_unused]] shared_ptr<DebugMessage> message)
 {}

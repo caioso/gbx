@@ -8,8 +8,9 @@ using namespace std;
 namespace gbxdb
 {
 
-ClientMessageHandler::ClientMessageHandler(shared_ptr<ClientTransport> transport)
+ClientMessageHandler::ClientMessageHandler(shared_ptr<ClientTransport> transport, gbxdb::output::OutputDriver& outputDriver)
     : _transport(transport)
+    , _outputDriver(outputDriver)
 {}
 
 void ClientMessageHandler::Initialize()
@@ -54,6 +55,7 @@ void ClientMessageHandler::HandleRegisterBankSummaryMessage(std::shared_ptr<gbxd
 {
     RegisterBankSummaryCommand command;
     command.DecodeResponseMessage(message);
+    _outputDriver.DisplayRegisterbank(command.RegisterValues());
 }
 
 void ClientMessageHandler::SendRegisterBankSummaryMessage()
