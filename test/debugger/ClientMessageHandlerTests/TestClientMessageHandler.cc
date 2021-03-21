@@ -7,7 +7,7 @@
 
 #include "ClientTransport.h"
 #include "ClientMessageHandler.h"
-#include "ClientMessageID.h"
+#include "MessageID.h"
 #include "DebugMessage.h"
 #include "DebugMessageNotificationArguments.h"
 #include "Observer.h"
@@ -28,8 +28,8 @@ using ::testing::_;
 std::shared_ptr<std::array<uint8_t, MaxMessageBufferSize>> CreateJoinedServerMessage()
 {
     auto message = make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
-    (*message)[0] = ClientMessageID::JoinedServer & 0xFF;
-    (*message)[1] = (ClientMessageID::JoinedServer >> 0x08) & 0xFF;
+    (*message)[0] = MessageID::MessageJoined & 0xFF;
+    (*message)[1] = (MessageID::MessageJoined >> 0x08) & 0xFF;
 
     return message;
 }

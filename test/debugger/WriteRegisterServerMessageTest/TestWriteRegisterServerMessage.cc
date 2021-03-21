@@ -10,7 +10,7 @@
 #include "DebugMessageNotificationArguments.h"
 #include "ErrorID.h"
 #include "GBXEmulatorExceptions.h"
-#include "ServerMessageID.h"
+#include "MessageID.h"
 #include "Runtime.h"
 #include "ServerTransport.h"
 #include "ServerMessageHandler.h"
@@ -104,7 +104,7 @@ TEST(DebuggerTests_WriteRegisterServerMessage, Write8bitRegisterWithRandomValue)
             // Written value
             uint16_t targetValue = (*(argument->Buffer()))[3] | ((*(argument->Buffer()))[4] << 0x08);
 
-            EXPECT_EQ(ServerMessageID::MessageWriteRegister, messageId);
+            EXPECT_EQ(MessageID::MessageWriteRegister, messageId);
             EXPECT_EQ(targetRegister, static_cast<uint8_t>(operand));
             EXPECT_EQ(targetValue, static_cast<uint16_t>(registerValue));
         }));
@@ -152,7 +152,7 @@ TEST(DebuggerTests_WriteRegisterServerMessage, Write16bitRegisterWithRandomValue
             // Written value
             uint16_t targetValue = (*(argument->Buffer()))[3] | ((*(argument->Buffer()))[4] << 0x08);
 
-            EXPECT_EQ(ServerMessageID::MessageWriteRegister, messageId);
+            EXPECT_EQ(MessageID::MessageWriteRegister, messageId);
             EXPECT_EQ(targetRegister, static_cast<uint8_t>(operand));
             EXPECT_EQ(targetValue, registerValue);
         }));
@@ -189,7 +189,7 @@ TEST(DebuggerTests_WriteRegisterServerMessage, WriteInvalidRegisterAddress)
         // Error Code
         uint16_t targetError = (*(argument->Buffer()))[2] | (*(argument->Buffer()))[3] << 0x08;
       
-        EXPECT_EQ(ServerMessageID::MessageError, messageId);
+        EXPECT_EQ(MessageID::MessageError, messageId);
         EXPECT_EQ(ErrorID::InvalidRegister, targetError);
     }));
 

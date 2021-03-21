@@ -10,8 +10,9 @@
 #include "GBXDebuggerExceptions.h"
 #include "Observer.h"
 
-#include "ClientMessageID.h"
-#include "ClientJoinedServerCommand.h"
+#include "MessageID.h"
+#include "ClientJoinedCommand.h"
+#include "RegisterBankSummaryCommand.h"
 
 namespace gbxdb
 {
@@ -26,12 +27,15 @@ public:
     void Initialize();
     void Notify(std::shared_ptr<gbxcommons::NotificationArguments>) override;
 
+    // From-Command line command handlers
+    void SendRegisterBankSummaryMessage();
+
     bool IsConnected();
 
 private:
     void ParseMessage(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
-
     void HandleJoinedServerCommand(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
+    void HandleRegisterBankSummaryMessage(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
 
     std::shared_ptr<gbxdb::interfaces::ClientTransport> _transport;
     bool _isConnected{};

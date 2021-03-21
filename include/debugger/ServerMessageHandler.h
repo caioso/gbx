@@ -14,12 +14,12 @@
 #include "ErrorID.h"
 #include "ErrorCommand.h"
 
-#include "ClientJoinedServerCommand.h"
-#include "ReadRegisterServerCommand.h"
-#include "RegisterBankSummaryServerCommand.h"
-#include "ServerCommandID.h"
-#include "ServerMessageID.h"
-#include "WriteRegisterServerCommand.h"
+#include "ClientJoinedCommand.h"
+#include "ReadRegisterCommand.h"
+#include "RegisterBankSummaryCommand.h"
+#include "CommandID.h"
+#include "MessageID.h"
+#include "WriteRegisterCommand.h"
 
 #include "DebugMessageNotificationArguments.h"
 #include "Runtime.h"

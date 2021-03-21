@@ -125,7 +125,7 @@ void LaunchEmulator(ApplicationConfiguration configuration)
 
 int main (int argc, char** argv)
 {
-    cout << "GAME BOY X Emulator 0.0.1-alpha" << '\n';
+    cout << "GAME BOY X Runtime" << '\n';
     configuration = ParseCommandLine(argc, argv);
     
     LaunchEmulator(configuration);

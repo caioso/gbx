@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "GBXDebuggerExceptions.h"
-#include "ClientCommandID.h"
+#include "CommandID.h"
 #include "DebugMessage.h"
 
 namespace gbxdb::input
@@ -27,14 +27,14 @@ struct CLICommandTemplate
     std::string ShortFormat;
 
     CommandType Type;
-    gbxdb::protocol::ClientCommandID CommandID;
+    gbxdb::protocol::CommandID CommandID;
 
     std::optional<size_t> NumberOfArgument;
 };
 
 struct ParsedCLICommand
 {
-    gbxdb::protocol::ClientCommandID CommandID;
+    gbxdb::protocol::CommandID CommandID;
     std::optional<std::vector<std::string>> Arguments;
 };
 
@@ -57,7 +57,7 @@ private:
     std::vector<CLICommandTemplate>::iterator FindCommand(std::string);
     void LookForDuplicateCommands(std::string, std::string) noexcept(false);
     ParsedCLICommand ParseCommand(std::vector<std::string>) noexcept(false);
-    void Register(std::string, std::string, CommandType, gbxdb::protocol::ClientCommandID, std::optional<size_t>);
+    void Register(std::string, std::string, CommandType, gbxdb::protocol::CommandID, std::optional<size_t>);
     std::vector<std::string> SplitLine(std::string);
 
     std::vector<CLICommandTemplate> _commands;

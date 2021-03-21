@@ -12,7 +12,7 @@ OBJ_FILES = $(patsubst %.cc,$(BUILD_TEMP)/%.o,$(SRC_FILES))
 DEP_FILES = $(patsubst %.o,%.d,$(OBJ_FILES))
 
 # Add test dependencies here (.cc files only)
-MODULES = CancellationToken DebugMessage DebugMessageNotificationArguments ServerMessageHandler GBXEmulatorExceptions ReadRegisterCommand
+MODULES = DebugMessage DebugMessageNotificationArguments ClientMessageHandler GBXEmulatorExceptions RegisterBankSummaryCommand
 MODULES_DEPS = $(addsuffix .o, $(addprefix $(BUILD_TEMP)/,$(MODULES)))
 
 .PHONY: all

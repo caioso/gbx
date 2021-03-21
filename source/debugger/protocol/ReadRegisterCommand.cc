@@ -1,4 +1,4 @@
-#include "ReadRegisterServerCommand.h"
+#include "ReadRegisterCommand.h"
 
 using namespace gbxdb::interfaces;
 using namespace gbxcore::interfaces;
@@ -6,18 +6,18 @@ using namespace std;
 
 namespace gbxdb::protocol
 {
-ReadRegisterServerCommand::ReadRegisterServerCommand()
-    : DebugCommand(static_cast<uint16_t>(ServerCommandID::CommandReadRegister))
+ReadRegisterCommand::ReadRegisterCommand()
+    : DebugCommand(static_cast<uint16_t>(CommandID::CommandReadRegister))
 {}
 
-gbxcore::interfaces::Register ReadRegisterServerCommand::RegisterToRead()
+gbxcore::interfaces::Register ReadRegisterCommand::RegisterToRead()
 {
     return _register;
 }
 
-void ReadRegisterServerCommand::DecodeRequestMessage(std::shared_ptr<DebugMessage> message)
+void ReadRegisterCommand::DecodeRequestMessage(shared_ptr<DebugMessage> message)
 {
-    // Move this to a "Parse Method" in the ReadRegisterServerCommand class
+    // Move this to a "Parse Method" in the ReadRegisterCommand class
     auto targetRegister = (*message->Buffer())[2];
 
     auto validRegisters = {Register::B, Register::C, Register::D, Register::E, Register::H, Register::L,
@@ -34,18 +34,22 @@ void ReadRegisterServerCommand::DecodeRequestMessage(std::shared_ptr<DebugMessag
     throw MessageHandlerException("Invalid target register found when parsing 'ReadRegister' command");
 }
 
-std::shared_ptr<DebugMessage> ReadRegisterServerCommand::EncodeRequestMessage()
+
+void ReadRegisterCommand::DecodeResponseMessage([[maybe_unused]] shared_ptr<DebugMessage> message)
+{}
+
+std::shared_ptr<DebugMessage> ReadRegisterCommand::EncodeCommandMessage()
 {
     auto buffer = make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
-    (*buffer)[0] = static_cast<uint16_t>(ServerMessageID::MessageReadRegister) & 0xFF;
-    (*buffer)[1] = ((static_cast<uint16_t>(ServerMessageID::MessageReadRegister)) >> 0x08) & 0xFF;
+    (*buffer)[0] = static_cast<uint16_t>(MessageID::MessageReadRegister) & 0xFF;
+    (*buffer)[1] = ((static_cast<uint16_t>(MessageID::MessageReadRegister)) >> 0x08) & 0xFF;
     (*buffer)[2] = _registerValue & 0xff;
     (*buffer)[3] = (_registerValue >> 0x08) & 0xff;
 
     return make_shared<DebugMessage>(buffer);
 }
 
-void ReadRegisterServerCommand::SetRegisterValue(uint16_t registerValue)
+void ReadRegisterCommand::SetRegisterValue(uint16_t registerValue)
 {
     _registerValue = registerValue;
 }

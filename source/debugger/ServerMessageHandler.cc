@@ -32,13 +32,13 @@ void ServerMessageHandler::ParseMessage(shared_ptr<DebugMessage> messagePointer)
     switch (messageID)
     {
         // Parse messages and add them to the queue.
-        case ServerMessageID::MessageClientJoined: _commandQueue.push(ParseClientJoinedCommand(messagePointer));
+        case MessageID::MessageJoined: _commandQueue.push(ParseClientJoinedCommand(messagePointer));
              break;
-        case ServerMessageID::MessageReadRegister: _commandQueue.push(ParseReadRegisterCommand(messagePointer));
+        case MessageID::MessageReadRegister: _commandQueue.push(ParseReadRegisterCommand(messagePointer));
              break;
-        case ServerMessageID::MessageRegisterBankSummary: _commandQueue.push(ParseRegisterBankSummaryCommand(messagePointer));
+        case MessageID::MessageRegisterBankSummary: _commandQueue.push(ParseRegisterBankSummaryCommand(messagePointer));
              break;
-        case ServerMessageID::MessageWriteRegister: _commandQueue.push(ParseWriteRegisterCommand(messagePointer));
+        case MessageID::MessageWriteRegister: _commandQueue.push(ParseWriteRegisterCommand(messagePointer));
              break;
         default:
             // Send an error command back here!!!!!
@@ -55,11 +55,11 @@ void ServerMessageHandler::ProcessMessages(shared_ptr<Runtime> runtime, shared_p
 
         switch(command->Type())
         {
-            case ServerCommandID::CommandClientJoined: RunClientJoinedCommand(runner); break;
-            case ServerCommandID::CommandReadRegister: response = RunReadRegisterCommand(command, runtime); break;
-            case ServerCommandID::CommandRegisterBankSummary: response = RunRegisterBankSummaryCommand(command, runtime); break;
-            case ServerCommandID::CommandWriteRegister: response = RunWriteRegisterCommand(command, runtime); break;
-            case ServerCommandID::CommandError: response = RunErrorCommand(command); break;
+            case CommandID::CommandJoined: RunClientJoinedCommand(runner); break;
+            case CommandID::CommandReadRegister: response = RunReadRegisterCommand(command, runtime); break;
+            case CommandID::CommandRegisterBankSummary: response = RunRegisterBankSummaryCommand(command, runtime); break;
+            case CommandID::CommandWriteRegister: response = RunWriteRegisterCommand(command, runtime); break;
+            case CommandID::CommandError: response = RunErrorCommand(command); break;
         }
 
         if (response != nullptr)
@@ -71,7 +71,7 @@ void ServerMessageHandler::ProcessMessages(shared_ptr<Runtime> runtime, shared_p
 
 shared_ptr<DebugCommand> ServerMessageHandler::ParseReadRegisterCommand(shared_ptr<DebugMessage> message)
 {
-    auto readRegisterCommand = make_shared<ReadRegisterServerCommand>();
+    auto readRegisterCommand = make_shared<ReadRegisterCommand>();
     
     try
     {
@@ -87,14 +87,14 @@ shared_ptr<DebugCommand> ServerMessageHandler::ParseReadRegisterCommand(shared_p
 
 shared_ptr<DebugCommand> ServerMessageHandler::ParseClientJoinedCommand(shared_ptr<DebugMessage> message)
 {
-    auto clientJoinedCommand = make_shared<ClientJoinedServerCommand>();
+    auto clientJoinedCommand = make_shared<ClientJoinedCommand>();
     clientJoinedCommand->DecodeRequestMessage(message);
     return clientJoinedCommand;
 }
 
 shared_ptr<DebugCommand> ServerMessageHandler::ParseRegisterBankSummaryCommand(shared_ptr<DebugMessage> message)
 {
-    auto registerBankSummaryCommand = make_shared<RegisterBankSummaryServerCommand>();
+    auto registerBankSummaryCommand = make_shared<RegisterBankSummaryCommand>();
     registerBankSummaryCommand->DecodeRequestMessage(message);
     return registerBankSummaryCommand;
 }
@@ -122,21 +122,21 @@ void ServerMessageHandler::RunClientJoinedCommand(shared_ptr<DebuggableRunner> r
 
 shared_ptr<DebugMessage> ServerMessageHandler::RunErrorCommand(shared_ptr<DebugCommand> command)
 {
-    return static_pointer_cast<ErrorCommand>(command)->EncodeRequestMessage();
+    return static_pointer_cast<ErrorCommand>(command)->EncodeCommandMessage();
 }
 
 shared_ptr<DebugMessage> ServerMessageHandler::RunReadRegisterCommand(shared_ptr<DebugCommand> command, shared_ptr<Runtime> runtime)
 {
-    auto valueVariant = runtime->ReadRegister(static_pointer_cast<ReadRegisterServerCommand>(command)->RegisterToRead());
+    auto valueVariant = runtime->ReadRegister(static_pointer_cast<ReadRegisterCommand>(command)->RegisterToRead());
     auto value = holds_alternative<uint16_t>(valueVariant) ? get<uint16_t>(valueVariant) : static_cast<uint16_t>(get<uint8_t>(valueVariant));
-    static_pointer_cast<ReadRegisterServerCommand>(command)->SetRegisterValue(value);
-    return command->EncodeRequestMessage();
+    static_pointer_cast<ReadRegisterCommand>(command)->SetRegisterValue(value);
+    return command->EncodeCommandMessage();
 }
 
 shared_ptr<DebugMessage> ServerMessageHandler::RunRegisterBankSummaryCommand(shared_ptr<DebugCommand> command, shared_ptr<gbxcore::interfaces::Runtime> runtime)
 {
-    static_pointer_cast<RegisterBankSummaryServerCommand>(command)->GenerateSummary(runtime);
-    return command->EncodeRequestMessage();
+    static_pointer_cast<RegisterBankSummaryCommand>(command)->SetSummary(runtime);
+    return command->EncodeCommandMessage();
 }
 
 shared_ptr<DebugMessage> ServerMessageHandler::RunWriteRegisterCommand(shared_ptr<DebugCommand> command, shared_ptr<gbxcore::interfaces::Runtime> runtime)
@@ -144,7 +144,7 @@ shared_ptr<DebugMessage> ServerMessageHandler::RunWriteRegisterCommand(shared_pt
     auto valueVariant = static_pointer_cast<WriteRegisterCommand>(command)->RegisterValue();
     auto targetRegister = static_pointer_cast<WriteRegisterCommand>(command)->Register();
     runtime->WriteRegister(targetRegister, valueVariant);
-    return command->EncodeRequestMessage();
+    return command->EncodeCommandMessage();
 }
 
 size_t ServerMessageHandler::Pending()

@@ -7,18 +7,22 @@ namespace gbxdb::protocol
 {
 
 ErrorCommand::ErrorCommand(ErrorID error)
-    : DebugCommand(ServerCommandID::CommandError)
+    : DebugCommand(CommandID::CommandError)
     , _errorId(error)
 {}
 
-void ErrorCommand::DecodeRequestMessage([[maybe_unused]] std::shared_ptr<interfaces::DebugMessage> message)
+void ErrorCommand::DecodeRequestMessage([[maybe_unused]] shared_ptr<DebugMessage> message)
 {}
 
-shared_ptr<interfaces::DebugMessage> ErrorCommand::EncodeRequestMessage()
+void ErrorCommand::DecodeResponseMessage([[maybe_unused]] shared_ptr<DebugMessage> message)
+{}
+
+
+shared_ptr<interfaces::DebugMessage> ErrorCommand::EncodeCommandMessage()
 {
     auto buffer = make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
-    (*buffer)[0] = static_cast<uint16_t>(ServerMessageID::MessageError) & 0xFF;
-    (*buffer)[1] = ((static_cast<uint16_t>(ServerMessageID::MessageError)) >> 0x08) & 0xFF;
+    (*buffer)[0] = static_cast<uint16_t>(MessageID::MessageError) & 0xFF;
+    (*buffer)[1] = ((static_cast<uint16_t>(MessageID::MessageError)) >> 0x08) & 0xFF;
     (*buffer)[2] = static_cast<uint16_t>(_errorId) & 0xff;
     (*buffer)[3] = (static_cast<uint16_t>(_errorId) >> 0x08) & 0xff;
 

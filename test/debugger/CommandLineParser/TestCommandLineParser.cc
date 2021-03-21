@@ -6,13 +6,14 @@
 #include <optional>
 #include <string>
 
-#include "ClientMessageID.h"
+#include "MessageID.h"
 #include "CommandLineParser.h"
 #include "DebugMessage.h"
 #include "TestUtils.h"
 
 using namespace gbxdb;
 using namespace gbxdb::input;
+using namespace gbxdb::protocol;
 using namespace std;
 
 using ::testing::Return;
@@ -60,5 +61,5 @@ TEST(DebuggerTests_ComamandLineParser, ParseDummyCommand)
     auto message = parser.Parse(registerBankSummaryCommand);
     
     uint16_t messageID = (*message.Buffer())[0] | ((*message.Buffer())[1] << 0x08);
-    EXPECT_EQ(ClientMessageID::MessageRegisterBankSummary, messageID);
+    EXPECT_EQ(MessageID::MessageRegisterBankSummary, messageID);
 }

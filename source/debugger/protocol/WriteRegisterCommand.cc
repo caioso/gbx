@@ -1,4 +1,4 @@
-#include "WriteRegisterServerCommand.h"
+#include "WriteRegisterCommand.h"
 
 using namespace gbxdb::interfaces;
 using namespace gbxcore::interfaces;
@@ -8,7 +8,7 @@ namespace gbxdb::protocol
 {
 
 WriteRegisterCommand::WriteRegisterCommand()
-    : DebugCommand(ServerCommandID::CommandWriteRegister)
+    : DebugCommand(CommandID::CommandWriteRegister)
 {}
 
 void WriteRegisterCommand::DecodeRequestMessage(shared_ptr<DebugMessage> message)
@@ -21,6 +21,10 @@ void WriteRegisterCommand::DecodeRequestMessage(shared_ptr<DebugMessage> message
     ConvertRegister(targetRegister);
     _registerValue = (*message->Buffer())[3] | ((*message->Buffer())[4] << 0x08);
 }
+
+void WriteRegisterCommand::DecodeResponseMessage([[maybe_unused]] shared_ptr<DebugMessage> message)
+{}
+
 
 void WriteRegisterCommand::ConvertRegister(uint8_t targetRegister)
 {
@@ -63,11 +67,11 @@ gbxcore::interfaces::Register WriteRegisterCommand::Register()
     return _register;
 }
 
-shared_ptr<DebugMessage> WriteRegisterCommand::EncodeRequestMessage()
+shared_ptr<DebugMessage> WriteRegisterCommand::EncodeCommandMessage()
 {
     auto buffer = make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
-    (*buffer)[0] = static_cast<uint16_t>(ServerMessageID::MessageWriteRegister) & 0xFF;
-    (*buffer)[1] = ((static_cast<uint16_t>(ServerMessageID::MessageWriteRegister)) >> 0x08) & 0xFF;
+    (*buffer)[0] = static_cast<uint16_t>(MessageID::MessageWriteRegister) & 0xFF;
+    (*buffer)[1] = ((static_cast<uint16_t>(MessageID::MessageWriteRegister)) >> 0x08) & 0xFF;
     (*buffer)[2] = static_cast<uint8_t>(_register);
     (*buffer)[3] = _registerValue & 0xff;
     (*buffer)[4] = (_registerValue >> 0x08) & 0xff;

@@ -8,7 +8,7 @@
 #include "DebugMessage.h"
 #include "DebugMessageNotificationArguments.h"
 #include "GBXEmulatorExceptions.h"
-#include "ServerMessageID.h"
+#include "MessageID.h"
 #include "Runtime.h"
 #include "ServerMessageHandler.h"
 #include "ServerTransport.h"

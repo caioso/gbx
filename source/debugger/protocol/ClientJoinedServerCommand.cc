@@ -1,16 +1,19 @@
-#include "ClientJoinedServerCommand.h"
+#include "ClientJoinedCommand.h"
 
 namespace gbxdb::protocol
 {
 
-ClientJoinedServerCommand::ClientJoinedServerCommand()
-     : DebugCommand(static_cast<uint16_t>(ServerCommandID::CommandClientJoined))
+ClientJoinedCommand::ClientJoinedCommand()
+     : DebugCommand(static_cast<uint16_t>(CommandID::CommandJoined))
 {}
     
-void ClientJoinedServerCommand::DecodeRequestMessage([[maybe_unused]] std::shared_ptr<interfaces::DebugMessage> message)
+void ClientJoinedCommand::DecodeRequestMessage([[maybe_unused]] std::shared_ptr<interfaces::DebugMessage> message)
 {}
 
-std::shared_ptr<interfaces::DebugMessage> ClientJoinedServerCommand::EncodeRequestMessage()
+void ClientJoinedCommand::DecodeResponseMessage([[maybe_unused]] std::shared_ptr<interfaces::DebugMessage> message)
+{}
+
+std::shared_ptr<interfaces::DebugMessage> ClientJoinedCommand::EncodeCommandMessage()
 {
     return {};
 }

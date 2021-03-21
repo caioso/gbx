@@ -10,7 +10,7 @@ namespace gbxdb::input
 
 void CommandLineParser::Initialize()
 {
-    Register("register-bank", "rb", CommandType::Getter, ClientCommandID::CommandRegisterBankSummary, nullopt);
+    Register("register-bank", "rb", CommandType::Getter, CommandID::CommandRegisterBankSummary, nullopt);
 }
 
 DebugMessage CommandLineParser::Parse(string line)
@@ -18,7 +18,7 @@ DebugMessage CommandLineParser::Parse(string line)
     auto commandAndArguments = SplitLine(line);
     auto command = ParseCommand(commandAndArguments);
 
-    if (command.CommandID == ClientCommandID::CommandRegisterBankSummary)
+    if (command.CommandID == CommandID::CommandRegisterBankSummary)
     {
         DebugMessage message(make_shared<std::array<uint8_t, MaxMessageBufferSize>>());
         (*message.Buffer())[0] = 0xFD;
@@ -29,7 +29,7 @@ DebugMessage CommandLineParser::Parse(string line)
     return make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
 }
 
-void CommandLineParser::Register(string longFormat, string shortFormat, CommandType type, ClientCommandID commandID, optional<size_t> numArgs)
+void CommandLineParser::Register(string longFormat, string shortFormat, CommandType type, CommandID commandID, optional<size_t> numArgs)
 {
     LookForDuplicateCommands(longFormat, shortFormat);
 

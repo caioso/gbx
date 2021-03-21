@@ -3,10 +3,10 @@
 namespace gbxdb::protocol
 {
 
-enum ServerMessageID : uint16_t
+enum MessageID : uint16_t
 {
     // Client Jointed
-    MessageClientJoined = 0xFFFF,
+    MessageJoined = 0xFFFF,
     
     // Register Bank Interaction Messages
     MessageReadRegister = 0xFFFE,

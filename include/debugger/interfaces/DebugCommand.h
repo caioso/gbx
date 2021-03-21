@@ -15,7 +15,8 @@ public:
     virtual ~DebugCommand() = default;
 
     virtual void DecodeRequestMessage(std::shared_ptr<DebugMessage>) = 0;
-    virtual std::shared_ptr<DebugMessage> EncodeRequestMessage() = 0;
+    virtual void DecodeResponseMessage(std::shared_ptr<DebugMessage>) = 0;
+    virtual std::shared_ptr<DebugMessage> EncodeCommandMessage() = 0;
     uint16_t Type();
 
 private:

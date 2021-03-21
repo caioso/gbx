@@ -7,8 +7,8 @@
 #include "DebugMessage.h"
 #include "GBXDebuggerExceptions.h"
 #include "RegisterBankInterface.h"
-#include "ServerCommandID.h"
-#include "ServerMessageID.h"
+#include "CommandID.h"
+#include "MessageID.h"
 
 namespace gbxdb::protocol
 {
@@ -25,7 +25,8 @@ public:
     WriteRegisterCommand& operator=(WriteRegisterCommand&&) = default;
 
     void DecodeRequestMessage(std::shared_ptr<interfaces::DebugMessage>) override;
-    std::shared_ptr<interfaces::DebugMessage> EncodeRequestMessage() override;
+    void DecodeResponseMessage(std::shared_ptr<interfaces::DebugMessage>) override;
+    std::shared_ptr<interfaces::DebugMessage> EncodeCommandMessage() override;
     
     std::variant<uint8_t, uint16_t> RegisterValue();
     gbxcore::interfaces::Register Register();

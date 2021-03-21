@@ -8,7 +8,7 @@
 #include "DebugMessage.h"
 #include "DebugMessageNotificationArguments.h"
 #include "GBXEmulatorExceptions.h"
-#include "ServerMessageID.h"
+#include "MessageID.h"
 #include "Runtime.h"
 #include "ServerMessageHandler.h"
 #include "ServerTransport.h"
@@ -108,7 +108,7 @@ TEST(DebuggerTests_RegisterBankSummaryServerMessage, RequestRegisterBankSummary)
         uint16_t registerPC = (*(argument->Buffer()))[12] | (*(argument->Buffer()))[13] << 0x08;
         uint16_t registerSP = (*(argument->Buffer()))[14] | (*(argument->Buffer()))[15] << 0x08;
 
-        EXPECT_EQ(ServerMessageID::MessageRegisterBankSummary, messageId);
+        EXPECT_EQ(MessageID::MessageRegisterBankSummary, messageId);
         EXPECT_EQ(registerB, 0x01);
         EXPECT_EQ(registerC, 0x02);
         EXPECT_EQ(registerD, 0x03);

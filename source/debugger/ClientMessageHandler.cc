@@ -35,8 +35,10 @@ void ClientMessageHandler::ParseMessage(shared_ptr<DebugMessage> message)
     // Client messages are handled directly -> *HOWEVER* DebugCommands Still are gonna be generated out of the raw messages.
     switch (messageID)
     {
-        case ClientMessageID::JoinedServer: HandleJoinedServerCommand(message);
-             return;           
+        case MessageID::MessageJoined: HandleJoinedServerCommand(message);
+             break;       
+        case MessageID::MessageRegisterBankSummary: HandleRegisterBankSummaryMessage(message);
+             break;
         default:
             // Send an error command back here!!!!!
             throw MessageHandlerException("Invalid debug message recieved and will be ignored");
@@ -46,6 +48,18 @@ void ClientMessageHandler::ParseMessage(shared_ptr<DebugMessage> message)
 void ClientMessageHandler::HandleJoinedServerCommand([[maybe_unused]] shared_ptr<DebugMessage> message)
 {
     _isConnected = true;
+}
+
+void ClientMessageHandler::HandleRegisterBankSummaryMessage(std::shared_ptr<gbxdb::interfaces::DebugMessage> message)
+{
+    RegisterBankSummaryCommand command;
+    command.DecodeResponseMessage(message);
+}
+
+void ClientMessageHandler::SendRegisterBankSummaryMessage()
+{
+    RegisterBankSummaryCommand command;
+    _transport->SendMessage(command.EncodeCommandMessage());
 }
 
 }

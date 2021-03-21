@@ -8,7 +8,7 @@
 #include "DebuggableRunner.h"
 #include "DebugMessageNotificationArguments.h"
 #include "GBXEmulatorExceptions.h"
-#include "ServerMessageID.h"
+#include "MessageID.h"
 #include "Runtime.h"
 #include "ServerMessageHandler.h"
 #include "ServerTransport.h"
@@ -96,7 +96,7 @@ TEST(DebuggerTests_ReadRegisterServerMessage, ReadRegisterMessage8Bit)
             uint16_t messageId = (*(argument->Buffer()))[0] | (*(argument->Buffer()))[1] << 0x08;
             uint16_t value = (*(argument->Buffer()))[2] | (*(argument->Buffer()))[3] << 0x08;
 
-            EXPECT_EQ(ServerMessageID::MessageReadRegister, messageId);
+            EXPECT_EQ(MessageID::MessageReadRegister, messageId);
             EXPECT_EQ(registerValue, value);
         }));
 
@@ -139,7 +139,7 @@ TEST(DebuggerTests_ReadRegisterServerMessage, ReadRegisterMessage16Bit)
             uint16_t messageId = (*(argument->Buffer()))[0] | (*(argument->Buffer()))[1] << 0x08;
             uint16_t value = (*(argument->Buffer()))[2] | (*(argument->Buffer()))[3] << 0x08;
 
-            EXPECT_EQ(ServerMessageID::MessageReadRegister, messageId);
+            EXPECT_EQ(MessageID::MessageReadRegister, messageId);
             EXPECT_EQ(registerValue, value);
         }));
 
@@ -173,7 +173,7 @@ TEST(DebuggerTests_ReadRegisterServerMessage, DecodeReadRegisterUnknownRegister)
         // Error Code
         uint16_t targetError = (*(argument->Buffer()))[2] | (*(argument->Buffer()))[3] << 0x08;
       
-        EXPECT_EQ(ServerMessageID::MessageError, messageId);
+        EXPECT_EQ(MessageID::MessageError, messageId);
         EXPECT_EQ(ErrorID::InvalidRegister, targetError);
     }));
 
