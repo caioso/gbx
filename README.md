@@ -21,6 +21,8 @@
   </h10>
 </p>
 
+</br>
+
 ----------- 
 
 <p align="left">
@@ -76,6 +78,9 @@ Development IDE providing a syntax-highlighted Code Editor, Graphical Debugger, 
 
 This repository is currently in active development. The code is constantly changed and new features will be added as the development proceeds. ***the project has currently no release date planned and no releases available***. As soon as they become available , you'll be able to download them from this page.
 
+</br>
+
+---------
 </p>
 <p align="center">
   <a href="https://github.com/caioso/gbx">
