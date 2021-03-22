@@ -1,4 +1,4 @@
-#include "FUNCSyntacticAnalyzer.h"
+#include "FuncSyntacticAnalyzer.h"
 
 using namespace gbxasm;
 using namespace gbxasm::frontend;

@@ -4,7 +4,7 @@
 
 #include "IntermediateRepresentation.h"
 #include "ConstructionSyntacticAnalyzer.h"
-#include "PACKSyntacticAnalyzer.h"
+#include "PackSyntacticAnalyzer.h"
 
 #include "Token.h"
 

@@ -11,7 +11,8 @@ enum class ConstructionType
 {
     UnknownType = 0,
     PACK,
-    FUNC
+    FUNC,
+    Expression
 };
 
 class IntermediateRepresentation

@@ -1,4 +1,4 @@
-#include "FUNCIntermediateRepresentation.h"
+#include "FuncIntermediateRepresentation.h"
 
 using namespace gbxasm::frontend;
 using namespace std;

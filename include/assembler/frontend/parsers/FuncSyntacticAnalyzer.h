@@ -7,7 +7,7 @@
 
 #include "ConstructionSyntacticAnalyzer.h"
 #include "DeclaredMember.h"
-#include "FUNCIntermediateRepresentation.h"
+#include "FuncIntermediateRepresentation.h"
 #include "Lexemes.h"
 #include "LexemeToDeclaredMemberType.h"
 #include "Token.h"

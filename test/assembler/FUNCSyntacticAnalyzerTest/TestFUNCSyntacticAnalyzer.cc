@@ -11,8 +11,8 @@
 #include "DeclaredMember.h"
 #include "LexicalAnalyzer.h"
 #include "Lexemes.h"
-#include "FUNCIntermediateRepresentation.h"
-#include "FUNCSyntacticAnalyzer.h"
+#include "FuncIntermediateRepresentation.h"
+#include "FuncSyntacticAnalyzer.h"
 #include "Construction.h"
 #include "GBXAsmExceptions.h"
 

@@ -9,7 +9,7 @@
 #include "GBXAsmExceptions.h"
 #include "ConstructionSyntacticAnalyzer.h"
 #include "IntermediateRepresentation.h"
-#include "PACKIntermediateRepresentation.h"
+#include "PackIntermediateRepresentation.h"
 #include "DeclaredMember.h"
 #include "LexemeToDeclaredMemberType.h"
 
