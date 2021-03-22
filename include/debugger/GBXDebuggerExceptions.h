@@ -24,11 +24,11 @@ public:
     ~MessageHandlerException() = default;
 };
 
-class ServerProtocolException : public GBXDebuggerExceptions
+class ProtocolException : public GBXDebuggerExceptions
 {
 public:
-    ServerProtocolException(const std::string&);
-    ~ServerProtocolException() = default;
+    ProtocolException(const std::string&);
+    ~ProtocolException() = default;
 };
 
 class CommandLineInputException : public GBXDebuggerExceptions
@@ -36,6 +36,13 @@ class CommandLineInputException : public GBXDebuggerExceptions
 public:
     CommandLineInputException(const std::string&);
     ~CommandLineInputException() = default;
+};
+
+class CommandLineOutputDriverException : public GBXDebuggerExceptions
+{
+public:
+    CommandLineOutputDriverException(const std::string&);
+    ~CommandLineOutputDriverException() = default;
 };
 
 }

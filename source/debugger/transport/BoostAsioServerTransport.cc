@@ -42,7 +42,7 @@ void BoostAsioServerTransport::RunProtocol()
 
         stringstream ss;
         ss << "Boost ASIO error: " << e.code() << " Message: " << e.what();
-        throw ServerProtocolException(ss.str());
+        throw ProtocolException(ss.str());
     }
 }
 
@@ -128,7 +128,7 @@ boost::asio::ip::address BoostAsioServerTransport::ConvertIpAddress()
     {
         stringstream ss;
         ss << "Failed to parse the IP address. Error code = " << ec.value() << ". Message: " << ec.message();
-        throw ServerProtocolException(ss.str());
+        throw ProtocolException(ss.str());
     }
 
     return ip;

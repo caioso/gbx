@@ -7,6 +7,7 @@
 #include <thread>
 
 #include "ArgumentsParser.h"
+#include "BoostAsioClientTransport.h"
 #include "CommandLineParser.h"
 
 /*using namespace boost;
@@ -22,6 +23,8 @@ using std::endl;
 using namespace gbxcommons;
 using namespace gbxdb;
 using namespace gbxdb::input;
+using namespace gbxdb::protocol;
+using namespace gbxdb::transport;
 using namespace std;
 
 struct ApplicationConfiguration
@@ -49,7 +52,6 @@ ApplicationConfiguration ParseCommandLine(int argc, char** argv)
             exit(0);
         }
 
-
         if (parser.HasBeenFound("-v"))
             configuration.Verbose = true;
         
@@ -73,6 +75,12 @@ ApplicationConfiguration ParseCommandLine(int argc, char** argv)
     }
 
     return configuration;
+}
+
+void JoinServer(ApplicationConfiguration configuration)
+{
+    BoostAsioClientTransport transport(configuration.IPAddress, configuration.Port);
+    transport.JoinServer();
 }
 
 void RunDebugClient()
@@ -132,7 +140,8 @@ void RunDebugClient()
 int main (int argc, char** argv)
 {
     cout << "GAME BOY X Debugger" << '\n' ;
-    ParseCommandLine(argc, argv);
+    auto config = ParseCommandLine(argc, argv);
+    JoinServer(config);
     RunDebugClient();
 
     /*boost::asio::io_service io_service;

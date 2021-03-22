@@ -13,11 +13,15 @@ MessageHandlerException::MessageHandlerException(const string& message)
     : GBXDebuggerExceptions(message)
 {}
 
-ServerProtocolException::ServerProtocolException(const string& message)
+ProtocolException::ProtocolException(const string& message)
     : GBXDebuggerExceptions(message)
 {}
 
 CommandLineInputException::CommandLineInputException(const string& message)
+    : GBXDebuggerExceptions(message)
+{}
+
+CommandLineOutputDriverException::CommandLineOutputDriverException(const string& message)
     : GBXDebuggerExceptions(message)
 {}
 

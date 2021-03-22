@@ -22,7 +22,7 @@ class ClientMessageHandler : public std::enable_shared_from_this<ClientMessageHa
                            , public gbxcommons::Observer
 {
 public:
-    ClientMessageHandler(std::shared_ptr<gbxdb::interfaces::ClientTransport>, gbxdb::output::OutputDriver&);
+    ClientMessageHandler(std::shared_ptr<gbxdb::interfaces::ClientTransport>, gbxdb::interfaces::OutputDriver&);
     ~ClientMessageHandler() = default;
 
     void Initialize();
@@ -40,7 +40,7 @@ private:
 
     std::shared_ptr<gbxdb::interfaces::ClientTransport> _transport;
     bool _isConnected{};
-    gbxdb::output::OutputDriver& _outputDriver;
+    gbxdb::interfaces::OutputDriver& _outputDriver;
 };
 
 }

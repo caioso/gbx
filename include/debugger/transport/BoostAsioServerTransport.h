@@ -26,10 +26,10 @@ public:
     ~BoostAsioServerTransport();
 
     // Blocking call
-    virtual void WaitForClient() override;
-    virtual void SendMessage(std::shared_ptr<interfaces::DebugMessage>) override;
-    virtual void Subscribe(std::weak_ptr<gbxcommons::Observer>) override;
-    virtual void Unsubscribe(std::weak_ptr<gbxcommons::Observer>) override;
+    void WaitForClient() override;
+    void SendMessage(std::shared_ptr<interfaces::DebugMessage>) override;
+    void Subscribe(std::weak_ptr<gbxcommons::Observer>) override;
+    void Unsubscribe(std::weak_ptr<gbxcommons::Observer>) override;
 
 protected:
     const size_t MaxNumberOfConnections = 1;

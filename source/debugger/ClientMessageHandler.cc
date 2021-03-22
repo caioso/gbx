@@ -8,7 +8,7 @@ using namespace std;
 namespace gbxdb
 {
 
-ClientMessageHandler::ClientMessageHandler(shared_ptr<ClientTransport> transport, gbxdb::output::OutputDriver& outputDriver)
+ClientMessageHandler::ClientMessageHandler(shared_ptr<ClientTransport> transport, OutputDriver& outputDriver)
     : _transport(transport)
     , _outputDriver(outputDriver)
 {}

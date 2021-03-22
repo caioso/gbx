@@ -23,7 +23,6 @@ using namespace gbxcore::interfaces;
 using namespace gbxdb;
 using namespace gbxdb::interfaces;
 using namespace gbxdb::protocol;
-using namespace gbxdb::output;
 using namespace std;
 
 using ::testing::Return;

@@ -1,4 +1,4 @@
-SUBDIRS = interfaces protocol transport input
+SUBDIRS = interfaces protocol transport input output
 CC = clang++
 AR = ar
 
