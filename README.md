@@ -54,12 +54,13 @@
 #### Z80X CPU
 **Z80X** is a custom Z80-based CPU designed to provide more addressable memory space, faster machine cycles and new instructions, while providing full backwards compatibility with the original Z80 CPU. Games targeting the Z80X platform can take advantage of extra addressing modes, mirror registers, up to 32-bit addressing space, new arithmetic and logic instructions among other features.
 
-#### GBFX, MODE X, HarmoniX, Xpansions
+#### GBFX, MODE X, HarmoniX, Xpansions, GBOS
 **GAME BOY X** includes a range of new _virtual hardware_ peripherals. The currently planned peripherals are:
 - **GBFX**: Advanced Graphics Coprocessor for real time polygonal 3D graphics. Developers can use the coprocessor to render fully textured geometry, providing real 3D graphics to the GAME BOY Platforms (only available for games targeting the GAME BOY X platform)
 - **MODE X**: Advanced 2D Graphics rendering mode, providing up to 2MB of character and background memory, while allowing for up to 16 rendering layers (background/foreground) and 128 simultaneously sprites on screen. MODE X also provides native sprite and background/foreground afine transform, per scanline scrolling, 4 sets of 7 color palettes (4 colors each) and dithering transparency. Sprites can also be rendered in a new extended 64x64 pixels mode.
 - **HarmoniX**: Extended Audio Synthesis Unit providing 2 Configurable wave channels, with Pulse Wave, Square Wave, Triangule Wave, Sawtooth Wave, 2 Arbitarty wave channels and 2 Noise channels.
 - **Xpansions**: Advanced _Code Bank Controller_ allowing developers to create DLC-like expansions for games targeting the GAME BOY X platform.
+- **GBOS**: A minimal operating system providing a game launcher environment and application-level functionality such as Save and Achievement management, RTC functionality among other system operations.
 
 #### GBXpressive Assembly Language
 The GAME BOY X requires developers to use Z80's assembly language for game development. In order to make the development friendlier and more approachable to newcomers, a new _expressive_ assembly language has been developed. Using the GBXASM assembler, developers can create debug and test games targeting the DMG, CGB and GBX platforms.
