@@ -89,19 +89,11 @@ tags
 [._]*.un~
 
 ##### VisualStudioCode
-<<<<<<< HEAD
 */.vscode/*
 .vscode/settings.json
 .vscode/tasks.json
 .vscode/launch.json
 .vscode/extensions.json
-=======
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
->>>>>>> gbxdb/master
 *.code-workspace
 
 # Local History for Visual Studio Code
