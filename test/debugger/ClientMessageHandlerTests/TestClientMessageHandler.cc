@@ -58,6 +58,7 @@ class TransportMock : public ClientTransport
 public:
     virtual ~TransportMock() = default;
     MOCK_METHOD(void, JoinServer, ());
+    MOCK_METHOD(void, LeaveServer, ());
     MOCK_METHOD(void, SendMessage, (shared_ptr<DebugMessage>));
     MOCK_METHOD(void, Subscribe, (weak_ptr<Observer>));
     MOCK_METHOD(void, Unsubscribe, (weak_ptr<Observer>));
@@ -77,6 +78,7 @@ TEST(DebuggerTests_ClientMessageHandler, InitializationTest)
     auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock), outputMock);
 
     EXPECT_CALL((*transportMock), Subscribe(::_)).Times(1);
+    EXPECT_CALL((*transportMock), JoinServer()).Times(1);
     messageHandler->Initialize();
 }
 
@@ -91,6 +93,7 @@ TEST(DebuggerTests_ClientMessageHandler, JoinServerMessage)
     auto argumentsPointer = static_pointer_cast<NotificationArguments>(notificationArguments);
 
     EXPECT_CALL((*transportMock), Subscribe(::_)).Times(1);
+    EXPECT_CALL((*transportMock), JoinServer()).Times(1);
     messageHandler->Initialize();
 
     messageHandler->Notify(argumentsPointer);

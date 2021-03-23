@@ -11,17 +11,19 @@ void CommandLineOutputDriver::DisplayRegisterbank(array<uint8_t, RegisterBankSiz
 {
     stringstream ss;
     
-    for (auto i = 0llu; i < registerBankValues.size(); ++i)
+    for (auto i = 0llu; i < registerBankValues.size() - 2; ++i)
     {
         auto reg = ConvertIndexToRegister(i);
         auto name = ConvertRegisterToRegisterName(reg);
-        ss << name << ": 0x" << hex << std::uppercase << registerBankValues[i] << '\n';
+        ss << name << ": 0x" << hex << std::uppercase << static_cast<size_t>(registerBankValues[i]) << '\n';
     }
     
+    cout << ss.str() << '\n';
 }
 
 Register CommandLineOutputDriver::ConvertIndexToRegister(size_t index)
 {
+    cout << "Unknown register index" << index << '\n';
     switch (index)
     {
         case static_cast<size_t>(Register::B): return Register::B;

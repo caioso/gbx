@@ -16,6 +16,7 @@ public:
 
     // Blocking call
     virtual void JoinServer() = 0;
+    virtual void LeaveServer() = 0;
     virtual void SendMessage(std::shared_ptr<DebugMessage>) = 0;
 };
 

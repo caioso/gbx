@@ -8,7 +8,9 @@
 
 #include "ArgumentsParser.h"
 #include "BoostAsioClientTransport.h"
+#include "ClientMessageHandler.h"
 #include "CommandLineParser.h"
+#include "CommandLineOutputDriver.h"
 
 /*using namespace boost;
 using namespace boost::asio;
@@ -23,6 +25,8 @@ using std::endl;
 using namespace gbxcommons;
 using namespace gbxdb;
 using namespace gbxdb::input;
+using namespace gbxdb::interfaces;
+using namespace gbxdb::output;
 using namespace gbxdb::protocol;
 using namespace gbxdb::transport;
 using namespace std;
@@ -77,17 +81,16 @@ ApplicationConfiguration ParseCommandLine(int argc, char** argv)
     return configuration;
 }
 
-void JoinServer(ApplicationConfiguration configuration)
-{
-    BoostAsioClientTransport transport(configuration.IPAddress, configuration.Port);
-    transport.JoinServer();
-}
-
-void RunDebugClient()
+void RunDebugClient(ApplicationConfiguration configuration)
 {
     CommandLineParser parser;
+    CommandLineOutputDriver outputDriver;
     auto command = string("");
+    auto transport = make_shared<BoostAsioClientTransport>(configuration.IPAddress, configuration.Port);
+    auto transportPointer = static_pointer_cast<ClientTransport>(transport) ;
+    auto messageHandler = make_shared<ClientMessageHandler>(transportPointer, outputDriver);
 
+    messageHandler->Initialize();
     parser.Initialize();
     
     while (true)
@@ -117,6 +120,7 @@ void RunDebugClient()
             if (option.size() == 0 || option.compare("y") == 0 || option.compare("yes") == 0)
             {
                 cout << "Debug session terminated" << '\n';
+                transport->LeaveServer();
                 break;
             }
             
@@ -127,7 +131,8 @@ void RunDebugClient()
         {
             try
             {
-                parser.Parse(command);
+                auto message = parser.Parse(command);
+                transport->SendMessage(make_shared<DebugMessage>(message));
             }
             catch (const CommandLineInputException& exception)
             {
@@ -141,8 +146,7 @@ int main (int argc, char** argv)
 {
     cout << "GAME BOY X Debugger" << '\n' ;
     auto config = ParseCommandLine(argc, argv);
-    JoinServer(config);
-    RunDebugClient();
+    RunDebugClient(config);
 
     /*boost::asio::io_service io_service;
     std::string raw_ip_address = "127.0.0.1";

@@ -16,6 +16,7 @@ ClientMessageHandler::ClientMessageHandler(shared_ptr<ClientTransport> transport
 void ClientMessageHandler::Initialize()
 {
     _transport->Subscribe(shared_from_this());
+    _transport->JoinServer();
 }
 
 bool ClientMessageHandler::IsConnected()
