@@ -137,9 +137,8 @@ boost::asio::ip::address BoostAsioServerTransport::ConvertIpAddress()
 void BoostAsioServerTransport::SendMessage(shared_ptr<DebugMessage> message)
 {
     cout << "Send Message" << '\n';
-    _socketLock.lock();
+    std::lock_guard socketMutex(_socketLock);
         _socket->write_some(boost::asio::buffer((*message->Buffer())));
-    _socketLock.unlock();
 }
 
 void BoostAsioServerTransport::Subscribe(weak_ptr<Observer> obs)

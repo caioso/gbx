@@ -43,7 +43,6 @@ protected:
     std::string _ip;
     std::string _port;
     std::unique_ptr<std::thread> _thread;
-    // Make this a RAII
     std::unique_ptr<boost::asio::ip::tcp::socket> _socket;
     std::vector<std::weak_ptr<gbxcommons::Observer>> _observers;
     std::mutex _socketLock;
