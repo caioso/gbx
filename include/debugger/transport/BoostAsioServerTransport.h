@@ -10,6 +10,7 @@
 #include <thread>
 #include <vector>
 
+#include "BoostAsioTransportBase.h"
 #include "DebugMessage.h"
 #include "ServerTransport.h"
 #include "DebugMessageNotificationArguments.h"
@@ -20,6 +21,7 @@ namespace gbxdb::transport
 {
 
 class BoostAsioServerTransport : public interfaces::ServerTransport
+                               , public BoostAsioTransportBase
 {
 public:
     BoostAsioServerTransport(std::string, std::string);
@@ -32,20 +34,11 @@ public:
     void Unsubscribe(std::weak_ptr<gbxcommons::Observer>) override;
 
 protected:
-    const size_t MaxNumberOfConnections = 1;
-
     void RunProtocol();
     void AcceptConnection();
     void ProtocolLoop();
     void NotifyObservers(std::shared_ptr<interfaces::DebugMessage>);
-    boost::asio::ip::address ConvertIpAddress();
-    
-    std::string _ip;
-    std::string _port;
-    std::unique_ptr<std::thread> _thread;
-    std::unique_ptr<boost::asio::ip::tcp::socket> _socket;
     std::vector<std::weak_ptr<gbxcommons::Observer>> _observers;
-    std::mutex _socketLock;
 };
 
 }

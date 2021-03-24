@@ -68,8 +68,8 @@ TEST(DebuggerTests_ReadRegisterServerMessage, ReadRegisterMessage8Bit)
     auto operand8BitList = {Register::B, Register::C, Register::D, Register::E, Register::H, Register::L, Register::A, Register::F };
     auto transportMock = make_shared<TransportMock>();
     auto runtimeMock = make_shared<RuntimeMock>();
-    auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
     auto runnerMock = make_shared<RunnerMock>();
+    auto messageHandler = make_shared<ServerMessageHandler>(transportMock);
 
     random_device randomDevice;
     mt19937 engine{randomDevice()};

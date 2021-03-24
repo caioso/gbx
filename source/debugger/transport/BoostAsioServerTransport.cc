@@ -12,14 +12,12 @@ namespace gbxdb::transport
 {
 
 BoostAsioServerTransport::BoostAsioServerTransport(string ip, string port)
-    : _ip(ip)
-    , _port(port)
+    : BoostAsioTransportBase(ip, port)
 {}
 
 BoostAsioServerTransport::~BoostAsioServerTransport()
 {
-    if (_thread != nullptr)
-        _thread->join();
+    Terminate();
 }
 
 void BoostAsioServerTransport::WaitForClient()
@@ -48,39 +46,10 @@ void BoostAsioServerTransport::RunProtocol()
 
 void BoostAsioServerTransport::ProtocolLoop()
 {
-    shared_ptr<DebugMessage> debugMessage;
-    while(true)
+    ListenerLoop([&](std::shared_ptr<DebugMessage> message)
     {
-        
-        boost::system::error_code error;
-        auto len = 0llu;
-        if (_socket->available())
-        {
-            debugMessage = make_shared<DebugMessage>(make_shared<array<uint8_t, MaxMessageBufferSize>>());
-            // Use lock guard
-            _socketLock.lock();
-                len = _socket->read_some(buffer(*debugMessage->Buffer()), error);
-            _socketLock.unlock();
-        }
-        else
-        {
-            std::this_thread::sleep_for(400ms);
-            continue;
-        }
-
-        cout << "Received: " << len << '\n';
-        cout << (*debugMessage->Buffer()).data() << '\n';
-
-        NotifyObservers(debugMessage);
-
-        if (error == error::eof)
-        {
-            cout << ("Client disconnected") << '\n';
-            break;
-        }
-        else if (error)
-            throw boost::system::system_error(error);
-    }
+        NotifyObservers(message);
+    });
 }
 
 void BoostAsioServerTransport::NotifyObservers(shared_ptr<DebugMessage> message)
@@ -119,27 +88,10 @@ void BoostAsioServerTransport::AcceptConnection()
     cout << "Connection established!" << '\n';
 }
 
-boost::asio::ip::address BoostAsioServerTransport::ConvertIpAddress()
-{
-    boost::system::error_code ec;
-    auto ip = ip::address::from_string(_ip, ec);
-
-    if (ec.value() != 0) 
-    {
-        stringstream ss;
-        ss << "Failed to parse the IP address. Error code = " << ec.value() << ". Message: " << ec.message();
-        throw ProtocolException(ss.str());
-    }
-
-    return ip;
-}
-
 void BoostAsioServerTransport::SendMessage(shared_ptr<DebugMessage> message)
 {
-    cout << "Send Message" << '\n';
-    _socketLock.lock();
-        _socket->write_some(boost::asio::buffer((*message->Buffer())));
-    _socketLock.unlock();
+    std::lock_guard guard(_socketLock);
+    _socket->write_some(boost::asio::buffer((*message->Buffer())));
 }
 
 void BoostAsioServerTransport::Subscribe(weak_ptr<Observer> obs)

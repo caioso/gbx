@@ -23,7 +23,6 @@ void CommandLineOutputDriver::DisplayRegisterbank(array<uint8_t, RegisterBankSiz
 
 Register CommandLineOutputDriver::ConvertIndexToRegister(size_t index)
 {
-    cout << "Unknown register index" << index << '\n';
     switch (index)
     {
         case static_cast<size_t>(Register::B): return Register::B;

@@ -12,14 +12,12 @@ namespace gbxdb::transport
 {
 
 BoostAsioClientTransport::BoostAsioClientTransport(string ip, string port)
-    : _ip(ip)
-    , _port(port)
+    : BoostAsioTransportBase(ip, port)
 {}
 
 BoostAsioClientTransport::~BoostAsioClientTransport()
 {
-    if (_thread != nullptr)
-        _thread->join();
+    Terminate();
 }
 
 void BoostAsioClientTransport::JoinServer()
@@ -30,12 +28,7 @@ void BoostAsioClientTransport::JoinServer()
 void BoostAsioClientTransport::LeaveServer()
 {
     _terminated = true;
-
-    if (_socket != nullptr && _socket->is_open())
-        _socket->close();
-
-    if (_thread != nullptr)
-        _thread->join();
+    Terminate();
 }
 
 void BoostAsioClientTransport::RunProtocol()
@@ -62,7 +55,7 @@ void BoostAsioClientTransport::TryToJoinServer()
     using namespace std::literals::chrono_literals;
     bool connected{};
 
-    while (!connected && !_terminated)
+    while (connected != true && _terminated != true)
     {
         try
         {
@@ -87,39 +80,10 @@ void BoostAsioClientTransport::TryToJoinServer()
 
 void BoostAsioClientTransport::ProtocolLoop()
 {
-    std::shared_ptr<DebugMessage> debugMessage;
-    while(!_terminated)
+    ListenerLoop([&](std::shared_ptr<DebugMessage> message)
     {
-        
-        boost::system::error_code error;
-        auto len = 0llu;
-        if (_socket->available())
-        {
-            debugMessage = std::make_shared<DebugMessage>(std::make_shared<std::array<uint8_t, MaxMessageBufferSize>>());
-            // Use lock guard
-            _socketLock.lock();
-                len = _socket->read_some(buffer(*debugMessage->Buffer()), error);
-            _socketLock.unlock();
-        }
-        else
-        {
-            std::this_thread::sleep_for(400ms);
-            continue;
-        }
-
-        cout << "Received: " << len << '\n';
-        cout << (*debugMessage->Buffer()).data() << '\n';
-
-        NotifyObservers(debugMessage);
-
-        if (error == error::eof)
-        {
-            cout << ("Client disconnected") << '\n';
-            break;
-        }
-        else if (error)
-            throw boost::system::system_error(error);
-    }
+        NotifyObservers(message);
+    });
 }
 
 void BoostAsioClientTransport::NotifyObservers(std::shared_ptr<DebugMessage> message)
@@ -134,10 +98,8 @@ void BoostAsioClientTransport::NotifyObservers(std::shared_ptr<DebugMessage> mes
 
 void BoostAsioClientTransport::SendMessage(std::shared_ptr<DebugMessage> message)
 {
-    cout << "Message Received. Ready to disparch" << '\n';
-    cout << "Send Message" << '\n';
     std::lock_guard guard(_socketLock);
-        _socket->write_some(boost::asio::buffer((*message->Buffer())));
+    _socket->write_some(boost::asio::buffer((*message->Buffer())));
 }
 
 void BoostAsioClientTransport::Subscribe(std::weak_ptr<Observer> obs)
@@ -168,21 +130,6 @@ void BoostAsioClientTransport::Unsubscribe(std::weak_ptr<Observer> obs)
 
     if (find_if(_observers.begin(), _observers.end(), matcher) != _observers.end())
         _observers.erase(location);
-}
-
-boost::asio::ip::address BoostAsioClientTransport::ConvertIpAddress()
-{
-    boost::system::error_code ec;
-    auto ip = ip::address::from_string(_ip, ec);
-
-    if (ec.value() != 0) 
-    {
-        stringstream ss;
-        ss << "Failed to parse the IP address. Error code = " << ec.value() << ". Message: " << ec.message();
-        throw ProtocolException(ss.str());
-    }
-
-    return ip;
 }
 
 }
