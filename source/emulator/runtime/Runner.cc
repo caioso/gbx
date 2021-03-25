@@ -13,9 +13,9 @@ Runner::Runner(shared_ptr<Runtime> runner)
     , _mode(RunnerMode::Runtime)
 {}
 
-Runner::Runner(shared_ptr<Runtime> runner, shared_ptr<ServerTransport> transport)
+Runner::Runner(shared_ptr<Runtime> runner, unique_ptr<ServerTransport> transport)
     : _runtime(runner)
-    , _transport(transport)
+    , _transport(std::move(transport))
     , _mode(RunnerMode::Debug)
     , _halted(true)
 {}
@@ -72,12 +72,9 @@ inline void Runner::InitializeDebugInfraIfNeeded()
 {
     if (_handler == nullptr)
     {
-        _handler = make_shared<ServerMessageHandler>(_transport);
+        _handler = make_shared<ServerMessageHandler>(std::move(_transport));
         _handler->Initialize();
     }
-
-    // Initialize Transport Thread
-    _transport->WaitForClient();
 
     while(!_clientJoined)
     {

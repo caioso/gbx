@@ -7,14 +7,10 @@
 
 #include "MessageID.h"
 #include "ClientMessageHandler.h"
-#include "ClientTransport.h"
-#include "DebuggableRunner.h"
-#include "DebugMessage.h"
-#include "DebugMessageNotificationArguments.h"
 #include "GBXEmulatorExceptions.h"
-#include "OutputDriver.h"
 #include "RegisterBank.h"
 
+#include "TestMocks.h"
 #include "TestUtils.h"
 
 using namespace gbx;
@@ -27,24 +23,6 @@ using namespace std;
 
 using ::testing::Return;
 using ::testing::_;
-
-class TransportMock : public ClientTransport
-{
-public:
-    virtual ~TransportMock() = default;
-    MOCK_METHOD(void, JoinServer, ());
-    MOCK_METHOD(void, LeaveServer, ());
-    MOCK_METHOD(void, SendMessage, (shared_ptr<DebugMessage>));
-    MOCK_METHOD(void, Subscribe, (weak_ptr<Observer>));
-    MOCK_METHOD(void, Unsubscribe, (weak_ptr<Observer>));
-};
-
-class OutputDriverMock : public OutputDriver
-{
-public:
-    virtual ~OutputDriverMock() = default;
-    MOCK_METHOD(void, DisplayRegisterbank, ((array<uint8_t, RegisterBankSizeInBytes>)));
-};
 
 shared_ptr<array<uint8_t, MaxMessageBufferSize>> CreateRegisterBankSummaryResponseMessage()
 {
@@ -93,7 +71,7 @@ shared_ptr<array<uint8_t, MaxMessageBufferSize>> CreateInvalidRegisterBankSummar
 TEST(DebuggerTests_RegisterBankSummaryClientMessage, RequestRegisterBankSummaryAndProcessResult) 
 {
     OutputDriverMock outputMock; 
-    auto transportMock = make_shared<TransportMock>();
+    auto transportMock = make_shared<ClientTransportMock>();
     auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock), outputMock);
 
     EXPECT_CALL((*transportMock), Subscribe(::_)).Times(1);

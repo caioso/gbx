@@ -9,6 +9,7 @@
 
 #include "GBXCoreExceptions.h"
 #include "interfaces/RegisterBankInterface.h"
+
 namespace gbxcore
 {
 

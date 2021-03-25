@@ -32,7 +32,7 @@ class ServerMessageHandler : public gbxcommons::Observer,
                              public std::enable_shared_from_this<ServerMessageHandler>
 {
 public:
-    ServerMessageHandler(std::shared_ptr<gbxdb::interfaces::ServerTransport>);
+    ServerMessageHandler(std::unique_ptr<gbxdb::interfaces::ServerTransport>);
     ~ServerMessageHandler() = default;
     
     void Initialize();
@@ -41,6 +41,7 @@ public:
 
     void Notify(std::shared_ptr<gbxcommons::NotificationArguments>) override;
 
+    std::unique_ptr<gbxdb::interfaces::ServerTransport> _transport;
 private:
     void ParseMessage(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
 
@@ -56,7 +57,6 @@ private:
     [[nodiscard]] std::shared_ptr<gbxdb::interfaces::DebugMessage> RunRegisterBankSummaryCommand(std::shared_ptr<gbxdb::interfaces::DebugCommand>, std::shared_ptr<gbxcore::interfaces::Runtime>);
     [[nodiscard]] std::shared_ptr<gbxdb::interfaces::DebugMessage> RunWriteRegisterCommand(std::shared_ptr<gbxdb::interfaces::DebugCommand>, std::shared_ptr<gbxcore::interfaces::Runtime>);
 
-    std::shared_ptr<gbxdb::interfaces::ServerTransport> _transport;
     std::queue<std::shared_ptr<gbxdb::interfaces::DebugCommand>> _commandQueue;
 };
 

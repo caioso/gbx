@@ -5,16 +5,13 @@
 #include <memory>
 #include <random>
 
-#include "ClientTransport.h"
+
 #include "ClientMessageHandler.h"
 #include "MessageID.h"
-#include "DebugMessage.h"
 #include "DebugMessageNotificationArguments.h"
-#include "Observer.h"
-#include "OutputDriver.h"
-#include "Runtime.h"
 #include "RegisterBank.h"
 
+#include "TestMocks.h"
 #include "TestUtils.h"
 
 using namespace gbxcore;
@@ -37,44 +34,17 @@ std::shared_ptr<std::array<uint8_t, MaxMessageBufferSize>> CreateJoinedServerMes
     return message;
 }
 
-class OutputDriverMock : public OutputDriver
-{
-public:
-    virtual ~OutputDriverMock() = default;
-    MOCK_METHOD(void, DisplayRegisterbank, ((array<uint8_t, RegisterBankSizeInBytes>)));
-};
-
-class RuntimeMock : public Runtime
-{
-public:
-    virtual ~RuntimeMock() = default;
-    MOCK_METHOD(void, Run, ());
-    MOCK_METHOD((std::variant<uint8_t, uint16_t>), ReadRegister, (Register));
-    MOCK_METHOD(void, WriteRegister, (Register, (std::variant<uint8_t, uint16_t>)));
-};
-
-class TransportMock : public ClientTransport
-{
-public:
-    virtual ~TransportMock() = default;
-    MOCK_METHOD(void, JoinServer, ());
-    MOCK_METHOD(void, LeaveServer, ());
-    MOCK_METHOD(void, SendMessage, (shared_ptr<DebugMessage>));
-    MOCK_METHOD(void, Subscribe, (weak_ptr<Observer>));
-    MOCK_METHOD(void, Unsubscribe, (weak_ptr<Observer>));
-};
-
 TEST(DebuggerTests_ClientMessageHandler, Construction) 
 {
     OutputDriverMock outputMock;
-    auto transportMock = make_shared<TransportMock>();
+    auto transportMock = make_shared<ClientTransportMock>();
     auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock), outputMock);
 }
 
 TEST(DebuggerTests_ClientMessageHandler, InitializationTest) 
 {
     OutputDriverMock outputMock;
-    auto transportMock = make_shared<TransportMock>();
+    auto transportMock = make_shared<ClientTransportMock>();
     auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock), outputMock);
 
     EXPECT_CALL((*transportMock), Subscribe(::_)).Times(1);
@@ -85,7 +55,7 @@ TEST(DebuggerTests_ClientMessageHandler, InitializationTest)
 TEST(DebuggerTests_ClientMessageHandler, JoinServerMessage) 
 {
     OutputDriverMock outputMock;
-    auto transportMock = make_shared<TransportMock>();
+    auto transportMock = make_shared<ClientTransportMock>();
     auto messageHandler = make_shared<ClientMessageHandler>(static_pointer_cast<ClientTransport>(transportMock), outputMock);
 
     auto clientJoinedMessage = make_shared<DebugMessage>(CreateJoinedServerMessage());

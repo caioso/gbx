@@ -86,10 +86,10 @@ void Log(string message)
 void InitializeDebugServer()
 {
     auto gbx = make_shared<GameBoyX>();
-    auto transport = make_shared<BoostAsioServerTransport>(configuration.IPAddress, configuration.Port);
+    auto transport = make_unique<BoostAsioServerTransport>(configuration.IPAddress, configuration.Port);
     runtime::CancellationToken token;
 
-    auto runner = make_shared<runtime::Runner>(gbx, transport);
+    auto runner = make_shared<runtime::Runner>(gbx, std::move(transport));
     runner->Run(token);
 }
 

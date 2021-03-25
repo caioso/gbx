@@ -5,16 +5,13 @@
 #include <random>
 #include <variant>
 
-#include "DebuggableRunner.h"
-#include "DebugMessage.h"
 #include "DebugMessageNotificationArguments.h"
 #include "ErrorID.h"
 #include "GBXEmulatorExceptions.h"
 #include "MessageID.h"
-#include "Runtime.h"
-#include "ServerTransport.h"
 #include "ServerMessageHandler.h"
 
+#include "TestMocks.h"
 #include "TestUtils.h"
 
 using namespace gbx;
@@ -27,34 +24,6 @@ using namespace std;
 
 using ::testing::Return;
 using ::testing::_;
-
-class TransportMock : public ServerTransport
-{
-public:
-    virtual ~TransportMock() = default;
-    MOCK_METHOD(void, WaitForClient, ());
-    MOCK_METHOD(void, SendMessage, (shared_ptr<DebugMessage>));
-
-    MOCK_METHOD(void, Subscribe, ((std::weak_ptr<Observer>)));
-    MOCK_METHOD(void, Unsubscribe, ((std::weak_ptr<Observer>)));
-};
-
-class RuntimeMock : public Runtime
-{
-public:
-    virtual ~RuntimeMock() = default;
-    MOCK_METHOD(void, Run, ());
-    MOCK_METHOD((std::variant<uint8_t, uint16_t>), ReadRegister, (Register));
-    MOCK_METHOD(void, WriteRegister, (Register, (std::variant<uint8_t, uint16_t>)));
-};
-
-class RunnerMock : public DebuggableRunner
-{
-public:
-    virtual ~RunnerMock() = default;
-    MOCK_METHOD(void, ClientJoined, ());
-    MOCK_METHOD(void, ClientLeft, ());
-};
 
 shared_ptr<array<uint8_t, MaxMessageBufferSize>> CreateWriteRegisterMessage(uint8_t targetRegister, uint16_t registerValue)
 {
@@ -70,10 +39,11 @@ shared_ptr<array<uint8_t, MaxMessageBufferSize>> CreateWriteRegisterMessage(uint
 TEST(DebuggerTests_WriteRegisterServerMessage, Write8bitRegisterWithRandomValue) 
 {
     auto operand8BitList = {Register::B, Register::C, Register::D, Register::E, Register::H, Register::L, Register::A, Register::F };
-    auto transportMock = make_shared<TransportMock>();
     auto runtimeMock = make_shared<RuntimeMock>();
-    auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
-    auto runnerMock = make_shared<RunnerMock>();
+    auto transportMock = make_unique<ServerTransportMock>();
+    auto transportPointer = transportMock.get();
+    auto messageHandler = make_shared<ServerMessageHandler>(std::move(transportMock));
+    auto runnerMock = make_shared<DebuggableRunnerMock>();
 
     random_device randomDevice;
     mt19937 engine{randomDevice()};
@@ -86,7 +56,8 @@ TEST(DebuggerTests_WriteRegisterServerMessage, Write8bitRegisterWithRandomValue)
         auto notificationArguments = make_shared<DebugMessageNotificationArguments>(readRegisterBankMessage);
         auto argumentsPointer = static_pointer_cast<NotificationArguments>(notificationArguments);
 
-        EXPECT_CALL((*transportMock), Subscribe(::_)).Times(1);
+        EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
+        EXPECT_CALL((*transportPointer), WaitForClient()).Times(1);
         messageHandler->Initialize();
 
         // Simulate message arriving from the client (stored in the internal queue)
@@ -96,7 +67,7 @@ TEST(DebuggerTests_WriteRegisterServerMessage, Write8bitRegisterWithRandomValue)
         // Expect call to Runtime Read Register Method
         variant<uint8_t, uint16_t> value = registerValue;
         EXPECT_CALL((*runtimeMock), WriteRegister(operand, value));
-        EXPECT_CALL((*transportMock), SendMessage(::_)).WillOnce(testing::Invoke([&](shared_ptr<DebugMessage> argument)
+        EXPECT_CALL((*transportPointer), SendMessage(::_)).WillOnce(testing::Invoke([&](shared_ptr<DebugMessage> argument)
         {
             uint16_t messageId = (*(argument->Buffer()))[0] | (*(argument->Buffer()))[1] << 0x08;
             // Target register
@@ -118,10 +89,11 @@ TEST(DebuggerTests_WriteRegisterServerMessage, Write8bitRegisterWithRandomValue)
 TEST(DebuggerTests_WriteRegisterServerMessage, Write16bitRegisterWithRandomValue) 
 {
     auto operand16BitList = {Register::PC, Register::SP, Register::HL, Register::BC, Register::DE, Register::AF};
-    auto transportMock = make_shared<TransportMock>();
     auto runtimeMock = make_shared<RuntimeMock>();
-    auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
-    auto runnerMock = make_shared<RunnerMock>();
+    auto transportMock = make_unique<ServerTransportMock>();
+    auto transportPointer = transportMock.get();
+    auto messageHandler = make_shared<ServerMessageHandler>(std::move(transportMock));
+    auto runnerMock = make_shared<DebuggableRunnerMock>();
 
     random_device randomDevice;
     mt19937 engine{randomDevice()};
@@ -134,7 +106,8 @@ TEST(DebuggerTests_WriteRegisterServerMessage, Write16bitRegisterWithRandomValue
         auto notificationArguments = make_shared<DebugMessageNotificationArguments>(readRegisterBankMessage);
         auto argumentsPointer = static_pointer_cast<NotificationArguments>(notificationArguments);
 
-        EXPECT_CALL((*transportMock), Subscribe(::_)).Times(1);
+        EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
+        EXPECT_CALL((*transportPointer), WaitForClient()).Times(1);
         messageHandler->Initialize();
 
         // Simulate message arriving from the client (stored in the internal queue)
@@ -144,7 +117,7 @@ TEST(DebuggerTests_WriteRegisterServerMessage, Write16bitRegisterWithRandomValue
         // Expect call to Runtime Read Register Method
         variant<uint8_t, uint16_t> value = static_cast<uint16_t>(registerValue);
         EXPECT_CALL((*runtimeMock), WriteRegister(operand, value));
-        EXPECT_CALL((*transportMock), SendMessage(::_)).WillOnce(testing::Invoke([&](shared_ptr<DebugMessage> argument)
+        EXPECT_CALL((*transportPointer), SendMessage(::_)).WillOnce(testing::Invoke([&](shared_ptr<DebugMessage> argument)
         {
             uint16_t messageId = (*(argument->Buffer()))[0] | (*(argument->Buffer()))[1] << 0x08;
             // Target register
@@ -165,16 +138,18 @@ TEST(DebuggerTests_WriteRegisterServerMessage, Write16bitRegisterWithRandomValue
 
 TEST(DebuggerTests_WriteRegisterServerMessage, WriteInvalidRegisterAddress) 
 {
-    auto transportMock = make_shared<TransportMock>();
     auto runtimeMock = make_shared<RuntimeMock>();
-    auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
-    auto runnerMock = make_shared<RunnerMock>();
+    auto transportMock = make_unique<ServerTransportMock>();
+    auto transportPointer = transportMock.get();
+    auto messageHandler = make_shared<ServerMessageHandler>(std::move(transportMock));
+    auto runnerMock = make_shared<DebuggableRunnerMock>();
 
     auto readRegisterBankMessage = make_shared<DebugMessage>(CreateWriteRegisterMessage(0xFF, 0x1111));
     auto notificationArguments = make_shared<DebugMessageNotificationArguments>(readRegisterBankMessage);
     auto argumentsPointer = static_pointer_cast<NotificationArguments>(notificationArguments);
 
-    EXPECT_CALL((*transportMock), Subscribe(::_)).Times(1);
+    EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
+    EXPECT_CALL((*transportPointer), WaitForClient()).Times(1);
     messageHandler->Initialize();
 
     // Simulate message arriving from the client (stored in the internal queue)
@@ -183,7 +158,7 @@ TEST(DebuggerTests_WriteRegisterServerMessage, WriteInvalidRegisterAddress)
     EXPECT_EQ(1llu, messageHandler->Pending());
 
     // Expect call to Runtime Read Register Method
-    EXPECT_CALL((*transportMock), SendMessage(::_)).WillOnce(testing::Invoke([&](shared_ptr<DebugMessage> argument)
+    EXPECT_CALL((*transportPointer), SendMessage(::_)).WillOnce(testing::Invoke([&](shared_ptr<DebugMessage> argument)
     {
         uint16_t messageId = (*(argument->Buffer()))[0] | (*(argument->Buffer()))[1] << 0x08;
         // Error Code

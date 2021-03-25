@@ -57,9 +57,8 @@ TEST(TestRunner, ConstructionInDebugMode)
 {
     auto runtime = make_shared<RuntimeMock>();
     auto runtimePointer = static_pointer_cast<Runtime>(runtime);
-    auto transport = make_shared<ServerTransportMock>();
-    auto transportPointer = static_pointer_cast<ServerTransport>(transport);
-    auto runner = make_shared<Runner>(runtimePointer, transportPointer);
+    auto transport = make_unique<ServerTransportMock>();
+    auto runner = make_shared<Runner>(runtimePointer, std::move(transport));
 
     EXPECT_EQ(RunnerMode::Debug, runner->Mode());
 }
@@ -126,9 +125,9 @@ TEST(TestRunner, RunInDebugMode)
 {
     auto runtime = make_shared<RuntimeMock>();
     auto pointer = static_pointer_cast<Runtime>(runtime);
-    auto transport = make_shared<ServerTransportMock>();
-    auto transportPointer = static_pointer_cast<ServerTransport>(transport);
-    auto runner = make_shared<Runner>(pointer, transportPointer);
+    auto transport = make_unique<ServerTransportMock>();
+    auto transportPointer = transport.get();
+    auto runner = make_shared<Runner>(pointer, std::move(transport));
 
     CancellationToken token;
     std::thread cancellationThread([&]()
@@ -139,8 +138,8 @@ TEST(TestRunner, RunInDebugMode)
         token.Cancel();
     });
 
-    EXPECT_CALL((*transport), WaitForClient());   
-    EXPECT_CALL((*transport), Subscribe(::_));
+    EXPECT_CALL((*transportPointer), WaitForClient());   
+    EXPECT_CALL((*transportPointer), Subscribe(::_));
     EXPECT_CALL((*runtime), Run()).WillRepeatedly(Return());
     runner->Run(token);
 
@@ -153,9 +152,9 @@ TEST(TestRunner, RunInDebugModeForAGivenNumberOfCycles)
 {
     auto runtime = make_shared<RuntimeMock>();
     auto pointer = static_pointer_cast<Runtime>(runtime);
-    auto transport = make_shared<ServerTransportMock>();
-    auto transportPointer = static_pointer_cast<ServerTransport>(transport);
-    auto runner = make_shared<Runner>(pointer, transportPointer);
+    auto transport = make_unique<ServerTransportMock>();
+    auto transportPointer = transport.get();
+    auto runner = make_shared<Runner>(pointer, std::move(transport));
 
     CancellationToken token;
     std::thread cancellationThread([&]()
@@ -166,8 +165,8 @@ TEST(TestRunner, RunInDebugModeForAGivenNumberOfCycles)
         token.Cancel();
     });
 
-    EXPECT_CALL((*transport), WaitForClient());
-    EXPECT_CALL((*transport), Subscribe(::_));
+    EXPECT_CALL((*transportPointer), WaitForClient());
+    EXPECT_CALL((*transportPointer), Subscribe(::_));
     EXPECT_CALL((*runtime), Run()).WillRepeatedly(Return());
     runner->Run(numeric_limits<size_t>::max(), token);
     

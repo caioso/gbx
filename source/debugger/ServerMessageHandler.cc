@@ -10,13 +10,14 @@ using namespace std;
 namespace gbxdb
 {
 
-ServerMessageHandler::ServerMessageHandler(shared_ptr<ServerTransport> transport)
-    : _transport(transport)
+ServerMessageHandler::ServerMessageHandler(unique_ptr<ServerTransport> transport)
+    : _transport(std::move(transport))
 {}
 
 void ServerMessageHandler::Initialize()
 {
-    _transport->Subscribe(static_pointer_cast<Observer>(shared_from_this()));
+    _transport->Subscribe(shared_from_this());
+    _transport->WaitForClient();
 }
 
 void ServerMessageHandler::Notify(shared_ptr<NotificationArguments> args)

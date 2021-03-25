@@ -5,14 +5,12 @@
 #include <random>
 
 #include "DebuggableRunner.h"
-#include "DebugMessage.h"
 #include "DebugMessageNotificationArguments.h"
 #include "GBXEmulatorExceptions.h"
 #include "MessageID.h"
-#include "Runtime.h"
 #include "ServerMessageHandler.h"
-#include "ServerTransport.h"
 
+#include "TestMocks.h"
 #include "TestUtils.h"
 
 using namespace gbx;
@@ -26,34 +24,6 @@ using namespace std;
 using ::testing::Return;
 using ::testing::_;
 
-class TransportMock : public ServerTransport
-{
-public:
-    virtual ~TransportMock() = default;
-    MOCK_METHOD(void, WaitForClient, ());
-    MOCK_METHOD(void, SendMessage, (shared_ptr<DebugMessage>));
-
-    MOCK_METHOD(void, Subscribe, ((std::weak_ptr<Observer>)));
-    MOCK_METHOD(void, Unsubscribe, ((std::weak_ptr<Observer>)));
-};
-
-class RuntimeMock : public Runtime
-{
-public:
-    virtual ~RuntimeMock() = default;
-    MOCK_METHOD(void, Run, ());
-    MOCK_METHOD((std::variant<uint8_t, uint16_t>), ReadRegister, (Register));
-    MOCK_METHOD(void, WriteRegister, (Register, (std::variant<uint8_t, uint16_t>)));
-};
-
-class RunnerMock : public DebuggableRunner
-{
-public:
-    virtual ~RunnerMock() = default;
-    MOCK_METHOD(void, ClientJoined, ());
-    MOCK_METHOD(void, ClientLeft, ());
-};
-
 shared_ptr<array<uint8_t, MaxMessageBufferSize>> CreateRegisterBankSummaryMessage()
 {
     auto buffer = make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
@@ -64,16 +34,18 @@ shared_ptr<array<uint8_t, MaxMessageBufferSize>> CreateRegisterBankSummaryMessag
 
 TEST(DebuggerTests_RegisterBankSummaryServerMessage, RequestRegisterBankSummary) 
 {
-    auto transportMock = make_shared<TransportMock>();
+    auto transportMock = make_unique<ServerTransportMock>();
+    auto transportPointer = transportMock.get();
     auto runtimeMock = make_shared<RuntimeMock>();
-    auto messageHandler = make_shared<ServerMessageHandler>(static_pointer_cast<ServerTransport>(transportMock));
-    auto runnerMock = make_shared<RunnerMock>();
+    auto messageHandler = make_shared<ServerMessageHandler>(std::move(transportMock));
+    auto runnerMock = make_shared<DebuggableRunnerMock>();
 
     auto readRegisterBankMessage = make_shared<DebugMessage>(CreateRegisterBankSummaryMessage());
     auto notificationArguments = make_shared<DebugMessageNotificationArguments>(readRegisterBankMessage);
     auto argumentsPointer = static_pointer_cast<NotificationArguments>(notificationArguments);
 
-    EXPECT_CALL((*transportMock), Subscribe(::_)).Times(1);
+    EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
+    EXPECT_CALL((*transportPointer), WaitForClient()).Times(1);
     messageHandler->Initialize();
 
     messageHandler->Notify(argumentsPointer);
@@ -92,7 +64,7 @@ TEST(DebuggerTests_RegisterBankSummaryServerMessage, RequestRegisterBankSummary)
     EXPECT_CALL((*runtimeMock), ReadRegister(Register::PIR)).WillRepeatedly(Return(static_cast<uint8_t>(0x10)));
     EXPECT_CALL((*runtimeMock), ReadRegister(Register::PC)).WillRepeatedly(Return(static_cast<uint16_t>(0xCCC0)));
     EXPECT_CALL((*runtimeMock), ReadRegister(Register::SP)).WillRepeatedly(Return(static_cast<uint16_t>(0xDDD0)));
-    EXPECT_CALL((*transportMock), SendMessage(::_)).WillOnce(testing::Invoke([&](shared_ptr<DebugMessage> argument)
+    EXPECT_CALL((*transportPointer), SendMessage(::_)).WillOnce(testing::Invoke([&](shared_ptr<DebugMessage> argument)
     {
         uint16_t messageId = (*(argument->Buffer()))[0] | (*(argument->Buffer()))[1] << 0x08;
         uint16_t registerB = (*(argument->Buffer()))[2];

@@ -27,7 +27,7 @@ class Runner : public gbxdb::interfaces::DebuggableRunner
 {
 public:
     Runner(std::shared_ptr<gbxcore::interfaces::Runtime>);
-    Runner(std::shared_ptr<gbxcore::interfaces::Runtime>, std::shared_ptr<gbxdb::interfaces::ServerTransport>);
+    Runner(std::shared_ptr<gbxcore::interfaces::Runtime>, std::unique_ptr<gbxdb::interfaces::ServerTransport>);
     virtual ~Runner() = default;
 
     void Run(CancellationToken&);
@@ -47,7 +47,7 @@ private:
     inline void InitializeDebugInfraIfNeeded();
 
     std::shared_ptr<gbxcore::interfaces::Runtime> _runtime;
-    std::shared_ptr<gbxdb::interfaces::ServerTransport> _transport;
+    std::unique_ptr<gbxdb::interfaces::ServerTransport> _transport;
     
     std::shared_ptr<gbxdb::ServerMessageHandler> _handler;
     
