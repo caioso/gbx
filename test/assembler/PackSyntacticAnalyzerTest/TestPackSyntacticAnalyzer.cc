@@ -12,8 +12,8 @@
 #include "GBXAsmExceptions.h"
 #include "LexicalAnalyzer.h"
 #include "Lexemes.h"
-#include "PackSyntacticAnalyzer.h"
-#include "PackIntermediateRepresentation.h"
+#include "PACKSyntacticAnalyzer.h"
+#include "PACKIntermediateRepresentation.h"
 
 using namespace gbxasm;
 using namespace gbxasm::frontend;
@@ -31,7 +31,7 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, SanityCheckPackTokenization)
                         "    BOOL MY_BOOL_MEMBER\n"
                         "    CHAR MY_CHAR_MEMBER\n"
                         "    DWRD MY_DWRD_MEMBER\n"
-                        "    STR MY_STRING_MEMBER[20]\n"
+                        "    STR[20] MY_STRING_MEMBER\n"
                         "END";
 
 
@@ -53,8 +53,8 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, SanityCheckPackTokenization)
                         TokenType::KeywordCHAR, TokenType::Identifier,
                         // DWRD MY_DWRD_MEMBER
                         TokenType::KeywordDWRD, TokenType::Identifier,
-                        // STR MY_STRING_MEMBER[20]
-                        TokenType::KeywordSTR, TokenType::Identifier, TokenType::SeparatorOPENBRACKETS, TokenType::LiteralNumericDECIMAL, TokenType::SeparatorCLOSEBRACKETS,
+                        // STR[20] MY_STRING_MEMBER
+                        TokenType::KeywordSTR, TokenType::SeparatorOPENBRACKETS, TokenType::LiteralNumericDECIMAL, TokenType::SeparatorCLOSEBRACKETS, TokenType::Identifier, 
                         // END
                         TokenType::KeywordEND
                       };
@@ -73,8 +73,8 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, SanityCheckPackTokenization)
                         Lexemes::KeywordCHAR.c_str(), "MY_CHAR_MEMBER",
                         // DWRD MY_DWRD_MEMBER
                         Lexemes::KeywordDWRD.c_str(), "MY_DWRD_MEMBER",
-                        // STR MY_STRING_MEMBER[20]
-                        Lexemes::KeywordSTR.c_str(), "MY_STRING_MEMBER", Lexemes::SeparatorOPENBRACKETS.c_str(), "20", Lexemes::SeparatorCLOSEBRACKETS.c_str(),
+                        // STR[20] MY_STRING_MEMBER
+                        Lexemes::KeywordSTR.c_str(), Lexemes::SeparatorOPENBRACKETS.c_str(), "20", Lexemes::SeparatorCLOSEBRACKETS.c_str(), "MY_STRING_MEMBER",
                         // END
                         Lexemes::KeywordEND.c_str()
                       };
@@ -93,8 +93,8 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, SanityCheckPackTokenization)
                      5llu, 10llu, 
                      //    DWRD MY_DWRD_MEMBER
                      5llu, 10llu, 
-                     //    STR MY_STRING_MEMBER[20]
-                     5llu, 9llu, 25llu, 26llu, 28llu,
+                     //    STR[20] MY_STRING_MEMBER
+                     5llu, 8llu, 9llu, 11llu, 13llu,
                      //END
                      1llu,
                    };
@@ -113,7 +113,7 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, SanityCheckPackTokenization)
                      6llu, 6llu, 
                      //    DWRD MY_DWRD_MEMBER
                      7llu, 7llu, 
-                     //    STR MY_STRING_MEMBER[20]
+                     //    STR[20] MY_STRING_MEMBER
                      8llu, 8llu, 8llu, 8llu, 8llu,
                      //END
                      9llu
@@ -137,12 +137,12 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePack)
                         "    BOOL MY_BOOL_MEMBER\n"
                         "    CHAR MY_CHAR_MEMBER\n"
                         "    DWRD MY_DWRD_MEMBER\n"
-                        "    STR MY_STRING_MEMBER[20]\n"
+                        "    STR[20] MY_STRING_MEMBER\n"
                         "END";
 
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -160,7 +160,7 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat2)
                         "END";
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -176,7 +176,7 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat3)
                         "END";
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -189,11 +189,11 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat4)
 {
     const string pack = "PACK MY_PACK\n"
                         "BGN\n"
-                        "    BYTE MY_BYTE_MEMBER[19990]\n"
+                        "    BYTE[19990] MY_BYTE_MEMBER\n"
                         "END";
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -206,11 +206,11 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat5)
 {
     const string pack = "PACK \n"
                         "BGN\n"
-                        "    BYTE MY_BYTE_MEMBER[19990]\n"
+                        "    BYTE[19990] MY_BYTE_MEMBER\n"
                         "END";
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -223,11 +223,11 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat6)
 {
     const string pack = "MY_PACK \n"
                         "BGN\n"
-                        "    BYTE MY_BYTE_MEMBER[19990]\n"
+                        "    BYTE[19990] MY_BYTE_MEMBER\n"
                         "END";
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -240,10 +240,10 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat7)
 {
     const string pack = "PACK MY_PACK \n"
                         "BGN\n"
-                        "    BYTE MY_BYTE_MEMBER[19990]\n";
+                        "    BYTE[19990] MY_BYTE_MEMBER\n";
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -255,11 +255,11 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat7)
 TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat12)
 {
     const string pack = "PACK MY_PACK \n"
-                        "    BYTE MY_BYTE_MEMBER[19990]\n"
+                        "    BYTE[19990] MY_BYTE_MEMBER\n"
                         "END\n";
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -273,11 +273,11 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat8)
 {
     const string pack = "PACK MY_PACK \n"
                         "BGN\n"
-                        "    MY_BYTE MY_BYTE_MEMBER[19990]\n"
+                        "    MY_BYTE[19990] MY_BYTE_MEMBER\n"
                         "END\n";
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -294,7 +294,7 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat9)
                         "END\n";
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -311,7 +311,41 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat10)
                         "END\n";
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
+    lexer->Tokenize(pack);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat14)
+{
+    const string pack = "PACK MY_PACK \n"
+                        "BGN\n"
+                        "    CHAR MY_BYTE_MEMBER[100]\n"
+                        "END\n";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
+    lexer->Tokenize(pack);
+    auto currentToken = begin(lexer->Tokens());
+    auto endIterator = end(lexer->Tokens());
+    parser->TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser->IsAccepted());
+}
+
+TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat13)
+{
+    const string pack = "PACK MY_PACK \n"
+                        "BGN\n"
+                        "    CHAR[] MY_BYTE_MEMBER\n"
+                        "END\n";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -328,7 +362,7 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat11)
                         "END";
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -337,16 +371,16 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, ParsePackFormat11)
     EXPECT_TRUE(parser->IsAccepted());
 }
 
-TEST(AssemblerTests_PACKSyntacticAnalyzer, PackIntermediateRepresentationWithSingleMember)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, PACKIntermediateRepresentationWithSingleMember)
 {
     const string pack = "PACK FLAG_REGISTER\n"
                         "BGN\n"
-                        "    BYTE FLAGS[2]\n"
+                        "    BYTE[2] FLAGS\n"
                         "END";
 
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -354,10 +388,10 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, PackIntermediateRepresentationWithSin
 
     EXPECT_TRUE(parser->IsAccepted());
 
-    auto packRepresentation = dynamic_pointer_cast<PackIntermediateRepresentation>(intermediateRepresentation);
+    auto packRepresentation = dynamic_pointer_cast<PACKIntermediateRepresentation>(intermediateRepresentation);
     EXPECT_NE(nullptr, packRepresentation);
 
-    EXPECT_STREQ("FLAG_REGISTER", packRepresentation->Identifier().c_str());
+    EXPECT_STREQ("FLAG_REGISTER", string(packRepresentation->Identifier()).c_str());
     EXPECT_EQ(1llu, packRepresentation->Line());
     EXPECT_EQ(1llu, packRepresentation->Column());
     EXPECT_EQ(1llu, packRepresentation->Members().size());
@@ -368,22 +402,22 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, PackIntermediateRepresentationWithSin
     EXPECT_EQ("2", packRepresentation->Members()[0].ArrayLength);
 }
 
-TEST(AssemblerTests_PACKSyntacticAnalyzer, PackIntermediateRepresentationWithMultipleMembers)
+TEST(AssemblerTests_PACKSyntacticAnalyzer, PACKIntermediateRepresentationWithMultipleMembers)
 {
     const string pack = "PACK MY_PACK\n"
                         "BGN\n"
                         "    BYTE MY_BYTE_MEMBER\n"
                         "    WORD MY_WORD_MEMBER\n"
-                        "    BYTE MY_BYTE_ARRAY_MEMBER[0x100]\n"
+                        "    BYTE[0x100] MY_BYTE_ARRAY_MEMBER\n"
                         "    BOOL MY_BOOL_MEMBER\n"
                         "    CHAR MY_CHAR_MEMBER\n"
                         "    DWRD MY_DWRD_MEMBER\n"
-                        "    STR MY_STRING_MEMBER[20]\n"
+                        "    STR[20] MY_STRING_MEMBER\n"
                         "END";
 
 
     auto lexer = make_shared<LexicalAnalyzer>();
-    auto parser = make_shared<PackSyntacticAnalyzer>();
+    auto parser = make_shared<PACKSyntacticAnalyzer>();
     lexer->Tokenize(pack);
     auto currentToken = begin(lexer->Tokens());
     auto endIterator = end(lexer->Tokens());
@@ -391,10 +425,10 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, PackIntermediateRepresentationWithMul
 
     EXPECT_TRUE(parser->IsAccepted());
 
-    auto packRepresentation = dynamic_pointer_cast<PackIntermediateRepresentation>(intermediateRepresentation);
+    auto packRepresentation = dynamic_pointer_cast<PACKIntermediateRepresentation>(intermediateRepresentation);
     EXPECT_NE(nullptr, packRepresentation);
 
-    EXPECT_STREQ("MY_PACK", packRepresentation->Identifier().c_str());
+    EXPECT_STREQ("MY_PACK", string(packRepresentation->Identifier()).c_str());
     EXPECT_EQ(1llu, packRepresentation->Line());
     EXPECT_EQ(1llu, packRepresentation->Column());
     EXPECT_EQ(7llu, packRepresentation->Members().size());

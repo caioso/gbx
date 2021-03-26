@@ -38,6 +38,7 @@ protected:
     void AcceptConnection();
     void ProtocolLoop();
     void NotifyObservers(std::shared_ptr<interfaces::DebugMessage>);
+    
     std::vector<std::weak_ptr<gbxcommons::Observer>> _observers;
 };
 

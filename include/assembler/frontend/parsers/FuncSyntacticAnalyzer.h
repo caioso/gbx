@@ -1,16 +1,21 @@
 #pragma once
 
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <vector>
 
 #include "ConstructionSyntacticAnalyzer.h"
+#include "DeclaredMember.h"
+#include "FUNCIntermediateRepresentation.h"
+#include "Lexemes.h"
+#include "LexemeToDeclaredMemberType.h"
 #include "Token.h"
 
 namespace gbxasm::frontend::parsers
 {
 
-enum class FuncParseTreeSymbols
+enum class FUNCParseTreeSymbols
 {
     TerminalFunc,
     TerminalIdentifier,
@@ -21,7 +26,7 @@ enum class FuncParseTreeSymbols
     TerminalAs,
     TerminalType,
     TerminalOpenBracket,
-    TerminalOpenNumericLiteral,
+    TerminalNumericLiteral,
     TerminalCloseBracket,
     TerminalEnd,
     TerminalIgnore,
@@ -29,35 +34,75 @@ enum class FuncParseTreeSymbols
     NonTerminalArgument,
     NonTerminalArgumentList,
     NonTerminalBody,
-    NonTerminalFooter,
+    NonTerminalFunc,
 };
 
-typedef struct FuncCompoundSymbol_t
+typedef struct FUNCCompoundSymbol_t
 {
     std::string Lexeme;
-    FuncParseTreeSymbols Symbol;
+    FUNCParseTreeSymbols Symbol;
 }
-FuncCompoundSymbol;
+FUNCCompoundSymbol;
 
-class FuncSyntacticAnalyzer : public interfaces::ConstructionSyntacticAnalyzer
+class FUNCSyntacticAnalyzer : public interfaces::ConstructionSyntacticAnalyzer
 {
 public:
-    FuncSyntacticAnalyzer() = default;
-    virtual ~FuncSyntacticAnalyzer() = default;
+    FUNCSyntacticAnalyzer() = default;
+    virtual ~FUNCSyntacticAnalyzer() = default;
 
-    FuncSyntacticAnalyzer(const FuncSyntacticAnalyzer&) = default;
-    FuncSyntacticAnalyzer(FuncSyntacticAnalyzer&&) = default;
-    FuncSyntacticAnalyzer& operator=(const FuncSyntacticAnalyzer&) = default;
-    FuncSyntacticAnalyzer& operator=(FuncSyntacticAnalyzer&&) = default;
+    FUNCSyntacticAnalyzer(const FUNCSyntacticAnalyzer&) = default;
+    FUNCSyntacticAnalyzer(FUNCSyntacticAnalyzer&&) = default;
+    FUNCSyntacticAnalyzer& operator=(const FUNCSyntacticAnalyzer&) = default;
+    FUNCSyntacticAnalyzer& operator=(FUNCSyntacticAnalyzer&&) = default;
 
     std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> TryToAccept(std::vector<Token>::iterator&, std::vector<Token>::iterator&) override;
 
 private:
-    inline void Shift(int&);
+    enum class FSMStates
+    {
+        InitialState,
+        DetectFUNC,
+        DetectFUNCIdentifier,
+        ReduceFUNCHeader,
+        ArgumentsInitialDetection,
+        IgnoreBody,
+        ReduceFUNCBody,
+        DetectColon,
+        DetectArgumentIdentifier,
+        ReduceArgumentOrDetectType,
+        DetectArgumentType,
+        ReduceTypeOrDetectArray,
+        DetectArrayDimensions,
+        DetectClosedBrackets,
+        ReduceArgumentOrMergeArgumentList,
+        MergeArgumentList,
+        ReduceArgumentList,
+    };
 
+    inline void Shift(int&);
     void ExtractSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
     size_t CountEndWithinFunctionBody(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
-    std::vector<FuncCompoundSymbol> _symbols;
+
+    void MergeArgumentsList(int&);
+    void ReduceHeader(int&, std::string&);
+    void ReduceBody(int&);
+    void ReduceBody(std::vector<FUNCCompoundSymbol>::iterator, int&);
+    void ReduceTypelessArgument(int&);
+    void ReduceNonArrayArgument(int&);
+    void ReduceArrayArgument(int&);
+    void ReduceArgumentList(int&);
+    void ReduceFUNC(int&);
+
+    void ExtractTypelessArgumentInfo(int&, std::vector<intermediate_representation::DeclaredArgument>&, std::vector<intermediate_representation::DeclaredArgument>&);
+    void ExtractNonArrayArgumentInfo(int&, std::vector<intermediate_representation::DeclaredArgument>&, std::vector<intermediate_representation::DeclaredArgument>&);
+    void ExtractArrayArgumentInfo(int&, std::vector<intermediate_representation::DeclaredArgument>&, std::vector<intermediate_representation::DeclaredArgument>&);
+
+    std::vector<FUNCCompoundSymbol>::iterator FindFunctionBodyBegin();
+
+    std::vector<FUNCCompoundSymbol> _symbols;
+    size_t _line;
+    size_t _column;
+    std::vector<Token> _bodyTokens;
 };
 
 }

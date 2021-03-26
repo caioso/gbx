@@ -61,6 +61,7 @@ BGN
     BYTE X
     BYTE Y
     WORD ATTRIBUTES
+    BYTE[10] ATTRIBUTES
 END
 ```
 

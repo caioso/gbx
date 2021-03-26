@@ -10,7 +10,8 @@ namespace gbxasm::intermediate_representation
 enum class ConstructionType
 {
     UnknownType = 0,
-    Pack   
+    PACK,
+    FUNC
 };
 
 class IntermediateRepresentation

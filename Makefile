@@ -126,6 +126,9 @@ clean:
 	rm -f ./temp/*.o ./temp/*.d
 	rm -f $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(EMU_LIB) $(DEBUG_LIB) $(GBX_TEST) $(RUNTIME) $(CLI_DEBUGGER)
 
+debug-test:
+	lldb ./build/test/gbxtest
+
 test:
 ifeq ($(word 2,$(ARGS)), $(ASM_TESTS_FLAG))
 	./build/test/gbxtest --gtest_filter="AssemblerTests_*" 
