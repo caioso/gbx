@@ -8,10 +8,10 @@
 #include <optional>
 #include <variant>
 
-#include "interfaces/MemoryControllerInterface.h"
 #include "GBXCoreExceptions.h"
-#include "ROM.h"
+#include "MemoryControllerInterface.h"
 #include "RAM.h"
+#include "ROM.h"
 
 using namespace std; 
 using namespace gbxcore;

@@ -5,8 +5,8 @@
 
 #include <iostream>
 
-#include "../interfaces/RegisterBankInterface.h"
-#include "../interfaces/InstructionInterface.h"
+#include "RegisterBankInterface.h"
+#include "InstructionInterface.h"
 
 namespace gbxcore::instructions
 {

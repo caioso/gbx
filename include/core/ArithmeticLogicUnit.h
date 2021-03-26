@@ -4,13 +4,13 @@
 
 #include "GBXCoreExceptions.h"
 #include "AddressingModeFormat.h"
-#include "instructions/InstructionUtilities.h"
-#include "instructions/OpcodeDecoder.h"
-#include "instructions/OpcodePatternMatcher.h"
-#include "interfaces/ArithmeticLogicUnitInterface.h"
-#include "interfaces/InstructionInterface.h"
-#include "interfaces/MemoryControllerInterface.h"
-#include "interfaces/RegisterBankInterface.h"
+#include "InstructionUtilities.h"
+#include "OpcodeDecoder.h"
+#include "OpcodePatternMatcher.h"
+#include "ArithmeticLogicUnitInterface.h"
+#include "InstructionInterface.h"
+#include "MemoryControllerInterface.h"
+#include "RegisterBankInterface.h"
 
 namespace gbxcore
 {

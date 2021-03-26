@@ -1,12 +1,13 @@
 #include <gtest/gtest.h>
 
+#include "CoreTestMocksAndWrappers.h"
 #include "TestUtils.h"
 
 #include <iostream>
 
 #include "AddressRange.h"
 #include "MemoryController.h"
-#include "interfaces/MemoryControllerInterface.h"
+#include "MemoryControllerInterface.h"
 #include "RAM.h"
 #include "ROM.h"
 

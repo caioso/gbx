@@ -8,7 +8,7 @@
 #include <type_traits>
 
 #include "GBXCoreExceptions.h"
-#include "interfaces/RegisterBankInterface.h"
+#include "RegisterBankInterface.h"
 
 namespace gbxcore
 {

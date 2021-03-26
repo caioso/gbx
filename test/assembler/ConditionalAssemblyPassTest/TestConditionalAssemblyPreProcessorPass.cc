@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include "AssemblerTestMocks.h"
 #include "TestUtils.h"
 
 #include <memory>
@@ -8,7 +9,6 @@
 #include <vector>
 
 #include "ConditionalAssemblyPass.h"
-#include "MessageStream.h"
 #include "Pass.h"
 #include "GBXAsmExceptions.h"
 
@@ -21,14 +21,6 @@ using namespace std;
 
 using ::testing::Return;
 using ::testing::_;
-
-class StreamMock : public interfaces::MessageStream
-{
-public:
-    virtual ~StreamMock() = default;
-
-    MOCK_METHOD(void, Write, (std::string, (std::optional<std::string>), (std::optional<size_t>), (std::optional<size_t>)));
-};
 
 class ConditionalAssemblyPassWrapper : public ConditionalAssemblyPass
 {

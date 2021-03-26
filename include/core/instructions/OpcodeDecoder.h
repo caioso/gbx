@@ -48,8 +48,8 @@
 #include "InstructionSwap.h"
 #include "InstructionXor.h"
 
-#include "../GBXCoreExceptions.h"
-#include "../interfaces/InstructionInterface.h"
+#include "GBXCoreExceptions.h"
+#include "InstructionInterface.h"
 #include "InstructionUtilities.h"
 #include "OpcodePatternMatcher.h"
 

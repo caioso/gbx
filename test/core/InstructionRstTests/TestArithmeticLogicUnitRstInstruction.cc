@@ -1,17 +1,18 @@
 #include <gtest/gtest.h>
 
+#include "CoreTestMocksAndWrappers.h"
+
 #include <algorithm>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <random>
 #include <vector>
 
-#include <iostream>
-
-#include "MemoryController.h"
-#include "RegisterBank.h"
 #include "ArithmeticLogicUnit.h"
-#include "instructions/Opcodes.h"
+#include "MemoryController.h"
+#include "Opcodes.h"
+#include "RegisterBank.h"
 
 using namespace std;
 using namespace gbxcore;
@@ -33,18 +34,6 @@ uint8_t GetPageLowerAddress(uint8_t page)
     }
     return 0x00;
 }
-
-class ArithmeticLogicDecorator : public ArithmeticLogicUnit
-{
-public:
-    interfaces::DecodedInstruction& GetInstructionData() { return _instructionData; }
-    void DecodeInstruction(uint8_t opcode, optional<uint8_t> preOpcode)
-    {
-        _registers->Write(Register::IR, opcode);
-        _registers->Write(Register::PIR, preOpcode.value_or(0x00));
-        Decode();
-    }
-};
 
 TEST(TestRst, DecodeRst)
 {

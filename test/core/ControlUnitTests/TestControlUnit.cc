@@ -7,11 +7,12 @@
 #include <variant>
 #include <random>
 
+#include "CoreTestMocksAndWrappers.h"
+
 #include "ArithmeticLogicUnit.h"
 #include "ControlUnit.h"
-#include "MemoryController.h"
 #include "RegisterBank.h"
-#include "interfaces/MemoryControllerInterface.h"
+#include "MemoryControllerInterface.h"
 
 using namespace std;
 using namespace gbxcore;
@@ -23,29 +24,6 @@ uint8_t ImmediateOpcode(Register source)
     return RegisterBank::ToInstructionRegisterPair(source) << 4 | 0x01;
 }
 
-class ControlUnitDecorator : public ControlUnit
-{};
-
-class ArithmeticLogicDecorator : public ArithmeticLogicUnit
-{
-public:
-    shared_ptr<RegisterBankInterface> GetRegisterBank()
-    {
-        return this->_registers;
-    }    
-};
-
-class MemoryControllerMock : public MemoryControllerInterface
-{
-public:
-    virtual ~MemoryControllerMock() = default;
-    MOCK_METHOD((std::variant<uint8_t, uint16_t>), Read, (uint16_t a, MemoryAccessType b));
-    MOCK_METHOD(void, Write, ((std::variant<uint8_t, uint16_t>), uint16_t));
-    MOCK_METHOD(void, Load, ((std::shared_ptr<uint8_t*>), size_t, uint16_t, (std::optional<size_t>)));
-    MOCK_METHOD(void, RegisterMemoryResource, ((std::shared_ptr<MemoryInterface>), AddressRange));
-    MOCK_METHOD(void, UnregisterMemoryResource, ((std::shared_ptr<MemoryInterface>)));
-};
-
 TEST(CoreTests_ControlUnit, FetchPCMessage)
 {
     shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
@@ -53,7 +31,7 @@ TEST(CoreTests_ControlUnit, FetchPCMessage)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
@@ -75,7 +53,7 @@ TEST(CoreTests_ControlUnit, TestAcquireSingleImmediateOperand)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
     
     // First trigger to controlUnit. 
@@ -97,7 +75,7 @@ TEST(CoreTests_ControlUnit, TestAcquireSingleRegisterIndirectOperand)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Initialize HL
@@ -122,7 +100,7 @@ TEST(CoreTests_ControlUnit, TestAcquireSingleRegisterIndirectBCOperand)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Initialize HL
@@ -147,7 +125,7 @@ TEST(CoreTests_ControlUnit, TestAcquireSingleRegisterIndirectDEOperand)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Initialize HL
@@ -171,7 +149,7 @@ TEST(CoreTests_ControlUnit, TestAcquireSingleRegisterIndirectDestinationHL)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Initialize HL
@@ -194,7 +172,7 @@ TEST(CoreTests_ControlUnit, TestAcquireSingleRegisterIndirectDestinationDE)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Initialize HL
@@ -217,7 +195,7 @@ TEST(CoreTests_ControlUnit, TestAcquireSingleRegisterIndirectDestinationBC)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Initialize HL
@@ -240,7 +218,7 @@ TEST(CoreTests_ControlUnit, TestIndexedSourceOpcodeIX)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->WritePair(Register::IX, 0x0100);
@@ -266,7 +244,7 @@ TEST(CoreTests_ControlUnit, TestIndexedSourceOpcodeIY)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->WritePair(Register::IY, 0x0A00);
@@ -292,7 +270,7 @@ TEST(CoreTests_ControlUnit, TestIndexedSourceOpcodeIXNegativeDisplacement)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->WritePair(Register::IY, 0x0200);
@@ -318,7 +296,7 @@ TEST(CoreTests_ControlUnit, TestIndexedDestinantionOpcodeIX)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->Write(Register::A, 0x88);
@@ -342,7 +320,7 @@ TEST(CoreTests_ControlUnit, TestExtendedSource)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // First trigger to controlUnit. 
@@ -365,7 +343,7 @@ TEST(CoreTests_ControlUnit, TestExtendedDestination)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->Write(Register::A, 0xF8);
@@ -388,7 +366,7 @@ TEST(CoreTests_ControlUnit, TestImmediateRegisterIndirect)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->WritePair(Register::HL, 0xF5D2);
@@ -410,7 +388,7 @@ TEST(CoreTests_ControlUnit, TestRegisterIndirectSourceIncrement)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->WritePair(Register::HL, 0x99AA);
@@ -434,7 +412,7 @@ TEST(CoreTests_ControlUnit, TestRegisterIndirectSourceDecrement)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->WritePair(Register::HL, 0x88BB);
@@ -458,7 +436,7 @@ TEST(CoreTests_ControlUnit, TestRegisterIndirectDestinationIncrement)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->Write(Register::A, 0x66);
@@ -482,7 +460,7 @@ TEST(CoreTests_ControlUnit, TestRegisterIndirectDestinationDecrement)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->Write(Register::A, 0x41);
@@ -506,7 +484,7 @@ TEST(CoreTests_ControlUnit, TestImplicitRegisterSource)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->Write(Register::C, 0x55);
@@ -529,7 +507,7 @@ TEST(CoreTests_ControlUnit, TestImplicitRegisterDestination)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->Write(Register::A, 0xA6);
@@ -551,7 +529,7 @@ TEST(CoreTests_ControlUnit, TestImplicitImmediateSource)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // First trigger to controlUnit. 
@@ -573,7 +551,7 @@ TEST(CoreTests_ControlUnit, TestImplicitImmediateDestination)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->Write(Register::A, 0xD2);
@@ -595,7 +573,7 @@ TEST(CoreTests_ControlUnit, TestImmediatePair)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // First trigger to controlUnit. 
@@ -632,7 +610,7 @@ TEST(CoreTests_ControlUnit, TestTransferToSP)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registerBank->WritePair(Register::HL, 0x65A1);
@@ -653,7 +631,7 @@ TEST(CoreTests_ControlUnit, TestAddRegister)
     auto registerBank = make_shared<RegisterBank>();
     arithmeticLogicUnit->Initialize(registerBank);
     arithmeticLogicUnit->InitializeRegisters();
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // ADD A, C
@@ -679,7 +657,7 @@ TEST(CoreTests_ControlUnit, TestAddImmediate)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // ADD A, #73
@@ -705,7 +683,7 @@ TEST(CoreTests_ControlUnit, TestAddRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // ADD A, (HL)
@@ -733,7 +711,7 @@ TEST(CoreTests_ControlUnit, TestAdcRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // ADC A, B ; CY = 1 : A = 0x00
@@ -771,7 +749,7 @@ TEST(CoreTests_ControlUnit, TestAdcImmediate)
     arithmeticLogicUnit->InitializeRegisters();
 
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // ADC A, #0xFF ; CY = 1 : A = 0x00
@@ -806,7 +784,7 @@ TEST(CoreTests_ControlUnit, TestAdcRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // ADC A, (HL) ; HL = #45DA -> 0x4C A -> 0x04 CY = 0
@@ -844,7 +822,7 @@ TEST(CoreTests_ControlUnit, TestSubRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // SUB A, L
@@ -869,7 +847,7 @@ TEST(CoreTests_ControlUnit, TestSubImmediate)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // SUB A, #FF
@@ -894,7 +872,7 @@ TEST(CoreTests_ControlUnit, TestSubRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // SUB A, (HL)
@@ -921,7 +899,7 @@ TEST(CoreTests_ControlUnit, TestSbcRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // SBC A, C ; CY is 1
@@ -951,7 +929,7 @@ TEST(CoreTests_ControlUnit, TestSbcImmediate)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registers->Write(Register::A, 0x10);
@@ -979,7 +957,7 @@ TEST(CoreTests_ControlUnit, TestSbcRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registers->Write(Register::A, 0x09);
@@ -1013,7 +991,7 @@ TEST(CoreTests_ControlUnit, TestAndRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // AND A, C
@@ -1039,7 +1017,7 @@ TEST(CoreTests_ControlUnit, TestAndImmediate)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // AND A, #0A
@@ -1065,7 +1043,7 @@ TEST(CoreTests_ControlUnit, TestAndRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // AND A, (HL)
@@ -1092,7 +1070,7 @@ TEST(CoreTests_ControlUnit, TestOrRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // OR A, C
@@ -1118,7 +1096,7 @@ TEST(CoreTests_ControlUnit, TestOrImmediate)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // OR A, #0x55
@@ -1144,7 +1122,7 @@ TEST(CoreTests_ControlUnit, TestOrRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // OR A, (HL))
@@ -1171,7 +1149,7 @@ TEST(CoreTests_ControlUnit, TestXorRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // XOR A, D
@@ -1197,7 +1175,7 @@ TEST(CoreTests_ControlUnit, TestXorImmediate)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // XOR A, #79
@@ -1223,7 +1201,7 @@ TEST(CoreTests_ControlUnit, TestXorRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // XOR A, (HL)
@@ -1250,7 +1228,7 @@ TEST(CoreTests_ControlUnit, TestCpRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // CP A, D
@@ -1277,7 +1255,7 @@ TEST(CoreTests_ControlUnit, TestCpImmediate)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // CP A, #01
@@ -1313,7 +1291,7 @@ TEST(CoreTests_ControlUnit, TestCpRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // CP A, (HL))
@@ -1343,7 +1321,7 @@ TEST(CoreTests_ControlUnit, TestIncRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // INC H
@@ -1368,7 +1346,7 @@ TEST(CoreTests_ControlUnit, TestIncRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // INC (HL)
@@ -1405,7 +1383,7 @@ TEST(CoreTests_ControlUnit, TestDecRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // INC H
@@ -1430,7 +1408,7 @@ TEST(CoreTests_ControlUnit, TestDecRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // INC (HL)
@@ -1468,7 +1446,7 @@ TEST(CoreTests_ControlUnit, TestPush)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // set stackPoiner
@@ -1533,7 +1511,7 @@ TEST(CoreTests_ControlUnit, TestPop)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // set stackPoiner
@@ -1607,7 +1585,7 @@ TEST(CoreTests_ControlUnit, TestLdhlRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // INC H
@@ -1633,7 +1611,7 @@ TEST(CoreTests_ControlUnit, TestSPTransferToMemory)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // INC H
@@ -1659,7 +1637,7 @@ TEST(CoreTests_ControlUnit, TestSPImmediate)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registers->WritePair(Register::SP, 0xFFFE);
@@ -1696,7 +1674,7 @@ TEST(CoreTests_ControlUnit, TestIncRegisterPair)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // INC BC
@@ -1732,7 +1710,7 @@ TEST(CoreTests_ControlUnit, TestDecRegisterPair)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // INC BC
@@ -1771,7 +1749,7 @@ TEST(CoreTests_ControlUnit, TestRlca)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // rlca
@@ -1800,7 +1778,7 @@ TEST(CoreTests_ControlUnit, TestRla)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // rla
@@ -1830,7 +1808,7 @@ TEST(CoreTests_ControlUnit, TestRrca)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // rrca
@@ -1859,7 +1837,7 @@ TEST(CoreTests_ControlUnit, TestRra)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // rra
@@ -1888,7 +1866,7 @@ TEST(CoreTests_ControlUnit, TestRlcRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // RLC E
@@ -1918,7 +1896,7 @@ TEST(CoreTests_ControlUnit, TestRlcRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // RLC (HL) ; HL = 0xA099 [0xA099] = 0xFE
@@ -1948,7 +1926,7 @@ TEST(CoreTests_ControlUnit, TestRlRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // RL L
@@ -1979,7 +1957,7 @@ TEST(CoreTests_ControlUnit, TestRlRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // RL (HL) ; HL = 0xEE12 [0xEE12] = 0x11
@@ -2009,7 +1987,7 @@ TEST(CoreTests_ControlUnit, TestRrcRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // RRC L
@@ -2041,7 +2019,7 @@ TEST(CoreTests_ControlUnit, TestRrcRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // RRC (HL) -> HL = 8891, [8891] = 0xFE
@@ -2071,7 +2049,7 @@ TEST(CoreTests_ControlUnit, TestRrRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // RR L
@@ -2103,7 +2081,7 @@ TEST(CoreTests_ControlUnit, TestRrRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // RR (HL) -> HL 0xAAAA, [0xAAAA] = 0x8A
@@ -2134,7 +2112,7 @@ TEST(CoreTests_ControlUnit, TestSlaRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Sla D
@@ -2165,7 +2143,7 @@ TEST(CoreTests_ControlUnit, TestSlaRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Sla (HL) -> HL = 0x12EE, [0x12EE] = 0xFF
@@ -2196,7 +2174,7 @@ TEST(CoreTests_ControlUnit, TestSraRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Sra A
@@ -2227,7 +2205,7 @@ TEST(CoreTests_ControlUnit, TestSraRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Sla (HL) -> HL = 0x010A, [0x010A] = 0x01
@@ -2258,7 +2236,7 @@ TEST(CoreTests_ControlUnit, TestSrlRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Srl A
@@ -2289,7 +2267,7 @@ TEST(CoreTests_ControlUnit, TestSrlRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Srl (HL) -> HL = 0x999F, [0x999F] = 0xFF
@@ -2320,7 +2298,7 @@ TEST(CoreTests_ControlUnit, TestSwapRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Swap E
@@ -2351,7 +2329,7 @@ TEST(CoreTests_ControlUnit, TestSwapRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Swap (HL) -> HL = 0x0005, [0x0005] = 0xF0
@@ -2382,7 +2360,7 @@ TEST(CoreTests_ControlUnit, TestBitRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Bit 7, A
@@ -2426,7 +2404,7 @@ TEST(CoreTests_ControlUnit, TestBitRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Bit r, (HL); HL = 0xADF0 l [0xADF0] = 0xFE
@@ -2470,7 +2448,7 @@ TEST(CoreTests_ControlUnit, TestSetRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // SET 3, A
@@ -2521,7 +2499,7 @@ TEST(CoreTests_ControlUnit, TestSetRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Srl (HL) -> HL = 0x7800, [0x7800] = 0x00
@@ -2556,7 +2534,7 @@ TEST(CoreTests_ControlUnit, TestResRegister)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // RES 7, A
@@ -2607,7 +2585,7 @@ TEST(CoreTests_ControlUnit, TestResRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // Srl (HL) -> HL = 0x9111, [0x9111] = 0x00
@@ -2642,7 +2620,7 @@ TEST(CoreTests_ControlUnit, TestJpUnconditional)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     auto opcode = 0xC3;
@@ -2681,7 +2659,7 @@ TEST(CoreTests_ControlUnit, TestJpConditional)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // LD A, 0x01  -> 0x3E
@@ -2713,7 +2691,7 @@ TEST(CoreTests_ControlUnit, TestJrUnconditional)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     auto opcode = 0x18;
@@ -2769,7 +2747,7 @@ TEST(CoreTests_ControlUnit, TestJrConditional)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // LD A, 0x80  -> 0x3E
@@ -2801,7 +2779,7 @@ TEST(CoreTests_ControlUnit, TestJpUnconditionalRegisterIndirect)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // JP (HL) -> HL = 0x40FF,  (0x40FF) = 0x6755;
@@ -2827,7 +2805,7 @@ TEST(CoreTests_ControlUnit, TestUnconditionalCall)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // CALL 0x8000
@@ -2875,7 +2853,7 @@ TEST(CoreTests_ControlUnit, TestConditionalCall)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // CALL NZ 0x7000
@@ -2926,7 +2904,7 @@ TEST(CoreTests_ControlUnit, TestRet)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // At address 0x8000    
@@ -2985,7 +2963,7 @@ TEST(CoreTests_ControlUnit, TestConditionalRet)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // At address 0x8000    
@@ -3036,7 +3014,7 @@ TEST(CoreTests_ControlUnit, TestReti)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // At address 0x8000    
@@ -3099,7 +3077,7 @@ TEST(CoreTests_ControlUnit, TestRst)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // LD HL, 0x5000
@@ -3136,7 +3114,7 @@ TEST(CoreTests_ControlUnit, TestDaa)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // LD A, 0x45   0x3E
@@ -3199,7 +3177,7 @@ TEST(CoreTests_ControlUnit, TestCpl)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // LD A, 0x35
@@ -3226,7 +3204,7 @@ TEST(CoreTests_ControlUnit, TestNop)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     registers->WriteFlag(Flag::Z, 0x00);
@@ -3274,7 +3252,7 @@ TEST(CoreTests_ControlUnit, TestHalt)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // HALT
@@ -3296,7 +3274,7 @@ TEST(CoreTests_ControlUnit, TestStop)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // STOP
@@ -3319,7 +3297,7 @@ TEST(CoreTests_ControlUnit, TestEi)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // EI
@@ -3341,7 +3319,7 @@ TEST(CoreTests_ControlUnit, TestDi)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // DI
@@ -3363,7 +3341,7 @@ TEST(CoreTests_ControlUnit, TestCcf)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // CCF
@@ -3393,7 +3371,7 @@ TEST(CoreTests_ControlUnit, TestScf)
     arithmeticLogicUnit->Initialize(registers);
     arithmeticLogicUnit->InitializeRegisters();
 
-    auto controlUnit = make_shared<ControlUnitDecorator>();
+    auto controlUnit = make_shared<ControlUnit>();
          controlUnit->Initialize(memoryController, arithmeticLogicUnit);
 
     // SCF

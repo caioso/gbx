@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "GBXCoreExceptions.h"
-#include "interfaces/MemoryControllerInterface.h"
-#include "interfaces/MemoryInterface.h"
+#include "MemoryControllerInterface.h"
+#include "MemoryInterface.h"
 
 #include <memory>
 

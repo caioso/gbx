@@ -9,7 +9,7 @@
 #include <variant>
 
 #include "GBXCoreExceptions.h"
-#include "interfaces/MemoryInterface.h"
+#include "MemoryInterface.h"
 
 namespace gbxcore
 {

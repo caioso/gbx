@@ -3,8 +3,8 @@
 #include <memory>
 #include <variant>
 
-#include "interfaces/Runtime.h"
-#include "constants/SystemConstants.h"
+#include "Runtime.h"
+#include "SystemConstants.h"
 #include "ArithmeticLogicUnit.h"
 #include "Clock.h"
 #include "ControlUnit.h"

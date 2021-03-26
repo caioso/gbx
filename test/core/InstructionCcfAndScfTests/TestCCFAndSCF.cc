@@ -1,14 +1,15 @@
 #include <gtest/gtest.h>
 
+#include "CoreTestMocksAndWrappers.h"
+
 #include <algorithm>
 #include <memory>
 #include <optional>
 #include <random>
 #include <vector>
-
 #include <iostream>
 
-#include "instructions/Opcodes.h"
+#include "Opcodes.h"
 #include "ArithmeticLogicUnit.h"
 #include "GBXCoreExceptions.h"
 #include "MemoryController.h"
@@ -18,18 +19,6 @@ using namespace std;
 using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
-
-class ArithmeticLogicDecorator : public ArithmeticLogicUnit
-{
-public:
-    interfaces::DecodedInstruction& GetInstructionData() { return _instructionData; }
-    void DecodeInstruction(uint8_t opcode, optional<uint8_t> preOpcode)
-    {
-        _registers->Write(Register::IR, opcode);
-        _registers->Write(Register::PIR, preOpcode.value_or(0x00));
-        Decode();
-    }
-};
 
 TEST(CoreTests_CCFAndSCF, DecodeCcf)
 {

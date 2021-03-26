@@ -11,9 +11,9 @@
 #include "GBXCoreExceptions.h"
 #include "RegisterBank.h"
 #include "ArithmeticLogicUnit.h"
-#include "interfaces/ArithmeticLogicUnitInterface.h"
-#include "interfaces/ControlUnitInterface.h"
-#include "interfaces/MemoryControllerInterface.h"
+#include "ArithmeticLogicUnitInterface.h"
+#include "ControlUnitInterface.h"
+#include "MemoryControllerInterface.h"
 
 namespace gbxcore
 {

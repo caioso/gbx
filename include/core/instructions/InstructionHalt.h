@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../interfaces/InstructionInterface.h"
+#include "InstructionInterface.h"
 
 namespace gbxcore::instructions
 {

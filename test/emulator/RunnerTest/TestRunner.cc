@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include "EmulatorTestMocks.h"
+
 #include <chrono>
 #include <iostream>
 #include <limits>
@@ -24,25 +26,6 @@ using namespace gbxcore::interfaces;
 
 using ::testing::Return;
 using ::testing::_;
-
-class RuntimeMock : public Runtime
-{
-public:
-    virtual ~RuntimeMock() = default;
-    MOCK_METHOD(void, Run, ());
-    MOCK_METHOD((std::variant<uint8_t, uint16_t>), ReadRegister, (Register));
-    MOCK_METHOD(void, WriteRegister, (Register, (std::variant<uint8_t, uint16_t>)));
-};
-
-class ServerTransportMock : public interfaces::ServerTransport
-{
-public:
-    virtual ~ServerTransportMock() = default;
-    MOCK_METHOD(void, WaitForClient, ());
-    MOCK_METHOD(void, SendMessage, (std::shared_ptr<DebugMessage>));
-    MOCK_METHOD(void, Subscribe, (std::weak_ptr<gbxcommons::Observer>));
-    MOCK_METHOD(void, Unsubscribe, (std::weak_ptr<gbxcommons::Observer>));
-};
 
 TEST(TestRunner, Construction) 
 {

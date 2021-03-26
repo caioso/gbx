@@ -10,7 +10,7 @@
 #include "GBXEmulatorExceptions.h"
 #include "RegisterBank.h"
 
-#include "TestMocks.h"
+#include "DebuggerTestMocks.h"
 #include "TestUtils.h"
 
 using namespace gbx;

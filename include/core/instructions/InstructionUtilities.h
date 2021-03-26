@@ -4,8 +4,8 @@
 #include <optional>
 #include <memory>
 
-#include "../AddressingMode.h"
-#include "../MemoryController.h"
+#include "AddressingMode.h"
+#include "MemoryController.h"
 
 namespace gbxcore::instructions
 {

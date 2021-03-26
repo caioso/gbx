@@ -9,7 +9,7 @@
 
 #include "EngineParameters.h"
 #include "GBXCoreExceptions.h"
-#include "interfaces/ClockInterface.h"
+#include "ClockInterface.h"
 
 namespace gbxcore
 {

@@ -3,7 +3,7 @@
 #include <optional>
 #include <variant>
 
-#include "../AddressRange.h"
+#include "AddressRange.h"
 #include "MemoryInterface.h"
 
 namespace gbxcore::interfaces

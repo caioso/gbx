@@ -8,7 +8,7 @@
 #include "Clock.h"
 #include "GBXCoreExceptions.h"
 #include "EngineParameters.h"
-#include "interfaces/ClockInterface.h"
+#include "ClockInterface.h"
 
 using namespace std;
 using namespace gbxcore;

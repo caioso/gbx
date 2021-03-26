@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include "AssemblerTestMocks.h"
 #include "TestUtils.h"
 
 #include <memory>
@@ -8,20 +9,12 @@
 #include <vector>
 
 #include "MessageStream.h"
-#include "StreamSink.h"
 #include "OutputStream.h"
 
 using namespace gbxasm;
 using namespace gbxasm::interfaces;
 using namespace gbxasm::streams;
 using namespace std;
-
-class SinkMock : public interfaces::StreamSink
-{
-public:
-    virtual ~SinkMock() = default;
-    MOCK_METHOD(void, Write, (std::string));
-};
 
 TEST(AssemblerTests_RemoveCommentsPass, OutputStreamConstruction)
 {

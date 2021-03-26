@@ -3,11 +3,11 @@
 #include <memory>
 
 #include "EngineParameters.h"
-#include "interfaces/ArithmeticLogicUnitInterface.h"
-#include "interfaces/ClockInterface.h"
-#include "interfaces/ControlUnitInterface.h"
-#include "interfaces/MemoryControllerInterface.h"
-#include "interfaces/RegisterBankInterface.h"
+#include "ArithmeticLogicUnitInterface.h"
+#include "ClockInterface.h"
+#include "ControlUnitInterface.h"
+#include "MemoryControllerInterface.h"
+#include "RegisterBankInterface.h"
 
 namespace gbxcore
 {

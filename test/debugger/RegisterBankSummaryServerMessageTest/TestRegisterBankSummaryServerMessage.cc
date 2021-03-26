@@ -10,7 +10,7 @@
 #include "MessageID.h"
 #include "ServerMessageHandler.h"
 
-#include "TestMocks.h"
+#include "DebuggerTestMocks.h"
 #include "TestUtils.h"
 
 using namespace gbx;

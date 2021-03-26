@@ -8,10 +8,10 @@
 
 #include <iostream>
 
-#include "MemoryController.h"
-#include "RegisterBank.h"
 #include "ArithmeticLogicUnit.h"
-#include "instructions/Opcodes.h"
+#include "MemoryController.h"
+#include "Opcodes.h"
+#include "RegisterBank.h"
 
 using namespace std;
 using namespace gbxcore;

@@ -10,7 +10,6 @@
 #include "ClientTransport.h"
 #include "DebugMessage.h"
 #include "DebuggableRunner.h"
-#include "Observer.h"
 #include "OutputDriver.h"
 #include "RegisterBank.h"
 #include "RegisterBankInterface.h"

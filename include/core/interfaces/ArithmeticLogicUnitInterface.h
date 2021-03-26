@@ -4,10 +4,10 @@
 #include <optional>
 #include <memory>
 
-#include "../AddressingMode.h"
-#include "../AddressingModeFormat.h"
-#include "../MemoryController.h"
-#include "../instructions/Opcodes.h"
+#include "AddressingMode.h"
+#include "AddressingModeFormat.h"
+#include "MemoryController.h"
+#include "Opcodes.h"
 #include "MemoryControllerInterface.h"
 #include "RegisterBankInterface.h"
 
