@@ -13,7 +13,7 @@
 #include "Runtime.h"
 #include "CancellationToken.h"
 
-namespace gbx::runtime
+namespace gbxruntime::runner
 {
 
 enum class RunnerMode

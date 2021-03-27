@@ -1,6 +1,6 @@
 #include "CancellationToken.h"
 
-namespace gbx::runtime
+namespace gbxruntime::runner
 {
 
 void CancellationToken::Cancel()

@@ -5,7 +5,7 @@ using namespace gbxdb::interfaces;
 using namespace gbxcore::interfaces;
 using namespace std;
 
-namespace gbx::runtime
+namespace gbxruntime::runner
 {
 
 Runner::Runner(shared_ptr<Runtime> runner)

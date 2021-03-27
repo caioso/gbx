@@ -15,7 +15,7 @@
 #include "transport/BoostAsioServerTransport.h"
 
 using namespace std;
-using namespace gbx;
+using namespace gbxruntime::runner;
 using namespace gbxdb::transport;
 using namespace gbxcore;
 using namespace gbxcore::interfaces;
@@ -87,9 +87,9 @@ void InitializeDebugServer()
 {
     auto gbx = make_shared<GameBoyX>();
     auto transport = make_unique<BoostAsioServerTransport>(configuration.IPAddress, configuration.Port);
-    runtime::CancellationToken token;
+    gbxruntime::runner::CancellationToken token;
 
-    auto runner = make_shared<runtime::Runner>(gbx, std::move(transport));
+    auto runner = make_shared<gbxruntime::runner::Runner>(gbx, std::move(transport));
     runner->Run(token);
 }
 

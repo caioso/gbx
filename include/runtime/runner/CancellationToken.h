@@ -1,6 +1,6 @@
 #pragma once
 
-namespace gbx::runtime
+namespace gbxruntime::runner
 {
 
 class CancellationToken

@@ -3,7 +3,7 @@
 #include <exception>
 #include <string>
 
-namespace gbx
+namespace gbxruntime
 {
 
 class GBXEmulatorExceptions : std::exception

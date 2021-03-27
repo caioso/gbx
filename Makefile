@@ -36,8 +36,8 @@ INCLUDE_DEBUGGER_INTERFACES = $(INCLUDE_DEBUGGER_TOP)/interfaces
 INCLUDE_DEBUGGER_PROTOCOL = $(INCLUDE_DEBUGGER_TOP)/protocol
 INCLUDE_DEBUGGER_OUTPUT = $(INCLUDE_DEBUGGER_TOP)/output
 INCLUDE_DEBUGGER_TRANSPORT = $(INCLUDE_DEBUGGER_TOP)/transport
-INCLUDE_EMULATOR_TOP = $(INCLUDE_TOP)/emulator
-INCLUDE_EMULATOR_RUNTIME = $(INCLUDE_EMULATOR_TOP)/runtime
+INCLUDE_RUNTIME_TOP = $(INCLUDE_TOP)/runtime
+INCLUDE_RUNTIME_RUNNER = $(INCLUDE_RUNTIME_TOP)/runner
 
 # Compiler flags
 GLOBAL_CPP_FLAGS = -Wall -Wextra -std=c++2a -O3 -g -DDEBUG
@@ -48,7 +48,7 @@ CLI_DEBUGGER = $(BUILD_APPS)/gbxdb_cli
 CORE_LIB = $(BUILD_LIB)/libgbxcore.a
 COMMONS_LIB = $(BUILD_LIB)/libgbxcommons.a
 DEBUG_LIB = $(BUILD_LIB)/libgbxdebug.a
-EMU_LIB = $(BUILD_LIB)/libgbxemu.a
+RUNTIME_LIB = $(BUILD_LIB)/libgbxruntime.a
 GBX_TEST = $(BUILD_TEST)/gbxtest
 RUNTIME = $(BUILD_APPS)/gbx
 
@@ -83,8 +83,8 @@ export INCLUDE_DEBUGGER_INTERFACES
 export INCLUDE_DEBUGGER_PROTOCOL
 export INCLUDE_DEBUGGER_OUTPUT
 export INCLUDE_DEBUGGER_TRANSPORT
-export INCLUDE_EMULATOR_TOP
-export INCLUDE_EMULATOR_RUNTIME
+export INCLUDE_RUNTIME_TOP
+export INCLUDE_RUNTIME_RUNNER
 
 export GLOBAL_CPP_FLAGS
 
@@ -93,11 +93,11 @@ export CLI_DEBUGGER
 export CORE_LIB
 export COMMONS_LIB
 export DEBUG_LIB
-export EMU_LIB
+export RUNTIME_LIB
 export GBX_TEST
 export RUNTIME
 
-all: $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(EMU_LIB) $(DEBUG_LIB) applications $(GBX_TEST) 
+all: $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(RUNTIME_LIB) $(DEBUG_LIB) applications $(GBX_TEST) 
 
 $(CORE_LIB):
 	$(call MakeTarget, source/core)
@@ -105,8 +105,8 @@ $(CORE_LIB):
 $(ASM_LIB):
 	$(call MakeTarget, source/assembler)
 
-$(EMU_LIB):
-	$(call MakeTarget, source/emulator)
+$(RUNTIME_LIB):
+	$(call MakeTarget, source/runtime)
 
 $(GBX_TEST):
 	$(call MakeTarget, test)
@@ -120,11 +120,11 @@ $(DEBUG_LIB):
 applications:
 	$(call MakeTarget, $(APPLICATIONS))
 
-.PHONY: $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(EMU_LIB) $(DEBUG_LIB) applications $(GBX_TEST) test
+.PHONY: $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(RUNTIME_LIB) $(DEBUG_LIB) applications $(GBX_TEST) test
 
 clean:
 	rm -f ./temp/*.o ./temp/*.d
-	rm -f $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(EMU_LIB) $(DEBUG_LIB) $(GBX_TEST) $(RUNTIME) $(CLI_DEBUGGER)
+	rm -f $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(RUNTIME_LIB) $(DEBUG_LIB) $(GBX_TEST) $(RUNTIME) $(CLI_DEBUGGER)
 
 debug-test:
 	lldb ./build/test/gbxtest

@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace gbx
+namespace gbxruntime
 {
 
 GBXEmulatorExceptions::GBXEmulatorExceptions(const std::string& message)

@@ -18,16 +18,16 @@
 
 using namespace std;
 using namespace std::chrono_literals;
-using namespace gbx;
+using namespace gbxruntime::runner;
 using namespace gbxdb;
 using namespace gbxdb::interfaces;
-using namespace gbx::runtime;
+using namespace gbxruntime::runner;
 using namespace gbxcore::interfaces;
 
 using ::testing::Return;
 using ::testing::_;
 
-TEST(TestRunner, Construction) 
+TEST(RuntimeTests_Runner, Construction) 
 {
     auto runtime = make_shared<RuntimeMock>();
     auto pointer = static_pointer_cast<Runtime>(runtime);
@@ -36,7 +36,7 @@ TEST(TestRunner, Construction)
     EXPECT_EQ(RunnerMode::Runtime, runner->Mode());
 }
 
-TEST(TestRunner, ConstructionInDebugMode) 
+TEST(RuntimeTests_Runner, ConstructionInDebugMode) 
 {
     auto runtime = make_shared<RuntimeMock>();
     auto runtimePointer = static_pointer_cast<Runtime>(runtime);
@@ -46,7 +46,7 @@ TEST(TestRunner, ConstructionInDebugMode)
     EXPECT_EQ(RunnerMode::Debug, runner->Mode());
 }
 
-TEST(TestRunner, RunForANumberOfCycles) 
+TEST(RuntimeTests_Runner, RunForANumberOfCycles) 
 {
     auto runtime = make_shared<RuntimeMock>();
     auto pointer = static_pointer_cast<Runtime>(runtime);
@@ -62,7 +62,7 @@ TEST(TestRunner, RunForANumberOfCycles)
     EXPECT_EQ(RunnerMode::Runtime, runner->Mode());
 }
 
-TEST(TestRunner, CancellationAWithPredefinedNumberOfCycles) 
+TEST(RuntimeTests_Runner, CancellationAWithPredefinedNumberOfCycles) 
 {
     auto runtime = make_shared<RuntimeMock>();
     auto pointer = static_pointer_cast<Runtime>(runtime);
@@ -83,7 +83,7 @@ TEST(TestRunner, CancellationAWithPredefinedNumberOfCycles)
     EXPECT_EQ(RunnerMode::Runtime, runner->Mode());
 }
 
-TEST(TestRunner, RunIndefinitelyWithCancellationToken) 
+TEST(RuntimeTests_Runner, RunIndefinitelyWithCancellationToken) 
 {
     auto runtime = make_shared<RuntimeMock>();
     auto pointer = static_pointer_cast<Runtime>(runtime);
@@ -104,7 +104,7 @@ TEST(TestRunner, RunIndefinitelyWithCancellationToken)
     EXPECT_EQ(RunnerMode::Runtime, runner->Mode());
 }
 
-TEST(TestRunner, RunInDebugMode) 
+TEST(RuntimeTests_Runner, RunInDebugMode) 
 {
     auto runtime = make_shared<RuntimeMock>();
     auto pointer = static_pointer_cast<Runtime>(runtime);
@@ -131,7 +131,7 @@ TEST(TestRunner, RunInDebugMode)
     EXPECT_EQ(RunnerMode::Debug, runner->Mode());
 }
 
-TEST(TestRunner, RunInDebugModeForAGivenNumberOfCycles) 
+TEST(RuntimeTests_Runner, RunInDebugModeForAGivenNumberOfCycles) 
 {
     auto runtime = make_shared<RuntimeMock>();
     auto pointer = static_pointer_cast<Runtime>(runtime);

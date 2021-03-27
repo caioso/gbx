@@ -13,7 +13,7 @@
 #include "DebuggerTestMocks.h"
 #include "TestUtils.h"
 
-using namespace gbx;
+using namespace gbxruntime;
 using namespace gbxcommons;
 using namespace gbxcore;
 using namespace gbxdb;

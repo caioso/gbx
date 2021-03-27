@@ -4,16 +4,16 @@
 #include "CancellationToken.h"
 
 using namespace std;
-using namespace gbx;
-using namespace gbx::runtime;
+using namespace gbxruntime;
+using namespace gbxruntime::runner;
 
-TEST(TestCancellationToken, Construction) 
+TEST(RuntimeTests_CancellationToken, Construction) 
 {
     CancellationToken token;
     EXPECT_FALSE(token.IsCancelled());
 }
 
-TEST(TestCancellationToken, CancelToken) 
+TEST(RuntimeTests_CancellationToken, CancelToken) 
 {
      CancellationToken token;
      token.Cancel();

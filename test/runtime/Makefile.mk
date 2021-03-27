@@ -9,7 +9,7 @@ INCLUDE = -I$(INCLUDE_CORE_TOP) -I$(INCLUDE_CORE_INSTRUCTIONS)
 
 SRC_FILES = $(notdir $(wildcard */*.cc))
 OBJ_FILES = $(patsubst %.cc,$(BUILD_TEMP)/%.o,$(SRC_FILES))
-TARGET = $(EMU_TESTS)
+TARGET = $(RUNTIME_TESTS)
 
 .PHONY: $(TARGET) $(TEST_DIRS)
 
