@@ -22,7 +22,7 @@ BoostAsioServerTransport::~BoostAsioServerTransport()
 
 void BoostAsioServerTransport::WaitForClient()
 {
-    _thread = make_unique<thread>([&](){ this->RunProtocol(); });
+    _mainChannelThread = make_unique<thread>([&](){ this->RunProtocol(); });
 }
 
 void BoostAsioServerTransport::RunProtocol()
@@ -30,6 +30,8 @@ void BoostAsioServerTransport::RunProtocol()
     try
     {
         AcceptConnection();
+        InitializeServerAliveLine();
+
         ProtocolLoop();
         _socket->close();
     }
@@ -74,7 +76,7 @@ void BoostAsioServerTransport::AcceptConnection()
     cout << "Waiting for client to join..." << '\n';
     
     _socketLock.lock();
-        _socket = make_unique<boost::asio::ip::tcp::socket>(ios);
+        _socket = make_unique<ip::tcp::socket>(ios);
         acceptor.accept(*_socket);
     _socketLock.unlock();
 
@@ -91,7 +93,7 @@ void BoostAsioServerTransport::AcceptConnection()
 void BoostAsioServerTransport::SendMessage(shared_ptr<DebugMessage> message)
 {
     std::lock_guard guard(_socketLock);
-    _socket->write_some(boost::asio::buffer((*message->Buffer())));
+    _socket->write_some(buffer((*message->Buffer())));
 }
 
 void BoostAsioServerTransport::Subscribe(weak_ptr<Observer> obs)

@@ -22,7 +22,7 @@ BoostAsioClientTransport::~BoostAsioClientTransport()
 
 void BoostAsioClientTransport::JoinServer()
 {
-    _thread = make_unique<thread>([&](){ this->RunProtocol(); });
+    _mainChannelThread = make_unique<thread>([&](){ this->RunProtocol(); });
 }
 
 void BoostAsioClientTransport::LeaveServer()
@@ -36,6 +36,8 @@ void BoostAsioClientTransport::RunProtocol()
     try
     {
         TryToJoinServer();
+        InitializeClientAliveLine();
+
         ProtocolLoop();
         _socket->close();
     }
@@ -99,7 +101,7 @@ void BoostAsioClientTransport::NotifyObservers(std::shared_ptr<DebugMessage> mes
 void BoostAsioClientTransport::SendMessage(std::shared_ptr<DebugMessage> message)
 {
     std::lock_guard guard(_socketLock);
-    _socket->write_some(boost::asio::buffer((*message->Buffer())));
+    _socket->write_some(buffer((*message->Buffer())));
 }
 
 void BoostAsioClientTransport::Subscribe(std::weak_ptr<Observer> obs)

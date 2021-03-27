@@ -29,7 +29,7 @@ void ServerMessageHandler::Notify(shared_ptr<NotificationArguments> args)
 void ServerMessageHandler::ParseMessage(shared_ptr<DebugMessage> messagePointer)
 {
     uint16_t messageID = (*messagePointer->Buffer())[0] | ((*messagePointer->Buffer())[1] << 0x08); 
-    
+    cout << hex << static_cast<size_t>(messageID) << '\n';
     switch (messageID)
     {
         // Parse messages and add them to the queue.
