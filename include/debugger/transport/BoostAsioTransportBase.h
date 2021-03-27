@@ -32,7 +32,6 @@ protected:
     void ReceiveMessageBlocking(std::shared_ptr<interfaces::DebugMessage>&, boost::system::error_code&);
     void Terminate();
     
-    void InitializeServerAliveLine();
     void InitializeClientAliveLine();
 
     void ServerAliveLoop();
@@ -46,7 +45,7 @@ protected:
     std::unique_ptr<std::thread> _mainChannelThread;
     std::unique_ptr<std::thread> _statusChannelThread;
     std::unique_ptr<boost::asio::ip::tcp::socket> _socket;
-    std::mutex _socketLock;
+    std::recursive_mutex _socketLock;
 };
 
 }

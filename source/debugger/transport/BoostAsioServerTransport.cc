@@ -30,7 +30,12 @@ void BoostAsioServerTransport::RunProtocol()
     try
     {
         AcceptConnection();
-        InitializeServerAliveLine();
+
+        _statusChannelThread = make_unique<thread>([&]() 
+        {
+            this->InitializeAliveSocket(); 
+            this->ServerAliveLoop(); 
+        });  
 
         ProtocolLoop();
         _socket->close();
@@ -75,10 +80,8 @@ void BoostAsioServerTransport::AcceptConnection()
 
     cout << "Waiting for client to join..." << '\n';
     
-    _socketLock.lock();
-        _socket = make_unique<ip::tcp::socket>(ios);
-        acceptor.accept(*_socket);
-    _socketLock.unlock();
+    _socket = make_unique<ip::tcp::socket>(ios);
+    acceptor.accept(*_socket);
 
     // FIX THIS LATER!!!
     // Send 'Client joined message'
@@ -90,9 +93,56 @@ void BoostAsioServerTransport::AcceptConnection()
     cout << "Connection established!" << '\n';
 }
 
+void BoostAsioServerTransport::InitializeAliveSocket()
+{
+    uint8_t attempts = 0xFF;
+    _alivePort = stoi(_port) + 1;
+
+    while (true)
+    {
+        try
+        {
+            ip::tcp::endpoint endPoint(ConvertIpAddress(), _alivePort);
+            io_service ios;
+
+            ip::tcp::acceptor acceptor(ios, endPoint.protocol());
+            acceptor.bind(endPoint);
+            acceptor.listen(MaxNumberOfConnections);
+
+
+            // FIX THIS LATER!!!
+            // Ask client to join to join to the 'Alive socked'
+            auto debugMessage = make_shared<DebugMessage>(make_shared<array<uint8_t, MaxMessageBufferSize>>());
+            (*debugMessage->Buffer())[0] = MessageID::MessageProtocolInitializer & 0xFF;
+            (*debugMessage->Buffer())[1] = (MessageID::MessageProtocolInitializer >> 0x08) & 0xFF;
+            // Port number
+            (*debugMessage->Buffer())[2] = (_alivePort) & 0xFF;
+            (*debugMessage->Buffer())[3] = (_alivePort >> 0x08) & 0xFF;
+            (*debugMessage->Buffer())[4] = (_alivePort >> 0x10) & 0xFF;
+            (*debugMessage->Buffer())[5] = (_alivePort >> 0x18) & 0xFF;
+
+            NotifyObservers(debugMessage);
+
+            cout << "Server alive port:'" << _alivePort << "'\n";
+            _aliveSocket = make_unique<ip::tcp::socket>(ios);
+            acceptor.accept(*_aliveSocket);
+            break;
+        }
+        catch (boost::system::system_error& e) 
+        {
+            cout << "Unable to open port '" << _alivePort << "'\n";
+            _alivePort++; 
+            attempts--;
+
+            if (attempts == 0)
+                throw ProtocolException("Unable to initialize debug server: unable to open status socket");
+        }
+    }
+}
+
 void BoostAsioServerTransport::SendMessage(shared_ptr<DebugMessage> message)
 {
-    std::lock_guard guard(_socketLock);
+    std::lock_guard<std::recursive_mutex> guard(_socketLock);
     _socket->write_some(buffer((*message->Buffer())));
 }
 
@@ -125,5 +175,8 @@ void BoostAsioServerTransport::Unsubscribe(weak_ptr<Observer> obs)
     if (find_if(_observers.begin(), _observers.end(), matcher) != _observers.end())
         _observers.erase(location);
 }
+
+void BoostAsioServerTransport::InitializeProtocol()
+{}
 
 }

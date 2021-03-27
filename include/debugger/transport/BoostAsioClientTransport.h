@@ -24,6 +24,7 @@ public:
     BoostAsioClientTransport(std::string, std::string);
     ~BoostAsioClientTransport();
 
+    void InitializeProtocol(std::shared_ptr<std::array<uint8_t, gbxdb::interfaces::MaxMessageBufferSize>>) override;
     void JoinServer() override;
     void LeaveServer() override;
     void SendMessage(std::shared_ptr<gbxdb::interfaces::DebugMessage>) override;

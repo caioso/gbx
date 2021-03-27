@@ -16,6 +16,7 @@
 #include "ErrorCommand.h"
 
 #include "ClientJoinedCommand.h"
+#include "ProtocolInitializerCommand.h"
 #include "ReadRegisterCommand.h"
 #include "RegisterBankSummaryCommand.h"
 #include "CommandID.h"
@@ -46,14 +47,16 @@ public:
 private:
     void ParseMessage(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
 
-    std::shared_ptr<gbxdb::interfaces::DebugCommand> ParseReadRegisterCommand(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
     std::shared_ptr<gbxdb::interfaces::DebugCommand> ParseClientJoinedCommand(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
+    std::shared_ptr<gbxdb::interfaces::DebugCommand> ParseProtocolInitializerCommand(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
+    std::shared_ptr<gbxdb::interfaces::DebugCommand> ParseReadRegisterCommand(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
     std::shared_ptr<gbxdb::interfaces::DebugCommand> ParseRegisterBankSummaryCommand(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
     std::shared_ptr<gbxdb::interfaces::DebugCommand> ParseWriteRegisterCommand(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
 
-    void RunClientJoinedCommand(std::shared_ptr<gbxdb::interfaces::DebuggableRunner>);
-    [[nodiscard]] std::shared_ptr<gbxdb::interfaces::DebugMessage> RunErrorCommand(std::shared_ptr<gbxdb::interfaces::DebugCommand>);
 
+    void RunClientJoinedCommand(std::shared_ptr<gbxdb::interfaces::DebuggableRunner>);
+    [[nodiscard]] std::shared_ptr<gbxdb::interfaces::DebugMessage> RunProtocolInitializerCommand(std::shared_ptr<gbxdb::interfaces::DebugCommand>);
+    [[nodiscard]] std::shared_ptr<gbxdb::interfaces::DebugMessage> RunErrorCommand(std::shared_ptr<gbxdb::interfaces::DebugCommand>);
     [[nodiscard]] std::shared_ptr<gbxdb::interfaces::DebugMessage> RunReadRegisterCommand(std::shared_ptr<gbxdb::interfaces::DebugCommand>, std::shared_ptr<gbxcore::interfaces::Runtime>);
     [[nodiscard]] std::shared_ptr<gbxdb::interfaces::DebugMessage> RunRegisterBankSummaryCommand(std::shared_ptr<gbxdb::interfaces::DebugCommand>, std::shared_ptr<gbxcore::interfaces::Runtime>);
     [[nodiscard]] std::shared_ptr<gbxdb::interfaces::DebugMessage> RunWriteRegisterCommand(std::shared_ptr<gbxdb::interfaces::DebugCommand>, std::shared_ptr<gbxcore::interfaces::Runtime>);

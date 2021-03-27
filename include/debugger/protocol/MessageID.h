@@ -13,8 +13,11 @@ enum MessageID : uint16_t
     MessageRegisterBankSummary = 0xFFFD,
     MessageWriteRegister = 0xFFFC,
 
+    // Protocol Initializer
+    MessageProtocolInitializer = 0x0001,
+    
     // Message Error
-    MessageError = 0x0001
+    MessageError = 0x0000
 };
 
 }

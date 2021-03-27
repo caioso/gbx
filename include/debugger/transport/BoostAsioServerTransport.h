@@ -12,6 +12,7 @@
 
 #include "BoostAsioTransportBase.h"
 #include "DebugMessage.h"
+#include "MessageID.h"
 #include "ServerTransport.h"
 #include "DebugMessageNotificationArguments.h"
 #include "GBXDebuggerExceptions.h"
@@ -28,6 +29,7 @@ public:
     ~BoostAsioServerTransport();
 
     // Blocking call
+    void InitializeProtocol() override;
     void WaitForClient() override;
     void SendMessage(std::shared_ptr<interfaces::DebugMessage>) override;
     void Subscribe(std::weak_ptr<gbxcommons::Observer>) override;
@@ -38,8 +40,11 @@ protected:
     void AcceptConnection();
     void ProtocolLoop();
     void NotifyObservers(std::shared_ptr<interfaces::DebugMessage>);
+    void InitializeAliveSocket(); 
     
     std::vector<std::weak_ptr<gbxcommons::Observer>> _observers;
+    std::unique_ptr<boost::asio::ip::tcp::socket> _aliveSocket;
+    int _alivePort{};
 };
 
 }

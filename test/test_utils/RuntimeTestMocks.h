@@ -30,6 +30,8 @@ public:
     virtual ~ServerTransportMock() = default;
     MOCK_METHOD(void, WaitForClient, ());
     MOCK_METHOD(void, SendMessage, (std::shared_ptr<gbxdb::interfaces::DebugMessage>));
+    MOCK_METHOD(void, InitializeProtocol, ());
+
     MOCK_METHOD(void, Subscribe, (std::weak_ptr<gbxcommons::Observer>));
     MOCK_METHOD(void, Unsubscribe, (std::weak_ptr<gbxcommons::Observer>));
 };

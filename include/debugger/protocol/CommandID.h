@@ -13,6 +13,9 @@ enum CommandID : uint16_t
     CommandRegisterBankSummary = 0x0002,
     CommandWriteRegister = 0x0003,
     
+    // Protocol Initializer
+    CommandProtocolInitializer = 0xFFFE,
+    
     // Command Error
     CommandError = 0xFFFF
 };

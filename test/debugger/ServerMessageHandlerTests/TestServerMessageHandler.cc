@@ -53,6 +53,7 @@ TEST(ServerTestMessagHandler, Initialize)
 
     EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
     EXPECT_CALL((*transportPointer), WaitForClient()).Times(1);
+    EXPECT_CALL((*transportPointer), InitializeProtocol()).Times(1);
     messageHandler->Initialize();
 }
 
@@ -68,6 +69,7 @@ TEST(ServerTestMessagHandler, DecodeReceivedUnknownMessage)
 
     EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
     EXPECT_CALL((*transportPointer), WaitForClient()).Times(1);
+    EXPECT_CALL((*transportPointer), InitializeProtocol()).Times(1);
     messageHandler->Initialize();
 
     ASSERT_EXCEPTION( { messageHandler->Notify(argumentsPointer); }, 
@@ -89,6 +91,7 @@ TEST(ServerTestMessagHandler, DecodeClientJoinedMessage)
 
     EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
     EXPECT_CALL((*transportPointer), WaitForClient()).Times(1);
+    EXPECT_CALL((*transportPointer), InitializeProtocol()).Times(1);
     messageHandler->Initialize();
 
     messageHandler->Notify(argumentsPointer);

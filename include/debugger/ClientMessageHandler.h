@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -36,6 +37,7 @@ public:
 private:
     void ParseMessage(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
     void HandleJoinedServerCommand(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
+    void HandleProtocolInitializerMessage(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
     void HandleRegisterBankSummaryMessage(std::shared_ptr<gbxdb::interfaces::DebugMessage>);
 
     std::shared_ptr<gbxdb::interfaces::ClientTransport> _transport;

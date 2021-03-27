@@ -58,6 +58,7 @@ TEST(DebuggerTests_WriteRegisterServerMessage, Write8bitRegisterWithRandomValue)
 
         EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
         EXPECT_CALL((*transportPointer), WaitForClient()).Times(1);
+        EXPECT_CALL((*transportPointer), InitializeProtocol()).Times(1);
         messageHandler->Initialize();
 
         // Simulate message arriving from the client (stored in the internal queue)
@@ -108,6 +109,7 @@ TEST(DebuggerTests_WriteRegisterServerMessage, Write16bitRegisterWithRandomValue
 
         EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
         EXPECT_CALL((*transportPointer), WaitForClient()).Times(1);
+        EXPECT_CALL((*transportPointer), InitializeProtocol()).Times(1);
         messageHandler->Initialize();
 
         // Simulate message arriving from the client (stored in the internal queue)
@@ -150,6 +152,7 @@ TEST(DebuggerTests_WriteRegisterServerMessage, WriteInvalidRegisterAddress)
 
     EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
     EXPECT_CALL((*transportPointer), WaitForClient()).Times(1);
+    EXPECT_CALL((*transportPointer), InitializeProtocol()).Times(1);
     messageHandler->Initialize();
 
     // Simulate message arriving from the client (stored in the internal queue)

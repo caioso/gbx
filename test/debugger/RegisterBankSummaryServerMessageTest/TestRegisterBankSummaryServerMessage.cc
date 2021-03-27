@@ -46,6 +46,7 @@ TEST(DebuggerTests_RegisterBankSummaryServerMessage, RequestRegisterBankSummary)
 
     EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
     EXPECT_CALL((*transportPointer), WaitForClient()).Times(1);
+    EXPECT_CALL((*transportPointer), InitializeProtocol()).Times(1);
     messageHandler->Initialize();
 
     messageHandler->Notify(argumentsPointer);

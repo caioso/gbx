@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "EmulatorTestMocks.h"
+#include "RuntimeTestMocks.h"
 
 #include <chrono>
 #include <iostream>
@@ -123,6 +123,7 @@ TEST(RuntimeTests_Runner, RunInDebugMode)
 
     EXPECT_CALL((*transportPointer), WaitForClient());   
     EXPECT_CALL((*transportPointer), Subscribe(::_));
+    EXPECT_CALL((*transportPointer), InitializeProtocol()).Times(1);
     EXPECT_CALL((*runtime), Run()).WillRepeatedly(Return());
     runner->Run(token);
 
@@ -150,6 +151,7 @@ TEST(RuntimeTests_Runner, RunInDebugModeForAGivenNumberOfCycles)
 
     EXPECT_CALL((*transportPointer), WaitForClient());
     EXPECT_CALL((*transportPointer), Subscribe(::_));
+    EXPECT_CALL((*transportPointer), InitializeProtocol()).Times(1);
     EXPECT_CALL((*runtime), Run()).WillRepeatedly(Return());
     runner->Run(numeric_limits<size_t>::max(), token);
     

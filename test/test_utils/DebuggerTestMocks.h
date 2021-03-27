@@ -25,7 +25,8 @@ public:
     virtual ~ServerTransportMock() = default;
     MOCK_METHOD(void, WaitForClient, ());
     MOCK_METHOD(void, SendMessage, (std::shared_ptr<gbxdb::interfaces::DebugMessage>));
-
+    MOCK_METHOD(void, InitializeProtocol, ());
+    
     MOCK_METHOD(void, Subscribe, ((std::weak_ptr<gbxcommons::Observer>)));
     MOCK_METHOD(void, Unsubscribe, ((std::weak_ptr<gbxcommons::Observer>)));
 };
@@ -37,6 +38,8 @@ public:
     MOCK_METHOD(void, JoinServer, ());
     MOCK_METHOD(void, LeaveServer, ());
     MOCK_METHOD(void, SendMessage, (std::shared_ptr<gbxdb::interfaces::DebugMessage>));
+    MOCK_METHOD(void, InitializeProtocol, ((std::shared_ptr<std::array<uint8_t, gbxdb::interfaces::MaxMessageBufferSize>>)));
+    
     MOCK_METHOD(void, Subscribe, (std::weak_ptr<gbxcommons::Observer>));
     MOCK_METHOD(void, Unsubscribe, (std::weak_ptr<gbxcommons::Observer>));
 };

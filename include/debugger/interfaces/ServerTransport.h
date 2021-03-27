@@ -15,6 +15,7 @@ public:
     virtual ~ServerTransport() = default;
 
     // Blocking call
+    virtual void InitializeProtocol() = 0;
     virtual void WaitForClient() = 0;
     virtual void SendMessage(std::shared_ptr<DebugMessage>) = 0;
 };

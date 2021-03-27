@@ -41,6 +41,8 @@ void ClientMessageHandler::ParseMessage(shared_ptr<DebugMessage> message)
              break;       
         case MessageID::MessageRegisterBankSummary: HandleRegisterBankSummaryMessage(message);
              break;
+        case MessageID::MessageProtocolInitializer: HandleProtocolInitializerMessage(message);
+             break;
         default:
             // Send an error command back here!!!!!
             throw MessageHandlerException("Invalid debug message recieved and will be ignored");
@@ -50,6 +52,14 @@ void ClientMessageHandler::ParseMessage(shared_ptr<DebugMessage> message)
 void ClientMessageHandler::HandleJoinedServerCommand([[maybe_unused]] shared_ptr<DebugMessage> message)
 {
     _isConnected = true;
+}
+
+void ClientMessageHandler::HandleProtocolInitializerMessage(std::shared_ptr<gbxdb::interfaces::DebugMessage> message)
+{
+    size_t port = (*message->Buffer())[2] | (*message->Buffer())[3] << 0x08 | (*message->Buffer())[4] << 0x10 << (*message->Buffer())[5] << 0x18;
+    cout << "Forward Port Number to the transport layer: " << hex << port << '\n';
+
+    _transport->InitializeProtocol(message->Buffer());
 }
 
 void ClientMessageHandler::HandleRegisterBankSummaryMessage(std::shared_ptr<gbxdb::interfaces::DebugMessage> message)

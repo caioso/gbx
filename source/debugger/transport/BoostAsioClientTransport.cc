@@ -100,7 +100,7 @@ void BoostAsioClientTransport::NotifyObservers(std::shared_ptr<DebugMessage> mes
 
 void BoostAsioClientTransport::SendMessage(std::shared_ptr<DebugMessage> message)
 {
-    std::lock_guard guard(_socketLock);
+    std::lock_guard<std::recursive_mutex> guard(_socketLock);
     _socket->write_some(buffer((*message->Buffer())));
 }
 
@@ -132,6 +132,11 @@ void BoostAsioClientTransport::Unsubscribe(std::weak_ptr<Observer> obs)
 
     if (find_if(_observers.begin(), _observers.end(), matcher) != _observers.end())
         _observers.erase(location);
+}
+
+void BoostAsioClientTransport::InitializeProtocol(std::shared_ptr<std::array<uint8_t, MaxMessageBufferSize>>)
+{
+
 }
 
 }

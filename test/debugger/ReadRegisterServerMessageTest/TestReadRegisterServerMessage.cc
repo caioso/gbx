@@ -49,7 +49,8 @@ TEST(DebuggerTests_ReadRegisterServerMessage, ReadRegisterMessage8Bit)
         auto argumentsPointer = static_pointer_cast<NotificationArguments>(notificationArguments);
 
         EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
-        EXPECT_CALL((*transportPointer), WaitForClient());   
+        EXPECT_CALL((*transportPointer), WaitForClient()); 
+        EXPECT_CALL((*transportPointer), InitializeProtocol()).Times(1);  
         messageHandler->Initialize();
 
         // Message arrived from the client (stored in the internal queue)
@@ -95,6 +96,7 @@ TEST(DebuggerTests_ReadRegisterServerMessage, ReadRegisterMessage16Bit)
 
         EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
         EXPECT_CALL((*transportPointer), WaitForClient());   
+        EXPECT_CALL((*transportPointer), InitializeProtocol()).Times(1);
         messageHandler->Initialize();
 
         messageHandler->Notify(argumentsPointer);
@@ -132,6 +134,7 @@ TEST(DebuggerTests_ReadRegisterServerMessage, DecodeReadRegisterUnknownRegister)
 
     EXPECT_CALL((*transportPointer), Subscribe(::_)).Times(1);
     EXPECT_CALL((*transportPointer), WaitForClient());   
+    EXPECT_CALL((*transportPointer), InitializeProtocol()).Times(1);
     messageHandler->Initialize();
 
     // Message arrived from the client (stored in the internal queue)

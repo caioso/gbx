@@ -18,6 +18,7 @@ void ServerMessageHandler::Initialize()
 {
     _transport->Subscribe(shared_from_this());
     _transport->WaitForClient();
+    _transport->InitializeProtocol();
 }
 
 void ServerMessageHandler::Notify(shared_ptr<NotificationArguments> args)
@@ -41,6 +42,8 @@ void ServerMessageHandler::ParseMessage(shared_ptr<DebugMessage> messagePointer)
              break;
         case MessageID::MessageWriteRegister: _commandQueue.push(ParseWriteRegisterCommand(messagePointer));
              break;
+        case MessageID::MessageProtocolInitializer: _commandQueue.push(ParseProtocolInitializerCommand(messagePointer));
+             break;
         default:
             // Send an error command back here!!!!!
             throw MessageHandlerException("Invalid debug message recieved and will be ignored");
@@ -57,6 +60,7 @@ void ServerMessageHandler::ProcessMessages(shared_ptr<Runtime> runtime, shared_p
         switch(command->Type())
         {
             case CommandID::CommandJoined: RunClientJoinedCommand(runner); break;
+            case CommandID::CommandProtocolInitializer: response = RunProtocolInitializerCommand(command); break;
             case CommandID::CommandReadRegister: response = RunReadRegisterCommand(command, runtime); break;
             case CommandID::CommandRegisterBankSummary: response = RunRegisterBankSummaryCommand(command, runtime); break;
             case CommandID::CommandWriteRegister: response = RunWriteRegisterCommand(command, runtime); break;
@@ -68,6 +72,15 @@ void ServerMessageHandler::ProcessMessages(shared_ptr<Runtime> runtime, shared_p
 
         _commandQueue.pop();
     }
+}
+
+shared_ptr<DebugCommand> ServerMessageHandler::ParseProtocolInitializerCommand(shared_ptr<DebugMessage> message)
+{
+    cout << "Parse Protocol Initializer" << '\n';
+    auto protocolInitializer = make_shared<ProtocolInitializerCommand>();
+    protocolInitializer->SetProtocolInitializationParameters(*message->Buffer());
+    auto protocolInitializerCommand = make_shared<ProtocolInitializerCommand>();
+    return protocolInitializerCommand;
 }
 
 shared_ptr<DebugCommand> ServerMessageHandler::ParseReadRegisterCommand(shared_ptr<DebugMessage> message)
@@ -114,6 +127,11 @@ shared_ptr<DebugCommand> ServerMessageHandler::ParseWriteRegisterCommand(shared_
     }
 
     return writeRegisterCommand;
+}
+
+shared_ptr<DebugMessage> ServerMessageHandler::RunProtocolInitializerCommand(shared_ptr<DebugCommand> command)
+{
+    return command->EncodeCommandMessage();
 }
 
 void ServerMessageHandler::RunClientJoinedCommand(shared_ptr<DebuggableRunner> runner)
