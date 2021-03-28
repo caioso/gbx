@@ -11,12 +11,13 @@
 #include <vector>
 
 #include "BoostAsioTransportBase.h"
+#include "ClientJoinedCommand.h"
 #include "DebugMessage.h"
-#include "MessageID.h"
-#include "ServerTransport.h"
 #include "DebugMessageNotificationArguments.h"
 #include "GBXDebuggerExceptions.h"
+#include "MessageID.h"
 #include "Observer.h"
+#include "ServerTransport.h"
 
 namespace gbxdb::transport
 {
@@ -36,15 +37,21 @@ public:
     void Unsubscribe(std::weak_ptr<gbxcommons::Observer>) override;
 
 protected:
+    const uint8_t NumberOfStatusPortDefinitionRetries = 0xFF;
+    const int ServerStatusPingIntervalInMilliseconds = 400;
+
     void RunProtocol();
-    void AcceptConnection();
+    void ServerStatusLoop();
     void ProtocolLoop();
+
+    void AcceptConnection();
     void NotifyObservers(std::shared_ptr<interfaces::DebugMessage>);
-    void InitializeAliveSocket(); 
+    void InitializeStatusThread();
+    void InitializeStatusSocket(); 
+    std::shared_ptr<std::array<uint8_t, interfaces::MaxMessageBufferSize>> GenerateInitializationMessage();
+    int ChooseStatusPort(int);
     
     std::vector<std::weak_ptr<gbxcommons::Observer>> _observers;
-    std::unique_ptr<boost::asio::ip::tcp::socket> _aliveSocket;
-    int _alivePort{};
 };
 
 }

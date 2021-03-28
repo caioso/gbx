@@ -8,6 +8,8 @@ namespace gbxdb::interfaces
 {
 
 const size_t MaxMessageBufferSize = 256;
+const size_t MaxMessageBodySize = MaxMessageBufferSize - 2;
+
 class DebugMessage
 {
 public:

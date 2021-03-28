@@ -32,6 +32,13 @@ public:
     void Unsubscribe(std::weak_ptr<gbxcommons::Observer>) override;
 
 private:
+    const int SocketRetryIntervalInMilliseconds = 3000;
+    const int ClientStatusPingPollingIntervalInMilliseconds = 200;
+
+    void InitializeClientAliveLine();
+    void ClientStatusLoop();
+    void ExtractStatusPort(std::shared_ptr<std::array<uint8_t, gbxdb::interfaces::MaxMessageBufferSize>>);
+
     void RunProtocol();
     void TryToJoinServer();
     void ProtocolLoop();

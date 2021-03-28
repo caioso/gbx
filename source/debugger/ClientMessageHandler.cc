@@ -56,9 +56,6 @@ void ClientMessageHandler::HandleJoinedServerCommand([[maybe_unused]] shared_ptr
 
 void ClientMessageHandler::HandleProtocolInitializerMessage(std::shared_ptr<gbxdb::interfaces::DebugMessage> message)
 {
-    size_t port = (*message->Buffer())[2] | (*message->Buffer())[3] << 0x08 | (*message->Buffer())[4] << 0x10 << (*message->Buffer())[5] << 0x18;
-    cout << "Forward Port Number to the transport layer: " << hex << port << '\n';
-
     _transport->InitializeProtocol(message->Buffer());
 }
 

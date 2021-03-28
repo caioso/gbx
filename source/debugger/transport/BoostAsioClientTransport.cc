@@ -36,15 +36,12 @@ void BoostAsioClientTransport::RunProtocol()
     try
     {
         TryToJoinServer();
-        InitializeClientAliveLine();
-
         ProtocolLoop();
-        _socket->close();
+        Terminate();
     }
     catch (boost::system::system_error& e) 
     {
-        if (_socket != nullptr && !_socket->is_open())
-            _socket->close();
+        Terminate();
 
         stringstream ss;
         ss << "Boost ASIO error: " << e.code() << " Message: " << e.what();
@@ -65,17 +62,12 @@ void BoostAsioClientTransport::TryToJoinServer()
             asio::io_service ios;
 
             _socket = make_unique<boost::asio::ip::tcp::socket>(ios, ep.protocol());
-
-            cout << "Ready to connect to server..." << '\n';
             _socket->connect(ep);
-            cout << "Connection established!" << '\n';
             connected = true;
         }
         catch (boost::system::system_error& e) 
         {
-            cout << "Unable to join server" << '\n';
-            cout << "Retrying in 3 seconds..." << '\n';
-            std::this_thread::sleep_for(3s);
+            std::this_thread::sleep_for(std::chrono::milliseconds(SocketRetryIntervalInMilliseconds));
         }
     }
 }
@@ -134,9 +126,66 @@ void BoostAsioClientTransport::Unsubscribe(std::weak_ptr<Observer> obs)
         _observers.erase(location);
 }
 
-void BoostAsioClientTransport::InitializeProtocol(std::shared_ptr<std::array<uint8_t, MaxMessageBufferSize>>)
+void BoostAsioClientTransport::InitializeProtocol(std::shared_ptr<std::array<uint8_t, MaxMessageBufferSize>> message)
 {
+    auto statusSocketConnnected = false;
+    ExtractStatusPort(message);
 
+    while (statusSocketConnnected  != true &&_terminated != true)
+    {
+        try
+        {
+            asio::ip::tcp::endpoint ep(ConvertIpAddress(), _statusPort);
+            asio::io_service ios;
+
+            _statusSocket = make_unique<boost::asio::ip::tcp::socket>(ios, ep.protocol());
+            _statusSocket->connect(ep);
+            
+            statusSocketConnnected  = true;
+        }
+        catch (boost::system::system_error& e) 
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(SocketRetryIntervalInMilliseconds));
+        }
+    }
+
+    InitializeClientAliveLine();
+}
+
+void BoostAsioClientTransport::InitializeClientAliveLine()
+{
+    _statusChannelThread = make_unique<thread>([&](){ this->ClientStatusLoop(); });    
+}
+
+void BoostAsioClientTransport::ClientStatusLoop()
+{
+    boost::system::error_code error;
+    std::array<uint8_t, 1> aliveMessageBuffer;
+
+    while(!_terminated)
+    {
+        // Lock scope
+        {
+            std::lock_guard<std::recursive_mutex> guard(_statusSocketLock);
+            if (_statusSocket->available())
+            {
+                _statusSocket->read_some(buffer(aliveMessageBuffer), error);
+                _statusSocket->write_some(buffer(aliveMessageBuffer));
+
+                if (error == error::eof)
+                    break;
+                else if (error)
+                    throw boost::system::system_error(error);
+            }    
+        }
+
+        this_thread::sleep_for(std::chrono::milliseconds(ClientStatusPingPollingIntervalInMilliseconds));
+    }
+}
+
+void BoostAsioClientTransport::ExtractStatusPort(std::shared_ptr<std::array<uint8_t, gbxdb::interfaces::MaxMessageBufferSize>> message)
+{
+    _statusPort = (*message)[2] | (*message)[3] << 0x08 | (*message)[4] << 0x10 << (*message)[5] << 0x18;
 }
 
 }

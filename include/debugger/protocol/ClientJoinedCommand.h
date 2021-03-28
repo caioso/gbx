@@ -5,6 +5,7 @@
 #include "DebugCommand.h"
 #include "DebugMessage.h"
 #include "CommandID.h"
+#include "MessageID.h"
 
 namespace gbxdb::protocol
 {

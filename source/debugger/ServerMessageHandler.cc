@@ -30,7 +30,6 @@ void ServerMessageHandler::Notify(shared_ptr<NotificationArguments> args)
 void ServerMessageHandler::ParseMessage(shared_ptr<DebugMessage> messagePointer)
 {
     uint16_t messageID = (*messagePointer->Buffer())[0] | ((*messagePointer->Buffer())[1] << 0x08); 
-    cout << hex << static_cast<size_t>(messageID) << '\n';
     switch (messageID)
     {
         // Parse messages and add them to the queue.
@@ -76,11 +75,14 @@ void ServerMessageHandler::ProcessMessages(shared_ptr<Runtime> runtime, shared_p
 
 shared_ptr<DebugCommand> ServerMessageHandler::ParseProtocolInitializerCommand(shared_ptr<DebugMessage> message)
 {
-    cout << "Parse Protocol Initializer" << '\n';
     auto protocolInitializer = make_shared<ProtocolInitializerCommand>();
-    protocolInitializer->SetProtocolInitializationParameters(*message->Buffer());
-    auto protocolInitializerCommand = make_shared<ProtocolInitializerCommand>();
-    return protocolInitializerCommand;
+    array<uint8_t, MaxMessageBodySize> messageBody;
+    
+    // The protocol parameters only use the last 254 bytes of the message
+    copy_n((message->Buffer()->begin()) + 2, MaxMessageBodySize, messageBody.begin());
+    protocolInitializer->SetProtocolInitializationParameters(messageBody);
+    
+    return protocolInitializer;
 }
 
 shared_ptr<DebugCommand> ServerMessageHandler::ParseReadRegisterCommand(shared_ptr<DebugMessage> message)

@@ -19,22 +19,17 @@ void ProtocolInitializerCommand::DecodeResponseMessage([[maybe_unused]] std::sha
 
 std::shared_ptr<interfaces::DebugMessage> ProtocolInitializerCommand::EncodeCommandMessage()
 {
-    cout << "Encoding Protocol Initializer Message" << '\n';
     auto buffer = make_shared<std::array<uint8_t, MaxMessageBufferSize>>();
     (*buffer)[0] = static_cast<uint16_t>(MessageID::MessageProtocolInitializer) & 0xFF;
     (*buffer)[1] = ((static_cast<uint16_t>(MessageID::MessageProtocolInitializer)) >> 0x08) & 0xFF;
 
-    std::copy(_parameters.begin(), _parameters.end() - 2, (*buffer).begin() + 2);
-
-    size_t port = (*buffer)[2] | (*buffer)[3] << 0x08 | (*buffer)[4] << 0x10 << (*buffer)[5] << 0x18;
-    cout << "Encoded port " << hex << port << '\n';
-
+    std::copy(_parameters.begin(), _parameters.end(), (*buffer).begin() + 2);
     return make_shared<DebugMessage>(buffer);
 }
 
-void ProtocolInitializerCommand::SetProtocolInitializationParameters(std::array<uint8_t, gbxdb::interfaces::MaxMessageBufferSize>& message)
+void ProtocolInitializerCommand::SetProtocolInitializationParameters(std::array<uint8_t, gbxdb::interfaces::MaxMessageBodySize>& message)
 {
-    std::copy(message.begin(), message.end(), _parameters.begin());
+    std::copy_n(message.begin(), message.size(), _parameters.begin());
 }
 
 void ProtocolInitializerCommand::InitializeProtocol(variant<shared_ptr<ServerTransport>, shared_ptr<ClientTransport>> target)

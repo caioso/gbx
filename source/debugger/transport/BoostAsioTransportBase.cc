@@ -19,7 +19,6 @@ BoostAsioTransportBase::BoostAsioTransportBase(std::string ip, std::string port)
 
 void BoostAsioTransportBase::ListenerLoop(std::function<void(std::shared_ptr<gbxdb::interfaces::DebugMessage>)> NotifyObservers)
 {
-    cout << "Listener loop" << '\n';
     std::shared_ptr<DebugMessage> debugMessage;
     boost::system::error_code error;
     
@@ -28,9 +27,8 @@ void BoostAsioTransportBase::ListenerLoop(std::function<void(std::shared_ptr<gbx
         // Lock scope
         {
             std::lock_guard<std::recursive_mutex> guard(_socketLock);
-            if (_socket->available() > 0x01)
+            if (_socket->available())
             {
-                cout << "Number of bytes available: " << _socket->available() << '\n';
                 ReceiveMessageBlocking(debugMessage, error);
                 NotifyObservers(debugMessage);
 
@@ -41,7 +39,7 @@ void BoostAsioTransportBase::ListenerLoop(std::function<void(std::shared_ptr<gbx
             }
         }
 
-        this_thread::sleep_for(100ms);
+        this_thread::sleep_for(std::chrono::milliseconds(MainLoopWindDownIntervalInMilliseconds));
     }
 }
 
@@ -63,95 +61,6 @@ void BoostAsioTransportBase::Terminate()
     
     if (_statusChannelThread != nullptr && _statusChannelThread->joinable())
         _statusChannelThread->join();
-}
-
-void BoostAsioTransportBase::ServerAliveLoop()
-{
-    return;
-    cout << "Server alive loop" << '\n';
-    uint8_t currentMessage = 0x00;
-    boost::system::error_code error;
-    bool pending = false;
-    std::array<uint8_t, 1> aliveMessageBuffer;
-
-    while(!_terminated)
-    {
-        // Send
-        if (!pending)
-        {
-            aliveMessageBuffer[0] = currentMessage++;
-            // Lock Scope
-            { 
-                std::lock_guard<std::recursive_mutex> guard(_socketLock);
-                _socket->write_some(buffer(aliveMessageBuffer));
-            }
-        }
-
-        // Wait
-        this_thread::sleep_for(400ms);
-        
-        // Check
-        // Lock Scope
-        { 
-            std::lock_guard<std::recursive_mutex> guard(_socketLock);
-            if (_socket->available() == 0x01)
-            {
-                pending = false;
-                cout << "Response received" << '\n';
-
-                _socket->read_some(buffer(aliveMessageBuffer), error);
-
-                /*if (aliveMessageBuffer[0] == currentMessage - 1)
-                    cout << "Matching Message";
-                else
-                    cout << "Non-matching message";*/
-
-                if (error == error::eof)
-                    break;
-                else if (error)
-                    throw boost::system::system_error(error);
-            }    
-            else
-            {
-                cout << "No response received" << '\n';
-                pending = true;
-            }
-        }
-    }
-}
-
-void BoostAsioTransportBase::InitializeClientAliveLine()
-{
-    _statusChannelThread = make_unique<thread>([&](){ this->ClientAliveLoop(); });    
-}
-
-void BoostAsioTransportBase::ClientAliveLoop()
-{
-    return;
-    cout << "Client alive loop" << '\n';
-    boost::system::error_code error;
-    std::array<uint8_t, 1> aliveMessageBuffer;
-    while(!_terminated)
-    {
-        // receive
-        // Lock scope
-        {
-            std::lock_guard<std::recursive_mutex> guard(_socketLock);
-            if (_socket->available() == 0x01)
-            {
-                _socket->read_some(buffer(aliveMessageBuffer), error);
-                cout << "Received : " << static_cast<size_t>(aliveMessageBuffer[0]) << '\n';
-                _socket->write_some(buffer(aliveMessageBuffer));
-
-                if (error == error::eof)
-                    break;
-                else if (error)
-                    throw boost::system::system_error(error);
-            }    
-        }
-
-        this_thread::sleep_for(200ms);
-    }
 }
 
 boost::asio::ip::address BoostAsioTransportBase::ConvertIpAddress()

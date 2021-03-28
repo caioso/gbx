@@ -26,25 +26,25 @@ public:
     ~BoostAsioTransportBase() = default;
 
 protected:
+    const int MainLoopWindDownIntervalInMilliseconds = 100;
     const size_t MaxNumberOfConnections = 1;
 
     void ListenerLoop(std::function<void(std::shared_ptr<gbxdb::interfaces::DebugMessage>)>);
     void ReceiveMessageBlocking(std::shared_ptr<interfaces::DebugMessage>&, boost::system::error_code&);
     void Terminate();
-    
-    void InitializeClientAliveLine();
-
-    void ServerAliveLoop();
-    void ClientAliveLoop();
 
     boost::asio::ip::address ConvertIpAddress();
 
     bool _terminated{};
+    int _statusPort{};
+    
     std::string _ip{};
     std::string _port{};
     std::unique_ptr<std::thread> _mainChannelThread;
     std::unique_ptr<std::thread> _statusChannelThread;
     std::unique_ptr<boost::asio::ip::tcp::socket> _socket;
+    std::unique_ptr<boost::asio::ip::tcp::socket> _statusSocket;
+    std::recursive_mutex _statusSocketLock;
     std::recursive_mutex _socketLock;
 };
 

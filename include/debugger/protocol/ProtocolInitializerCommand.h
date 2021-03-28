@@ -25,7 +25,7 @@ public:
     ProtocolInitializerCommand& operator=(const ProtocolInitializerCommand&) = default;
     ProtocolInitializerCommand& operator=(ProtocolInitializerCommand&&) = default;
 
-    void SetProtocolInitializationParameters(std::array<uint8_t, gbxdb::interfaces::MaxMessageBufferSize>&);
+    void SetProtocolInitializationParameters(std::array<uint8_t, gbxdb::interfaces::MaxMessageBodySize>&);
     void InitializeProtocol(std::variant<std::shared_ptr<gbxdb::interfaces::ServerTransport>, std::shared_ptr<gbxdb::interfaces::ClientTransport>>);
 
     void DecodeRequestMessage(std::shared_ptr<interfaces::DebugMessage>) override;
@@ -33,7 +33,7 @@ public:
     std::shared_ptr<interfaces::DebugMessage> EncodeCommandMessage() override;
 
 private:
-    std::array<uint8_t, gbxdb::interfaces::MaxMessageBufferSize> _parameters{};
+    std::array<uint8_t, gbxdb::interfaces::MaxMessageBodySize> _parameters{};
 };
 
 }
