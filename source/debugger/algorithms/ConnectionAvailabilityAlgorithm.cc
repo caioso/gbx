@@ -1,42 +1,50 @@
 #include "ConnectionAvailabilityAlgorithm.h"
 
+using namespace std;
 namespace gbxdb::algorithms
 {
 
-ClientAvailability::ClientAvailability()
-{}
+ConnectionAvailability::ConnectionAvailability(std::optional<size_t> limit)
+{
+    if (limit == nullopt)
+        _failureLimit = 10;
+    else
+        _failureLimit = limit.value();
+}
 
-ConnectionState ClientAvailability::State()
+ConnectionState ConnectionAvailability::State()
 {
     return _state;
 }
 
-void ClientAvailability::EstablishConnection()
+void ConnectionAvailability::EstablishConnection()
 {
     _state = ConnectionState::Connected;
+    _missedBeacons = 0;
 }
 
-uint8_t ClientAvailability::Beacon()
+void ConnectionAvailability::Tick(BeaconState state)
 {
-    return _beacon;
+    if (state == BeaconState::NoBeaconReceived)
+        _missedBeacons++;
+    else if (state == BeaconState::BeaconReceived)
+        _missedBeacons= 0;
+
+    EvaluateConnectionState();
 }
 
-ServerAvailability::ServerAvailability()
-{}
-
-ConnectionState ServerAvailability::State()
+void ConnectionAvailability::EvaluateConnectionState()
 {
-    return _state;
+    if (_missedBeacons == _failureLimit)
+    {
+        _state = ConnectionState::NotConnected;
+        _missedBeacons = 0;
+    }
 }
 
-void ServerAvailability::EstablishConnection()
+size_t ConnectionAvailability::MissedBeacons()
 {
-    _state = ConnectionState::Connected;
-}
-
-uint8_t ServerAvailability::Beacon()
-{
-    return _beacon;
+    return _missedBeacons;
 }
 
 }

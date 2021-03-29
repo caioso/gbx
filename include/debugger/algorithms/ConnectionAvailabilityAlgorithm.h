@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <stdint.h>
 
 namespace gbxdb::algorithms
@@ -12,46 +13,36 @@ enum class ConnectionState
     Unstable
 };
 
-// This runs at the SERVER side
-class ClientAvailability
+enum class BeaconState
 {
-public:
-    ClientAvailability();
-    ~ClientAvailability() = default;
-
-    ClientAvailability(const ClientAvailability&) = default;
-    ClientAvailability(ClientAvailability&&) = default;
-    ClientAvailability& operator=(const ClientAvailability&) = default;
-    ClientAvailability& operator=(ClientAvailability&&) = default;
-
-    ConnectionState State();
-    void EstablishConnection();
-    uint8_t Beacon();
-
-private:
-    ConnectionState _state{};
-    uint8_t _beacon{};
+    BeaconReceived,
+    NoBeaconReceived
 };
 
-// This runs at the CLIENT side
-class ServerAvailability
+// This runs at the SERVER side
+class ConnectionAvailability
 {
 public:
-    ServerAvailability();
-    ~ServerAvailability() = default;
+    ConnectionAvailability(std::optional<size_t>);
+    ~ConnectionAvailability() = default;
 
-    ServerAvailability(const ServerAvailability&) = default;
-    ServerAvailability(ServerAvailability&&) = default;
-    ServerAvailability& operator=(const ServerAvailability&) = default;
-    ServerAvailability& operator=(ServerAvailability&&) = default;
+    ConnectionAvailability(const ConnectionAvailability&) = default;
+    ConnectionAvailability(ConnectionAvailability&&) = default;
+    ConnectionAvailability& operator=(const ConnectionAvailability&) = default;
+    ConnectionAvailability& operator=(ConnectionAvailability&&) = default;
 
     ConnectionState State();
+    
+    void Tick(BeaconState);
     void EstablishConnection();
-    uint8_t Beacon();
+    void EvaluateConnectionState();
+
+    size_t MissedBeacons();
 
 private:
     ConnectionState _state{};
-    uint8_t _beacon{};
+    size_t _missedBeacons{};
+    size_t _failureLimit;
 };
 
 }
