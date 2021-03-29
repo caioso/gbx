@@ -11,6 +11,7 @@
 
 #include "BoostAsioTransportBase.h"
 #include "ClientTransport.h"
+#include "ConnectionAvailabilityAlgorithm.h"
 #include "DebugMessage.h"
 #include "DebugMessageNotificationArguments.h"
 #include "GBXDebuggerExceptions.h"
@@ -18,7 +19,6 @@
 
 namespace gbxdb::transport
 {
-
 class BoostAsioTransportBase
 {
 public:
@@ -34,6 +34,8 @@ protected:
     void Terminate();
 
     boost::asio::ip::address ConvertIpAddress();
+
+    gbxdb::algorithms::ConnectionAvailability _connectionAvailability;
 
     bool _terminated{};
     int _statusPort{};

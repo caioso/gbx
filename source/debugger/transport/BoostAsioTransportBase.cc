@@ -13,7 +13,8 @@ namespace gbxdb::transport
 {
 
 BoostAsioTransportBase::BoostAsioTransportBase(std::string ip, std::string port)
-    : _ip(ip)
+    : _connectionAvailability(10)
+    , _ip(ip)
     , _port(port)
 {}
 

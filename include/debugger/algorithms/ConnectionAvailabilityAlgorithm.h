@@ -10,7 +10,6 @@ enum class ConnectionState
 {
     NotConnected,
     Connected,
-    Unstable
 };
 
 enum class BeaconState

@@ -3,6 +3,7 @@
 using namespace boost::asio;
 using namespace boost::system;
 using namespace gbxdb;
+using namespace gbxdb::algorithms;
 using namespace gbxdb::interfaces;
 using namespace gbxdb::protocol;
 using namespace gbxcommons;
@@ -178,8 +179,12 @@ void BoostAsioServerTransport::ServerStatusLoop()
     boost::system::error_code error;
     std::array<uint8_t, 1> aliveMessageBuffer;
 
+    _connectionAvailability.EstablishConnection();
+
     while(!_terminated)
     {
+        bool received{};
+
         if (!pending)
         {
             aliveMessageBuffer[0] = currentMessage++;
@@ -198,6 +203,7 @@ void BoostAsioServerTransport::ServerStatusLoop()
             std::lock_guard<std::recursive_mutex> guard(_statusSocketLock);
             if (_statusSocket->available())
             {
+                received = true;
                 pending = false;
                 _statusSocket->read_some(buffer(aliveMessageBuffer), error);
 
@@ -209,6 +215,13 @@ void BoostAsioServerTransport::ServerStatusLoop()
             else
                 pending = true;
         }
+
+        if (received)
+            _connectionAvailability.Tick(BeaconState::BeaconReceived);
+        else
+            _connectionAvailability.Tick(BeaconState::NoBeaconReceived);
+
+        cout << "Connection State: " << (_connectionAvailability.State() == ConnectionState::NotConnected? "Not Connected" : "Connected") << '\n';
     }
 }
 

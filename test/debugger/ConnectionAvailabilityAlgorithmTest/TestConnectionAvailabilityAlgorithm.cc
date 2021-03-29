@@ -28,7 +28,7 @@ TEST(DebuggerTests_ConnectionAvailabilityAlgorithm, ValidTick)
     EXPECT_EQ(ConnectionState::Connected, algorithm.State());
 
     algorithm.Tick(BeaconState::BeaconReceived);
-    EXPECT_EQ(0x00, algorithm.MissedBeacons());
+    EXPECT_EQ(0x00llu, algorithm.MissedBeacons());
     EXPECT_EQ(ConnectionState::Connected, algorithm.State());
 }
 
@@ -39,11 +39,11 @@ TEST(DebuggerTests_ConnectionAvailabilityAlgorithm, MissOneTick)
     EXPECT_EQ(ConnectionState::Connected, algorithm.State());
 
     algorithm.Tick(BeaconState::NoBeaconReceived);
-    EXPECT_EQ(0x01, algorithm.MissedBeacons());
+    EXPECT_EQ(0x01llu, algorithm.MissedBeacons());
     EXPECT_EQ(ConnectionState::Connected, algorithm.State());
     
     algorithm.Tick(BeaconState::BeaconReceived);
-    EXPECT_EQ(0x00, algorithm.MissedBeacons());
+    EXPECT_EQ(0x00llu, algorithm.MissedBeacons());
     EXPECT_EQ(ConnectionState::Connected, algorithm.State());
 }
 
@@ -53,7 +53,7 @@ TEST(DebuggerTests_ConnectionAvailabilityAlgorithm, MissLimitTick)
     algorithm.EstablishConnection();
     EXPECT_EQ(ConnectionState::Connected, algorithm.State());
 
-    for (auto i = 0; i < 10; i++)
+    for (size_t i = 0; i < 10llu; i++)
     {
         algorithm.Tick(BeaconState::NoBeaconReceived);
         
@@ -64,7 +64,7 @@ TEST(DebuggerTests_ConnectionAvailabilityAlgorithm, MissLimitTick)
         }
         else
         {    
-            EXPECT_EQ(0, algorithm.MissedBeacons());
+            EXPECT_EQ(0x00llu, algorithm.MissedBeacons());
             EXPECT_EQ(ConnectionState::NotConnected, algorithm.State());
         }
     }
@@ -75,14 +75,14 @@ TEST(DebuggerTests_ConnectionAvailabilityAlgorithm, RestoreCommunicationAfterAFe
     ConnectionAvailability algorithm(nullopt);
     algorithm.EstablishConnection();
 
-    for (auto i = 0; i < 5; i++)
+    for (auto i = 0llu; i < 5llu; i++)
     {
         algorithm.Tick(BeaconState::BeaconReceived);
-        EXPECT_EQ(0x00, algorithm.MissedBeacons());
+        EXPECT_EQ(0x00llu, algorithm.MissedBeacons());
         EXPECT_EQ(ConnectionState::Connected, algorithm.State());
     }
 
-    for (auto i = 0; i < 5; i++)
+    for (auto i = 0llu; i < 5llu; i++)
     {
         EXPECT_EQ(ConnectionState::Connected, algorithm.State());
         algorithm.Tick(BeaconState::NoBeaconReceived);
@@ -90,32 +90,32 @@ TEST(DebuggerTests_ConnectionAvailabilityAlgorithm, RestoreCommunicationAfterAFe
         EXPECT_EQ(ConnectionState::Connected, algorithm.State());
     }
 
-    for (auto i = 0; i < 5; i++)
+    for (auto i = 0llu; i < 5llu; i++)
     {
         algorithm.Tick(BeaconState::BeaconReceived);
-        EXPECT_EQ(0x00, algorithm.MissedBeacons());
+        EXPECT_EQ(0x00llu, algorithm.MissedBeacons());
         EXPECT_EQ(ConnectionState::Connected, algorithm.State());
     }
 }
 
 TEST(DebuggerTests_ConnectionAvailabilityAlgorithm, CustomFailureLimit) 
 {
-    ConnectionAvailability algorithm(80);
+    ConnectionAvailability algorithm(80llu);
     algorithm.EstablishConnection();
     EXPECT_EQ(ConnectionState::Connected, algorithm.State());
 
-    for (auto i = 0; i < 80; i++)
+    for (auto i = 0llu; i < 80llu; i++)
     {
         algorithm.Tick(BeaconState::NoBeaconReceived);
         
-        if (i != 79)
+        if (i != 79llu)
         {
             EXPECT_EQ(i + 1, algorithm.MissedBeacons());
             EXPECT_EQ(ConnectionState::Connected, algorithm.State());
         }
         else
         {    
-            EXPECT_EQ(0, algorithm.MissedBeacons());
+            EXPECT_EQ(0x00llu, algorithm.MissedBeacons());
             EXPECT_EQ(ConnectionState::NotConnected, algorithm.State());
         }
     }
