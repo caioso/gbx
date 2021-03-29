@@ -47,7 +47,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, SanityCheckExpressionLexicalAna
     }
 }
 
-TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseType1Expression)
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSimpleBinaryExpression)
 {
     const string expression = "A + B";
 
@@ -62,7 +62,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseType1Expression)
     EXPECT_TRUE(parser.IsAccepted());
 }
 
-TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseType1ExpressionIntermediateRepresentationHLCheck)
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSimpleBinaryExpressionIntermediateRepresentationHLCheck)
 {
     const string expression = "A + B";
 
@@ -83,7 +83,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseType1ExpressionIntermediat
     EXPECT_EQ(1llu, expressionRepresentation->Column());
 }
 
-TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseType1ExpressionIntermediateRepresentationLLCheck)
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSimpleBinaryExpressionIntermediateRepresentationLLCheck)
 {
     const string expression = "A + B";
 
@@ -103,15 +103,91 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseType1ExpressionIntermediat
     EXPECT_EQ(1llu, expressionRepresentation->Line());
     EXPECT_EQ(1llu, expressionRepresentation->Column());
 
-    auto representation = expressionRepresentation->ExpressionStack().top();
-    EXPECT_STREQ("A", representation.Lexeme.c_str());
-    expressionRepresentation->ExpressionStack().pop();
-
-    representation = expressionRepresentation->ExpressionStack().top();
-    EXPECT_STREQ("+", representation.Lexeme.c_str());
-    expressionRepresentation->ExpressionStack().pop();
-    
-    representation = expressionRepresentation->ExpressionStack().top();
+    auto stack = expressionRepresentation->ExpressionStack();
+    auto representation = stack.top();
     EXPECT_STREQ("B", representation.Lexeme.c_str());
-    expressionRepresentation->ExpressionStack().pop();
+    stack.pop();
+
+    representation = stack.top();
+    EXPECT_STREQ("+", representation.Lexeme.c_str());
+    stack.pop();
+    
+    representation = stack.top();
+    EXPECT_STREQ("A", representation.Lexeme.c_str());
+    stack.pop();
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseMalformedSimpleBinaryExpression)
+{
+    const string expression = "A +";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseMalformedSimpleBinaryExpression2)
+{
+    const string expression = "+ A";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseMalformedSimpleBinaryExpression3)
+{
+    const string expression = "+";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseMalformedSimpleBinaryExpression4)
+{
+    const string expression = "A B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseMalformedSimpleBinaryExpression5)
+{
+    const string expression = "";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser.IsAccepted());
 }

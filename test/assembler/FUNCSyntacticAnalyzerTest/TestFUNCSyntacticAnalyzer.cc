@@ -832,6 +832,59 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseFuncWithInternalFuncBlock)
     EXPECT_TRUE(parser.IsAccepted());
 }
 
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseMalformedFunc)
+{
+    const string func = "FUNC MY_FUNCTION\n";
+
+    LexicalAnalyzer lexer;
+    FUNCSyntacticAnalyzer parser;
+
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseMalformedFunc2)
+{
+    const string func = "\nFUNC DOES_NOTHING\n"
+                        "\tIN: INPUT_1 \n"
+                        "\tIN: INPUT_2 AS BYTE\n"
+                        "\tIN: INPUT_3 AS";
+
+    LexicalAnalyzer lexer;
+    FUNCSyntacticAnalyzer parser;
+
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_FUNCSyntacticAnalyzer, ParseMalformedFunc4)
+{
+    const string func = "\nFUNC DOES_NOTHING\n"
+                        "\tIN: INPUT_1 \n"
+                        "\tIN: INPUT_2 AS BYTE\n"
+                        "\tIN: INPUT_3 AS\n"
+                        "\tOUT:";
+
+    LexicalAnalyzer lexer;
+    FUNCSyntacticAnalyzer parser;
+
+    lexer.Tokenize(func);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser.IsAccepted());
+}
+
 TEST(AssemblerTests_FUNCSyntacticAnalyzer, FuncIntermediateRepresentation)
 {
     const string func = "\nFUNC DOES_NOTHING\n"

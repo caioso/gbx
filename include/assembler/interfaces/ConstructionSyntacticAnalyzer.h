@@ -24,13 +24,18 @@ public:
 
     bool IsAccepted();
     bool IsRejected();
+    bool IsExited();
+
+    bool IsOutOfBonds(int, size_t);
 
 protected:
     void Accept();
     void Reject();
+    void Exit();
 
     bool _isAccepted{};
     bool _isRejected{};
+    bool _isExited{};
 };
 
 }

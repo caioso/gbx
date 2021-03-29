@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -13,14 +15,17 @@ enum class ExpressionParserTreeSymbols
 {
     TerminalIdentifier,
     TerminalBinaryOperatorPlus,
-    NonTerminalBinaryOperator,
-    NonTerminalExpression,
+    TerminalIgnore,
+    NonTerminalBinaryExpression,
     NonTerminalCompoundExpression,
+    NonTerminalExpression,
 };
 
 typedef struct ExpressionCompoundSymbol_t
 {
     std::string Lexeme;
+    size_t Line;
+    size_t Column;
     ExpressionParserTreeSymbols Symbol;
 }
 ExpressionCompoundSymbol;
@@ -39,9 +44,19 @@ public:
     std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> TryToAccept(std::vector<Token>::iterator&, std::vector<Token>::iterator&) override;
 
 private:
+    void PushIdentifier(ExpressionCompoundSymbol);
+    void PushBinaryOperator(ExpressionCompoundSymbol);
+    
+    void ReduceBinaryExpression(int);
+    void ReduceExpression(int);
+
     void ExtractSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
 
     std::vector<ExpressionCompoundSymbol> _symbols;
+    std::stack<intermediate_representation::ExpressionMember> _expressionStack;
+
+    size_t _line;
+    size_t _column;
 };
 
 }
