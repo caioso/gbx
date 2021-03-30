@@ -181,6 +181,8 @@ vector<Token> LexicalAnalyzer::EvaluateLexeme(string originalLexeme, size_t colu
             token.Type = TokenType::OperatorMINUS;
         else if (lexeme.first.compare(Lexemes::OperatorMULTIPLICATION) == 0)
             token.Type = TokenType::OperatorMULTIPLICATION;
+        else if (lexeme.first.compare(Lexemes::OperatorDIVISION) == 0)
+            token.Type = TokenType::OperatorDIVISION;
         else if (lexeme.first.compare(Lexemes::OperatorBITWISEAND) == 0)
             token.Type = TokenType::OperatorBITWISEAND;
         else if (lexeme.first.compare(Lexemes::OperatorBITWISEOR) == 0)

@@ -14,7 +14,15 @@ namespace gbxasm::frontend::parsers
 enum class ExpressionParserTreeSymbols
 {
     TerminalIdentifier,
+    TerminalNumericLiteral,
     TerminalBinaryOperatorPlus,
+    TerminalBinaryOperatorMinus,
+    TerminalBinaryOperatorMultiplication,
+    TerminalBinaryOperatorDivision,
+    TerminalBinaryOperatorRightShift,
+    TerminalBinaryOperatorLeftShift,
+    TerminalBinaryOperatorLessThan,
+    TerminalBinaryOperatorLessThanEqual,
     TerminalIgnore,
     NonTerminalBinaryExpression,
     NonTerminalCompoundExpression,

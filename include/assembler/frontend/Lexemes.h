@@ -54,6 +54,7 @@ public:
     inline const static std::string OperatorTRHEEWAYCOMPARISON = "<=>";
     inline const static std::string OperatorMINUS = "-";
     inline const static std::string OperatorMULTIPLICATION = "*";
+    inline const static std::string OperatorDIVISION = "/";
     inline const static std::string OperatorBITWISEAND = "&";
     inline const static std::string OperatorBITWISEOR = "|";
     inline const static std::string OperatorBITWISENOT = "~";

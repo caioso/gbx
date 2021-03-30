@@ -69,6 +69,7 @@ enum class TokenType
     OperatorTHREEWAYCOMPARISON,
     OperatorMINUS,
     OperatorMULTIPLICATION,
+    OperatorDIVISION,
     OperatorBITWISEAND,
     OperatorBITWISEOR,
     OperatorBITWISENOT,
