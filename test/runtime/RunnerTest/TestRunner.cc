@@ -10,7 +10,6 @@
 #include <thread> 
 #include <variant> 
 
-#include "ServerTransport.h"
 #include "CancellationToken.h"
 #include "Runner.h"
 #include "Runtime.h"
@@ -19,8 +18,6 @@
 using namespace std;
 using namespace std::chrono_literals;
 using namespace gbxruntime::runner;
-using namespace gbxdb;
-using namespace gbxdb::interfaces;
 using namespace gbxruntime::runner;
 using namespace gbxcore::interfaces;
 
@@ -34,16 +31,6 @@ TEST(RuntimeTests_Runner, Construction)
     auto runner = make_shared<Runner>(pointer);
     
     EXPECT_EQ(RunnerMode::Runtime, runner->Mode());
-}
-
-TEST(RuntimeTests_Runner, ConstructionInDebugMode) 
-{
-    auto runtime = make_shared<RuntimeMock>();
-    auto runtimePointer = static_pointer_cast<Runtime>(runtime);
-    auto transport = make_unique<ServerTransportMock>();
-    auto runner = make_shared<Runner>(runtimePointer, std::move(transport));
-
-    EXPECT_EQ(RunnerMode::Debug, runner->Mode());
 }
 
 TEST(RuntimeTests_Runner, RunForANumberOfCycles) 
@@ -102,58 +89,4 @@ TEST(RuntimeTests_Runner, RunIndefinitelyWithCancellationToken)
     cancellationThread.join();
     EXPECT_TRUE(token.IsCancelled());
     EXPECT_EQ(RunnerMode::Runtime, runner->Mode());
-}
-
-TEST(RuntimeTests_Runner, RunInDebugMode) 
-{
-    auto runtime = make_shared<RuntimeMock>();
-    auto pointer = static_pointer_cast<Runtime>(runtime);
-    auto transport = make_unique<ServerTransportMock>();
-    auto transportPointer = transport.get();
-    auto runner = make_shared<Runner>(pointer, std::move(transport));
-
-    CancellationToken token;
-    std::thread cancellationThread([&]()
-    { 
-        std::this_thread::sleep_for(100ms);
-        runner->ClientJoined();
-        std::this_thread::sleep_for(100ms);
-        token.Cancel();
-    });
-
-    EXPECT_CALL((*transportPointer), WaitForClient());   
-    EXPECT_CALL((*transportPointer), Subscribe(::_));
-    EXPECT_CALL((*runtime), Run()).WillRepeatedly(Return());
-    runner->Run(token);
-
-    cancellationThread.join();
-    EXPECT_TRUE(token.IsCancelled());
-    EXPECT_EQ(RunnerMode::Debug, runner->Mode());
-}
-
-TEST(RuntimeTests_Runner, RunInDebugModeForAGivenNumberOfCycles) 
-{
-    auto runtime = make_shared<RuntimeMock>();
-    auto pointer = static_pointer_cast<Runtime>(runtime);
-    auto transport = make_unique<ServerTransportMock>();
-    auto transportPointer = transport.get();
-    auto runner = make_shared<Runner>(pointer, std::move(transport));
-
-    CancellationToken token;
-    std::thread cancellationThread([&]()
-    { 
-        std::this_thread::sleep_for(100ms);
-        runner->ClientJoined();
-        std::this_thread::sleep_for(100ms);
-        token.Cancel();
-    });
-
-    EXPECT_CALL((*transportPointer), WaitForClient());
-    EXPECT_CALL((*transportPointer), Subscribe(::_));
-    EXPECT_CALL((*runtime), Run()).WillRepeatedly(Return());
-    runner->Run(numeric_limits<size_t>::max(), token);
-    
-    cancellationThread.join();
-    EXPECT_TRUE(token.IsCancelled());
-    EXPECT_EQ(RunnerMode::Debug, runner->Mode());
 }

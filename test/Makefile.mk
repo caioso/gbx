@@ -2,7 +2,6 @@ TEST_UTILS = $(TEST_TOP)/test_utils
 ASM_TESTS = $(BUILD_TEMP)/asmtests.o
 COMMONS_TESTS = $(BUILD_TEMP)/commonstests.o
 CORE_TESTS = $(BUILD_TEMP)/coretests.o
-DEBUG_TESTS = $(BUILD_TEMP)/debuggertests.o
 RUNTIME_TESTS = $(BUILD_TEMP)/runtimetests.o
 
 export TEST_UTILS
@@ -16,9 +15,9 @@ export RUNTIME_TESTS
 # Build targets
 TARGET = $(GBX_TEST)
 
-.PHONY: $(CORE_TESTS) $(ASM_TESTS) $(COMMONS_TESTS) $(RUNTIME_TESTS) $(DEBUG_TESTS) $(TARGET)
+.PHONY: $(CORE_TESTS) $(ASM_TESTS) $(COMMONS_TESTS) $(RUNTIME_TESTS) $(TARGET)
 
-all: $(CORE_TESTS) $(ASM_TESTS) $(COMMONS_TESTS) $(RUNTIME_TESTS) $(DEBUG_TESTS) $(TARGET)
+all: $(CORE_TESTS) $(ASM_TESTS) $(COMMONS_TESTS) $(RUNTIME_TESTS) $(TARGET)
 
 
 $(ASM_TESTS):
@@ -30,13 +29,10 @@ $(COMMONS_TESTS):
 $(CORE_TESTS):
 	$(call MakeTarget, core)
 
-$(DEBUG_TESTS):
-	$(call MakeTarget, debugger)
-
 $(RUNTIME_TESTS):
 	$(call MakeTarget, runtime)
 
-$(TARGET): $(CORE_TESTS) $(ASM_TESTS) $(COMMONS_TESTS) $(RUNTIME_TESTS) $(CORE_LIB) $(ASM_LIB) $(DEBUG_TESTS) $(COMMONS_LIB) $(RUNTIME_LIB)
+$(TARGET): $(CORE_TESTS) $(ASM_TESTS) $(COMMONS_TESTS) $(RUNTIME_TESTS) $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(RUNTIME_LIB)
 	@$(MAKE) -f Makefile.sub.mk
 
 define MakeTarget

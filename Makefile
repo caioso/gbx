@@ -97,7 +97,7 @@ export RUNTIME_LIB
 export GBX_TEST
 export RUNTIME
 
-all: $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(RUNTIME_LIB) $(DEBUG_LIB) applications $(GBX_TEST) 
+all: $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(RUNTIME_LIB) applications $(GBX_TEST) 
 
 $(CORE_LIB):
 	$(call MakeTarget, source/core)
@@ -114,17 +114,14 @@ $(GBX_TEST):
 $(COMMONS_LIB):
 	$(call MakeTarget, source/commons)
 
-$(DEBUG_LIB):
-	$(call MakeTarget, source/debugger)
-
 applications:
 	$(call MakeTarget, $(APPLICATIONS))
 
-.PHONY: $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(RUNTIME_LIB) $(DEBUG_LIB) applications $(GBX_TEST) test
+.PHONY: $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(RUNTIME_LIB) applications $(GBX_TEST) test
 
 clean:
 	rm -f ./temp/*.o ./temp/*.d
-	rm -f $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(RUNTIME_LIB) $(DEBUG_LIB) $(GBX_TEST) $(RUNTIME) $(CLI_DEBUGGER)
+	rm -f $(CORE_LIB) $(ASM_LIB) $(COMMONS_LIB) $(RUNTIME_LIB) $(GBX_TEST) $(RUNTIME) $(CLI_DEBUGGER)
 
 debug-test:
 	lldb ./build/test/gbxtest

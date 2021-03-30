@@ -1,7 +1,6 @@
 #include "Runner.h"
 
-using namespace gbxdb;
-using namespace gbxdb::interfaces;
+
 using namespace gbxcore::interfaces;
 using namespace std;
 
@@ -11,13 +10,6 @@ namespace gbxruntime::runner
 Runner::Runner(shared_ptr<Runtime> runner)
     : _runtime(runner)
     , _mode(RunnerMode::Runtime)
-{}
-
-Runner::Runner(shared_ptr<Runtime> runner, unique_ptr<ServerTransport> transport)
-    : _runtime(runner)
-    , _transport(std::move(transport))
-    , _mode(RunnerMode::Debug)
-    , _halted(true)
 {}
 
 RunnerMode Runner::Mode()
@@ -69,39 +61,9 @@ inline void Runner::RunWithDebugger(size_t numberOfCycles, CancellationToken& to
 }
 
 inline void Runner::InitializeDebugInfraIfNeeded()
-{
-    if (_handler == nullptr)
-    {
-        _handler = make_shared<ServerMessageHandler>(std::move(_transport));
-        _handler->Initialize();
-    }
-
-    while(!_clientJoined)
-    {
-        while (_handler->Pending() != 0llu)
-            _handler->ProcessMessages(_runtime, shared_from_this());
-        
-        std::this_thread::sleep_for(10ms);
-    }
-}
+{}
 
 inline void Runner::RunInDebugMode()
-{
-    if (!_halted)
-        _runtime->Run();
-
-    while (_handler->Pending() != 0llu)
-        _handler->ProcessMessages(_runtime, shared_from_this());
-}
-
-void Runner::ClientJoined()
-{
-    _clientJoined = true;
-}
-
-void Runner::ClientLeft()
-{
-    _clientJoined = false;
-}
+{}
 
 }

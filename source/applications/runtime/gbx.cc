@@ -2,8 +2,8 @@
 #include <chrono>
 #include <limits>
 #include <string>
-#include <thread>
 #include <sstream>
+#include <thread>
 
 #include "Runner.h"
 #include "ArgumentsParser.h"
@@ -12,11 +12,8 @@
 #include "GBXEmulatorExceptions.h"
 #include "GBXCommonsExceptions.h"
 
-#include "transport/BoostAsioServerTransport.h"
-
 using namespace std;
 using namespace gbxruntime::runner;
-using namespace gbxdb::transport;
 using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcommons;
@@ -27,13 +24,15 @@ struct ApplicationConfiguration
     bool IsDebug;
     string IPAddress;
     string Port;
+    string ROMName;
 };
 
 ApplicationConfiguration configuration{};
 
 ApplicationConfiguration ParseCommandLine(int argc, char** argv)
 {
-    auto parser = make_shared<ArgumentsParser>("gbx [-d/--debug -i/--ip <ip> -p/--port <port> | -v/--verbose]");
+    auto parser = make_shared<ArgumentsParser>("gbx -r <ROM> [-d/--debug -i/--ip <ip> -p/--port <port> | -v/--verbose]");
+    parser->RegisterOption("-r", "--rom", "Target ROM to load", OptionType::Pair, OptionRequirement::Required);
     parser->RegisterOption("-d", "--debug", "Enable Debug Mode", OptionType::Flag, OptionRequirement::Optional);
     parser->RegisterOption("-i", "--ip", "IP Address", OptionType::Pair, OptionRequirement::Optional);
     parser->RegisterOption("-p", "--port", "Port Number", OptionType::Pair, OptionRequirement::Optional);
@@ -51,6 +50,9 @@ ApplicationConfiguration ParseCommandLine(int argc, char** argv)
 
         if (parser->HasBeenFound("-v"))
             configuration.Verbose = true;
+        
+        if (parser->HasBeenFound("-r"))
+            configuration.ROMName = parser->RetrieveOption("-r").Value.value();
 
         if (parser->HasBeenFound("-d"))
         {
@@ -73,6 +75,7 @@ ApplicationConfiguration ParseCommandLine(int argc, char** argv)
     catch(const GBXCommonsException& e)
     {
         cout << e.what() << '\n';
+        cout << parser->Help() << '\n';
         exit(2);
     }
 }
@@ -84,14 +87,7 @@ void Log(string message)
 }
 
 void InitializeDebugServer()
-{
-    auto gbx = make_shared<GameBoyX>();
-    auto transport = make_unique<BoostAsioServerTransport>(configuration.IPAddress, configuration.Port);
-    gbxruntime::runner::CancellationToken token;
-
-    auto runner = make_shared<gbxruntime::runner::Runner>(gbx, std::move(transport));
-    runner->Run(token);
-}
+{}
 
 void DebugMode()
 {
@@ -100,9 +96,17 @@ void DebugMode()
     Log("Execution Complete");
 }
 
-void RuntimeMode()
+void LoadROM(string ROMName)
 {
-    Log("Runtime Mode");
+    stringstream ss;
+    ss << "ROM: " << ROMName;
+    Log(ss.str());
+}
+
+void RuntimeMode(ApplicationConfiguration configuration)
+{
+    LoadROM(configuration.ROMName);
+
     auto gbx = make_unique<GameBoyX>();
     auto cycleCounter = 0;
 
@@ -111,8 +115,6 @@ void RuntimeMode()
         gbx->Run();
         cycleCounter++;
     }
-
-    Log("Execution Complete");
 }
 
 void LaunchEmulator(ApplicationConfiguration configuration)
@@ -120,7 +122,7 @@ void LaunchEmulator(ApplicationConfiguration configuration)
     if (configuration.IsDebug)
         DebugMode();
     else
-        RuntimeMode();
+        RuntimeMode(configuration);
 }
 
 int main (int argc, char** argv)

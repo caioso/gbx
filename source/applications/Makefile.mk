@@ -2,7 +2,6 @@
 
 all:
 	$(call MakeTarget, runtime)
-	$(call MakeTarget, debugger_cli)
 
 define MakeTarget
 	$(call EnteringMessage, ${1})
