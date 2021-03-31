@@ -24,4 +24,11 @@ public:
     ~ArgumentsParserException() = default;
 };
 
+class FileLoaderException : public GBXCommonsException
+{
+public:
+    explicit FileLoaderException(const std::string&);
+    ~FileLoaderException() = default;
+};
+
 }

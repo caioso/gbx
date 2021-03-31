@@ -10,6 +10,8 @@ BUILD_APPS = $(BUILD_TOP)/apps
 BUILD_TEMP = $(CURDIR)/temp
 BUILD_TEST = $(BUILD_TOP)/test
 
+TEST_DATA = ./build/test/test_data/
+
 SOURCE_TOP = $(CURDIR)/source
 SOURCE_CORE_TOP = $(SOURCE_TOP)/core
 
@@ -128,15 +130,15 @@ debug-test:
 
 test:
 ifeq ($(word 2,$(ARGS)), $(ASM_TESTS_FLAG))
-	./build/test/gbxtest --gtest_filter="AssemblerTests_*" 
+	./build/test/gbxtest $(TEST_DATA) --gtest_filter="AssemblerTests_*" 
 else
 ifeq ($(word 2,$(ARGS)), $(CORE_TESTS_FLAG))
-	./build/test/gbxtest --gtest_filter="CoreTests_*" 
+	./build/test/gbxtest $(TEST_DATA) --gtest_filter="CoreTests_*" 
 else
 ifeq ($(word 2,$(ARGS)), $(COMMONS_TESTS_FLAG))
-	./build/test/gbxtest --gtest_filter="CommonsTests_*" 
+	./build/test/gbxtest $(TEST_DATA) --gtest_filter="CommonsTests_*" 
 else
-	./build/test/gbxtest 
+	./build/test/gbxtest $(TEST_DATA)
 endif
 endif
 endif

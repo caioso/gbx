@@ -1,5 +1,10 @@
 #pragma once
 
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
+#include <string>
+
 #define ASSERT_EXCEPTION( TRY_BLOCK, EXCEPTION_TYPE, MESSAGE )        \
 try                                                                   \
 {                                                                     \
@@ -19,3 +24,18 @@ catch( ... )                                                          \
            << "' not thrown with expected type '" << #EXCEPTION_TYPE  \
            << "'!";                                                   \
 }
+
+class GBXTestEnvironment : public testing::Environment 
+{
+public:
+    GBXTestEnvironment(std::string testDataPath)
+    {
+        TestDataPath = testDataPath;
+    }
+
+    virtual ~GBXTestEnvironment() {}
+    virtual void SetUp() {}
+    virtual void TearDown() {}
+
+    inline static std::string TestDataPath{};
+};
