@@ -1,4 +1,4 @@
-#include "PACKIntermediateRepresentation.h"
+#include "PackIntermediateRepresentation.h"
 
 using namespace std;
 

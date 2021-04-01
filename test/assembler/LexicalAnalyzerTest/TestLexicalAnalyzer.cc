@@ -360,6 +360,7 @@ TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllOperators)
                            "<=>\n"
                            "-\n"
                            "*\n"
+                           "/\n"
                            "&\n"
                            "|\n"
                            "~\n"
@@ -383,14 +384,14 @@ TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllOperators)
     auto tokens = lexer->Tokens();
 
     auto operatorString = {Lexemes::OperatorASSIGNMENT, Lexemes::OperatorEQUAL, Lexemes::OperatorPLUS, Lexemes::OperatorTRHEEWAYCOMPARISON,
-                           Lexemes::OperatorMINUS, Lexemes::OperatorMULTIPLICATION, Lexemes::OperatorBITWISEAND, Lexemes::OperatorBITWISEOR,
+                           Lexemes::OperatorMINUS, Lexemes::OperatorMULTIPLICATION, Lexemes::OperatorDIVISION, Lexemes::OperatorBITWISEAND, Lexemes::OperatorBITWISEOR,
                            Lexemes::OperatorBITWISENOT, Lexemes::OperatorBITWISEXOR, Lexemes::OperatorLEFTSHIFT, Lexemes::OperatorRIGHTSHIFT,
                            Lexemes::OperatorDIFFERENT, Lexemes::OperatorLOGICAND, Lexemes::OperatorLOGICOR, Lexemes::OperatorLESSTHAN,
                            Lexemes::OperatorGREATERTHAN, Lexemes::OperatorLESSTHANOREQUALTO, Lexemes::OperatorGREATERTHANOREQUALTO,
                            Lexemes::OperatorLOGICNOT, Lexemes::OperatorAT, Lexemes::OperatorSEMICOLON, Lexemes::OperatorDOT};
     
     auto operatorTokens = {TokenType::OperatorASSIGNMENT, TokenType::OperatorEQUAL, TokenType::OperatorPLUS, TokenType::OperatorTHREEWAYCOMPARISON,
-                           TokenType::OperatorMINUS, TokenType::OperatorMULTIPLICATION, TokenType::OperatorBITWISEAND, TokenType::OperatorBITWISEOR,
+                           TokenType::OperatorMINUS, TokenType::OperatorMULTIPLICATION, TokenType::OperatorDIVISION, TokenType::OperatorBITWISEAND, TokenType::OperatorBITWISEOR,
                            TokenType::OperatorBITWISENOT, TokenType::OperatorBITWISEXOR, TokenType::OperatorLEFTSHIFT, TokenType::OperatorRIGHTSHIFT, 
                            TokenType::OperatorDIFFERENT, TokenType::OperatorLOGICAND, TokenType::OperatorLOGICOR, TokenType::OperatorLESSTHAN,
                            TokenType::OperatorGREATERTHAN, TokenType::OperatorLESSTHANOREQUALTO, TokenType::OperatorGREATERTHANOREQUALTO,

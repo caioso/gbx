@@ -25,4 +25,19 @@ void ConstructionSyntacticAnalyzer::Reject()
     _isRejected = true;
 }
 
+void ConstructionSyntacticAnalyzer::Exit()
+{
+    _isExited = true;
+}
+
+bool ConstructionSyntacticAnalyzer::IsExited()
+{
+    return _isExited;
+}
+
+bool ConstructionSyntacticAnalyzer::IsOutOfBonds(int position, size_t size)
+{
+    return position < 0 || position >= size;
+}
+
 }

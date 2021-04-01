@@ -1,4 +1,4 @@
-#include "PACKSyntacticAnalyzer.h"
+#include "PackSyntacticAnalyzer.h"
 
 using namespace gbxasm::frontend;
 using namespace gbxasm::interfaces;

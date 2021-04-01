@@ -12,8 +12,8 @@
 #include "GBXAsmExceptions.h"
 #include "LexicalAnalyzer.h"
 #include "Lexemes.h"
-#include "PACKSyntacticAnalyzer.h"
-#include "PACKIntermediateRepresentation.h"
+#include "PackSyntacticAnalyzer.h"
+#include "PackIntermediateRepresentation.h"
 
 using namespace gbxasm;
 using namespace gbxasm::frontend;
