@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <vector>
 
 #include "ConstructionSyntacticAnalyzer.h"
@@ -14,7 +15,11 @@ namespace gbxasm::frontend::parsers
 enum class ExpressionParserTreeSymbols
 {
     TerminalIdentifier,
+    TerminalBooleanLiteral,
     TerminalNumericLiteral,
+    TerminalStringLiteral,
+    TerminalCharLiteral,
+    TerminalOperatorDot,
     TerminalBinaryOperatorPlus,
     TerminalBinaryOperatorMinus,
     TerminalBinaryOperatorMultiplication,
@@ -23,6 +28,16 @@ enum class ExpressionParserTreeSymbols
     TerminalBinaryOperatorLeftShift,
     TerminalBinaryOperatorLessThan,
     TerminalBinaryOperatorLessThanEqual,
+    TerminalBinaryOperatorGreaterThan,
+    TerminalBinaryOperatorGreaterThanEqual,
+    TerminalBinaryOperatorEqual,
+    TerminalBinaryOperatorDifferent,
+    TerminalBinaryOperatorBitwiseAnd,
+    TerminalBinaryOperatorBitwiseXor,
+    TerminalBinaryOperatorBitwiseOr,
+    TerminalBinaryOperatorLogicAnd,
+    TerminalBinaryOperatorLogicOr,
+    TerminalBinaryOperatorAssignment,
     TerminalIgnore,
     NonTerminalBinaryExpression,
     NonTerminalCompoundExpression,
@@ -53,6 +68,7 @@ public:
 
 private:
     void PushIdentifier(ExpressionCompoundSymbol);
+    void PushPackIdentifier(ExpressionCompoundSymbol, ExpressionCompoundSymbol);
     void PushBinaryOperator(ExpressionCompoundSymbol);
     
     void ReduceBinaryExpression(int);

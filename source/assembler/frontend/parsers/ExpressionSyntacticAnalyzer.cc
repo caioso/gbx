@@ -41,7 +41,10 @@ shared_ptr<IntermediateRepresentation> ExpressionSyntacticAnalyzer::TryToAccept(
                     state = 5;
                 }
                 else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalIdentifier ||
-                         _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalNumericLiteral)
+                         _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalNumericLiteral ||
+                         _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBooleanLiteral ||
+                         _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalStringLiteral ||
+                         _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalCharLiteral)
                 {
                     PushIdentifier(_symbols[leftSubstring]);
                     leftSubstring++;
@@ -65,7 +68,17 @@ shared_ptr<IntermediateRepresentation> ExpressionSyntacticAnalyzer::TryToAccept(
                     _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorRightShift ||
                     _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLeftShift ||
                     _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLessThan ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLessThanEqual)
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLessThanEqual ||
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorGreaterThan ||
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorGreaterThanEqual ||
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorEqual ||
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorDifferent ||
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseAnd ||
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseXor ||
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseOr ||
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLogicAnd ||
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLogicOr ||
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorAssignment)
                 {
                     PushBinaryOperator(_symbols[leftSubstring]);
                     leftSubstring++;
@@ -84,7 +97,10 @@ shared_ptr<IntermediateRepresentation> ExpressionSyntacticAnalyzer::TryToAccept(
                 if (IsOutOfBonds(leftSubstring, _symbols.size())) { Reject(); break; }
 
                 if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalIdentifier ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalNumericLiteral)
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalNumericLiteral ||
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBooleanLiteral ||
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalStringLiteral ||
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalCharLiteral)
                 {
                     PushIdentifier(_symbols[leftSubstring]);
                     leftSubstring++;
@@ -126,6 +142,15 @@ void ExpressionSyntacticAnalyzer::PushIdentifier(ExpressionCompoundSymbol symbol
 {
     ExpressionMember member;
     member.Lexeme = symbol.Lexeme;
+    _expressionStack.push(member);
+}
+
+void ExpressionSyntacticAnalyzer::PushPackIdentifier(ExpressionCompoundSymbol type, ExpressionCompoundSymbol identifier)
+{
+    ExpressionMember member;
+    stringstream ss;
+    ss << type.Lexeme << '.' << identifier.Lexeme;
+    member.Lexeme = ss.str();
     _expressionStack.push(member);
 }
 
@@ -198,11 +223,40 @@ void ExpressionSyntacticAnalyzer::ExtractSymbols(std::vector<Token>::iterator& b
                 return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorLessThan, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
             case TokenType::OperatorLESSTHANOREQUALTO:
                 return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorLessThanEqual, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorGREATERTHAN:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorGreaterThan, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorGREATERTHANOREQUALTO:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorGreaterThanEqual, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorEQUAL:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorEqual, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorDIFFERENT:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorDifferent, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorBITWISEAND:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseAnd, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorBITWISEXOR:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseXor, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorBITWISEOR:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseOr, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorLOGICAND:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorLogicAnd, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorLOGICOR:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorLogicOr, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorASSIGNMENT:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorAssignment, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorDOT:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalOperatorDot, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
             case TokenType::LiteralNumericBINARY:
             case TokenType::LiteralNumericOCTAL:
             case TokenType::LiteralNumericDECIMAL:
             case TokenType::LiteralNumericHEXADECIMAL:
                 return {.Symbol = ExpressionParserTreeSymbols::TerminalNumericLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::LiteralBooleanTRUE:
+            case TokenType::LiteralBooleanFALSE:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBooleanLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::LiteralSTRING:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalStringLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::LiteralCHAR:
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalCharLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
             default:
                 return {.Symbol = ExpressionParserTreeSymbols::TerminalIgnore, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
         }
