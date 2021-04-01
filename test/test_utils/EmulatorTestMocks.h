@@ -19,5 +19,6 @@ public:
     virtual ~RuntimeMock() = default;
     MOCK_METHOD(void, Run, ());
     MOCK_METHOD((std::variant<uint8_t, uint16_t>), ReadRegister, (gbxcore::interfaces::Register));
+    MOCK_METHOD(void, LoadGame, (std::string));
     MOCK_METHOD(void, WriteRegister, (gbxcore::interfaces::Register, (std::variant<uint8_t, uint16_t>)));
 };

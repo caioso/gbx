@@ -3,16 +3,17 @@
 #include <memory>
 #include <variant>
 
-#include "Runtime.h"
-#include "SystemConstants.h"
 #include "ArithmeticLogicUnit.h"
 #include "Clock.h"
 #include "ControlUnit.h"
 #include "EngineParameters.h"
+#include "FileLoader.h"
 #include "MemoryController.h"
-#include "RegisterBank.h"
 #include "RAM.h"
+#include "RegisterBank.h"
 #include "ROM.h"
+#include "Runtime.h"
+#include "SystemConstants.h"
 #include "Z80X.h"
 
 namespace gbxcore
@@ -23,10 +24,11 @@ class GameBoyX : public interfaces::Runtime
 public:
     GameBoyX();
     virtual ~GameBoyX() = default;
-    virtual void Run() override;
+    void Run() override;
+    void LoadGame(std::string) override;
     
-    virtual std::variant<uint8_t, uint16_t> ReadRegister(interfaces::Register) override;
-    virtual void WriteRegister(interfaces::Register, std::variant<uint8_t, uint16_t>) override;
+    std::variant<uint8_t, uint16_t> ReadRegister(interfaces::Register) override;
+    void WriteRegister(interfaces::Register, std::variant<uint8_t, uint16_t>) override;
     
 protected:
     bool IsPair(interfaces::Register);
@@ -35,6 +37,8 @@ protected:
     std::shared_ptr<ControlUnit> _controlUnit;
     std::shared_ptr<MemoryController> _memoryController;
     
+    // System BOOTUP ROM (directly executable, only accesible by the system) 0x0000 - 0x00FF
+    std::shared_ptr<ROM> _systemROM;
     // Cartrige ROM (16 KB [bank 0] + 16KB [bank N]) - 0x0000 - 0x7FFF
     std::shared_ptr<ROM> _userROM;
     // Video RAM (8KB [bank 0] + 8KB [GBC only, bank 1] - 0x8000, 0x9FFF)

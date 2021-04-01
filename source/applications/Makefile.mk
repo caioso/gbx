@@ -1,3 +1,6 @@
+$(info -------------------------------)
+$(info [BUILD::GBX] Entering directory '$(CURDIR)')
+$(info -------------------------------)
 .PHONY: all
 
 all:

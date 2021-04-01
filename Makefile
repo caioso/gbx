@@ -1,3 +1,6 @@
+$(info -------------------------------)
+$(info [BUILD::GBX] Entering directory '$(CURDIR)')
+$(info -------------------------------)
 ARGS = $(filter-out $(KNOWN_TARGETS),$(MAKECMDGOALS))
 ASM_TESTS_FLAG = asm
 CORE_TESTS_FLAG = core

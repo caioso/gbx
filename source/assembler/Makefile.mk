@@ -1,3 +1,6 @@
+$(info -------------------------------)
+$(info [BUILD::GBX] Entering directory '$(CURDIR)')
+$(info -------------------------------)
 SUBDIRS = frontend interfaces intermediate_representation streams utilities 
 CC = clang++
 AR = ar

@@ -1,3 +1,6 @@
+$(info -------------------------------)
+$(info [BUILD::GBX] Entering directory '$(CURDIR)')
+$(info -------------------------------)
 CC = clang++
 
 LDFLAGS = $(LDCOVERAGE_FLAGS) -lboost_system -pthread

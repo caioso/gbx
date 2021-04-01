@@ -1,3 +1,6 @@
+$(info -------------------------------)
+$(info [BUILD::GBX] Entering directory '$(CURDIR)')
+$(info -------------------------------)
 TEST_UTILS = $(TEST_TOP)/test_utils
 ASM_TESTS = $(BUILD_TEMP)/asmtests.o
 COMMONS_TESTS = $(BUILD_TEMP)/commonstests.o

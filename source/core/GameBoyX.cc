@@ -2,6 +2,7 @@
 
 using namespace gbxcore::constants;
 using namespace gbxcore::interfaces;
+using namespace gbxcommons;
 using namespace std;
 
 namespace gbxcore
@@ -13,6 +14,7 @@ GameBoyX::GameBoyX()
     _controlUnit = make_shared<ControlUnit>();
     _memoryController = make_shared<MemoryController>();
     
+    _systemROM = make_shared<ROM>(SystemROMPhysicalSize); 
     _userROM = make_shared<ROM>(UserROMPhysicalSize); 
     _videoRAM = make_shared<RAM>(VideoRAMPhysicalSize);
     _externalRAM = make_shared<RAM>(ExternalRAMPhysicalSize);
@@ -28,6 +30,9 @@ GameBoyX::GameBoyX()
     _registers = make_shared<RegisterBank>();
 
     // Initialize Memory Controller
+    // _systemROM must be available at bootup.
+    // After it is available, execute (max 255 instructions) until it jumps to 0x0100, where the system ROM no more visible is, and the user ROM appears fully.
+    // _memoryController->RegisterMemoryResource(_systemROM, AddressRange(SystemROMInitialAddress, SystemROMFinalAddress, RangeType::BeginInclusive)); 
     _memoryController->RegisterMemoryResource(_userROM, AddressRange(UserROMInitialAddress, UserROMFinalAddress, RangeType::BeginInclusive));
     _memoryController->RegisterMemoryResource(_videoRAM, AddressRange(VideoRAMInitialAddress, VideoRAMFinalAddress, RangeType::BeginInclusive));
     _memoryController->RegisterMemoryResource(_externalRAM, AddressRange(ExternalRAMInitialAddress, ExternalRAMFinalAddress, RangeType::BeginInclusive));
@@ -61,6 +66,14 @@ void GameBoyX::WriteRegister(interfaces::Register reg, variant<uint8_t, uint16_t
         return _registers->WritePair(reg, get<uint16_t>(value));
     else
         return _registers->Write(reg, get<uint8_t>(value));
+}
+
+void GameBoyX::LoadGame(string gameROMName)
+{
+    FileLoader loader(gameROMName);
+    loader.Load();
+
+    
 }
 
 }

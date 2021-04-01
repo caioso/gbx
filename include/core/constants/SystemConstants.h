@@ -5,6 +5,10 @@
 namespace gbxcore::constants
 {
 
+const size_t SystemROMPhysicalSize = 0xFF;
+const size_t SystemROMInitialAddress = 0x0000;
+const size_t SystemROMFinalAddress = 0x00FF;
+
 const size_t UserROMInitialAddress = 0x0000;
 const size_t UserROMPhysicalSize = 0x8000;
 constexpr size_t UserROMFinalAddress = UserROMInitialAddress + UserROMPhysicalSize;
