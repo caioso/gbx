@@ -2,6 +2,7 @@
 
 using namespace gbxcore::constants;
 using namespace gbxcore::interfaces;
+using namespace gbxcore::memory;
 using namespace gbxcommons;
 using namespace std;
 

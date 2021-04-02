@@ -11,7 +11,7 @@
 #include "GBXCoreExceptions.h"
 #include "MemoryInterface.h"
 
-namespace gbxcore
+namespace gbxcore::memory
 {
     
 class ROM : public interfaces::MemoryInterface

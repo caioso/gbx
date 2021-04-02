@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace gbxcore;
+using namespace gbxcore::memory;
 using namespace gbxcore::interfaces;
 
 TEST(TestMemoryController, ResourceRegistration) 

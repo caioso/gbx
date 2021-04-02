@@ -31,6 +31,13 @@ public:
     ~MemoryControllerException() = default;
 };
 
+class BankedMemoryException : public GBXCoreException
+{
+public:
+    explicit BankedMemoryException(const std::string&);
+    ~BankedMemoryException() = default;
+};
+
 class ClockSourceException : public GBXCoreException
 {
 public:

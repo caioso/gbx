@@ -3,7 +3,7 @@
 using namespace std;
 using namespace gbxcore::interfaces;
 
-namespace gbxcore
+namespace gbxcore::memory
 {
 
 std::variant<uint8_t, uint16_t> MemoryController::Read(uint16_t address, MemoryAccessType accessType)

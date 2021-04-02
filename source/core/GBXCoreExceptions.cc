@@ -17,6 +17,10 @@ MemoryControllerException::MemoryControllerException(const std::string& message)
     : GBXCoreException(message)
 {}
 
+BankedMemoryException::BankedMemoryException(const std::string& message)
+    : GBXCoreException(message)
+{}
+
 ClockSourceException::ClockSourceException(const std::string& message)
     : GBXCoreException(message)
 {}

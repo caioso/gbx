@@ -35,28 +35,28 @@ protected:
 
     std::shared_ptr<Z80X> _cpu;
     std::shared_ptr<ControlUnit> _controlUnit;
-    std::shared_ptr<MemoryController> _memoryController;
+    std::shared_ptr<memory::MemoryController> _memoryController;
     
     // System BOOTUP ROM (directly executable, only accesible by the system) 0x0000 - 0x00FF
-    std::shared_ptr<ROM> _systemROM;
+    std::shared_ptr<memory::ROM> _systemROM;
     // Cartrige ROM (16 KB [bank 0] + 16KB [bank N]) - 0x0000 - 0x7FFF
-    std::shared_ptr<ROM> _userROM;
+    std::shared_ptr<memory::ROM> _userROM;
     // Video RAM (8KB [bank 0] + 8KB [GBC only, bank 1] - 0x8000, 0x9FFF)
-    std::shared_ptr<RAM> _videoRAM;
+    std::shared_ptr<memory::RAM> _videoRAM;
     // External RAM (in-Cartridge RAM) (8KB [bank 0] + 8KB [bank n] - 0xA000, 0xBFFF)
-    std::shared_ptr<RAM> _externalRAM;
+    std::shared_ptr<memory::RAM> _externalRAM;
     // Work RAM 0 (system RAM) (4KB - bank 0)
-    std::shared_ptr<RAM> _workRAMBank0;
+    std::shared_ptr<memory::RAM> _workRAMBank0;
     // Work RAM 1 (system RAM) (4KB - bank 1)
-    std::shared_ptr<RAM> _workRAMBank1;
+    std::shared_ptr<memory::RAM> _workRAMBank1;
     // Unused (Mirror) Ram (7679 Bytes following the content of the Work Ram)
-    std::shared_ptr<RAM> _mirrorRAM;
+    std::shared_ptr<memory::RAM> _mirrorRAM;
     // I/O Registers (128 byte)
-    std::shared_ptr<RAM> _IORAM;
+    std::shared_ptr<memory::RAM> _IORAM;
     // High RAM (STACK) (127 bytes)
-    std::shared_ptr<RAM> _HRAM;
+    std::shared_ptr<memory::RAM> _HRAM;
     // Interrupt enabled
-    std::shared_ptr<RAM> _IE;
+    std::shared_ptr<memory::RAM> _IE;
         
     
     std::shared_ptr<ArithmeticLogicUnit> _alu;

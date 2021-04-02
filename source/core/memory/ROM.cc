@@ -3,7 +3,7 @@
 using namespace std;
 using namespace gbxcore::interfaces;
 
-namespace gbxcore
+namespace gbxcore::memory
 {
 
 ROM::ROM(std::size_t sizeInBytes)

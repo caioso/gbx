@@ -3,7 +3,7 @@
 using namespace gbxcore::interfaces;
 using namespace std;
 
-namespace gbxcore
+namespace gbxcore::memory
 {
 RAM::RAM(size_t size)
     : ROM(size)

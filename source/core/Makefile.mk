@@ -1,13 +1,13 @@
 $(info -------------------------------)
 $(info [BUILD::GBX] Entering directory '$(CURDIR)')
 $(info -------------------------------)
-SUBDIRS = instructions
+SUBDIRS = instructions memory
 CC = clang++
 AR = ar
 
 LDFLAGS = $(LDCOVERAGE_FLAGS)
 CPPFLAGS = $(CCCOVERAGE_FLAGS) $(GLOBAL_CPP_FLAGS)
-INCLUDE = -I$(INCLUDE_CORE_TOP) -I$(INCLUDE_CORE_CONSTANTS) -I$(INCLUDE_CORE_INTERFACES) -I$(INCLUDE_CORE_INSTRUCTIONS) \
+INCLUDE = -I$(INCLUDE_CORE_TOP) -I$(INCLUDE_CORE_CONSTANTS) -I$(INCLUDE_CORE_MEMORY) -I$(INCLUDE_CORE_INTERFACES) -I$(INCLUDE_CORE_INSTRUCTIONS) \
 		  -I$(INCLUDE_COMMONS_TOP)
 
 SRC_FILES = $(notdir $(wildcard ./*.cc)) $(notdir $(wildcard */*.cc))
@@ -21,7 +21,7 @@ TARGET = $(CORE_LIB)
 all: $(SUBDIRS) $(TARGET)
 
 $(SUBDIRS):
-	$(call MakeTarget, instructions)
+	$(call MakeTarget, $@)
 
 $(TARGET): $(OBJ_FILES) 
 	$(AR) rcs $@ $(OBJ_FILES) 
