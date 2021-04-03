@@ -18,6 +18,7 @@ class MemoryControllerMock : public gbxcore::interfaces::MemoryControllerInterfa
 public:
     virtual ~MemoryControllerMock() = default;
     MOCK_METHOD((std::variant<uint8_t, uint16_t>), Read, (uint16_t a, gbxcore::interfaces::MemoryAccessType b));
+    MOCK_METHOD(void, SwitchBank, (uint16_t, size_t));
     MOCK_METHOD(void, Write, ((std::variant<uint8_t, uint16_t>), uint16_t));
     MOCK_METHOD(void, Load, ((std::shared_ptr<uint8_t*>), size_t, uint16_t, (std::optional<size_t>)));
     MOCK_METHOD(void, RegisterMemoryResource, ((std::shared_ptr<gbxcore::interfaces::MemoryInterface>), gbxcore::AddressRange));

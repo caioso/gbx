@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <memory>
 #include <variant>
 
@@ -29,7 +30,7 @@ public:
     void LoadGame(std::string) override;
     
     std::variant<uint8_t, uint16_t> ReadRegister(interfaces::Register) override;
-    std::variant<uint8_t, uint16_t> ReadROM(uint16_t, uint16_t, interfaces::MemoryAccessType) override;
+    std::variant<uint8_t, uint16_t> ReadROM(uint16_t, std::optional<uint16_t>, interfaces::MemoryAccessType) override;
     void WriteRegister(interfaces::Register, std::variant<uint8_t, uint16_t>) override;
     
 protected:
@@ -40,7 +41,7 @@ protected:
     std::shared_ptr<memory::MemoryController> _memoryController;
     
     // Cartrige ROM (16 KB [bank 0]) - 0x0000 - 0x3FFF
-    std::shared_ptr<memory::BankedROM> _fixedUserROM;
+    std::shared_ptr<memory::ROM> _fixedUserROM;
     // Cartrige ROM (16KB [N bank (MBC-dependent)]) - 0x4000 - 0x7FFF
     std::shared_ptr<memory::BankedROM> _bankedUserROM;
     // Video RAM (8KB [bank 0] + 8KB [GBC only, bank 1] - 0x8000, 0x9FFF)

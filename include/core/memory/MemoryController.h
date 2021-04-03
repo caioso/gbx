@@ -3,9 +3,11 @@
 #include <algorithm>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <variant>
 #include <vector>
 
+#include "BankedROM.h"
 #include "GBXCoreExceptions.h"
 #include "MemoryControllerInterface.h"
 #include "MemoryInterface.h"
@@ -35,12 +37,12 @@ public:
     MemoryController() = default;
     virtual ~MemoryController() = default;
 
-    virtual std::variant<uint8_t, uint16_t> Read(uint16_t, interfaces::MemoryAccessType) override;
-    virtual void Write(std::variant<uint8_t, uint16_t>, uint16_t) override;
-    virtual void Load(std::shared_ptr<uint8_t*>, size_t, uint16_t, std::optional<size_t>) override;
-
-    virtual void RegisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>, AddressRange) override;
-    virtual void UnregisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>) override;
+    std::variant<uint8_t, uint16_t> Read(uint16_t, interfaces::MemoryAccessType) override;
+    void SwitchBank(uint16_t, size_t) override;
+    void Write(std::variant<uint8_t, uint16_t>, uint16_t) override;
+    void Load(std::shared_ptr<uint8_t*>, size_t, uint16_t, std::optional<size_t>) override;
+    void RegisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>, AddressRange) override;
+    void UnregisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>) override;
 
 private:
     inline void SortResources();

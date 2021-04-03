@@ -9,8 +9,8 @@ namespace gbxcore::constants
 const size_t DefaultROMBankSize = 0x4000;
 const size_t FixedBankROMSize = 0x8000; // System Bootup code (255 bytes used of a 16KB ROM Bank) + Cartridge Fixed Bank 16KB
 
-// MBC Confifg
-const size_t MBC1DynamicBankROMSize = 0xC000; // 48KB in Bank + 16KB Fixed
+// Temporary (the dynamic Bank ROM size must change depending on the rom MBC. Also, gbx will have other configuration)
+const size_t MaxDynamicBankROMSize = 0x1FC000; // Max Dynamic Bank ROM Size 2MB - 16KB
 
 const size_t UserFixedROMInitialAddress = 0x0000;
 const size_t UserFixedROMPhysicalSize = 0x4000;

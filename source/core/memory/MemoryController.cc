@@ -36,6 +36,22 @@ void MemoryController::Load(std::shared_ptr<uint8_t*> dataPointer, size_t size, 
     _resources[localAddress.value().resourceIndex].resource.get()->Load(dataPointer, size, offset);
 }
 
+void MemoryController::SwitchBank(uint16_t address, size_t bank)
+{
+    auto localAddress = CalculateLocalAddress(address);
+    // Test for Banked ROM or Banked RAM, otherwise, throw
+    if (dynamic_pointer_cast<BankedROM>(_resources[localAddress.value().resourceIndex].resource) != nullptr)
+    {
+        dynamic_pointer_cast<BankedROM>(_resources[localAddress.value().resourceIndex].resource)->SelectBank(bank);
+    }
+    else
+    {
+        stringstream ss;
+        ss << "Memory region cotaining address '" << address << "' is not a banked resource";
+        throw MemoryControllerException(ss.str());
+    }
+}
+
 void MemoryController::RegisterMemoryResource(std::shared_ptr<MemoryInterface> resource, AddressRange range)
 {
     DetectOverlap(range);
