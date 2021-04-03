@@ -5,13 +5,20 @@
 namespace gbxcore::constants
 {
 
-const size_t SystemROMPhysicalSize = 0xFF;
-const size_t SystemROMInitialAddress = 0x0000;
-const size_t SystemROMFinalAddress = 0x00FF;
+// GB & GBC Default ROM bank size of 16KB
+const size_t DefaultROMBankSize = 0x4000;
+const size_t FixedBankROMSize = 0x8000; // System Bootup code (255 bytes used of a 16KB ROM Bank) + Cartridge Fixed Bank 16KB
 
-const size_t UserROMInitialAddress = 0x0000;
-const size_t UserROMPhysicalSize = 0x8000;
-constexpr size_t UserROMFinalAddress = UserROMInitialAddress + UserROMPhysicalSize;
+// MBC Confifg
+const size_t MBC1DynamicBankROMSize = 0xC000; // 48KB in Bank + 16KB Fixed
+
+const size_t UserFixedROMInitialAddress = 0x0000;
+const size_t UserFixedROMPhysicalSize = 0x4000;
+constexpr size_t UserFixedROMFinalAddress = UserFixedROMInitialAddress + UserFixedROMPhysicalSize;
+
+const size_t UserBankedROMInitialAddress = 0x4000;
+const size_t UserBankedROMPhysicalSize = 0x4000;
+constexpr size_t UserBankedROMFinalAddress = UserBankedROMInitialAddress + UserBankedROMPhysicalSize;
 
 const size_t VideoRAMInitialAddress = 0x8000;
 const size_t VideoRAMPhysicalSize = 0x2000;

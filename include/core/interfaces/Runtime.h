@@ -3,7 +3,9 @@
 #include <string>
 #include <variant>
 
+#include "MemoryInterface.h"
 #include "RegisterBankInterface.h"
+
 namespace gbxcore::interfaces
 {
 struct Runtime
@@ -13,6 +15,7 @@ struct Runtime
     virtual void LoadGame(std::string) = 0;
     
     virtual std::variant<uint8_t, uint16_t> ReadRegister(Register) = 0;
+    virtual std::variant<uint8_t, uint16_t> ReadROM(uint16_t, uint16_t, interfaces::MemoryAccessType) = 0;
     virtual void WriteRegister(Register, std::variant<uint8_t, uint16_t>) = 0;
 };
 

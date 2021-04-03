@@ -4,6 +4,7 @@
 #include <variant>
 
 #include "ArithmeticLogicUnit.h"
+#include "BankedROM.h"
 #include "Clock.h"
 #include "ControlUnit.h"
 #include "EngineParameters.h"
@@ -28,6 +29,7 @@ public:
     void LoadGame(std::string) override;
     
     std::variant<uint8_t, uint16_t> ReadRegister(interfaces::Register) override;
+    std::variant<uint8_t, uint16_t> ReadROM(uint16_t, uint16_t, interfaces::MemoryAccessType) override;
     void WriteRegister(interfaces::Register, std::variant<uint8_t, uint16_t>) override;
     
 protected:
@@ -37,10 +39,10 @@ protected:
     std::shared_ptr<ControlUnit> _controlUnit;
     std::shared_ptr<memory::MemoryController> _memoryController;
     
-    // System BOOTUP ROM (directly executable, only accesible by the system) 0x0000 - 0x00FF
-    std::shared_ptr<memory::ROM> _systemROM;
-    // Cartrige ROM (16 KB [bank 0] + 16KB [bank N]) - 0x0000 - 0x7FFF
-    std::shared_ptr<memory::ROM> _userROM;
+    // Cartrige ROM (16 KB [bank 0]) - 0x0000 - 0x3FFF
+    std::shared_ptr<memory::BankedROM> _fixedUserROM;
+    // Cartrige ROM (16KB [N bank (MBC-dependent)]) - 0x4000 - 0x7FFF
+    std::shared_ptr<memory::BankedROM> _bankedUserROM;
     // Video RAM (8KB [bank 0] + 8KB [GBC only, bank 1] - 0x8000, 0x9FFF)
     std::shared_ptr<memory::RAM> _videoRAM;
     // External RAM (in-Cartridge RAM) (8KB [bank 0] + 8KB [bank n] - 0xA000, 0xBFFF)
