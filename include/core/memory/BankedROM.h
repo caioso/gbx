@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <sstream>
 #include <variant>
 
@@ -16,8 +17,9 @@ public:
     BankedROM(size_t, size_t);
     virtual ~BankedROM() = default;
 
-    std::variant<uint8_t, uint16_t> Read(uint16_t, interfaces::MemoryAccessType) override;
-    void Write(std::variant<uint8_t, uint16_t>, uint16_t) override;
+    std::variant<uint8_t, uint16_t> Read(size_t, interfaces::MemoryAccessType) override;
+    void Write(std::variant<uint8_t, uint16_t>, size_t) override;
+    void Load(std::shared_ptr<uint8_t*>, std::size_t, std::optional<size_t>) override;
 
     size_t BankSize();
     size_t PhysicalResourceSize();

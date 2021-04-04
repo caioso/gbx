@@ -19,7 +19,7 @@ using namespace gbxcore::memory;
 using namespace gbxcore::interfaces;
 
 
-TEST(TestROMAndRAM, Construction) 
+TEST(CoreTests_ROMAndRAM, Construction) 
 {
     ROM rom(static_cast<size_t>(100));
     auto size = rom.Size();
@@ -27,7 +27,7 @@ TEST(TestROMAndRAM, Construction)
     EXPECT_EQ(static_cast<size_t>(100), size);
 }
 
-TEST(TestROMAndRAM, CheckMemoryInitialization) 
+TEST(CoreTests_ROMAndRAM, CheckMemoryInitialization) 
 {
     ROM rom(static_cast<size_t>(100));
 
@@ -38,7 +38,7 @@ TEST(TestROMAndRAM, CheckMemoryInitialization)
     }
 }
 
-TEST(TestROMAndRAM, WriteROMByte)
+TEST(CoreTests_ROMAndRAM, WriteROMByte)
 {
     ROM rom(static_cast<size_t>(0xFF));
     for (auto i = 0llu; i < 0xFFllu; i++)
@@ -49,7 +49,7 @@ TEST(TestROMAndRAM, WriteROMByte)
     }
 }
 
-TEST(TestROMAndRAM, WriteROMWord)
+TEST(CoreTests_ROMAndRAM, WriteROMWord)
 {
     ROM rom(static_cast<size_t>(0xFFFF));
     for (auto i = 0llu; i < 0xFFFFllu; i++)
@@ -60,7 +60,7 @@ TEST(TestROMAndRAM, WriteROMWord)
     }
 }
 
-TEST(TestROMAndRAM, WriteRAMByte)
+TEST(CoreTests_ROMAndRAM, WriteRAMByte)
 {
     RAM ram(static_cast<size_t>(100));
     ram.Write(static_cast<uint8_t>(0xAA), 0x0020);
@@ -68,7 +68,7 @@ TEST(TestROMAndRAM, WriteRAMByte)
     EXPECT_EQ(0xAA, get<uint8_t>(value));
 }
 
-TEST(TestROMAndRAM, WriteRAMWord)
+TEST(CoreTests_ROMAndRAM, WriteRAMWord)
 {
     RAM ram(static_cast<size_t>(100));
     ram.Write(static_cast<uint16_t>(0xFFEE), 0x0030);
@@ -76,7 +76,7 @@ TEST(TestROMAndRAM, WriteRAMWord)
     EXPECT_EQ(0xFFEE, get<uint16_t>(value));
 }
 
-TEST(TestROMAndRAM, ReadInvalidAddressesROM)
+TEST(CoreTests_ROMAndRAM, ReadInvalidAddressesROM)
 {
     ROM rom(static_cast<size_t>(0x50));
     auto invalidByteAddress = false;
@@ -105,7 +105,7 @@ TEST(TestROMAndRAM, ReadInvalidAddressesROM)
 }
 
 
-TEST(TestROMAndRAM, ReadInvalidAddressesRAM)
+TEST(CoreTests_ROMAndRAM, ReadInvalidAddressesRAM)
 {
     RAM ram(static_cast<size_t>(0x50));
     auto invalidByteAddress = false;
@@ -133,7 +133,7 @@ TEST(TestROMAndRAM, ReadInvalidAddressesRAM)
     EXPECT_TRUE(invalidWordAddress);
 }
 
-TEST(TestROMAndRAM, ReadInvalidAddressesTest2)
+TEST(CoreTests_ROMAndRAM, ReadInvalidAddressesTest2)
 {
     ROM rom(static_cast<size_t>(0x50));
     auto invalidByteAddress = false;
@@ -161,7 +161,7 @@ TEST(TestROMAndRAM, ReadInvalidAddressesTest2)
     EXPECT_TRUE(invalidWordAddress);
 }
 
-TEST(TestROMAndRAM, ReadInvalidAddressesTest2RAM)
+TEST(CoreTests_ROMAndRAM, ReadInvalidAddressesTest2RAM)
 {
     RAM ram(static_cast<size_t>(0x50));
     auto invalidByteAddress = false;
@@ -189,7 +189,7 @@ TEST(TestROMAndRAM, ReadInvalidAddressesTest2RAM)
     EXPECT_TRUE(invalidWordAddress);
 }
 
-TEST(TestROMAndRAM, WriteInvalidAddresses)
+TEST(CoreTests_ROMAndRAM, WriteInvalidAddresses)
 {
     RAM ram(static_cast<size_t>(0x50));
     auto invalidByteAddress = false;
@@ -217,7 +217,7 @@ TEST(TestROMAndRAM, WriteInvalidAddresses)
     EXPECT_TRUE(invalidWordAddress);
 }
 
-TEST(TestROMAndRAM, WriteInvalidAddressesTest2)
+TEST(CoreTests_ROMAndRAM, WriteInvalidAddressesTest2)
 {
     RAM ram(static_cast<size_t>(0x50));
     auto invalidByteAddress = false;
@@ -245,7 +245,7 @@ TEST(TestROMAndRAM, WriteInvalidAddressesTest2)
     EXPECT_TRUE(invalidWordAddress);
 }
 
-TEST(TestROMAndRAM, LoadROM)
+TEST(CoreTests_ROMAndRAM, LoadROM)
 {
     ROM rom(static_cast<size_t>(0x10));
     array<uint8_t, 0x10> romContent = {0x0F, 0x0E, 0x0D, 0x0C, 
@@ -263,7 +263,7 @@ TEST(TestROMAndRAM, LoadROM)
     }
 }
 
-TEST(TestROMAndRAM, LoadWithOffset)
+TEST(CoreTests_ROMAndRAM, LoadWithOffset)
 {
     ROM rom(static_cast<size_t>(0x10));
     array<uint8_t, 0x10> romContent = {0x0F, 0x0E, 0x0D, 0x0C, 
@@ -287,7 +287,7 @@ TEST(TestROMAndRAM, LoadWithOffset)
     }
 }
 
-TEST(TestROMAndRAM, LoadOffsetOutOfBounds)
+TEST(CoreTests_ROMAndRAM, LoadOffsetOutOfBounds)
 {
     auto testPassed = false;
     ROM rom(static_cast<size_t>(0x10));

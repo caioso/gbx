@@ -30,7 +30,7 @@ void ROM::Load(shared_ptr<uint8_t*> content, size_t size, optional<size_t> offse
     copy(&(*content)[0], &(*content)[size], &_rom.get()[offset.value_or(0)]);
 }
 
-std::variant<uint8_t, uint16_t> ROM::Read(uint16_t address, MemoryAccessType accessType)
+std::variant<uint8_t, uint16_t> ROM::Read(size_t address, MemoryAccessType accessType)
 {
     CheckReadConditions(address, accessType);
 
@@ -40,12 +40,12 @@ std::variant<uint8_t, uint16_t> ROM::Read(uint16_t address, MemoryAccessType acc
         return variant<uint8_t, uint16_t>{in_place_index<1>, (_rom[address + 1] << 8 | _rom[address])};
 }
 
-void ROM::Write([[maybe_unused]] std::variant<uint8_t, uint16_t> value, [[maybe_unused]] uint16_t address)
+void ROM::Write([[maybe_unused]] std::variant<uint8_t, uint16_t> value, [[maybe_unused]] size_t address)
 {
     throw MemoryAccessException("Attempted to write to a read-only resource");
 }
 
-inline void ROM::CheckReadConditions(uint16_t address, MemoryAccessType accessType)
+inline void ROM::CheckReadConditions(size_t address, MemoryAccessType accessType)
 {
     if (address >= _size && accessType == MemoryAccessType::Byte)
     {

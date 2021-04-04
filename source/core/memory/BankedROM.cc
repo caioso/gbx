@@ -44,21 +44,26 @@ void BankedROM::SelectBank(size_t bank)
         ss << "Invalid memory bank '" << bank << "' selected";
         throw BankedMemoryException(ss.str()); 
     }
-
     _activeBank = bank;
 }
 
-variant<uint8_t, uint16_t> BankedROM::Read(uint16_t address, MemoryAccessType type)
+variant<uint8_t, uint16_t> BankedROM::Read(size_t address, MemoryAccessType type)
 {
     EvaluateAddress(address, type);
-    uint16_t addressOffset = _bankSize * _activeBank;
+    size_t addressOffset = _bankSize * _activeBank;
     return ROM::Read(addressOffset + address, type);
 }
 
-void BankedROM::Write(variant<uint8_t, uint16_t> value, uint16_t address)
+void BankedROM::Write(variant<uint8_t, uint16_t> value, size_t address)
 {
     EvaluateAddress(address, value.index() == 0 ? MemoryAccessType::Byte : MemoryAccessType::Word);
     ROM::Write(value, address);
+}
+
+void BankedROM::Load(shared_ptr<uint8_t*> content, size_t size, optional<size_t> offset)
+{
+    size_t addressOffset = _bankSize * _activeBank + offset.value_or(0);
+    ROM::Load(content, size, addressOffset);
 }
 
 void BankedROM::EvaluateAddress(uint16_t address, MemoryAccessType type)

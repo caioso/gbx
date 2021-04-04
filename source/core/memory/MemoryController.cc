@@ -41,9 +41,7 @@ void MemoryController::SwitchBank(uint16_t address, size_t bank)
     auto localAddress = CalculateLocalAddress(address);
     // Test for Banked ROM or Banked RAM, otherwise, throw
     if (dynamic_pointer_cast<BankedROM>(_resources[localAddress.value().resourceIndex].resource) != nullptr)
-    {
         dynamic_pointer_cast<BankedROM>(_resources[localAddress.value().resourceIndex].resource)->SelectBank(bank);
-    }
     else
     {
         stringstream ss;

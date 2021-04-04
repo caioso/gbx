@@ -76,16 +76,18 @@ void GameBoyX::LoadGame(string gameROMName)
     auto [fileBytes, size] = loader.FileData();
 
     // Load Bank 0
-    _memoryController->Load(make_shared<uint8_t*>(fileBytes.get()), size < DefaultROMBankSize? size : DefaultROMBankSize, 0x0000, 0x0000);
+    _memoryController->Load(make_shared<uint8_t*>(fileBytes.get()), size < DefaultROMBankSize? size : DefaultROMBankSize, 0x0000, nullopt);
     size -= DefaultROMBankSize;
 
-    // Load Dynamic Bank
+    // Load Dynamic Banks
     for (auto offset = 0llu, bank = 0llu; offset < MaxDynamicBankROMSize && size > 0; offset += DefaultROMBankSize)
     {
         auto pointerAddress = offset + DefaultROMBankSize;
         auto chunckSize = std::min(size, DefaultROMBankSize);
+
         _memoryController->SwitchBank(UserBankedROMInitialAddress, bank++);
-        _memoryController->Load(make_shared<uint8_t*>(fileBytes.get() + pointerAddress), chunckSize, UserBankedROMInitialAddress, 0x0000);
+        _memoryController->Load(make_shared<uint8_t*>(fileBytes.get() + pointerAddress), chunckSize, UserBankedROMInitialAddress, nullopt);
+
         size -= DefaultROMBankSize;
     }
 

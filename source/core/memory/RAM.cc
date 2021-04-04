@@ -9,7 +9,7 @@ RAM::RAM(size_t size)
     : ROM(size)
 {}
     
-void RAM::Write(variant<uint8_t, uint16_t> value, uint16_t address)
+void RAM::Write(variant<uint8_t, uint16_t> value, size_t address)
 {
     CheckWriteConditions(value, address);
 
@@ -28,7 +28,7 @@ void RAM::Write(variant<uint8_t, uint16_t> value, uint16_t address)
         throw MemoryAccessException("variant has no value.");
 }
 
-inline void RAM::CheckWriteConditions(std::variant<uint8_t, uint16_t> value, uint16_t address)
+inline void RAM::CheckWriteConditions(std::variant<uint8_t, uint16_t> value, size_t address)
 {
     if (holds_alternative<uint8_t>(value) && address >= _size)
     {

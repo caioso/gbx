@@ -16,7 +16,7 @@ using namespace gbxcore;
 using namespace gbxcore::memory;
 using namespace gbxcore::interfaces;
 
-TEST(TestMemoryController, ResourceRegistration) 
+TEST(CoreTests_MemoryController, ResourceRegistration) 
 {
     MemoryController memController;
     shared_ptr<MemoryInterface> ram(new RAM(0x100));
@@ -32,7 +32,7 @@ TEST(TestMemoryController, ResourceRegistration)
     EXPECT_EQ(0xFF, get<uint8_t>(value));
 }
 
-TEST(TestMemoryController, ResourceRegistrationAddressDoesNoMatchSize) 
+TEST(CoreTests_MemoryController, ResourceRegistrationAddressDoesNoMatchSize) 
 {
     auto test1Succeeded = false;
     auto test2Succeeded = false;
@@ -70,7 +70,7 @@ TEST(TestMemoryController, ResourceRegistrationAddressDoesNoMatchSize)
     EXPECT_TRUE(test2Succeeded);
 }
 
-TEST(TestMemoryController, ResourceRegistrationWithOverlap) 
+TEST(CoreTests_MemoryController, ResourceRegistrationWithOverlap) 
 {
     auto overlapDetected = false;
     MemoryController memController;
@@ -99,7 +99,7 @@ TEST(TestMemoryController, ResourceRegistrationWithOverlap)
     EXPECT_TRUE(overlapDetected);
 }
 
-TEST(TestMemoryController, TwoResourcesOperation) 
+TEST(CoreTests_MemoryController, TwoResourcesOperation) 
 {
     MemoryController memController;
     shared_ptr<MemoryInterface> smallRAM(new RAM(0x100));
@@ -127,7 +127,7 @@ TEST(TestMemoryController, TwoResourcesOperation)
     EXPECT_EQ(0x56D2, get<uint16_t>(largeRAM.get()->Read(0x0111, MemoryAccessType::Word)));
 }
 
-TEST(TestMemoryController, NonConsecultiveResources) 
+TEST(CoreTests_MemoryController, NonConsecultiveResources) 
 {
     MemoryController memController;
     shared_ptr<MemoryInterface> smallRAM(new RAM(0x100));
@@ -155,7 +155,7 @@ TEST(TestMemoryController, NonConsecultiveResources)
     EXPECT_EQ(0xCCAA, get<uint16_t>(largeRAM.get()->Read(0x0100, MemoryAccessType::Word)));
 }
 
-TEST(TestMemoryController, AccessEmptyAddressRange) 
+TEST(CoreTests_MemoryController, AccessEmptyAddressRange) 
 {
     auto test1Passed = false;
     auto test2Passed = false;
@@ -196,7 +196,7 @@ TEST(TestMemoryController, AccessEmptyAddressRange)
     EXPECT_TRUE(test2Passed);
 }
 
-TEST(TestMemoryController, PerformOperationsInTheRangeBorders) 
+TEST(CoreTests_MemoryController, PerformOperationsInTheRangeBorders) 
 {
     auto test1Passed = false;
     auto test2Passed = false;
@@ -231,7 +231,7 @@ TEST(TestMemoryController, PerformOperationsInTheRangeBorders)
     EXPECT_TRUE(test2Passed);
 }
 
-TEST(TestMemoryController, UnregisterResource) 
+TEST(CoreTests_MemoryController, UnregisterResource) 
 {
     MemoryController memController;
     shared_ptr<MemoryInterface> rom(new ROM(0x100));
@@ -245,7 +245,7 @@ TEST(TestMemoryController, UnregisterResource)
 }
 
 
-TEST(TestMemoryController, UnregisterAFewResource) 
+TEST(CoreTests_MemoryController, UnregisterAFewResource) 
 {
     auto finalTestPassed = false;
     MemoryController memController;
@@ -302,7 +302,7 @@ TEST(TestMemoryController, UnregisterAFewResource)
     EXPECT_EQ(0xFF, get<uint8_t>(value));   
 }
 
-TEST(TestMemoryController, ReuseUnregisteredRange) 
+TEST(CoreTests_MemoryController, ReuseUnregisteredRange) 
 {
     MemoryController memController;
     shared_ptr<MemoryInterface> ram(new RAM(0x100));
@@ -331,7 +331,7 @@ TEST(TestMemoryController, ReuseUnregisteredRange)
     EXPECT_EQ(0xDD, get<uint8_t>(value));
 }
 
-TEST(TestMemoryController, LoadMemoryResource) 
+TEST(CoreTests_MemoryController, LoadMemoryResource) 
 {
     MemoryController memController;
     shared_ptr<MemoryInterface> rom(new ROM(0x010));
@@ -356,7 +356,7 @@ TEST(TestMemoryController, LoadMemoryResource)
     }
 }
 
-TEST(TestMemoryController, LoadMemoryResourceAtWrongLocation) 
+TEST(CoreTests_MemoryController, LoadMemoryResourceAtWrongLocation) 
 {
     auto testPassed = false;
     MemoryController memController;
@@ -384,7 +384,7 @@ TEST(TestMemoryController, LoadMemoryResourceAtWrongLocation)
 }
 
 
-TEST(TestMemoryController, LoadMemoryResourceWithOffset) 
+TEST(CoreTests_MemoryController, LoadMemoryResourceWithOffset) 
 {
     MemoryController memController;
     shared_ptr<MemoryInterface> rom(new ROM(0x010));
@@ -416,7 +416,7 @@ TEST(TestMemoryController, LoadMemoryResourceWithOffset)
     }
 }
 
-TEST(TestMemoryController, WriteToRadOnlyRange) 
+TEST(CoreTests_MemoryController, WriteToRadOnlyRange) 
 {
     MemoryController memController;
     shared_ptr<MemoryInterface> rom(new ROM(0x100));

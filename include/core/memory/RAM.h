@@ -21,10 +21,10 @@ public:
     RAM(std::size_t);
     virtual ~RAM() = default;
 
-    virtual void Write(std::variant<uint8_t, uint16_t>, uint16_t) override;
+    virtual void Write(std::variant<uint8_t, uint16_t>, size_t) override;
 
 private:
-    inline void CheckWriteConditions(std::variant<uint8_t, uint16_t>, uint16_t);
+    inline void CheckWriteConditions(std::variant<uint8_t, uint16_t>, size_t);
     
 };
 
