@@ -16,6 +16,7 @@
 #include "ROM.h"
 #include "Runtime.h"
 #include "SystemConstants.h"
+#include "SystemMode.h"
 #include "Z80X.h"
 
 namespace gbxcore
@@ -32,14 +33,21 @@ public:
     std::variant<uint8_t, uint16_t> ReadRegister(interfaces::Register) override;
     std::variant<uint8_t, uint16_t> ReadROM(uint16_t, std::optional<uint16_t>, interfaces::MemoryAccessType) override;
     void WriteRegister(interfaces::Register, std::variant<uint8_t, uint16_t>) override;
-    
+
+private:
+    void LoadStaticROMSection(uint8_t*, size_t);
+    void LoadDynamicROMSection(uint8_t*, size_t);
+
 protected:
     bool IsPair(interfaces::Register);
 
     std::shared_ptr<Z80X> _cpu;
     std::shared_ptr<ControlUnit> _controlUnit;
-    std::shared_ptr<memory::MemoryController> _memoryController;
-    
+    std::shared_ptr<memory::MemoryController> _memoryController;      
+    std::shared_ptr<ArithmeticLogicUnit> _alu;
+    std::shared_ptr<Clock> _clock;
+    std::shared_ptr<RegisterBank> _registers;
+
     // Cartrige ROM (16 KB [bank 0]) - 0x0000 - 0x3FFF
     std::shared_ptr<memory::ROM> _fixedUserROM;
     // Cartrige ROM (16KB [N bank (MBC-dependent)]) - 0x4000 - 0x7FFF
@@ -60,11 +68,6 @@ protected:
     std::shared_ptr<memory::RAM> _HRAM;
     // Interrupt enabled
     std::shared_ptr<memory::RAM> _IE;
-        
-    
-    std::shared_ptr<ArithmeticLogicUnit> _alu;
-    std::shared_ptr<Clock> _clock;
-    std::shared_ptr<RegisterBank> _registers;
 };
 
 }

@@ -10,6 +10,7 @@
 #include "MemoryControllerInterface.h"
 #include "RAM.h"
 #include "ROM.h"
+#include "SystemMode.h"
 
 using namespace std;
 using namespace gbxcore;
@@ -23,7 +24,8 @@ TEST(CoreTests_MemoryController, ResourceRegistration)
     memController.RegisterMemoryResource
     (
         ram,
-        AddressRange(0x0100, 0x0200, RangeType::BeginInclusive)
+        AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
+        Ownership::System
     );
 
     memController.Write(static_cast<uint8_t>(0xFF), 0x0120);
@@ -45,7 +47,8 @@ TEST(CoreTests_MemoryController, ResourceRegistrationAddressDoesNoMatchSize)
         memController.RegisterMemoryResource
         (
             rom,
-            AddressRange(0x0100, 0x0300, RangeType::AllInclusive)
+            AddressRange(0x0100, 0x0300, RangeType::AllInclusive),
+            Ownership::System
         );
     }
     catch (const MemoryControllerException& e)
@@ -58,7 +61,8 @@ TEST(CoreTests_MemoryController, ResourceRegistrationAddressDoesNoMatchSize)
         memController.RegisterMemoryResource
         (
             rom,
-            AddressRange(0x0100, 0x0110, RangeType::AllInclusive)
+            AddressRange(0x0100, 0x0110, RangeType::AllInclusive),
+            Ownership::System
         );
     }
     catch (const MemoryControllerException& e)
@@ -82,13 +86,15 @@ TEST(CoreTests_MemoryController, ResourceRegistrationWithOverlap)
         memController.RegisterMemoryResource
         (
             rom,
-            AddressRange(0x0100, 0x0200, RangeType::AllInclusive)
+            AddressRange(0x0100, 0x0200, RangeType::AllInclusive),
+            Ownership::System
         );
 
         memController.RegisterMemoryResource
         (
             romOverlapping,
-            AddressRange(0x0110, 0x1110, RangeType::AllInclusive)
+            AddressRange(0x0110, 0x1110, RangeType::AllInclusive),
+            Ownership::System
         );
     }
     catch (const MemoryControllerException& e)
@@ -108,12 +114,14 @@ TEST(CoreTests_MemoryController, TwoResourcesOperation)
     memController.RegisterMemoryResource
     (
         smallRAM,
-        AddressRange(0x0000, 0x0100, RangeType::BeginInclusive)
+        AddressRange(0x0000, 0x0100, RangeType::BeginInclusive),
+        Ownership::System
     );
     memController.RegisterMemoryResource
     (
         largeRAM,
-        AddressRange(0x0100, 0x300, RangeType::BeginInclusive)
+        AddressRange(0x0100, 0x300, RangeType::BeginInclusive),
+        Ownership::System
     );
 
     memController.Write(static_cast<uint16_t>(0xEF87), 0x006A);
@@ -136,12 +144,14 @@ TEST(CoreTests_MemoryController, NonConsecultiveResources)
     memController.RegisterMemoryResource
     (
         smallRAM,
-        AddressRange(0x0200, 0x0300, RangeType::BeginInclusive)
+        AddressRange(0x0200, 0x0300, RangeType::BeginInclusive),
+        Ownership::System
     );
     memController.RegisterMemoryResource
     (
         largeRAM,
-        AddressRange(0xF100, 0xF300, RangeType::BeginInclusive)
+        AddressRange(0xF100, 0xF300, RangeType::BeginInclusive),
+        Ownership::System
     );
 
     memController.Write(static_cast<uint16_t>(0xFFAA), 0x0254);
@@ -166,12 +176,14 @@ TEST(CoreTests_MemoryController, AccessEmptyAddressRange)
     memController.RegisterMemoryResource
     (
         rom1,
-        AddressRange(0x0200, 0x0300, RangeType::BeginInclusive)
+        AddressRange(0x0200, 0x0300, RangeType::BeginInclusive),
+        Ownership::System
     );
     memController.RegisterMemoryResource
     (
         rom2,
-        AddressRange(0x0400, 0x0500, RangeType::BeginInclusive)
+        AddressRange(0x0400, 0x0500, RangeType::BeginInclusive),
+        Ownership::System
     );
 
     try
@@ -185,7 +197,7 @@ TEST(CoreTests_MemoryController, AccessEmptyAddressRange)
     
     try
     {
-        memController.Read(0x03FF, MemoryAccessType::Word);
+        [[maybe_unused]] auto value = memController.Read(0x03FF, MemoryAccessType::Word);
     }
     catch(const MemoryControllerException& e)
     {
@@ -206,7 +218,8 @@ TEST(CoreTests_MemoryController, PerformOperationsInTheRangeBorders)
     memController.RegisterMemoryResource
     (
         rom,
-        AddressRange(0x0200, 0x0300, RangeType::BeginInclusive)
+        AddressRange(0x0200, 0x0300, RangeType::BeginInclusive),
+        Ownership::System
     );
 
     try
@@ -220,7 +233,7 @@ TEST(CoreTests_MemoryController, PerformOperationsInTheRangeBorders)
     
     try
     {
-        memController.Read(0x01FF, MemoryAccessType::Word);
+        [[maybe_unused]] auto nextValue = memController.Read(0x01FF, MemoryAccessType::Word);
     }
     catch(const MemoryControllerException& e)
     {
@@ -238,10 +251,11 @@ TEST(CoreTests_MemoryController, UnregisterResource)
     memController.RegisterMemoryResource
     (
         rom,
-        AddressRange(0x0100, 0x0200, RangeType::BeginInclusive)
+        AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
+        Ownership::System
     );
 
-    memController.UnregisterMemoryResource(rom);
+    memController.UnregisterMemoryResource(rom, Ownership::System);
 }
 
 
@@ -258,27 +272,32 @@ TEST(CoreTests_MemoryController, UnregisterAFewResource)
     memController.RegisterMemoryResource
     (
         rom,
-        AddressRange(0x0000, 0x0100, RangeType::BeginInclusive)
+        AddressRange(0x0000, 0x0100, RangeType::BeginInclusive),
+        Ownership::System
     );
     memController.RegisterMemoryResource
     (
         rom1,
-        AddressRange(0x0100, 0x0200, RangeType::BeginInclusive)
+        AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
+        Ownership::System
     );
     memController.RegisterMemoryResource
     (
         ram,
-        AddressRange(0x0200, 0x0300, RangeType::BeginInclusive)
+        AddressRange(0x0200, 0x0300, RangeType::BeginInclusive),
+        Ownership::System
     );
     memController.RegisterMemoryResource
     (
         ram1,
-        AddressRange(0x0300, 0x0400, RangeType::BeginInclusive)
+        AddressRange(0x0300, 0x0400, RangeType::BeginInclusive),
+        Ownership::System
     );
     memController.RegisterMemoryResource
     (
         rom2,
-        AddressRange(0x0400, 0x0500, RangeType::BeginInclusive)
+        AddressRange(0x0400, 0x0500, RangeType::BeginInclusive),
+        Ownership::System
     );
 
 
@@ -286,7 +305,7 @@ TEST(CoreTests_MemoryController, UnregisterAFewResource)
     auto value = memController.Read(0x0301, MemoryAccessType::Byte);
     EXPECT_EQ(0xFF, get<uint8_t>(value));
 
-    memController.UnregisterMemoryResource(ram1);
+    memController.UnregisterMemoryResource(ram1, Ownership::System);
 
     try
     {
@@ -310,21 +329,23 @@ TEST(CoreTests_MemoryController, ReuseUnregisteredRange)
     memController.RegisterMemoryResource
     (
         ram,
-        AddressRange(0x0100, 0x0200, RangeType::BeginInclusive)
+        AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
+        Ownership::System
     );
 
     memController.Write(static_cast<uint8_t>(0xFF), 0x0101);
     auto value = memController.Read(0x0101, MemoryAccessType::Byte);
     EXPECT_EQ(0xFF, get<uint8_t>(value));
 
-    memController.UnregisterMemoryResource(ram);
+    memController.UnregisterMemoryResource(ram, Ownership::System);
 
     ram2.get()->Write(static_cast<uint8_t>(0xDD), 0x0001);
 
     memController.RegisterMemoryResource
     (
         ram2,
-        AddressRange(0x0100, 0x0200, RangeType::BeginInclusive)
+        AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
+        Ownership::System
     );
 
     value = memController.Read(0x0101, MemoryAccessType::Byte);
@@ -338,7 +359,8 @@ TEST(CoreTests_MemoryController, LoadMemoryResource)
     memController.RegisterMemoryResource
     (
         rom,
-        AddressRange(0x0100, 0x0110, RangeType::BeginInclusive)
+        AddressRange(0x0100, 0x0110, RangeType::BeginInclusive),
+        Ownership::System
     );
 
     array<uint8_t, 0x10> romContent = {0xAA, 0xAA, 0xAA, 0xAA, 
@@ -364,7 +386,8 @@ TEST(CoreTests_MemoryController, LoadMemoryResourceAtWrongLocation)
     memController.RegisterMemoryResource
     (
         rom,
-        AddressRange(0x0100, 0x0110, RangeType::BeginInclusive)
+        AddressRange(0x0100, 0x0110, RangeType::BeginInclusive),
+        Ownership::System
     );
 
     array<uint8_t, 0x10> romContent = {0xAA, 0xAA, 0xAA, 0xAA, 
@@ -391,7 +414,8 @@ TEST(CoreTests_MemoryController, LoadMemoryResourceWithOffset)
     memController.RegisterMemoryResource
     (
         rom,
-        AddressRange(0x0100, 0x0110, RangeType::BeginInclusive)
+        AddressRange(0x0100, 0x0110, RangeType::BeginInclusive),
+        Ownership::System
     );
 
     array<uint8_t, 0x10> romContent = {0xAA, 0xAA, 0xAA, 0xAA, 
@@ -423,10 +447,63 @@ TEST(CoreTests_MemoryController, WriteToRadOnlyRange)
     memController.RegisterMemoryResource
     (
         rom,
-        AddressRange(0x0100, 0x0200, RangeType::BeginInclusive)
+        AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
+        Ownership::System
     );
 
     ASSERT_EXCEPTION( { memController.Write(static_cast<uint8_t>(0xFF), 0x0120); }, 
                       MemoryAccessException, 
                       "Attempted to write to a read-only resource");
+}
+
+TEST(CoreTests_MemoryController, ChangeMemoryMapMode) 
+{
+    array<uint8_t, 0x10> systemContent = {0xAA, 0xAA, 0xAA, 0xAA, 
+                                          0xAA, 0xAA, 0xAA, 0xAA, 
+                                          0xAA, 0xAA, 0xAA, 0xAA, 
+                                          0xAA, 0xAA, 0xAA, 0xAA};
+    
+    array<uint8_t, 0x10> userContent = {  0xBB, 0xBB, 0xBB, 0xBB, 
+                                          0xBB, 0xBB, 0xBB, 0xBB, 
+                                          0xBB, 0xBB, 0xBB, 0xBB, 
+                                          0xBB, 0xBB, 0xBB, 0xBB};
+
+    MemoryController memController;
+    shared_ptr<MemoryInterface> systemROM(new ROM(0x100));
+    shared_ptr<MemoryInterface> userROM(new ROM(0x100));
+    
+    systemROM->Load(make_shared<uint8_t*>(systemContent.data()), 0x10, std::nullopt);
+    userROM->Load(make_shared<uint8_t*>(userContent.data()), 0x10, std::nullopt);
+
+    memController.RegisterMemoryResource
+    (
+        systemROM,
+        AddressRange(0x0000, 0x0100, RangeType::BeginInclusive),
+        Ownership::System
+    );
+    
+    memController.RegisterMemoryResource
+    (
+        userROM,
+        AddressRange(0x0000, 0x0100, RangeType::BeginInclusive),
+        Ownership::User
+    );
+
+    memController.SetMode(Mode::System);
+    EXPECT_EQ(Mode::System, memController.Mode());
+
+    for (auto i = 0llu; i < 0x10llu; ++i)
+    {
+        auto systemValue = memController.Read(static_cast<uint16_t>(i), MemoryAccessType::Byte);
+        EXPECT_EQ(*(systemContent.begin() + i), get<uint8_t>(systemValue));
+    }
+    
+    memController.SetMode(Mode::User);
+    EXPECT_EQ(Mode::User, memController.Mode());
+    
+    for (auto i = 0llu; i < 0x10llu; ++i)
+    {
+        auto userValue = memController.Read(static_cast<uint16_t>(i), MemoryAccessType::Byte);
+        EXPECT_EQ(*(userContent.begin() + i), get<uint8_t>(userValue));
+    }
 }

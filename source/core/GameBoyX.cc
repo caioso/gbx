@@ -33,16 +33,16 @@ GameBoyX::GameBoyX()
 
     // Initialize Memory Controller
     // After it is available, execute (max 255 instructions) until it jumps to 0x0100, where the system ROM no more visible is, and the user ROM appears fully.
-    _memoryController->RegisterMemoryResource(_fixedUserROM, AddressRange(UserFixedROMInitialAddress, UserFixedROMFinalAddress, RangeType::BeginInclusive));
-    _memoryController->RegisterMemoryResource(_bankedUserROM, AddressRange(UserBankedROMInitialAddress, UserBankedROMFinalAddress, RangeType::BeginInclusive));
-    _memoryController->RegisterMemoryResource(_videoRAM, AddressRange(VideoRAMInitialAddress, VideoRAMFinalAddress, RangeType::BeginInclusive));
-    _memoryController->RegisterMemoryResource(_externalRAM, AddressRange(ExternalRAMInitialAddress, ExternalRAMFinalAddress, RangeType::BeginInclusive));
-    _memoryController->RegisterMemoryResource(_workRAMBank0, AddressRange(SystemRAMBank0InitialAddress, SystemRAMBank0FinalAddress, RangeType::BeginInclusive));
-    _memoryController->RegisterMemoryResource(_workRAMBank1, AddressRange(SystemRAMBank1InitialAddress, SystemRAMBank1FinalAddress, RangeType::BeginInclusive));
-    _memoryController->RegisterMemoryResource(_mirrorRAM, AddressRange(MirrorRAMInitialAddress, MirrorRAMFinalAddress, RangeType::BeginInclusive));
-    _memoryController->RegisterMemoryResource(_IORAM, AddressRange(IORAMInitialAddress, IORAMFinalAddress, RangeType::BeginInclusive));
-    _memoryController->RegisterMemoryResource(_HRAM, AddressRange(HRAMInitialAddress, HRAMFinalAddress, RangeType::BeginInclusive));
-    _memoryController->RegisterMemoryResource(_IE, AddressRange(0xFFFF, 0xFFFF, RangeType::AllInclusive));
+    _memoryController->RegisterMemoryResource(_fixedUserROM, AddressRange(UserFixedROMInitialAddress, UserFixedROMFinalAddress, RangeType::BeginInclusive), Ownership::System);
+    _memoryController->RegisterMemoryResource(_bankedUserROM, AddressRange(UserBankedROMInitialAddress, UserBankedROMFinalAddress, RangeType::BeginInclusive), Ownership::System);
+    _memoryController->RegisterMemoryResource(_videoRAM, AddressRange(VideoRAMInitialAddress, VideoRAMFinalAddress, RangeType::BeginInclusive), Ownership::System);
+    _memoryController->RegisterMemoryResource(_externalRAM, AddressRange(ExternalRAMInitialAddress, ExternalRAMFinalAddress, RangeType::BeginInclusive), Ownership::System);
+    _memoryController->RegisterMemoryResource(_workRAMBank0, AddressRange(SystemRAMBank0InitialAddress, SystemRAMBank0FinalAddress, RangeType::BeginInclusive), Ownership::System);
+    _memoryController->RegisterMemoryResource(_workRAMBank1, AddressRange(SystemRAMBank1InitialAddress, SystemRAMBank1FinalAddress, RangeType::BeginInclusive), Ownership::System);
+    _memoryController->RegisterMemoryResource(_mirrorRAM, AddressRange(MirrorRAMInitialAddress, MirrorRAMFinalAddress, RangeType::BeginInclusive), Ownership::System);
+    _memoryController->RegisterMemoryResource(_IORAM, AddressRange(IORAMInitialAddress, IORAMFinalAddress, RangeType::BeginInclusive), Ownership::System);
+    _memoryController->RegisterMemoryResource(_HRAM, AddressRange(HRAMInitialAddress, HRAMFinalAddress, RangeType::BeginInclusive), Ownership::System);
+    _memoryController->RegisterMemoryResource(_IE, AddressRange(0xFFFF, 0xFFFF, RangeType::AllInclusive), Ownership::System);
 
     // Initialize Z80X CPU
     _cpu->Initialize(_controlUnit, _clock, _alu, _memoryController, _registers);
@@ -75,24 +75,34 @@ void GameBoyX::LoadGame(string gameROMName)
     loader.Load();   
     auto [fileBytes, size] = loader.FileData();
 
-    // Load Bank 0
-    _memoryController->Load(make_shared<uint8_t*>(fileBytes.get()), size < DefaultROMBankSize? size : DefaultROMBankSize, 0x0000, nullopt);
-    size -= DefaultROMBankSize;
+    // Load Static Bank (Bank 0)
+    LoadStaticROMSection(reinterpret_cast<uint8_t*>(fileBytes.get()), size);
 
-    // Load Dynamic Banks
+    // Load Dynamic Banks (Bank 1 - N)
+    LoadDynamicROMSection(reinterpret_cast<uint8_t*>(fileBytes.get()), size);
+
+    // Restore Bank to 0
+    _memoryController->SwitchBank(UserBankedROMInitialAddress, 0llu);
+}
+
+void GameBoyX::LoadStaticROMSection(uint8_t* fileBytes, size_t size)
+{
+    _memoryController->Load(make_shared<uint8_t*>(fileBytes), size < DefaultROMBankSize? size : DefaultROMBankSize, 0x0000, nullopt);
+    size -= DefaultROMBankSize;
+}
+
+void GameBoyX::LoadDynamicROMSection(uint8_t* fileBytes, size_t size)
+{
     for (auto offset = 0llu, bank = 0llu; offset < MaxDynamicBankROMSize && size > 0; offset += DefaultROMBankSize)
     {
         auto pointerAddress = offset + DefaultROMBankSize;
         auto chunckSize = std::min(size, DefaultROMBankSize);
 
         _memoryController->SwitchBank(UserBankedROMInitialAddress, bank++);
-        _memoryController->Load(make_shared<uint8_t*>(fileBytes.get() + pointerAddress), chunckSize, UserBankedROMInitialAddress, nullopt);
+        _memoryController->Load(make_shared<uint8_t*>(fileBytes + pointerAddress), chunckSize, UserBankedROMInitialAddress, nullopt);
 
         size -= DefaultROMBankSize;
     }
-
-    // Restore Bank to 0
-    _memoryController->SwitchBank(UserBankedROMInitialAddress, 0llu);
 }
 
 variant<uint8_t, uint16_t> GameBoyX::ReadROM(uint16_t address, std::optional<uint16_t> bank, interfaces::MemoryAccessType type)

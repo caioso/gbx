@@ -66,7 +66,7 @@ TEST(CoreTests_GameBoyXTests, LoadGameMultipleBankGame)
         EXPECT_EQ(fileContent[i], get<uint8_t>(gbx.ReadROM(static_cast<uint16_t>(i), nullopt, MemoryAccessType::Byte)));
     
     // Check dynamic bank 1-128
-    for (auto j = 0; j < (size - DefaultROMBankSize)/DefaultROMBankSize; ++j)
+    for (auto j = 0llu; j < (size - DefaultROMBankSize)/DefaultROMBankSize; ++j)
         for (auto i = UserBankedROMInitialAddress; i < UserBankedROMFinalAddress; ++i)
             EXPECT_EQ(fileContent[DefaultROMBankSize*j + i], get<uint8_t>(gbx.ReadROM(static_cast<uint16_t>(i), j, MemoryAccessType::Byte)));
 }

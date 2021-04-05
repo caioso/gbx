@@ -5,6 +5,7 @@
 
 #include "AddressRange.h"
 #include "MemoryInterface.h"
+#include "SystemMode.h"
 
 namespace gbxcore::interfaces
 {
@@ -20,13 +21,16 @@ class MemoryControllerInterface
 {
 public:
     virtual ~MemoryControllerInterface() = default;
+   
     virtual std::variant<uint8_t, uint16_t> Read(uint16_t, interfaces::MemoryAccessType) = 0;
-    virtual void SwitchBank(uint16_t, size_t) = 0;
     virtual void Write(std::variant<uint8_t, uint16_t>, uint16_t) = 0;
     virtual void Load(std::shared_ptr<uint8_t*>, size_t, uint16_t, std::optional<size_t>) = 0;
+ 
+    virtual void SwitchBank(uint16_t, size_t) = 0;
+    virtual void SetMode(Mode) = 0;
 
-    virtual void RegisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>, AddressRange) = 0;
-    virtual void UnregisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>) = 0;
+    virtual void RegisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>, AddressRange, Ownership) = 0;
+    virtual void UnregisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>, Ownership) = 0;
 };
 
 }
