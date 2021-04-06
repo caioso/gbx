@@ -20,10 +20,10 @@ using namespace gbxcore::interfaces;
 TEST(CoreTests_MemoryController, ResourceRegistration) 
 {
     MemoryController memController;
-    shared_ptr<MemoryInterface> ram(new RAM(0x100));
+    auto ram = make_unique<RAM>(0x100);
     memController.RegisterMemoryResource
     (
-        ram,
+        std::move(ram),
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
         Ownership::System
     );
@@ -40,13 +40,13 @@ TEST(CoreTests_MemoryController, ResourceRegistrationAddressDoesNoMatchSize)
     auto test2Succeeded = false;
 
     MemoryController memController;
-    shared_ptr<MemoryInterface> rom(new ROM(0x100));
+    auto rom = make_unique<RAM>(0x100);
 
     try
     {
         memController.RegisterMemoryResource
         (
-            rom,
+            std::move(rom),
             AddressRange(0x0100, 0x0300, RangeType::AllInclusive),
             Ownership::System
         );
@@ -56,11 +56,12 @@ TEST(CoreTests_MemoryController, ResourceRegistrationAddressDoesNoMatchSize)
         test1Succeeded = true;
     }
 
+    rom = make_unique<RAM>(0x100);
     try
     {
         memController.RegisterMemoryResource
         (
-            rom,
+            std::move(rom),
             AddressRange(0x0100, 0x0110, RangeType::AllInclusive),
             Ownership::System
         );
@@ -78,21 +79,21 @@ TEST(CoreTests_MemoryController, ResourceRegistrationWithOverlap)
 {
     auto overlapDetected = false;
     MemoryController memController;
-    shared_ptr<MemoryInterface> rom(new ROM(0x100));
-    shared_ptr<MemoryInterface> romOverlapping(new ROM(0x1000));
+    auto rom = make_unique<ROM>(0x100);
+    auto romOverlapping = make_unique<ROM>(0x1000);
 
     try
     {
         memController.RegisterMemoryResource
         (
-            rom,
+            std::move(rom),
             AddressRange(0x0100, 0x0200, RangeType::AllInclusive),
             Ownership::System
         );
 
         memController.RegisterMemoryResource
         (
-            romOverlapping,
+            std::move(romOverlapping),
             AddressRange(0x0110, 0x1110, RangeType::AllInclusive),
             Ownership::System
         );
@@ -108,18 +109,21 @@ TEST(CoreTests_MemoryController, ResourceRegistrationWithOverlap)
 TEST(CoreTests_MemoryController, TwoResourcesOperation) 
 {
     MemoryController memController;
-    shared_ptr<MemoryInterface> smallRAM(new RAM(0x100));
-    shared_ptr<MemoryInterface> largeRAM(new RAM(0x200));
+    auto smallRAM = make_unique<RAM>(0x100);
+    auto largeRAM = make_unique<RAM>(0x200);
+    auto smallRAMPointer = smallRAM.get();
+    auto largeRAMPointer = largeRAM.get();
 
     memController.RegisterMemoryResource
     (
-        smallRAM,
+        std::move(smallRAM),
         AddressRange(0x0000, 0x0100, RangeType::BeginInclusive),
         Ownership::System
     );
+
     memController.RegisterMemoryResource
     (
-        largeRAM,
+        std::move(largeRAM),
         AddressRange(0x0100, 0x300, RangeType::BeginInclusive),
         Ownership::System
     );
@@ -127,29 +131,31 @@ TEST(CoreTests_MemoryController, TwoResourcesOperation)
     memController.Write(static_cast<uint16_t>(0xEF87), 0x006A);
     auto value = memController.Read(0x006A, MemoryAccessType::Word);
     EXPECT_EQ(0xEF87, get<uint16_t>(value));
-    EXPECT_EQ(0xEF87, get<uint16_t>(smallRAM.get()->Read(0x006A, MemoryAccessType::Word)));
+    EXPECT_EQ(0xEF87, get<uint16_t>(smallRAMPointer->Read(0x006A, MemoryAccessType::Word)));
 
     memController.Write(static_cast<uint16_t>(0x56D2), 0x0211);
     value = memController.Read(0x0211, MemoryAccessType::Word);
     EXPECT_EQ(0x56D2, get<uint16_t>(value));
-    EXPECT_EQ(0x56D2, get<uint16_t>(largeRAM.get()->Read(0x0111, MemoryAccessType::Word)));
+    EXPECT_EQ(0x56D2, get<uint16_t>(largeRAMPointer->Read(0x0111, MemoryAccessType::Word)));
 }
 
 TEST(CoreTests_MemoryController, NonConsecultiveResources) 
 {
     MemoryController memController;
-    shared_ptr<MemoryInterface> smallRAM(new RAM(0x100));
-    shared_ptr<MemoryInterface> largeRAM(new RAM(0x200));
+    auto smallRAM = make_unique<RAM>(0x100);
+    auto largeRAM = make_unique<RAM>(0x200);
+    auto smallRAMPointer = smallRAM.get();
+    auto largeRAMPointer = largeRAM.get();
 
     memController.RegisterMemoryResource
     (
-        smallRAM,
+        std::move(smallRAM),
         AddressRange(0x0200, 0x0300, RangeType::BeginInclusive),
         Ownership::System
     );
     memController.RegisterMemoryResource
     (
-        largeRAM,
+        std::move(largeRAM),
         AddressRange(0xF100, 0xF300, RangeType::BeginInclusive),
         Ownership::System
     );
@@ -157,12 +163,12 @@ TEST(CoreTests_MemoryController, NonConsecultiveResources)
     memController.Write(static_cast<uint16_t>(0xFFAA), 0x0254);
     auto value = memController.Read(0x0254, MemoryAccessType::Word);
     EXPECT_EQ(0xFFAA, get<uint16_t>(value));
-    EXPECT_EQ(0xFFAA, get<uint16_t>(smallRAM.get()->Read(0x0054, MemoryAccessType::Word)));
+    EXPECT_EQ(0xFFAA, get<uint16_t>(smallRAMPointer->Read(0x0054, MemoryAccessType::Word)));
 
     memController.Write(static_cast<uint16_t>(0xCCAA), 0xF200);
     value = memController.Read(0xF200, MemoryAccessType::Word);
     EXPECT_EQ(0xCCAA, get<uint16_t>(value));
-    EXPECT_EQ(0xCCAA, get<uint16_t>(largeRAM.get()->Read(0x0100, MemoryAccessType::Word)));
+    EXPECT_EQ(0xCCAA, get<uint16_t>(largeRAMPointer->Read(0x0100, MemoryAccessType::Word)));
 }
 
 TEST(CoreTests_MemoryController, AccessEmptyAddressRange) 
@@ -170,18 +176,18 @@ TEST(CoreTests_MemoryController, AccessEmptyAddressRange)
     auto test1Passed = false;
     auto test2Passed = false;
     MemoryController memController;
-    shared_ptr<MemoryInterface> rom1(new ROM(0x100));
-    shared_ptr<MemoryInterface> rom2(new ROM(0x100));
+    auto rom1 = make_unique<ROM>(0x100);
+    auto rom2 = make_unique<ROM>(0x100);
 
     memController.RegisterMemoryResource
     (
-        rom1,
+        std::move(rom1),
         AddressRange(0x0200, 0x0300, RangeType::BeginInclusive),
         Ownership::System
     );
     memController.RegisterMemoryResource
     (
-        rom2,
+        std::move(rom2),
         AddressRange(0x0400, 0x0500, RangeType::BeginInclusive),
         Ownership::System
     );
@@ -213,11 +219,11 @@ TEST(CoreTests_MemoryController, PerformOperationsInTheRangeBorders)
     auto test1Passed = false;
     auto test2Passed = false;
     MemoryController memController;
-    shared_ptr<MemoryInterface> rom(new ROM(0x100));
+    auto rom = make_unique<ROM>(0x100);
 
     memController.RegisterMemoryResource
     (
-        rom,
+        std::move(rom),
         AddressRange(0x0200, 0x0300, RangeType::BeginInclusive),
         Ownership::System
     );
@@ -247,15 +253,16 @@ TEST(CoreTests_MemoryController, PerformOperationsInTheRangeBorders)
 TEST(CoreTests_MemoryController, UnregisterResource) 
 {
     MemoryController memController;
-    shared_ptr<MemoryInterface> rom(new ROM(0x100));
-    memController.RegisterMemoryResource
+    auto rom = make_unique<ROM>(0x100);
+    
+    auto id = memController.RegisterMemoryResource
     (
-        rom,
+        std::move(rom),
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
         Ownership::System
     );
 
-    memController.UnregisterMemoryResource(rom, Ownership::System);
+    memController.UnregisterMemoryResource(id, Ownership::System);
 }
 
 
@@ -263,39 +270,41 @@ TEST(CoreTests_MemoryController, UnregisterAFewResource)
 {
     auto finalTestPassed = false;
     MemoryController memController;
-    shared_ptr<MemoryInterface> rom(new ROM(0x100));
-    shared_ptr<MemoryInterface> ram(new RAM(0x100));
-    shared_ptr<MemoryInterface> ram1(new RAM(0x100));
-    shared_ptr<MemoryInterface> rom1(new ROM(0x100));
-    shared_ptr<MemoryInterface> rom2(new ROM(0x100));
+    auto rom = make_unique<ROM>(0x100);
+    auto ram = make_unique<RAM>(0x100);
+    auto ram1 = make_unique<RAM>(0x100);
+    auto rom1 = make_unique<ROM>(0x100);
+    auto rom2 = make_unique<ROM>(0x100);
+    
+    auto ram1Pointer = ram1.get();
 
     memController.RegisterMemoryResource
     (
-        rom,
+        std::move(rom),
         AddressRange(0x0000, 0x0100, RangeType::BeginInclusive),
         Ownership::System
     );
     memController.RegisterMemoryResource
     (
-        rom1,
+        std::move(rom1),
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
         Ownership::System
     );
     memController.RegisterMemoryResource
     (
-        ram,
+        std::move(ram),
         AddressRange(0x0200, 0x0300, RangeType::BeginInclusive),
         Ownership::System
     );
-    memController.RegisterMemoryResource
+    auto ram1ID = memController.RegisterMemoryResource
     (
-        ram1,
+        std::move(ram1),
         AddressRange(0x0300, 0x0400, RangeType::BeginInclusive),
         Ownership::System
     );
     memController.RegisterMemoryResource
     (
-        rom2,
+        std::move(rom2),
         AddressRange(0x0400, 0x0500, RangeType::BeginInclusive),
         Ownership::System
     );
@@ -305,7 +314,7 @@ TEST(CoreTests_MemoryController, UnregisterAFewResource)
     auto value = memController.Read(0x0301, MemoryAccessType::Byte);
     EXPECT_EQ(0xFF, get<uint8_t>(value));
 
-    memController.UnregisterMemoryResource(ram1, Ownership::System);
+    memController.UnregisterMemoryResource(ram1ID, Ownership::System);
 
     try
     {
@@ -317,18 +326,21 @@ TEST(CoreTests_MemoryController, UnregisterAFewResource)
     }
     EXPECT_TRUE(finalTestPassed);
 
-    value = ram1.get()->Read(0x0001, MemoryAccessType::Byte);
+    value = ram1Pointer->Read(0x0001, MemoryAccessType::Byte);
     EXPECT_EQ(0xFF, get<uint8_t>(value));   
 }
 
 TEST(CoreTests_MemoryController, ReuseUnregisteredRange) 
 {
     MemoryController memController;
-    shared_ptr<MemoryInterface> ram(new RAM(0x100));
-    shared_ptr<MemoryInterface> ram2(new RAM(0x100));
-    memController.RegisterMemoryResource
+    auto ram = make_unique<RAM>(0x100);
+    auto ram2 = make_unique<RAM>(0x100);
+    
+    auto ram2Pointer = ram2.get();
+    
+    auto ram1ID = memController.RegisterMemoryResource
     (
-        ram,
+        std::move(ram),
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
         Ownership::System
     );
@@ -337,13 +349,13 @@ TEST(CoreTests_MemoryController, ReuseUnregisteredRange)
     auto value = memController.Read(0x0101, MemoryAccessType::Byte);
     EXPECT_EQ(0xFF, get<uint8_t>(value));
 
-    memController.UnregisterMemoryResource(ram, Ownership::System);
+    memController.UnregisterMemoryResource(ram1ID, Ownership::System);
 
-    ram2.get()->Write(static_cast<uint8_t>(0xDD), 0x0001);
+    ram2Pointer->Write(static_cast<uint8_t>(0xDD), 0x0001);
 
     memController.RegisterMemoryResource
     (
-        ram2,
+        std::move(ram2),
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
         Ownership::System
     );
@@ -355,10 +367,11 @@ TEST(CoreTests_MemoryController, ReuseUnregisteredRange)
 TEST(CoreTests_MemoryController, LoadMemoryResource) 
 {
     MemoryController memController;
-    shared_ptr<MemoryInterface> rom(new ROM(0x010));
+    auto rom = make_unique<ROM>(0x010);
+
     memController.RegisterMemoryResource
     (
-        rom,
+        std::move(rom),
         AddressRange(0x0100, 0x0110, RangeType::BeginInclusive),
         Ownership::System
     );
@@ -368,7 +381,7 @@ TEST(CoreTests_MemoryController, LoadMemoryResource)
                                        0xAA, 0xAA, 0xAA, 0xAA, 
                                        0xAA, 0xAA, 0xAA, 0xAA};
 
-    memController.Load(make_shared<uint8_t*>(romContent.data()), romContent.size(), 0x0100, nullopt);
+    memController.Load(make_unique<uint8_t*>(romContent.data()), romContent.size(), 0x0100, nullopt);
     
     auto address = 0x0100;
     for (auto element : romContent)
@@ -382,10 +395,11 @@ TEST(CoreTests_MemoryController, LoadMemoryResourceAtWrongLocation)
 {
     auto testPassed = false;
     MemoryController memController;
-    shared_ptr<MemoryInterface> rom(new ROM(0x010));
+    auto rom = make_unique<ROM>(0x010);
+    
     memController.RegisterMemoryResource
     (
-        rom,
+        std::move(rom),
         AddressRange(0x0100, 0x0110, RangeType::BeginInclusive),
         Ownership::System
     );
@@ -396,7 +410,7 @@ TEST(CoreTests_MemoryController, LoadMemoryResourceAtWrongLocation)
                                        0xAA, 0xAA, 0xAA, 0xAA};
     try
     {
-       memController.Load(make_shared<uint8_t*>(romContent.data()), romContent.size(), 0x0000, nullopt);
+       memController.Load(make_unique<uint8_t*>(romContent.data()), romContent.size(), 0x0000, nullopt);
     }
     catch(const MemoryControllerException& e)
     {
@@ -410,10 +424,12 @@ TEST(CoreTests_MemoryController, LoadMemoryResourceAtWrongLocation)
 TEST(CoreTests_MemoryController, LoadMemoryResourceWithOffset) 
 {
     MemoryController memController;
-    shared_ptr<MemoryInterface> rom(new ROM(0x010));
+    auto rom = make_unique<ROM>(0x010);
+    auto romPtr = rom.get();
+    
     memController.RegisterMemoryResource
     (
-        rom,
+        std::move(rom),
         AddressRange(0x0100, 0x0110, RangeType::BeginInclusive),
         Ownership::System
     );
@@ -426,10 +442,10 @@ TEST(CoreTests_MemoryController, LoadMemoryResourceWithOffset)
     array<uint8_t, 0x08> offsetContent = {0xBB, 0xBB, 0xBB, 0xBB, 
                                           0xBB, 0xBB, 0xBB, 0xBB};
 
-    memController.Load(make_shared<uint8_t*>(romContent.data()), romContent.size(), 0x0100, nullopt);
-    memController.Load(make_shared<uint8_t*>(offsetContent.data()), offsetContent.size(), 0x0100, make_optional<size_t>(0x08));
+    memController.Load(make_unique<uint8_t*>(romContent.data()), romContent.size(), 0x0100, nullopt);
+    memController.Load(make_unique<uint8_t*>(offsetContent.data()), offsetContent.size(), 0x0100, make_optional<size_t>(0x08));
     
-    for (auto i = static_cast<size_t>(0x0100); i < rom->Size(); i++)
+    for (auto i = static_cast<size_t>(0x0100); i < romPtr->Size(); i++)
     {
         auto readValue = memController.Read(i, MemoryAccessType::Byte);
 
@@ -443,10 +459,11 @@ TEST(CoreTests_MemoryController, LoadMemoryResourceWithOffset)
 TEST(CoreTests_MemoryController, WriteToRadOnlyRange) 
 {
     MemoryController memController;
-    shared_ptr<MemoryInterface> rom(new ROM(0x100));
+    auto rom = make_unique<ROM>(0x100);
+    
     memController.RegisterMemoryResource
     (
-        rom,
+        std::move(rom),
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
         Ownership::System
     );
@@ -469,22 +486,22 @@ TEST(CoreTests_MemoryController, ChangeMemoryMapMode)
                                           0xBB, 0xBB, 0xBB, 0xBB};
 
     MemoryController memController;
-    shared_ptr<MemoryInterface> systemROM(new ROM(0x100));
-    shared_ptr<MemoryInterface> userROM(new ROM(0x100));
+    auto systemROM = make_unique<ROM>(0x100);
+    auto userROM = make_unique<ROM>(0x100);
     
     systemROM->Load(make_shared<uint8_t*>(systemContent.data()), 0x10, std::nullopt);
     userROM->Load(make_shared<uint8_t*>(userContent.data()), 0x10, std::nullopt);
 
     memController.RegisterMemoryResource
     (
-        systemROM,
+        std::move(systemROM),
         AddressRange(0x0000, 0x0100, RangeType::BeginInclusive),
         Ownership::System
     );
     
     memController.RegisterMemoryResource
     (
-        userROM,
+        std::move(userROM),
         AddressRange(0x0000, 0x0100, RangeType::BeginInclusive),
         Ownership::User
     );

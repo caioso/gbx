@@ -24,13 +24,13 @@ public:
    
     virtual std::variant<uint8_t, uint16_t> Read(uint16_t, interfaces::MemoryAccessType) = 0;
     virtual void Write(std::variant<uint8_t, uint16_t>, uint16_t) = 0;
-    virtual void Load(std::shared_ptr<uint8_t*>, size_t, uint16_t, std::optional<size_t>) = 0;
+    virtual void Load(std::unique_ptr<uint8_t*>, size_t, uint16_t, std::optional<size_t>) = 0;
  
     virtual void SwitchBank(uint16_t, size_t) = 0;
     virtual void SetMode(Mode) = 0;
 
-    virtual void RegisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>, AddressRange, Ownership) = 0;
-    virtual void UnregisterMemoryResource(std::shared_ptr<interfaces::MemoryInterface>, Ownership) = 0;
+    virtual size_t RegisterMemoryResource(std::unique_ptr<interfaces::MemoryInterface>, AddressRange, Ownership) = 0;
+    virtual void UnregisterMemoryResource(size_t, Ownership) = 0;
 };
 
 }

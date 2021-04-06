@@ -53,27 +53,6 @@ protected:
     std::shared_ptr<ArithmeticLogicUnit> _alu;
     std::shared_ptr<Clock> _clock;
     std::shared_ptr<RegisterBank> _registers;
-
-    // Cartrige ROM (16 KB [bank 0]) - 0x0000 - 0x3FFF
-    std::shared_ptr<memory::ROM> _fixedUserROM;
-    // Cartrige ROM (16KB [N bank (MBC-dependent)]) - 0x4000 - 0x7FFF
-    std::shared_ptr<memory::BankedROM> _bankedUserROM;
-    // Video RAM (8KB [bank 0] + 8KB [GBC only, bank 1] - 0x8000, 0x9FFF)
-    std::shared_ptr<memory::RAM> _videoRAM;
-    // External RAM (in-Cartridge RAM) (8KB [bank 0] + 8KB [bank n] - 0xA000, 0xBFFF)
-    std::shared_ptr<memory::RAM> _externalRAM;
-    // Work RAM 0 (system RAM) (4KB - bank 0)
-    std::shared_ptr<memory::RAM> _workRAMBank0;
-    // Work RAM 1 (system RAM) (4KB - bank 1)
-    std::shared_ptr<memory::RAM> _workRAMBank1;
-    // Unused (Mirror) Ram (7679 Bytes following the content of the Work Ram)
-    std::shared_ptr<memory::RAM> _mirrorRAM;
-    // I/O Registers (128 byte)
-    std::shared_ptr<memory::RAM> _IORAM;
-    // High RAM (STACK) (127 bytes)
-    std::shared_ptr<memory::RAM> _HRAM;
-    // Interrupt enabled
-    std::shared_ptr<memory::RAM> _IE;
 };
 
 }

@@ -10,39 +10,44 @@ namespace gbxcore::memory
 std::variant<uint8_t, uint16_t> MemoryController::Read(uint16_t address, MemoryAccessType accessType)
 {
     auto localAddress = CalculateLocalAddress(address);
+    auto& targetResource = *SelectResource();
 
     if (localAddress == nullopt)
         throw MemoryControllerException("requested address to write to does not fall into any resource");
 
-    return SelectResource()[localAddress.value().ResourceIndex].Resource.get()->Read(localAddress.value().LocalAddress, accessType);
+    return targetResource[localAddress.value().ResourceIndex].Resource.get()->Read(localAddress.value().LocalAddress, accessType);
 }
 
 void MemoryController::Write(std::variant<uint8_t, uint16_t> value, uint16_t address)
 {
     auto localAddress = CalculateLocalAddress(address);
+    auto& targetResource = *SelectResource();
 
     if (localAddress == nullopt)
         throw MemoryControllerException("requested address to read from does not fall into any resource");
 
-    SelectResource()[localAddress.value().ResourceIndex].Resource.get()->Write(value, localAddress.value().LocalAddress);
+    targetResource[localAddress.value().ResourceIndex].Resource.get()->Write(value, localAddress.value().LocalAddress);
 }
 
-void MemoryController::Load(std::shared_ptr<uint8_t*> dataPointer, size_t size, uint16_t address, optional<size_t> offset)
+void MemoryController::Load(std::unique_ptr<uint8_t*> dataPointer, size_t size, uint16_t address, optional<size_t> offset)
 {
     auto localAddress = CalculateLocalAddress(address);
+    auto& targetResource = *SelectResource();
 
     if (localAddress == nullopt)
         throw MemoryControllerException("requested address to load data to does not fall into any resource");
 
-    SelectResource()[localAddress.value().ResourceIndex].Resource.get()->Load(dataPointer, size, offset);
+    targetResource[localAddress.value().ResourceIndex].Resource.get()->Load(std::move(dataPointer), size, offset);
 }
 
 void MemoryController::SwitchBank(uint16_t address, size_t bank)
 {
     auto localAddress = CalculateLocalAddress(address);
+    
     // Test for Banked ROM or Banked RAM, otherwise, throw
-    if (dynamic_pointer_cast<BankedROM>(SelectResource()[localAddress.value().ResourceIndex].Resource) != nullptr)
-        dynamic_pointer_cast<BankedROM>(SelectResource()[localAddress.value().ResourceIndex].Resource)->SelectBank(bank);
+    if (auto& targetResource = *SelectResource();
+        dynamic_cast<BankedROM*>(targetResource[localAddress.value().ResourceIndex].Resource.get()) != nullptr)
+        dynamic_cast<BankedROM*>(targetResource[localAddress.value().ResourceIndex].Resource.get())->SelectBank(bank);
     else
     {
         stringstream ss;
@@ -61,30 +66,35 @@ Ownership MemoryController::Mode()
     return _mode;
 }
 
-void MemoryController::RegisterMemoryResource(std::shared_ptr<MemoryInterface> resource, AddressRange range, Ownership owner)
+size_t MemoryController::RegisterMemoryResource(std::unique_ptr<MemoryInterface> resource, AddressRange range, Ownership owner)
 {
     auto oldMode = Mode();
     SetMode(owner);
 
         DetectOverlap(range);
-        DetectMisfit(resource, range);
+        DetectMisfit(resource.get(), range);
 
-        SelectResource().push_back({resource, range});
+        auto targetID = _ID++;
+        SelectResource()->push_back({std::move(resource), range, targetID});
         SortResources();
     
     SetMode(oldMode);
+    return targetID;
 }
 
-void MemoryController::UnregisterMemoryResource(std::shared_ptr<MemoryInterface> resource, Ownership owner)
+void MemoryController::UnregisterMemoryResource(size_t id, Ownership owner)
 {
     auto oldMode = Mode();
+    auto& targetResource = *SelectResource();
+
     SetMode(owner);
 
-    for (size_t i = static_cast<size_t>(0); i < SelectResource().size(); i++)
+    for (size_t i = static_cast<size_t>(0); i < targetResource.size(); i++)
     {
-        if(SelectResource()[i].Resource.get() == resource.get())
+        if(targetResource[i].ID == id)
         {
-            SelectResource().erase(begin(SelectResource()) + i);
+            targetResource[i].Resource.release();
+            targetResource.erase(begin(targetResource) + i);
             SetMode(oldMode);
             return;
         }
@@ -94,15 +104,17 @@ void MemoryController::UnregisterMemoryResource(std::shared_ptr<MemoryInterface>
     throw MemoryControllerException("the resource to be unregisterd could not found");
 }
 
-inline void MemoryController::DetectMisfit(std::shared_ptr<MemoryInterface> resource, AddressRange range)
+inline void MemoryController::DetectMisfit(MemoryInterface* resource, AddressRange range)
 {
-    if (range.End() - range.Begin() + 1 != resource.get()->Size())
+    if (range.End() - range.Begin() + 1 != resource->Size())
         throw MemoryControllerException("resouce and range misfit");
 }
 
 inline void MemoryController::SortResources()
 {
-    sort(begin(SelectResource()), end(SelectResource()),
+    auto& targetResource = *SelectResource();
+
+    sort(begin(targetResource), end(targetResource),
         [] (const MemoryResource& resourceA, const MemoryResource& resourceB) -> bool 
         {
             return resourceA.Range.Begin() > resourceB.Range.Begin();
@@ -112,7 +124,9 @@ inline void MemoryController::SortResources()
 
 inline void MemoryController::DetectOverlap(AddressRange range)
 {
-    for (auto [_resource, _range] : SelectResource())
+    auto& targetResource = *SelectResource();
+    
+    for (auto& [_resource, _range, _id] : targetResource)
     {
         if (range.Begin() < _range.End() && _range.Begin() < range.End())
             throw MemoryControllerException("ranges overlap");
@@ -121,26 +135,28 @@ inline void MemoryController::DetectOverlap(AddressRange range)
 
 std::optional<ResourceIndexAndAddress> MemoryController::CalculateLocalAddress(uint16_t address)
 {
+    auto& targetResource = *SelectResource();
+
     // TODO: Optimize this later
-    for (auto i = static_cast<size_t>(0); i < SelectResource().size(); i++)
+    for (auto i = static_cast<size_t>(0); i < targetResource.size(); i++)
     {
-        if (address >= SelectResource()[i].Range.Begin() && address <=SelectResource()[i].Range.End())
+        if (address >= targetResource[i].Range.Begin() && address <= targetResource[i].Range.End())
         {
             return make_optional<ResourceIndexAndAddress>({
                                 static_cast<uint8_t>(i), 
-                                static_cast<uint16_t>(address - SelectResource()[i].Range.Begin())});
+                                static_cast<uint16_t>(address - targetResource[i].Range.Begin())});
         }
     }
 
     return nullopt;
 }
 
-inline std::vector<MemoryResource>& MemoryController::SelectResource()
+inline std::vector<MemoryResource>* MemoryController::SelectResource()
 {
     if (_mode == Ownership::System)
-        return _systemResources;
+        return &_systemResources;
     else
-        return _userResources;
+        return &_userResources;
 }
 
 }
