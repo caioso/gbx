@@ -12,6 +12,7 @@
 #include "GBXCoreExceptions.h"
 #include "MemoryController.h"
 #include "SystemConstants.h"
+#include "SystemMode.h"
 
 using namespace std;
 using namespace gbxcore;
@@ -39,11 +40,14 @@ TEST(CoreTests_GameBoyXTests, LoadGame)
     FileLoader loader(SampleGameFileName());
     GameBoyX gbx;
     
+    // Change to user mode to be able to see the loaded game content;
+    gbx.SetMode(Mode::User);
+    
     gbx.LoadGame(SampleGameFileName());
     loader.Load();
     auto [fileContent, size] = loader.FileData();
 
-    // Check Fixed Bank Size
+    // Check fixed bank 1
     for (auto i = UserFixedROMInitialAddress; i < UserFixedROMFinalAddress; ++i)
         EXPECT_EQ(fileContent[i], get<uint8_t>(gbx.ReadROM(static_cast<uint16_t>(i), nullopt, MemoryAccessType::Byte)));
     
@@ -57,11 +61,14 @@ TEST(CoreTests_GameBoyXTests, LoadGameMultipleBankGame)
     FileLoader loader(SampleMultipleGameFileName());
     GameBoyX gbx;
     
+    // Change to user mode to be able to see the loaded game content;
+    gbx.SetMode(Mode::User);
+
     gbx.LoadGame(SampleMultipleGameFileName());
     loader.Load();
     auto [fileContent, size] = loader.FileData();
 
-    // Check Fixed Bank Size (bank 0)
+    // Check fixed bank 0
     for (auto i = UserFixedROMInitialAddress; i < UserFixedROMFinalAddress; ++i)
         EXPECT_EQ(fileContent[i], get<uint8_t>(gbx.ReadROM(static_cast<uint16_t>(i), nullopt, MemoryAccessType::Byte)));
     

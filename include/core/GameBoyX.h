@@ -29,14 +29,20 @@ public:
     virtual ~GameBoyX() = default;
     void Run() override;
     void LoadGame(std::string) override;
-    
-    std::variant<uint8_t, uint16_t> ReadRegister(interfaces::Register) override;
+
+    gbxcore::Mode Mode() override;
+    void SetMode(gbxcore::Mode) override;
+
     std::variant<uint8_t, uint16_t> ReadROM(uint16_t, std::optional<uint16_t>, interfaces::MemoryAccessType) override;
+
     void WriteRegister(interfaces::Register, std::variant<uint8_t, uint16_t>) override;
+    std::variant<uint8_t, uint16_t> ReadRegister(interfaces::Register) override;
 
 private:
     void LoadStaticROMSection(uint8_t*, size_t);
     void LoadDynamicROMSection(uint8_t*, size_t);
+
+    gbxcore::Mode _mode{};    
 
 protected:
     bool IsPair(interfaces::Register);
