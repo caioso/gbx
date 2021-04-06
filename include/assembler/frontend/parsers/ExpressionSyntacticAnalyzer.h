@@ -71,7 +71,7 @@ private:
     void PushPackIdentifier(ExpressionCompoundSymbol, ExpressionCompoundSymbol);
     void PushBinaryOperator(ExpressionCompoundSymbol);
     
-    void ReduceBinaryExpression(int);
+    void ReduceBinaryExpression(int, bool);
     void ReduceExpression(int);
 
     void ExtractSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);

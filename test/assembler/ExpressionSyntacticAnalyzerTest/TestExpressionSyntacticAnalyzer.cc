@@ -1354,7 +1354,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, SanityCheckExpressionBinaryOper
 
 TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSimpleBinaryExpressionIntermediateRepresentationLLCheck21)
 {
-    const string expression = "A = Test.Test";
+    const string expression = "Pack.Field = A";
 
     LexicalAnalyzer lexer;
     ExpressionSyntacticAnalyzer parser;
@@ -1374,7 +1374,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSimpleBinaryExpressionInte
 
     auto stack = expressionRepresentation->ExpressionStack();
     auto representation = stack.top();
-    EXPECT_STREQ("Test.Test", representation.Lexeme.c_str());
+    EXPECT_STREQ("A", representation.Lexeme.c_str());
     stack.pop();
 
     representation = stack.top();
@@ -1382,6 +1382,6 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSimpleBinaryExpressionInte
     stack.pop();
     
     representation = stack.top();
-    EXPECT_STREQ("A", representation.Lexeme.c_str());
+    EXPECT_STREQ("Pack.Field", representation.Lexeme.c_str());
     stack.pop();
 }
