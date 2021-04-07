@@ -59,6 +59,7 @@ protected:
     inline void WriteBackPairAtImmediateAddress();
 
     inline bool IsExecutionAborted();
+    inline bool IsUserModeRequested();
 
     std::shared_ptr<interfaces::ArithmeticLogicUnitInterface> _alu;
     std::optional<uint8_t> _preOpcode;

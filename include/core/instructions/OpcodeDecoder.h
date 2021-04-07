@@ -48,6 +48,8 @@
 #include "InstructionSwap.h"
 #include "InstructionXor.h"
 
+#include "InstructionJpu.h"
+
 #include "GBXCoreExceptions.h"
 #include "InstructionInterface.h"
 #include "InstructionUtilities.h"

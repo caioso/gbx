@@ -11,7 +11,8 @@ shared_ptr<BaseInstructionInterface> OpcodeDecoder::DecodeOpcode(uint8_t opcode,
     if (preOpcode.has_value() && 
        (preOpcode.value() == InstructionConstants::PreOpcode_CB || 
         preOpcode.value() == InstructionConstants::PreOpcode_DD || 
-        preOpcode.value() == InstructionConstants::PreOpcode_FD))
+        preOpcode.value() == InstructionConstants::PreOpcode_FD ||
+        preOpcode.value() == InstructionConstants::PreOpcode_FC))
         return DecodeInstructionWithPreOpcode(opcode, preOpcode);
     else
         return DecodeInstructionWithoutPreOpcode(opcode);
@@ -63,6 +64,13 @@ shared_ptr<BaseInstructionInterface> OpcodeDecoder::DecodeInstructionWithPreOpco
             OpcodePatternMatcher::Match(opcode, // 0111 0XXX
             OpcodePatternMatcher::Pattern('0'_b, '1'_b, '1'_b, '1'_b, '0'_b, 'X'_b, 'X'_b, 'X'_b)))
             return make_shared<InstructionLd>();
+    }
+    // [GBX ONLY] System-Mode Instruction
+    else if (preOpcode.value() == InstructionConstants::PreOpcode_FC)
+    {
+        if (OpcodePatternMatcher::Match(opcode, // 1100 0011
+            OpcodePatternMatcher::Pattern('1'_b, '1'_b, '0'_b, '0'_b, '0'_b, '0'_b, '1'_b, '1'_b)))
+            return make_shared<InstructionJpu>();
     }
     
     throw InstructionException("unknown instruction");

@@ -64,7 +64,8 @@ inline bool ArithmeticLogicUnit::IsSuffixedInstruction(uint8_t instruction)
 {
     return instruction == InstructionConstants::PreOpcode_DD ||
            instruction == InstructionConstants::PreOpcode_CB ||
-           instruction == InstructionConstants::PreOpcode_FD;
+           instruction == InstructionConstants::PreOpcode_FD ||
+           instruction == InstructionConstants::PreOpcode_FC;
 }
 
 void ArithmeticLogicUnit::Execute()
@@ -283,6 +284,11 @@ bool ArithmeticLogicUnit::InterruptMasterEnable()
     return _interruptMasterEnable;
 }
 
+bool ArithmeticLogicUnit::UserModeRequested()
+{
+    return _userModeRequested;
+}
+
 inline void ArithmeticLogicUnit::ResolveExecutionSignals()
 {
     if (_instructionData.Opcode == OpcodeType::reti && _executionAborted == false)
@@ -295,6 +301,8 @@ inline void ArithmeticLogicUnit::ResolveExecutionSignals()
         _interruptMasterEnable = true;
     else if (_instructionData.Opcode == OpcodeType::di && _executionAborted == false)
         _interruptMasterEnable = false;
+    else if (_instructionData.Opcode == OpcodeType::jpu && _executionAborted == false)
+        _userModeRequested = true;
 }
 
 inline void ArithmeticLogicUnit::ClearExecutionSignals()
@@ -302,6 +310,7 @@ inline void ArithmeticLogicUnit::ClearExecutionSignals()
     _clearInterruptStatusSignal = false;
     _haltSignal = false;
     _stopSignal = false;
+    _userModeRequested = false;
 }
 
 }

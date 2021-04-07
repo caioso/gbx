@@ -50,6 +50,10 @@ enum class OpcodeType
     di,
     ccf,
     scf,
+
+    // GBX ONLY
+    // System Mode Operations
+    jpu,
 };
 
 const uint8_t MemoryOperand = 0x06;

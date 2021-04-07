@@ -3392,3 +3392,31 @@ TEST(CoreTests_ControlUnit, TestScf)
     EXPECT_EQ(0, registers->ReadFlag(Flag::N));
     EXPECT_EQ(1, registers->ReadFlag(Flag::Z));
 }
+
+// [GBX ONLY] System Jump instruction
+TEST(CoreTests_ControlUnit, TestJpu)
+{
+    shared_ptr<RegisterBank> registers = make_shared<RegisterBank>();
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    arithmeticLogicUnit->Initialize(registers);
+    arithmeticLogicUnit->InitializeRegisters();
+
+    auto controlUnit = make_shared<ControlUnit>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    auto preOpcode = 0xFC;
+    auto opcode = 0xC3;
+    // Perform unconditional jump to 16-bit user-space memory address
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    // JP 0x0100
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(preOpcode)));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(opcode)));
+    EXPECT_CALL((*mockPointer), Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x00)));
+    EXPECT_CALL((*mockPointer), Read(0x0003, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x01)));
+    
+    EXPECT_CALL((*mockPointer), SetMode(Mode::User));
+    controlUnit->RunCycle();
+
+    EXPECT_EQ(0x0100, registers->ReadPair(Register::PC));
+}

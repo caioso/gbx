@@ -34,6 +34,7 @@ public:
     [[nodiscard]] virtual bool StopSignal() override;
     [[nodiscard]] virtual bool InterruptMasterEnable() override;
     [[nodiscard]] virtual bool IsExecutionAborted() override;
+    [[nodiscard]] virtual bool UserModeRequested() override;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() override;
     virtual void AcquireOperand1AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
@@ -66,6 +67,7 @@ protected:
     instructions::OpcodeDecoder _decoder;
     std::shared_ptr<interfaces::BaseInstructionInterface> _currentInstruction;
     std::shared_ptr<interfaces::RegisterBankInterface> _registers;
+    bool _userModeRequested{};
     bool _executionAborted{};
     bool _clearInterruptStatusSignal{};
     bool _haltSignal{};

@@ -10,6 +10,7 @@
 #include "Opcodes.h"
 #include "MemoryControllerInterface.h"
 #include "RegisterBankInterface.h"
+#include "SystemMode.h"
 
 namespace gbxcore::interfaces
 {
@@ -32,8 +33,11 @@ class InstructionConstants
 {
 public:
     const static uint16_t PreOpcode_DD = 0xDD;
-    const static uint16_t PreOpcode_FD = 0xFD;
     const static uint16_t PreOpcode_CB = 0xCB;
+
+    // Instructions Pre-opcode reserved for GBX/System Mode
+    const static uint16_t PreOpcode_FD = 0xFD; // Indexed data loading 
+    const static uint16_t PreOpcode_FC = 0xFC; // System Mode operartions 
 };
 
 typedef bool ArithmeticLogicUnitSignal;
@@ -56,6 +60,7 @@ public:
     [[nodiscard]] virtual bool StopSignal() = 0;
     [[nodiscard]] virtual bool InterruptMasterEnable() = 0;
     [[nodiscard]] virtual bool IsExecutionAborted() = 0;
+    [[nodiscard]] virtual bool UserModeRequested() = 0; 
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() = 0;
     virtual void AcquireOperand1AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;

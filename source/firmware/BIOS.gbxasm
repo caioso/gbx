@@ -1,0 +1,7 @@
+NOP ; 0x00
+NOP ; 0x00
+..........
+JPU ; 0xFC -> System Mode Operation Prefix
+    ; 0xC3 -> JP
+    ; 0x00 -> Jump to 16bit immediate address in User Mode (leaving system mode)
+    ; 0x10

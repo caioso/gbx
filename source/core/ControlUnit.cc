@@ -148,6 +148,9 @@ inline void ControlUnit::ReadOperand2Directly()
 inline void ControlUnit::ExecuteInstruction()
 {
     _alu->Execute();
+
+    if (IsUserModeRequested())
+        _memoryController->SetMode(Mode::User);
 }
 
 inline void ControlUnit::WriteBackResults()
@@ -206,6 +209,11 @@ inline void ControlUnit::WriteBackPairAtImmediateAddress()
 inline bool ControlUnit::IsExecutionAborted()
 {
     return _alu->IsExecutionAborted();
+}
+
+inline bool ControlUnit::IsUserModeRequested()
+{
+    return _alu->UserModeRequested();
 }
 
 }
