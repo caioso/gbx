@@ -66,7 +66,7 @@ void BankedROM::Load(shared_ptr<uint8_t*> content, size_t size, optional<size_t>
     ROM::Load(content, size, addressOffset);
 }
 
-void BankedROM::EvaluateAddress(uint16_t address, MemoryAccessType type)
+void BankedROM::EvaluateAddress(size_t address, MemoryAccessType type)
 {
     if (type == MemoryAccessType::Byte && address >= _bankSize)
     {

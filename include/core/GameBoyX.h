@@ -29,6 +29,7 @@ public:
     virtual ~GameBoyX() = default;
     void Run() override;
     void LoadGame(std::string) override;
+    void LoadBIOS(std::string) override;
 
     gbxcore::Mode Mode() override;
     void SetMode(gbxcore::Mode) override;
@@ -39,6 +40,9 @@ public:
     std::variant<uint8_t, uint16_t> ReadRegister(interfaces::Register) override;
 
 private:
+    void LoadROMBinary(std::string);
+    void LoadBIOSBinary(std::string);
+
     void LoadStaticROMSection(uint8_t*, size_t);
     void LoadDynamicROMSection(uint8_t*, size_t);
 

@@ -15,38 +15,41 @@ GameBoyX::GameBoyX()
     _controlUnit = make_shared<ControlUnit>();
     _memoryController = make_shared<MemoryController>();
 
-    // Convention: At bootup, _fixedUserROM holds the system ROM at bank 0. After the initialization code is complete, Bank 1 will hold the cartridges's fixed bank
-    auto _fixedUserROM = make_unique<ROM>(DefaultROMBankSize); // Fixed ROM Bank 
-    auto _bankedUserROM = make_unique<BankedROM>(MaxDynamicBankROMSize, DefaultROMBankSize); 
-    auto _videoRAM = make_unique<RAM>(VideoRAMPhysicalSize);
-    auto _externalRAM = make_unique<RAM>(ExternalRAMPhysicalSize);
-    auto _workRAMBank0 = make_unique<RAM>(SystemRAMBank0PhysicalSize);
-    auto _workRAMBank1 = make_unique<RAM>(SystemRAMBank1PhysicalSize);
-    auto _mirrorRAM = make_unique<RAM>(MirrorRAMPhysicalSize);
-    auto _IORAM = make_unique<RAM>(IORAMPhysicalSize);
-    auto _HRAM = make_unique<RAM>(HRAMPhysicalSize);
-    auto _IE = make_unique<RAM>(1);
+    // GBX System Mode memory map
+    auto systemFixedROMBank = make_unique<ROM>(GBXSystemROMPhysicalSize);
+    auto systemFixedRAMBank = make_unique<RAM>(GBXSystemRAMPhysicalSize);
+
+    // DMGBC User Mode memory map
+    auto userFixedROMBank = make_unique<ROM>(DMGBCROMBankSize);
+    auto userDynamicBank = make_unique<BankedROM>(DMGBCMaxDynamicROMSize, DMGBCROMBankSize); 
+    auto userVideoRAM = make_unique<RAM>(DMGBCVideoRAMPhysicalSize);
+    auto userExternalRAM = make_unique<RAM>(DMGBCExternalRAMPhysicalSize);
+    auto userWorkRAMBank0 = make_unique<RAM>(DMGBCSystemRAMBank0PhysicalSize);
+    auto userWorkRAMBank1 = make_unique<RAM>(DMGBCSystemRAMBank1PhysicalSize);
+    auto userMirrorRAM = make_unique<RAM>(DMGBCMirrorRAMPhysicalSize);
+    auto userIORAM = make_unique<RAM>(DMGBCIORAMPhysicalSize);
+    auto userHRAM = make_unique<RAM>(DMGBCHRAMPhysicalSize);
+
+    _memoryController->RegisterMemoryResource(std::move(systemFixedROMBank), AddressRange(GBXSystemROMInitialAddress, GBXSystemROMFinalAddress, RangeType::BeginInclusive), Ownership::System);
+    _memoryController->RegisterMemoryResource(std::move(systemFixedRAMBank), AddressRange(GBXSystemRAMInitialAddress, GBXSystemRAMFinalAddress, RangeType::BeginInclusive), Ownership::System);
+
+    _memoryController->RegisterMemoryResource(std::move(userFixedROMBank), AddressRange(DMGBCFixedROMInitialAddress, DMGBCFixedROMFinalAddress, RangeType::BeginInclusive), Ownership::User);
+    _memoryController->RegisterMemoryResource(std::move(userDynamicBank), AddressRange(DMGBCBankedROMInitialAddress, DMGBCBankedROMFinalAddress, RangeType::BeginInclusive), Ownership::User);
+    _memoryController->RegisterMemoryResource(std::move(userVideoRAM), AddressRange(DMGBCVideoRAMInitialAddress, DMGBCVideoRAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
+    _memoryController->RegisterMemoryResource(std::move(userExternalRAM), AddressRange(DMGBCExternalRAMInitialAddress, DMGBCExternalRAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
+    _memoryController->RegisterMemoryResource(std::move(userWorkRAMBank0), AddressRange(DMGBCSystemRAMBank0InitialAddress, DMGBCSystemRAMBank0FinalAddress, RangeType::BeginInclusive), Ownership::User);
+    _memoryController->RegisterMemoryResource(std::move(userWorkRAMBank1), AddressRange(DMGBCSystemRAMBank1InitialAddress, DMGBCSystemRAMBank1FinalAddress, RangeType::BeginInclusive), Ownership::User);
+    _memoryController->RegisterMemoryResource(std::move(userMirrorRAM), AddressRange(DMGBCMirrorRAMInitialAddress, DMGBCMirrorRAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
+    _memoryController->RegisterMemoryResource(std::move(userIORAM), AddressRange(DMGBCIORAMInitialAddress, DMGBCIORAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
+    _memoryController->RegisterMemoryResource(std::move(userHRAM), AddressRange(DMGBCHRAMInitialAddress, DMGBCHRAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
 
     auto _alu = make_shared<ArithmeticLogicUnit>();
     auto _clock = make_shared<Clock>(EngineParameters::GBCClockPeriod);
     auto _registers = make_shared<RegisterBank>();
 
-    // Initialize Memory Controller
-    // After it is available, execute (max 255 instructions) until it jumps to 0x0100, where the system ROM no more visible is, and the user ROM appears fully.
-    _memoryController->RegisterMemoryResource(std::move(_fixedUserROM), AddressRange(UserFixedROMInitialAddress, UserFixedROMFinalAddress, RangeType::BeginInclusive), Ownership::User);
-    _memoryController->RegisterMemoryResource(std::move(_bankedUserROM), AddressRange(UserBankedROMInitialAddress, UserBankedROMFinalAddress, RangeType::BeginInclusive), Ownership::User);
-    _memoryController->RegisterMemoryResource(std::move(_videoRAM), AddressRange(VideoRAMInitialAddress, VideoRAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
-    _memoryController->RegisterMemoryResource(std::move(_externalRAM), AddressRange(ExternalRAMInitialAddress, ExternalRAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
-    _memoryController->RegisterMemoryResource(std::move(_workRAMBank0), AddressRange(SystemRAMBank0InitialAddress, SystemRAMBank0FinalAddress, RangeType::BeginInclusive), Ownership::User);
-    _memoryController->RegisterMemoryResource(std::move(_workRAMBank1), AddressRange(SystemRAMBank1InitialAddress, SystemRAMBank1FinalAddress, RangeType::BeginInclusive), Ownership::User);
-    _memoryController->RegisterMemoryResource(std::move(_mirrorRAM), AddressRange(MirrorRAMInitialAddress, MirrorRAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
-    _memoryController->RegisterMemoryResource(std::move(_IORAM), AddressRange(IORAMInitialAddress, IORAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
-    _memoryController->RegisterMemoryResource(std::move(_HRAM), AddressRange(HRAMInitialAddress, HRAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
-    _memoryController->RegisterMemoryResource(std::move(_IE), AddressRange(0xFFFF, 0xFFFF, RangeType::AllInclusive), Ownership::User);
-
     // Initialize Z80X CPU
     _cpu->Initialize(_controlUnit, _clock, _alu, _memoryController, _registers);
-    
+
     // Set Memory Controller to run in System Mode
     _memoryController->SetMode(Mode::System);
 }
@@ -74,9 +77,48 @@ void GameBoyX::WriteRegister(interfaces::Register reg, variant<uint8_t, uint16_t
 
 void GameBoyX::LoadGame(string gameROMName)
 {
-    FileLoader loader(gameROMName);
+    auto oldMode = Mode();
+    SetMode(Mode::User);
+
+    try
+    {
+        // TODO: Make this RAII
+        LoadROMBinary(gameROMName);
+        SetMode(oldMode);
+    }
+    catch (MemoryControllerException e)
+    {
+        SetMode(oldMode);
+        throw e;
+    }
+}
+
+void GameBoyX::LoadBIOS(string BIOSROMName)
+{
+    auto oldMode = Mode();
+    SetMode(Mode::System);
+
+    try
+    {
+        // TODO: Make this RAII
+        LoadBIOSBinary(BIOSROMName);
+        SetMode(oldMode);
+    }
+    catch (MemoryControllerException e)
+    {
+        SetMode(oldMode);    
+        throw e;
+    }
+}
+
+void GameBoyX::LoadROMBinary(std::string ROMName)
+{
+    FileLoader loader(ROMName);
     loader.Load();   
     auto [fileBytes, size] = loader.FileData();
+
+    if (size > DMGBCMaxDynamicROMSize + DMGBCROMBankSize)
+        throw MemoryControllerException("Game ROM file larger than 2MB");
 
     // Load Static Bank (Bank 0)
     LoadStaticROMSection(reinterpret_cast<uint8_t*>(fileBytes.get()), size);
@@ -85,28 +127,41 @@ void GameBoyX::LoadGame(string gameROMName)
     LoadDynamicROMSection(reinterpret_cast<uint8_t*>(fileBytes.get()), size);
 
     // Restore Bank to 0
-    _memoryController->SwitchBank(UserBankedROMInitialAddress, 0llu);
+    _memoryController->SwitchBank(DMGBCBankedROMInitialAddress, 0llu);
+}
+
+void GameBoyX::LoadBIOSBinary(std::string ROMName)
+{
+    FileLoader loader(ROMName);
+    loader.Load();   
+    auto [fileBytes, size] = loader.FileData();
+
+    if (size > GBXSystemROMPhysicalSize)
+        throw MemoryControllerException("BIOS file larger than 32KB");
+
+    auto ptr = make_unique<uint8_t*>(reinterpret_cast<uint8_t*>(fileBytes.get()));
+    _memoryController->Load(std::move(ptr), size < GBXSystemROMPhysicalSize? size : GBXSystemROMPhysicalSize, 0x0000, nullopt);
 }
 
 void GameBoyX::LoadStaticROMSection(uint8_t* fileBytes, size_t size)
 {
     auto ptr = make_unique<uint8_t*>(fileBytes);
-    _memoryController->Load(std::move(ptr), size < DefaultROMBankSize? size : DefaultROMBankSize, 0x0000, nullopt);
-    size -= DefaultROMBankSize;
+    _memoryController->Load(std::move(ptr), size < DMGBCROMBankSize? size : DMGBCROMBankSize, 0x0000, nullopt);
+    size -= DMGBCROMBankSize;
 }
 
 void GameBoyX::LoadDynamicROMSection(uint8_t* fileBytes, size_t size)
 {
-    for (auto offset = 0llu, bank = 0llu; offset < MaxDynamicBankROMSize && size > 0; offset += DefaultROMBankSize)
+    for (auto offset = 0llu, bank = 0llu; offset < DMGBCMaxDynamicROMSize && size > 0; offset += DMGBCROMBankSize)
     {
-        auto pointerAddress = offset + DefaultROMBankSize;
-        auto chunckSize = std::min(size, DefaultROMBankSize);
+        auto pointerAddress = offset + DMGBCROMBankSize;
+        auto chunckSize = std::min(size, DMGBCROMBankSize);
         auto ptr = make_unique<uint8_t*>(fileBytes + pointerAddress);
 
-        _memoryController->SwitchBank(UserBankedROMInitialAddress, bank++);
-        _memoryController->Load(std::move(ptr), chunckSize, UserBankedROMInitialAddress, nullopt);
+        _memoryController->SwitchBank(DMGBCBankedROMInitialAddress, bank++);
+        _memoryController->Load(std::move(ptr), chunckSize, DMGBCBankedROMInitialAddress, nullopt);
 
-        size -= DefaultROMBankSize;
+        size -= DMGBCROMBankSize;
     }
 }
 

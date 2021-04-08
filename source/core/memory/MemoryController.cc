@@ -7,7 +7,7 @@ using namespace gbxcore::interfaces;
 namespace gbxcore::memory
 {
 
-std::variant<uint8_t, uint16_t> MemoryController::Read(uint16_t address, MemoryAccessType accessType)
+std::variant<uint8_t, uint16_t> MemoryController::Read(size_t address, MemoryAccessType accessType)
 {
     auto localAddress = CalculateLocalAddress(address);
     auto& targetResource = *SelectResource();
@@ -18,7 +18,7 @@ std::variant<uint8_t, uint16_t> MemoryController::Read(uint16_t address, MemoryA
     return targetResource[localAddress.value().ResourceIndex].Resource.get()->Read(localAddress.value().LocalAddress, accessType);
 }
 
-void MemoryController::Write(std::variant<uint8_t, uint16_t> value, uint16_t address)
+void MemoryController::Write(std::variant<uint8_t, uint16_t> value, size_t address)
 {
     auto localAddress = CalculateLocalAddress(address);
     auto& targetResource = *SelectResource();
@@ -29,7 +29,7 @@ void MemoryController::Write(std::variant<uint8_t, uint16_t> value, uint16_t add
     targetResource[localAddress.value().ResourceIndex].Resource.get()->Write(value, localAddress.value().LocalAddress);
 }
 
-void MemoryController::Load(std::unique_ptr<uint8_t*> dataPointer, size_t size, uint16_t address, optional<size_t> offset)
+void MemoryController::Load(std::unique_ptr<uint8_t*> dataPointer, size_t size, size_t address, optional<size_t> offset)
 {
     auto localAddress = CalculateLocalAddress(address);
     auto& targetResource = *SelectResource();
@@ -40,7 +40,7 @@ void MemoryController::Load(std::unique_ptr<uint8_t*> dataPointer, size_t size, 
     targetResource[localAddress.value().ResourceIndex].Resource.get()->Load(std::move(dataPointer), size, offset);
 }
 
-void MemoryController::SwitchBank(uint16_t address, size_t bank)
+void MemoryController::SwitchBank(size_t address, size_t bank)
 {
     auto localAddress = CalculateLocalAddress(address);
     
@@ -133,7 +133,7 @@ inline void MemoryController::DetectOverlap(AddressRange range)
     }
 }
 
-std::optional<ResourceIndexAndAddress> MemoryController::CalculateLocalAddress(uint16_t address)
+std::optional<ResourceIndexAndAddress> MemoryController::CalculateLocalAddress(size_t address)
 {
     auto& targetResource = *SelectResource();
 
@@ -144,7 +144,7 @@ std::optional<ResourceIndexAndAddress> MemoryController::CalculateLocalAddress(u
         {
             return make_optional<ResourceIndexAndAddress>({
                                 static_cast<uint8_t>(i), 
-                                static_cast<uint16_t>(address - targetResource[i].Range.Begin())});
+                                static_cast<size_t>(address - targetResource[i].Range.Begin())});
         }
     }
 

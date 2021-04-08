@@ -15,6 +15,7 @@ struct Runtime
     virtual ~Runtime() = default;
     virtual void Run() = 0;
     virtual void LoadGame(std::string) = 0;
+    virtual void LoadBIOS(std::string) = 0;
     
     virtual gbxcore::Mode Mode() = 0;
     virtual void SetMode(gbxcore::Mode) = 0;

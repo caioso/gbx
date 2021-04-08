@@ -29,4 +29,5 @@ public:
     MOCK_METHOD((std::variant<uint8_t, uint16_t>), ReadROM, (uint16_t, (std::optional<uint16_t>), (gbxcore::interfaces::MemoryAccessType)));
   
     MOCK_METHOD(void, LoadGame, (std::string));
+    MOCK_METHOD(void, LoadBIOS, (std::string));
 };

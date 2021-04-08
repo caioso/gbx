@@ -29,7 +29,7 @@ public:
     void SelectBank(size_t);
 
 private:
-    void EvaluateAddress(uint16_t, interfaces::MemoryAccessType);
+    void EvaluateAddress(size_t, interfaces::MemoryAccessType);
 
     size_t _bankSize{};
     size_t _activeBank{};
