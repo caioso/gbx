@@ -47,7 +47,22 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, SanityCheckExpressionBinaryPlus
     }
 }
 
-TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSimpleBinaryExpression)
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSingleIdentifier)
+{
+    const string expression = "A";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryAddition)
 {
     const string expression = "A + B";
 
@@ -62,7 +77,83 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSimpleBinaryExpression)
     EXPECT_TRUE(parser.IsAccepted());
 }
 
-TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSimpleBinaryExpressionIntermediateRepresentationHLCheck)
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryAddition2)
+{
+    const string expression = "A + B + C";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryAddition3)
+{
+    const string expression = "A + B + C + D";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseInvalidBinaryAddition)
+{
+    const string expression = "A + + B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseInvalidBinaryAddition2)
+{
+    const string expression = "A B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseInvalidBinaryAddition3)
+{
+    return;
+    const string expression = "A +";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser.IsAccepted());
+}
+
+/*TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSimpleBinaryExpressionIntermediateRepresentationHLCheck)
 {
     const string expression = "A + B";
 
@@ -1384,4 +1475,4 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSimpleBinaryExpressionInte
     representation = stack.top();
     EXPECT_STREQ("Pack.Field", representation.Lexeme.c_str());
     stack.pop();
-}
+}*/

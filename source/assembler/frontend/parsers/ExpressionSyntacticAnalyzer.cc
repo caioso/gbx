@@ -14,268 +14,145 @@ shared_ptr<IntermediateRepresentation> ExpressionSyntacticAnalyzer::TryToAccept(
     while (!IsAccepted() && !IsRejected() && !IsExited())
     {        
         auto leftSubstring = -1; 
-        auto state = 0;
-        auto lhsComposed = false;
-        auto rhsComposed = false;
+        size_t state = 0;
 
         while(true)
         {
+            // Think of how to deal with incomplete parsing and the end of the input string.
             if (state == 0)
             {
                 leftSubstring++;
+                
+                if (_symbols.size() == 1 && _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalExpression) 
+                {Accept(); break;}
+
                 state = 1;
+                
             }
-            else if (state == 1) 
-            // For expressions like (A <OP> B)
-            //  - Detect first operand (identifier)
-            //  - Detect first operand (numeric literal)
+            else if (state == 1)
             {
-                // Detection of non-terminals happens here
-                if (IsOutOfBonds(leftSubstring, _symbols.size())) { Reject(); break; }
+                auto resultingOperation = EvaluateOperand(leftSubstring, state);
 
-                if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalExpression)
-                {
-                    Accept(); break;
-                }
-                else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalBinaryExpression)
-                {
-                    leftSubstring++;
-                    state = 5;
-                }
-                else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalNumericLiteral ||
-                         _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBooleanLiteral ||
-                         _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalStringLiteral ||
-                         _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalCharLiteral)
-                {
-                    PushIdentifier(_symbols[leftSubstring]);
-                    leftSubstring++;
-                    state = 2;
-                }
-                else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalIdentifier)
-                {
-                    leftSubstring++;
-                    state = 6;
-                }
-                else
-                {
-                    Reject(); break;
-                }
+                if (resultingOperation == NextOperation::Rejected)
+                { Reject(); break; }
+                else if (resultingOperation == NextOperation::Accepted)
+                { Accept(); break; }
+                else if (resultingOperation == NextOperation::Reduced)
+                    break;
             }
+            // Further evaluate operation
             else if (state == 2)
-            // For expressions like (A <OP> B)
-            //  - Detect operator
             {
-                if (IsOutOfBonds(leftSubstring, _symbols.size())) { Reject(); break; }
-
-                if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorPlus ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorMinus ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorMultiplication ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorDivision ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorRightShift ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLeftShift ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLessThan ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLessThanEqual ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorGreaterThan ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorGreaterThanEqual ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorEqual ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorDifferent ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseAnd ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseXor ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseOr ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLogicAnd ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLogicOr ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorAssignment)
+                // Move further ( Should remember that + has been parsed)
+                if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalPlus)
                 {
-                    PushBinaryOperator(_symbols[leftSubstring]);
                     leftSubstring++;
                     state = 3;
                 }
-                else
+                else 
                 {
+                    cout << "Rejected State 2" << '\n';
                     Reject(); break;
                 }
             }
+            // Further evaluate operation
             else if (state == 3)
-            // For expressions like (A <OP> B)
-            //  - Detect second operand (identifier)
-            //  - Detect second operand (numeric Literal)
             {
-                if (IsOutOfBonds(leftSubstring, _symbols.size())) { Reject(); break; }
+                auto resultingOperation = EvaluateOperand(leftSubstring, state);
 
-                if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalIdentifier ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalNumericLiteral ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBooleanLiteral ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalStringLiteral ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalCharLiteral)
-                {
-                    PushIdentifier(_symbols[leftSubstring]);
-                    leftSubstring++;
-                    state = 4;
-                }
-                else
-                {
-                    Reject(); break;
-                }
+                if (resultingOperation == NextOperation::Rejected)
+                { Reject(); break; }
+                else if (resultingOperation == NextOperation::Accepted)
+                { Accept(); break; }
+                else if (resultingOperation == NextOperation::Reduced)
+                    break;
             }
+            // Reduce expression of type E + E
             else if (state == 4)
-            // Reduce Expression Like (A <OP> B)
             {
-                ReduceBinaryExpression(leftSubstring, lhsComposed);
-                leftSubstring++;
+                cout << "Reduce binary op" << '\n';
+                // Reduce Binary operation E + E -> F1
+                // Remove Identifier
+                _symbols.erase(begin(_symbols) + leftSubstring - 1);
+                // Remove +
+                _symbols.erase(begin(_symbols) + leftSubstring - 2);
+                // Remove Identifier
+                _symbols.erase(begin(_symbols) + leftSubstring - 3);
+                _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryAddition, .Lexeme = string("") });
                 break;
             }
-            else if (state == 5)
-            {
-                // reach the end of the symbols array
-                if (_symbols.begin() + leftSubstring == _symbols.end())
-                {
-                    ReduceExpression(leftSubstring); break;
-                }
-                else
-                {
-                    Reject(); break;
-                }
-            }
-            else if (state == 6)
-            // Detect identifier or proceed with composed identifier detection
-            {
-                if (IsOutOfBonds(leftSubstring, _symbols.size())) { Reject(); break; }
-                cout << "state 6" << '\n';
-                if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorPlus ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorMinus ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorMultiplication ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorDivision ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorRightShift ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLeftShift ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLessThan ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLessThanEqual ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorGreaterThan ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorGreaterThanEqual ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorEqual ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorDifferent ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseAnd ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseXor ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseOr ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLogicAnd ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorLogicOr ||
-                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBinaryOperatorAssignment)
-                {
-                    PushIdentifier(_symbols[leftSubstring - 1]);
-                    PushBinaryOperator(_symbols[leftSubstring]);
-                    leftSubstring++;
-                    state = 3;
-                }
-                else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalOperatorDot)
-                {
-                    leftSubstring++;
-                    state = 7;
-                }
-                else
-                {
-                    Reject(); break;
-                }
-            }
-            else if (state == 7)
-            // Detect field name of composed identifier
-            {
-                if (IsOutOfBonds(leftSubstring, _symbols.size())) { Reject(); break; }
-
-                if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalIdentifier)
-                {
-                    auto identifier = _symbols[leftSubstring - 2].Lexeme + '.' + _symbols[leftSubstring].Lexeme;
-
-                    ExpressionCompoundSymbol symbol = {identifier, 
-                                                       _symbols[leftSubstring - 2].Line, 
-                                                       _symbols[leftSubstring - 2].Column, 
-                                                       ExpressionParserTreeSymbols::TerminalIdentifier };
-                    lhsComposed = true;
-                    PushIdentifier(symbol);
-                    leftSubstring++;
-                    state = 2;
-                }
-                else
-                {
-                    Reject(); break;
-                }
-            }
         }
+
+        cout << "Size: " << _symbols.size() << '\n';
+        for_each(_symbols.begin(), _symbols.end(), [](ExpressionCompoundSymbol x) -> auto
+        {
+            cout << static_cast<size_t>(x.Symbol) << " -> " << x.Lexeme << '\n';
+        });
+        cout << '\n';
     }
 
     auto representation = make_shared<ExpressionIntermediateRepresentation>(_expressionStack, _line, _column);
     return representation;
 }
 
-void ExpressionSyntacticAnalyzer::PushIdentifier(ExpressionCompoundSymbol symbol)
+NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, size_t& state)
 {
-    ExpressionMember member;
-    member.Lexeme = symbol.Lexeme;
-    _expressionStack.push(member);
-}
-
-void ExpressionSyntacticAnalyzer::PushPackIdentifier(ExpressionCompoundSymbol type, ExpressionCompoundSymbol identifier)
-{
-    ExpressionMember member;
-    stringstream ss;
-    ss << type.Lexeme << '.' << identifier.Lexeme;
-    member.Lexeme = ss.str();
-    _expressionStack.push(member);
-}
-
-void ExpressionSyntacticAnalyzer::PushBinaryOperator(ExpressionCompoundSymbol symbol)
-{   
-    ExpressionMember member;
-    member.Lexeme = symbol.Lexeme;
-    _expressionStack.push(member);
-}
-
-void ExpressionSyntacticAnalyzer::ReduceExpression(int leftSubstring)
-{
-    // Reduce
-    // Remove previous expression
-    _symbols.erase(begin(_symbols) + leftSubstring - 1);
-    // Add nonterminal argument
-    _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalExpression, .Lexeme = string("") });
-
-    cout << "After reducing at the end of the string" << '\n';
-    for_each(_symbols.begin(), _symbols.end(), [](ExpressionCompoundSymbol x) -> auto
+    // NON TERMINALS
+    // Detect Identifier
+    if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalIdentifier)
     {
-        cout << static_cast<size_t>(x.Symbol) << " -> " << x.Lexeme << '\n';
-    });
-}
-
-void ExpressionSyntacticAnalyzer::ReduceBinaryExpression(int leftSubstring, bool lhsComposed)
-{
-    // Reduce
-    // Remove identifier
-    if (lhsComposed)
-    {
-        _symbols.erase(begin(_symbols) + leftSubstring - 1);
-        // Remove Binary Operator
-        _symbols.erase(begin(_symbols) + leftSubstring - 2);
-        // Remove identifier
-        _symbols.erase(begin(_symbols) + leftSubstring - 3);
-        // Remove .
-        _symbols.erase(begin(_symbols) + leftSubstring - 4);
-        // Remove identifier
-        _symbols.erase(begin(_symbols) + leftSubstring - 5);
-        // Add nonterminal argument
-        _symbols.insert(begin(_symbols) +  leftSubstring - 5, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryExpression, .Lexeme = string("") });
+        // Reduce Identifier to Non-Terminal Identifier (T4)
+        // Remove Identifier
+        _symbols.erase(begin(_symbols) + leftSubstring);
+        _symbols.insert(begin(_symbols) +  leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalIdentifier, .Lexeme = string("") });
+        return NextOperation::Reduced;
     }
-    else
-    {   
-        _symbols.erase(begin(_symbols) + leftSubstring - 1);
-        // Remove Binary Operator
-        _symbols.erase(begin(_symbols) + leftSubstring - 2);
-        // Remove identifier
-        _symbols.erase(begin(_symbols) + leftSubstring - 3);
-        // Add nonterminal argument
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryExpression, .Lexeme = string("") });
-    }
-    cout << "After reducing binary expressionm" << '\n';
-    for_each(_symbols.begin(), _symbols.end(), [](ExpressionCompoundSymbol x) -> auto
+
+    // TERMINALS
+    else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalIdentifier)
     {
-        cout << static_cast<size_t>(x.Symbol) << " -> " << x.Lexeme << '\n';
-    });
+        // Reduce Identifier to Non-Terminal Operand (E6)
+        // Remove Non-terminal Identifier
+        _symbols.erase(begin(_symbols) + leftSubstring);
+        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalOperand, .Lexeme = string("") });
+        return NextOperation::Reduced;
+    }
+    else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalBinaryAddition)
+    {
+        // Reduce Identifier to Non-Terminal Binary Addition (F1) to Non Terminal Operation (E7)
+        // Remove Non-terminal Operand
+        _symbols.erase(begin(_symbols) + leftSubstring);
+        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalOperation, .Lexeme = string("") });
+        return NextOperation::Reduced;
+    }
+    else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalOperand ||
+             _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalOperation)
+    {
+        // Reduce Identifier to Non-Terminal Expression (E)
+        // Remove Non-terminal Operand
+        _symbols.erase(begin(_symbols) + leftSubstring);
+        _symbols.insert(begin(_symbols) +  leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalExpression, .Lexeme = string("") });
+        return NextOperation::Reduced;
+    }
+
+    // NON TERMINAL EXPRESSION
+    else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalExpression)
+    {
+        // 'First part of a binary operation'
+        if (state == 1)
+            state = 2;
+        // 'Second part of a binary operation'
+        else if (state == 3)
+            state = 4;
+        
+        leftSubstring++;
+        return NextOperation::Shift;
+    }
+    else 
+    {
+        cout << "Rejected" << '\n';
+        return NextOperation::Rejected;
+    }
 }
 
 void ExpressionSyntacticAnalyzer::ExtractSymbols(std::vector<Token>::iterator& beginIt, std::vector<Token>::iterator& endIt)
@@ -290,70 +167,13 @@ void ExpressionSyntacticAnalyzer::ExtractSymbols(std::vector<Token>::iterator& b
         {
             case TokenType::Identifier: 
                 return {.Symbol = ExpressionParserTreeSymbols::TerminalIdentifier, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorPLUS:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorPlus, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorMINUS:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorMinus, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorMULTIPLICATION:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorMultiplication, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorDIVISION:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorDivision, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorRIGHTSHIFT:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorRightShift, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorLEFTSHIFT:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorLeftShift, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorLESSTHAN:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorLessThan, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorLESSTHANOREQUALTO:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorLessThanEqual, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorGREATERTHAN:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorGreaterThan, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorGREATERTHANOREQUALTO:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorGreaterThanEqual, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorEQUAL:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorEqual, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorDIFFERENT:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorDifferent, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorBITWISEAND:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseAnd, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorBITWISEXOR:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseXor, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorBITWISEOR:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorBitwiseOr, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorLOGICAND:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorLogicAnd, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorLOGICOR:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorLogicOr, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorASSIGNMENT:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBinaryOperatorAssignment, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::OperatorDOT:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalOperatorDot, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::LiteralNumericBINARY:
-            case TokenType::LiteralNumericOCTAL:
-            case TokenType::LiteralNumericDECIMAL:
-            case TokenType::LiteralNumericHEXADECIMAL:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalNumericLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::LiteralBooleanTRUE:
-            case TokenType::LiteralBooleanFALSE:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBooleanLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::LiteralSTRING:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalStringLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            case TokenType::LiteralCHAR:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalCharLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
-            default:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalIgnore, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorPLUS: 
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalPlus, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
         }
     });
 
-    auto firstValid = find_if(_symbols.begin(), _symbols.end(), [](ExpressionCompoundSymbol x) -> auto
-    {
-        if (x.Symbol != ExpressionParserTreeSymbols::TerminalIgnore)
-            return true;
-        return false;
-    });
-
-    _line = (*firstValid).Line;
-    _column = (*firstValid).Column;
+    _line = (*beginIt).Line;
+    _column = (*beginIt).Column;
 
     for_each(_symbols.begin(), _symbols.end(), [](ExpressionCompoundSymbol x) -> auto
     {
