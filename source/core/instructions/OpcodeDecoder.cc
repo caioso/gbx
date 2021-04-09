@@ -63,7 +63,7 @@ shared_ptr<BaseInstructionInterface> OpcodeDecoder::DecodeInstructionWithPreOpco
             OpcodePatternMatcher::Pattern('0'_b, '1'_b, 'X'_b, 'X'_b, 'X'_b, '1'_b, '1'_b, '0'_b)) ||
             OpcodePatternMatcher::Match(opcode, // 0111 0XXX
             OpcodePatternMatcher::Pattern('0'_b, '1'_b, '1'_b, '1'_b, '0'_b, 'X'_b, 'X'_b, 'X'_b)))
-            return make_shared<InstructionLd>();
+            return make_shared<InstructionLdAndLdu>();
     }
     // [GBX ONLY] System-Mode Instruction
     else if (preOpcode.value() == InstructionConstants::PreOpcode_FC)
@@ -71,6 +71,37 @@ shared_ptr<BaseInstructionInterface> OpcodeDecoder::DecodeInstructionWithPreOpco
         if (OpcodePatternMatcher::Match(opcode, // 1100 0011
             OpcodePatternMatcher::Pattern('1'_b, '1'_b, '0'_b, '0'_b, '0'_b, '0'_b, '1'_b, '1'_b)))
             return make_shared<InstructionJpu>();
+        else if (OpcodePatternMatcher::Match(opcode, // 0000 1000
+             OpcodePatternMatcher::Pattern('0'_b, '0'_b, '0'_b, '0'_b, '1'_b, '0'_b, '0'_b, '0'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 00XX 0001
+             OpcodePatternMatcher::Pattern('0'_b, '0'_b, 'X'_b, 'X'_b, '0'_b, '0'_b, '0'_b, '1'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 0011 0110
+             OpcodePatternMatcher::Pattern('0'_b, '0'_b, '1'_b, '1'_b, '0'_b, '1'_b, '1'_b, '0'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 001X 1010
+             OpcodePatternMatcher::Pattern('0'_b, '0'_b, '1'_b, 'X'_b, '1'_b, '0'_b, '1'_b, '0'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 001X 0010
+             OpcodePatternMatcher::Pattern('0'_b, '0'_b, '1'_b, 'X'_b, '0'_b, '0'_b, '1'_b, '0'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 00XX X110
+             OpcodePatternMatcher::Pattern('0'_b, '0'_b, 'X'_b, 'X'_b, 'X'_b, '1'_b, '1'_b, '0'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 000X 1010
+             OpcodePatternMatcher::Pattern('0'_b, '0'_b, '0'_b, 'X'_b, '1'_b, '0'_b, '1'_b, '0'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 000X 0010
+             OpcodePatternMatcher::Pattern('0'_b, '0'_b, '0'_b, 'X'_b, '0'_b, '0'_b, '1'_b, '0'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 0111 0XXX
+             OpcodePatternMatcher::Pattern('0'_b, '1'_b, '1'_b, '1'_b, '0'_b, 'X'_b, 'X'_b, 'X'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 111X 0010
+             OpcodePatternMatcher::Pattern('1'_b, '1'_b, '1'_b, 'X'_b, '0'_b, '0'_b, '1'_b, '0'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 111X 0000
+             OpcodePatternMatcher::Pattern('1'_b, '1'_b, '1'_b, 'X'_b, '0'_b, '0'_b, '0'_b, '0'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 111X 1010
+             OpcodePatternMatcher::Pattern('1'_b, '1'_b, '1'_b, 'X'_b, '1'_b, '0'_b, '1'_b, '0'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 1111 1001
+             OpcodePatternMatcher::Pattern('1'_b, '1'_b, '1'_b, '1'_b, '1'_b, '0'_b, '0'_b, '1'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 01XX X110
+             OpcodePatternMatcher::Pattern('0'_b, '1'_b, 'X'_b, 'X'_b, 'X'_b, '1'_b, '1'_b, '0'_b)) ||
+             OpcodePatternMatcher::Match(opcode, // 01XX XXXX
+             OpcodePatternMatcher::Pattern('0'_b, '1'_b, 'X'_b, 'X'_b, 'X'_b, 'X'_b, 'X'_b, 'X'_b)))
+             return make_shared<InstructionLdAndLdu>();
     }
     
     throw InstructionException("unknown instruction");
@@ -256,7 +287,7 @@ shared_ptr<BaseInstructionInterface> OpcodeDecoder::DecodeInstructionWithoutPreO
              OpcodePatternMatcher::Pattern('0'_b, '1'_b, 'X'_b, 'X'_b, 'X'_b, '1'_b, '1'_b, '0'_b)) ||
              OpcodePatternMatcher::Match(opcode, // 01XX XXXX
              OpcodePatternMatcher::Pattern('0'_b, '1'_b, 'X'_b, 'X'_b, 'X'_b, 'X'_b, 'X'_b, 'X'_b)))
-             return make_shared<InstructionLd>();
+             return make_shared<InstructionLdAndLdu>();
 
     throw InstructionException("unknown instruction");
 }

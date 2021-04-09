@@ -19,7 +19,7 @@
 #include "InstructionHalt.h"
 #include "InstructionJp.h"
 #include "InstructionJr.h"
-#include "InstructionLd.h"
+#include "InstructionLdAndLdu.h"
 #include "InstructionLdhl.h"
 #include "InstructionNop.h"
 #include "InstructionOr.h"

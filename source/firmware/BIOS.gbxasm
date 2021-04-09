@@ -1,7 +1,38 @@
-NOP ; 0x00
-NOP ; 0x00
-..........
-JPU ; 0xFC -> System Mode Operation Prefix
-    ; 0xC3 -> JP
-    ; 0x00 -> Jump to 16bit immediate address in User Mode (leaving system mode)
-    ; 0x10
+                    ; GAME BOY X BIOS VERSION 0.0.1
+.ORG 0x0000
+NOP                 ; Do nothing
+LD HL, 0x0200       ; 0x21 -> Initial address of Nintendo logo in the BIOS
+                    ; 0x00
+                    ; 0x02
+LD DE, 0x0104       ; 0x11 -> Initial address of Nintendo logo in the ROM
+                    ; 0x04
+                    ; 0x01
+LD C, 0x30          ; 0x0E -> Load Counter with value 0x30 (48)
+                    ; 0x30
+                    ; Nintendo Logo check loop
+LD A, [HL+]         ; 0x2A -> Load byte from the BIOS space (auto increment)
+LD B, A             ; 0x47
+LDU A, [DE]         ; 0xFC -> Load byte from the ROM space (System mode instruction)
+                    ; 0x1A
+INC DE              ; 0x13 -> Increment DE
+CP B                ; 0xB8 -> Compare A with B and check if the result is 0
+JP NZ, 0x0150       ; 0xC2 -> If not zero, the two bytes are different, go to endless loop
+DEC C               ; 0x0D -> Decrement Counter
+LD A, 0x00          ; 0x3E -> Load A with 0x00
+CP C                ; 0xB9 -> Compare A and C
+JP NZ, 0x0009       ; 0xC2 -> Loop again if not zero
+                    ; 0x09
+                    ; 0x00
+                    ; Check Complete, jump to user space's ROM start
+JPU                 ; 0xFC -> System Mode Operation Prefix
+                    ; 0xC3 -> JP
+                    ; 0x00 -> Jump to 16bit immediate address in User Mode (leaving system mode)
+                    ; 0x01
+.ORG 0x0150
+NOP                 ; 0x00
+JP 0x0150           ; 0xC3
+                    ; 0x50
+                    ; 0x01
+
+
+                    

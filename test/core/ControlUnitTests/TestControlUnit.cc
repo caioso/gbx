@@ -3420,3 +3420,29 @@ TEST(CoreTests_ControlUnit, TestJpu)
 
     EXPECT_EQ(0x0100, registers->ReadPair(Register::PC));
 }
+
+TEST(CoreTests_ControlUnit, TestLDUWithRegisterIndirectSourceIncrement)
+{
+    shared_ptr<MemoryControllerInterface> memoryController = make_shared<MemoryControllerMock>();
+    shared_ptr<ArithmeticLogicUnitInterface> arithmeticLogicUnit = make_shared<ArithmeticLogicDecorator>();
+    auto registerBank = make_shared<RegisterBank>();
+    arithmeticLogicUnit->Initialize(registerBank);
+    arithmeticLogicUnit->InitializeRegisters();
+    auto controlUnit = make_shared<ControlUnit>();
+         controlUnit->Initialize(memoryController, arithmeticLogicUnit);
+
+    registerBank->WritePair(Register::DE, 0x0104);
+
+    // First trigger to controlUnit. 
+    auto mockPointer = static_pointer_cast<MemoryControllerMock>(memoryController);
+    // Content of the Operand 1 will be stored in the address held by HL.
+    EXPECT_CALL((*mockPointer), Read(0x0000, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xFC)));
+    EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x1A)));
+    EXPECT_CALL((*mockPointer), Read(0x0104, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xCC)));
+    
+    EXPECT_CALL((*mockPointer), SetMode(Mode::User));
+    controlUnit->RunCycle();
+
+    EXPECT_EQ(0xCC, registerBank->Read(Register::A));
+    EXPECT_EQ(0x0104, registerBank->ReadPair(Register::DE));
+}

@@ -119,3 +119,29 @@ TEST(CoreTests_GameBoyXTests, LoadTooLargeGameROM)
                       MemoryControllerException, 
                       "Game ROM file larger than 2MB");    
 }
+
+TEST(CoreTests_GameBoyXTests, ExecuteSystemBIOS)
+{
+    GameBoyX gbx;
+    gbx.LoadBIOS(BIOSFileName());
+    gbx.SetMode(Mode::System);
+    
+    gbx.Run();
+    EXPECT_EQ(0x00, get<uint8_t>(gbx.ReadRegister(Register::IR)));
+    gbx.Run();
+    EXPECT_EQ(0xc3, get<uint8_t>(gbx.ReadRegister(Register::IR)));
+    EXPECT_EQ(0x0100, get<uint16_t>(gbx.ReadRegister(Register::PC)));
+}
+
+TEST(CoreTests_GameBoyXTests, CheckNintendoLogoConsitency)
+{
+    GameBoyX gbx;
+    gbx.LoadBIOS(BIOSFileName());
+    gbx.SetMode(Mode::System);
+    
+    gbx.Run();
+    EXPECT_EQ(0x00, get<uint8_t>(gbx.ReadRegister(Register::IR)));
+    gbx.Run();
+    EXPECT_EQ(0xc3, get<uint8_t>(gbx.ReadRegister(Register::IR)));
+    EXPECT_EQ(0x0100, get<uint16_t>(gbx.ReadRegister(Register::PC)));
+}

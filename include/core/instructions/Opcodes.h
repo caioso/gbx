@@ -54,6 +54,7 @@ enum class OpcodeType
     // GBX ONLY
     // System Mode Operations
     jpu,
+    ldu,
 };
 
 const uint8_t MemoryOperand = 0x06;

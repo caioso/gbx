@@ -17,7 +17,7 @@ MODULES = MemoryController RegisterBank ArithmeticLogicUnit ControlUnit \
 		  InstructionAdd InstructionAdc InstructionAddBase InstructionBit InstructionCall \
 		  InstructionCcf InstructionCpl InstructionCp InstructionDaa InstructionDec \
 		  InstructionDi InstructionEi InstructionHalt InstructionInc InstructionJp InstructionJr \
-		  InstructionLdhl InstructionLd InstructionNop InstructionOr InstructionPop InstructionPush \
+		  InstructionLdhl InstructionLdAndLdu InstructionNop InstructionOr InstructionPop InstructionPush \
 		  InstructionRes InstructionRet InstructionReti InstructionRlca InstructionRla InstructionRlc \
 		  InstructionRl InstructionRrca InstructionRra InstructionRrc InstructionRr InstructionRst \
 		  InstructionSet InstructionSla InstructionSra InstructionSrl InstructionStop InstructionSub \

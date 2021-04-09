@@ -303,6 +303,8 @@ inline void ArithmeticLogicUnit::ResolveExecutionSignals()
         _interruptMasterEnable = false;
     else if (_instructionData.Opcode == OpcodeType::jpu && _executionAborted == false)
         _userModeRequested = true;
+    else if (_instructionData.Opcode == OpcodeType::ldu && _executionAborted == false)
+        _userModeRequested = true;
 }
 
 inline void ArithmeticLogicUnit::ClearExecutionSignals()

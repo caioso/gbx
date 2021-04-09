@@ -14,6 +14,9 @@ GameBoyX::GameBoyX()
     _cpu = make_shared<Z80X>();
     _controlUnit = make_shared<ControlUnit>();
     _memoryController = make_shared<MemoryController>();
+    _alu = make_shared<ArithmeticLogicUnit>();
+    _clock = make_shared<Clock>(EngineParameters::GBCClockPeriod);
+    _registers = make_shared<RegisterBank>();
 
     // GBX System Mode memory map
     auto systemFixedROMBank = make_unique<ROM>(GBXSystemROMPhysicalSize);
@@ -43,15 +46,11 @@ GameBoyX::GameBoyX()
     _memoryController->RegisterMemoryResource(std::move(userIORAM), AddressRange(DMGBCIORAMInitialAddress, DMGBCIORAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
     _memoryController->RegisterMemoryResource(std::move(userHRAM), AddressRange(DMGBCHRAMInitialAddress, DMGBCHRAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
 
-    auto _alu = make_shared<ArithmeticLogicUnit>();
-    auto _clock = make_shared<Clock>(EngineParameters::GBCClockPeriod);
-    auto _registers = make_shared<RegisterBank>();
-
-    // Initialize Z80X CPU
-    _cpu->Initialize(_controlUnit, _clock, _alu, _memoryController, _registers);
-
     // Set Memory Controller to run in System Mode
     _memoryController->SetMode(Mode::System);
+    
+    // Initialize Z80X CPU
+    _cpu->Initialize(_controlUnit, _clock, _alu, _memoryController, _registers);
 }
 
 void GameBoyX::Run()
