@@ -117,6 +117,7 @@ _deps
 ##### C++
 ./temp/
 ./build/apps/
+./build/apps/gbx
 ./build/libs/
 ./build/test/gbxtest
 ./build/test/gbxtest.dSYM/

@@ -15,11 +15,27 @@ namespace gbxasm::frontend::parsers
 enum class ExpressionParserTreeSymbols
 {
     TerminalPlus,
+    TerminalMinus,
+    TerminalMultiplication,
+    TerminalDivision,
+    TerminalBitwiseAnd,
+    TerminalBitwiseOr,
+
     TerminalIdentifier,
+    
+    TerminalOpenParenthesis,
+    TerminalCloseParenthesis,
+    
     NonTerminalExpression,            // E
+    NonTerminalSurroundedOperation,   // E5
     NonTerminalOperand,               // E6
     NonTerminalOperation,             // E7
     NonTerminalBinaryAddition,        // F1
+    NonTerminalBinarySubtraction,     // F2
+    NonTerminalBinaryMultiplication,  // F3
+    NonTerminalBinaryDivision,        // F4
+    NonTerminalBinaryBitwiseAnd,      // F5
+    NonTerminalBinaryBitwiseOr,       // F6
     NonTerminalIdentifier,            // T4
 };
 
