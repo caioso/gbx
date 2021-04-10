@@ -115,6 +115,12 @@ CTestTestfile.cmake
 _deps
 
 ##### C++
+./temp/
+./build/apps/
+./build/libs/
+./build/test/gbxtest
+./build/test/gbxtest.dSYM/
+
 # Prerequisites
 *.d
 
