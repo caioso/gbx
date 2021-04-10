@@ -61,6 +61,7 @@ public:
     [[nodiscard]] virtual bool InterruptMasterEnable() = 0;
     [[nodiscard]] virtual bool IsExecutionAborted() = 0;
     [[nodiscard]] virtual bool UserModeRequested() = 0; 
+    [[nodiscard]] virtual bool UserModeSourceOperandRequested() = 0;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() = 0;
     virtual void AcquireOperand1AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;

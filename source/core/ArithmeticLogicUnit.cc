@@ -33,6 +33,7 @@ void ArithmeticLogicUnit::Decode()
         auto preOpcode = IsSuffixedInstruction(complement)? make_optional<uint8_t>(complement) : nullopt;
         _currentInstruction = _decoder.DecodeOpcode(opcode, preOpcode);
         _currentInstruction->Decode(opcode, preOpcode, _instructionData);
+        ResolveMemoryAccessSignals();
     }
     catch (const InstructionException&)
     {
@@ -71,7 +72,7 @@ inline bool ArithmeticLogicUnit::IsSuffixedInstruction(uint8_t instruction)
 void ArithmeticLogicUnit::Execute()
 {
     ClearExecutionSignals();
-    
+
     if (_currentInstruction == nullptr)
         throw InstructionException("tried to execute an and e coded instruction");
 
@@ -289,6 +290,11 @@ bool ArithmeticLogicUnit::UserModeRequested()
     return _userModeRequested;
 }
 
+bool ArithmeticLogicUnit::UserModeSourceOperandRequested()
+{
+    return _userModeSourceOperandRequested;
+}
+
 inline void ArithmeticLogicUnit::ResolveExecutionSignals()
 {
     if (_instructionData.Opcode == OpcodeType::reti && _executionAborted == false)
@@ -303,8 +309,17 @@ inline void ArithmeticLogicUnit::ResolveExecutionSignals()
         _interruptMasterEnable = false;
     else if (_instructionData.Opcode == OpcodeType::jpu && _executionAborted == false)
         _userModeRequested = true;
-    else if (_instructionData.Opcode == OpcodeType::ldu && _executionAborted == false)
-        _userModeRequested = true;
+}
+
+inline void ArithmeticLogicUnit::ResolveMemoryAccessSignals()
+{
+    if (((_instructionData.Opcode == OpcodeType::ldu && _instructionData.AddressingMode == AddressingMode::RegisterIndirectSourcePair) ||
+        (_instructionData.Opcode == OpcodeType::ldu && _instructionData.AddressingMode == AddressingMode::RegisterIndirectSource) ||
+        (_instructionData.Opcode == OpcodeType::ldu && _instructionData.AddressingMode == AddressingMode::RegisterIndirectSourceAndDestination) ||
+        (_instructionData.Opcode == OpcodeType::ldu && _instructionData.AddressingMode == AddressingMode::RegisterIndirectSourceIncrement) ||
+        (_instructionData.Opcode == OpcodeType::ldu && _instructionData.AddressingMode == AddressingMode::RegisterIndirectSourceDecrement)) &&
+        _executionAborted == false)
+        _userModeSourceOperandRequested = true;
 }
 
 inline void ArithmeticLogicUnit::ClearExecutionSignals()
@@ -313,6 +328,7 @@ inline void ArithmeticLogicUnit::ClearExecutionSignals()
     _haltSignal = false;
     _stopSignal = false;
     _userModeRequested = false;
+    _userModeSourceOperandRequested = false;
 }
 
 }

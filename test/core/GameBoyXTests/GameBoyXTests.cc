@@ -25,6 +25,11 @@ std::string SampleGameFileName()
     return GBXTestEnvironment::TestDataPath + "rom.gb";
 }
 
+std::string SampleInvalidLogoGameFileName()
+{
+    return GBXTestEnvironment::TestDataPath + "invalid_logo_rom.gb";
+}
+
 std::string SampleMultipleGameFileName()
 {
     return GBXTestEnvironment::TestDataPath + "rom.gbc";
@@ -122,26 +127,163 @@ TEST(CoreTests_GameBoyXTests, LoadTooLargeGameROM)
 
 TEST(CoreTests_GameBoyXTests, ExecuteSystemBIOS)
 {
+    // This test runs the instructions neeed to execute the 'Nintendo Logo checking' during the system bootup
+    auto nintendoLogoBytes = {0xce, 0xed, 0x66, 0x66, 0xcc, 0x0d, 0x00, 0x0b, 
+                              0x03, 0x73, 0x00, 0x83, 0x00, 0x0c, 0x00, 0x0d, 
+                              0x00, 0x08, 0x11, 0x1f, 0x88, 0x89, 0x00, 0x0e, 
+                              0xdc, 0xcc, 0x6e, 0xe6, 0xdd, 0xdd, 0xd9, 0x99, 
+                              0xbb, 0xbb, 0x67, 0x63, 0x6e, 0x0e, 0xec, 0xcc, 
+                              0xdd, 0xdc, 0x99, 0x9f, 0xbb, 0xb9, 0x33, 0x3e};
     GameBoyX gbx;
     gbx.LoadBIOS(BIOSFileName());
+    gbx.LoadGame(SampleGameFileName());
     gbx.SetMode(Mode::System);
-    
+
+    // Run NOP
     gbx.Run();
     EXPECT_EQ(0x00, get<uint8_t>(gbx.ReadRegister(Register::IR)));
+
+    // LD HL, 0x0200   
     gbx.Run();
-    EXPECT_EQ(0xc3, get<uint8_t>(gbx.ReadRegister(Register::IR)));
+    EXPECT_EQ(0x0200, get<uint16_t>(gbx.ReadRegister(Register::HL)));
+    
+    // LD DE, 0x0104
+    gbx.Run();
+    EXPECT_EQ(0x0104, get<uint16_t>(gbx.ReadRegister(Register::DE)));
+    
+    // LD C, 0x30
+    gbx.Run();
+    EXPECT_EQ(0x30, get<uint8_t>(gbx.ReadRegister(Register::C)));
+    
+    // Loop
+    for (auto i = 0llu; i < nintendoLogoBytes.size(); ++i)
+    {
+        // LD A, [HL+]
+        gbx.Run();
+        EXPECT_EQ((*(begin(nintendoLogoBytes) + i)), get<uint8_t>(gbx.ReadRegister(Register::A)));
+        EXPECT_EQ(0x0200 + i + 1, get<uint16_t>(gbx.ReadRegister(Register::HL)));
+
+        // LD B, A
+        gbx.Run();
+        EXPECT_EQ((*(begin(nintendoLogoBytes) + i)), get<uint8_t>(gbx.ReadRegister(Register::B)));
+        
+        // LDU A, [DE]
+        gbx.Run();
+        EXPECT_EQ((*(begin(nintendoLogoBytes) + i)), get<uint8_t>(gbx.ReadRegister(Register::A)));
+
+        // INC DE
+        gbx.Run();
+        EXPECT_EQ(0x0104 + i + 1, get<uint16_t>(gbx.ReadRegister(Register::DE)));
+        
+        // CP B
+        gbx.Run();
+        EXPECT_EQ(0x80, 0x80 & get<uint8_t>(gbx.ReadRegister(Register::F)));
+        
+        // JP NZ, 0x0150
+        gbx.Run();
+        EXPECT_NE(0x0150, get<uint16_t>(gbx.ReadRegister(Register::PC)));
+        
+        // DEC C
+        gbx.Run();
+        EXPECT_EQ(0x30 - (i + 1), get<uint8_t>(gbx.ReadRegister(Register::C)));
+        
+        // LD A, 0x00
+        gbx.Run();
+        EXPECT_EQ(0x00, get<uint8_t>(gbx.ReadRegister(Register::A)));
+
+        if (i != nintendoLogoBytes.size() - 1)
+        {
+            // CP C
+            gbx.Run();
+            EXPECT_EQ(0x00, 0x80 & get<uint8_t>(gbx.ReadRegister(Register::F)));
+
+            // JP NZ, 0x0009
+            gbx.Run();
+            EXPECT_EQ(0x0009, get<uint16_t>(gbx.ReadRegister(Register::PC)));
+        }
+        else
+        {
+            // CP C
+            gbx.Run();
+            EXPECT_EQ(0x80, 0x80 & get<uint8_t>(gbx.ReadRegister(Register::F)));
+
+            // JP NZ, 0x0009
+            gbx.Run();
+            EXPECT_NE(0x0009, get<uint16_t>(gbx.ReadRegister(Register::PC)));
+        }
+    }
+
+    // JPU 0x0100
+    gbx.Run();
     EXPECT_EQ(0x0100, get<uint16_t>(gbx.ReadRegister(Register::PC)));
+    EXPECT_EQ(Mode::User, gbx.Mode());
 }
 
-TEST(CoreTests_GameBoyXTests, CheckNintendoLogoConsitency)
+TEST(CoreTests_GameBoyXTests, ExecuteSystemBIOSWithIncorrectROM)
 {
+    // This test runs the instructions neeed to execute the 'Nintendo Logo checking' during the system bootup
+    auto nintendoLogoBytes = {0xce, 0xed, 0x66, 0x66, 0xcc, 0x0d, 0x00, 0x0b, 
+                              0x03, 0x73, 0x00, 0x83, 0x00, 0x0c, 0x00, 0x0d, 
+                              0x00, 0x08, 0x11, 0x1f, 0x88, 0x89, 0x00, 0x0e, 
+                              0xdc, 0xcc, 0x6e, 0xe6, 0xdd, 0xdd, 0xd9, 0x99, 
+                              0xbb, 0xbb, 0x67, 0x63, 0x6e, 0x0e, 0xec, 0xcc, 
+                              0xdd, 0xdc, 0x99, 0x9f, 0xbb, 0xb9, 0x33, 0x3e};
     GameBoyX gbx;
     gbx.LoadBIOS(BIOSFileName());
+    gbx.LoadGame(SampleInvalidLogoGameFileName());
     gbx.SetMode(Mode::System);
-    
+
+    // Run NOP
     gbx.Run();
     EXPECT_EQ(0x00, get<uint8_t>(gbx.ReadRegister(Register::IR)));
+
+    // LD HL, 0x0200   
     gbx.Run();
-    EXPECT_EQ(0xc3, get<uint8_t>(gbx.ReadRegister(Register::IR)));
-    EXPECT_EQ(0x0100, get<uint16_t>(gbx.ReadRegister(Register::PC)));
+    EXPECT_EQ(0x0200, get<uint16_t>(gbx.ReadRegister(Register::HL)));
+    
+    // LD DE, 0x0104
+    gbx.Run();
+    EXPECT_EQ(0x0104, get<uint16_t>(gbx.ReadRegister(Register::DE)));
+    
+    // LD C, 0x30
+    gbx.Run();
+    EXPECT_EQ(0x30, get<uint8_t>(gbx.ReadRegister(Register::C)));
+    
+    // LD A, [HL+]
+    gbx.Run();
+    EXPECT_EQ((*(begin(nintendoLogoBytes) + 0x00)), get<uint8_t>(gbx.ReadRegister(Register::A)));
+    EXPECT_EQ(0x0201, get<uint16_t>(gbx.ReadRegister(Register::HL)));
+
+    // LD B, A
+    gbx.Run();
+    EXPECT_EQ((*(begin(nintendoLogoBytes) + 0x00)), get<uint8_t>(gbx.ReadRegister(Register::B)));
+    
+    // LDU A, [DE]
+    gbx.Run();
+    // Incorrect byte -> expected to be 0xCE, but the ROM has 0xCD
+    EXPECT_EQ(0xCD, get<uint8_t>(gbx.ReadRegister(Register::A)));
+
+    // INC DE
+    gbx.Run();
+    EXPECT_EQ(0x0105, get<uint16_t>(gbx.ReadRegister(Register::DE)));
+    
+    // CP B
+    gbx.Run();
+    EXPECT_EQ(0x00, 0x80 & get<uint8_t>(gbx.ReadRegister(Register::F)));
+    
+    // JP NZ, 0x0150 -> will be taken
+    gbx.Run();
+    EXPECT_EQ(0x0150, get<uint16_t>(gbx.ReadRegister(Register::PC)));
+
+    // Endless Loop
+    for (auto i = 0llu; i < 20000; ++i)
+    {
+        // NOP
+        gbx.Run();
+        EXPECT_EQ(0x0151, get<uint16_t>(gbx.ReadRegister(Register::PC)));
+
+        // JP 0x0150
+        gbx.Run();
+        EXPECT_EQ(0x0150, get<uint16_t>(gbx.ReadRegister(Register::PC)));
+    }
 }

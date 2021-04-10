@@ -3440,7 +3440,8 @@ TEST(CoreTests_ControlUnit, TestLDUWithRegisterIndirectSourceIncrement)
     EXPECT_CALL((*mockPointer), Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x1A)));
     EXPECT_CALL((*mockPointer), Read(0x0104, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xCC)));
     
-    EXPECT_CALL((*mockPointer), SetMode(Mode::User));
+    EXPECT_CALL((*mockPointer), Mode()).WillRepeatedly(Return(Mode::User));
+    EXPECT_CALL((*mockPointer), SetMode(Mode::User)).Times(2);
     controlUnit->RunCycle();
 
     EXPECT_EQ(0xCC, registerBank->Read(Register::A));

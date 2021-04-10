@@ -35,6 +35,7 @@ public:
     [[nodiscard]] virtual bool InterruptMasterEnable() override;
     [[nodiscard]] virtual bool IsExecutionAborted() override;
     [[nodiscard]] virtual bool UserModeRequested() override;
+    [[nodiscard]] virtual bool UserModeSourceOperandRequested() override;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() override;
     virtual void AcquireOperand1AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
@@ -60,6 +61,7 @@ protected:
     inline void IncrementPC();
     inline static bool IsSuffixedInstruction(uint8_t);
     inline void ResolveExecutionSignals();
+    inline void ResolveMemoryAccessSignals();
     inline void ClearExecutionSignals();
 
     AddressingModeFormat* _currentAddressingMode;
@@ -68,6 +70,7 @@ protected:
     std::shared_ptr<interfaces::BaseInstructionInterface> _currentInstruction;
     std::shared_ptr<interfaces::RegisterBankInterface> _registers;
     bool _userModeRequested{};
+    bool _userModeSourceOperandRequested{};
     bool _executionAborted{};
     bool _clearInterruptStatusSignal{};
     bool _haltSignal{};

@@ -174,7 +174,7 @@ variant<uint8_t, uint16_t> GameBoyX::ReadROM(uint16_t address, std::optional<uin
 
 gbxcore::Mode GameBoyX::Mode()
 {
-    return _mode;
+    return _memoryController->Mode();
 }
 
 void GameBoyX::SetMode(gbxcore::Mode mode)

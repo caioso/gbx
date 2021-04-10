@@ -60,6 +60,7 @@ protected:
 
     inline bool IsExecutionAborted();
     inline bool IsUserModeRequested();
+    inline bool IsUserSourceOperandModeRequested();
 
     std::shared_ptr<interfaces::ArithmeticLogicUnitInterface> _alu;
     std::optional<uint8_t> _preOpcode;

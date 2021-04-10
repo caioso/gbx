@@ -62,27 +62,66 @@ inline void ControlUnit::AcquireOperand1()
 {
     if (_currentAddressingMode->acquireOperand1FromPc)
         ReadOperand1AtPC();
-    else if (_currentAddressingMode->acquireOperand1Directly)
-        ReadOperand1AtRegister();
-    else if (_currentAddressingMode->acquireOperand1Implicitly)
-        ReadOperand1Implicitly();
+    else
+    {
+        auto oldMode = Mode::System;
+        if (IsUserSourceOperandModeRequested())
+        {
+            oldMode = _memoryController->Mode();
+            _memoryController->SetMode(Mode::User);            
+        }
+
+        if (_currentAddressingMode->acquireOperand1Directly)
+            ReadOperand1AtRegister();
+        else if (_currentAddressingMode->acquireOperand1Implicitly)
+            ReadOperand1Implicitly();
+
+        if (IsUserSourceOperandModeRequested())
+            _memoryController->SetMode(oldMode);            
+    }
 }
 
 inline void ControlUnit::AcquireOperand2()
 {
     if (_currentAddressingMode->acquireOperand2FromPc)
         ReadOperand2AtPC();
-    else if (_currentAddressingMode->acquireOperand2AtComposedAddress)
-        ReadOperand2AtComposedAddress();
-    else if (_currentAddressingMode->acquireOperand2Implicitly)
-        ReadOperand2Implicitly();
-    else if (_currentAddressingMode->acquireOperand2Directly)
-        ReadOperand2Directly();
+    else
+    { 
+        auto oldMode = Mode::System;
+        if (IsUserSourceOperandModeRequested())
+        {
+            oldMode = _memoryController->Mode();
+            _memoryController->SetMode(Mode::User);            
+        }
+
+        if (IsUserSourceOperandModeRequested())
+            _memoryController->SetMode(Mode::User);            
+
+        if (_currentAddressingMode->acquireOperand2AtComposedAddress)
+            ReadOperand2AtComposedAddress();
+        else if (_currentAddressingMode->acquireOperand2Implicitly)
+            ReadOperand2Implicitly();
+        else if (_currentAddressingMode->acquireOperand2Directly)
+            ReadOperand2Directly();
+
+        if (IsUserSourceOperandModeRequested())
+            _memoryController->SetMode(oldMode);            
+    }
 }
 
 inline void ControlUnit::AcquireOperand3()
 {
+    auto oldMode = Mode::System;
+    if (IsUserSourceOperandModeRequested())
+    {
+        oldMode = _memoryController->Mode();
+        _memoryController->SetMode(Mode::User);            
+    }
+
     _alu->AcquireOperand3(_memoryController);
+
+    if (IsUserSourceOperandModeRequested())
+        _memoryController->SetMode(oldMode);            
 }
 
 inline void ControlUnit::Execute()
@@ -214,6 +253,11 @@ inline bool ControlUnit::IsExecutionAborted()
 inline bool ControlUnit::IsUserModeRequested()
 {
     return _alu->UserModeRequested();
+}
+
+inline bool ControlUnit::IsUserSourceOperandModeRequested()
+{
+    return _alu->UserModeSourceOperandRequested();
 }
 
 }

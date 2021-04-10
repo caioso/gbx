@@ -45,7 +45,7 @@ public:
     
     void SwitchBank(size_t, size_t) override;
     void SetMode(gbxcore::Mode) override;
-    gbxcore::Mode Mode();
+    gbxcore::Mode Mode() override;
 
     size_t RegisterMemoryResource(std::unique_ptr<interfaces::MemoryInterface>, AddressRange,  Ownership) override;
     void UnregisterMemoryResource(size_t, Ownership) override;

@@ -28,6 +28,7 @@ public:
  
     virtual void SwitchBank(size_t, size_t) = 0;
     virtual void SetMode(Mode) = 0;
+    virtual Mode Mode() = 0;
 
     virtual size_t RegisterMemoryResource(std::unique_ptr<interfaces::MemoryInterface>, AddressRange, Ownership) = 0;
     virtual void UnregisterMemoryResource(size_t, Ownership) = 0;
