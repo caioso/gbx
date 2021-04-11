@@ -21,10 +21,10 @@ using namespace gbxcore::instructions;
 
 TEST(TestJr, DecodeUnconditionalJrImmediateMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     auto opcode = 0x18;
@@ -39,10 +39,10 @@ TEST(TestJr, DecodeUnconditionalJrImmediateMode)
 
 TEST(TestJr, ExecuteUnconditionalJrImmediateMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -60,20 +60,20 @@ TEST(TestJr, ExecuteUnconditionalJrImmediateMode)
         auto result = static_cast<uint16_t>(targetPCAddress + (targetOffset));
 
         alu.GetInstructionData().MemoryOperand1 = targetOffset;
-        registerBank->WritePair(Register::PC, targetPCAddress);
+        registerBank.WritePair(Register::PC, targetPCAddress);
 
         alu.Execute();
 
-        EXPECT_EQ(result, registerBank->ReadPair(Register::PC));
+        EXPECT_EQ(result, registerBank.ReadPair(Register::PC));
     }
 }
 
 TEST(TestJr, DecodeConditionalJrImmediateMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     for (auto condition = 0; condition < 4; condition++)
@@ -91,10 +91,10 @@ TEST(TestJr, DecodeConditionalJrImmediateMode)
 
 TEST(TestJr, ExecuteConditionalJrImmediateMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -104,10 +104,10 @@ TEST(TestJr, ExecuteConditionalJrImmediateMode)
 
     for (auto i = 0; i < 0xFFF; i++)
     {
-        registerBank->Write(Register::F, 0x00);
+        registerBank.Write(Register::F, 0x00);
 
         auto initialPCAddress = distribution(engine);
-        registerBank->WritePair(Register::PC, initialPCAddress);
+        registerBank.WritePair(Register::PC, initialPCAddress);
 
         auto targetCondition = distribution(engine)%4;
         auto opcode =  0x20 | (targetCondition << 0x03);
@@ -121,28 +121,28 @@ TEST(TestJr, ExecuteConditionalJrImmediateMode)
         if (targetCondition == 0 || targetCondition == 1)
         {
             auto randomZeroValue = distribution(engine)%2;
-            registerBank->WriteFlag(Flag::Z, randomZeroValue);
+            registerBank.WriteFlag(Flag::Z, randomZeroValue);
 
             alu.Execute();
 
             if ((targetCondition == 0 && randomZeroValue == 0) ||
                 (targetCondition == 1 && randomZeroValue == 1))
-                EXPECT_EQ(targetPCAddress, registerBank->ReadPair(Register::PC));
+                EXPECT_EQ(targetPCAddress, registerBank.ReadPair(Register::PC));
             else
-                EXPECT_EQ(initialPCAddress, registerBank->ReadPair(Register::PC));
+                EXPECT_EQ(initialPCAddress, registerBank.ReadPair(Register::PC));
         }
         else
         {
             auto randomCarryValue = distribution(engine)%2;
-            registerBank->WriteFlag(Flag::CY, randomCarryValue);
+            registerBank.WriteFlag(Flag::CY, randomCarryValue);
 
             alu.Execute();
 
             if ((targetCondition == 2 && randomCarryValue == 0) ||
                 (targetCondition == 3 && randomCarryValue == 1))
-                EXPECT_EQ(targetPCAddress, registerBank->ReadPair(Register::PC));
+                EXPECT_EQ(targetPCAddress, registerBank.ReadPair(Register::PC));
             else
-                EXPECT_EQ(initialPCAddress, registerBank->ReadPair(Register::PC));
+                EXPECT_EQ(initialPCAddress, registerBank.ReadPair(Register::PC));
         }
     }
 }

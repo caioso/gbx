@@ -11,7 +11,7 @@ ControlUnit::ControlUnit()
     , _currentAddressingMode(nullptr)
 {}
 
-void ControlUnit::Initialize(shared_ptr<MemoryControllerInterface> memoryController, shared_ptr<ArithmeticLogicUnitInterface> alu)
+void ControlUnit::Initialize(MemoryControllerInterface* memoryController, ArithmeticLogicUnitInterface* alu)
 {
     _memoryController = memoryController;
     _alu = alu;

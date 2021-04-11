@@ -61,7 +61,7 @@ void InstructionLdAndLdu::Decode(uint8_t opcode, std::optional<uint8_t> preOpcod
     }
 }
 
-void InstructionLdAndLdu::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionLdAndLdu::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
         if (auto currentAddressingMode = decodedInstruction.AddressingMode;
             InstructionUtilities::IsAddressingMode(currentAddressingMode, AddressingMode::Immediate, 
@@ -479,33 +479,33 @@ inline void InstructionLdAndLdu::DecodeIndexedRegisterMove(uint8_t opcode, uint8
     };
 }
 
-inline void InstructionLdAndLdu::ExecuteRegisterMemoryOperand1Transfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLdAndLdu::ExecuteRegisterMemoryOperand1Transfer(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     registerBank->Write(decodedInstruction.DestinationRegister, decodedInstruction.MemoryOperand1);
 }
 
-inline void InstructionLdAndLdu::ExecuteRegisterMemoryOperand1And2Transfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLdAndLdu::ExecuteRegisterMemoryOperand1And2Transfer(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     registerBank->WritePair(decodedInstruction.DestinationRegister, decodedInstruction.MemoryOperand1 | decodedInstruction.MemoryOperand2 << 8);
 }
 
-inline void InstructionLdAndLdu::ExecuteRegisterMemoryOperand3Transfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLdAndLdu::ExecuteRegisterMemoryOperand3Transfer(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     registerBank->Write(decodedInstruction.DestinationRegister, decodedInstruction.MemoryOperand3);
 }
 
-inline void InstructionLdAndLdu::ExecuteRegisterMemoryOperand2Transfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLdAndLdu::ExecuteRegisterMemoryOperand2Transfer(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     registerBank->Write(decodedInstruction.DestinationRegister, decodedInstruction.MemoryOperand2);
 }
 
-inline void InstructionLdAndLdu::ExecuteRegisterRegisterTransfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLdAndLdu::ExecuteRegisterRegisterTransfer(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto source = registerBank->Read(decodedInstruction.SourceRegister);
     registerBank->Write(decodedInstruction.DestinationRegister, source);
 }
 
-inline void InstructionLdAndLdu::ExecuteRegisterMemoryTransfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLdAndLdu::ExecuteRegisterMemoryTransfer(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto currentSourceValue = registerBank->Read(decodedInstruction.SourceRegister);
     decodedInstruction.MemoryResult1 = currentSourceValue;
@@ -516,14 +516,14 @@ inline void InstructionLdAndLdu::ExecuteMemoryOperand1MemoryTransfer(DecodedInst
     decodedInstruction.MemoryResult1 = decodedInstruction.MemoryOperand1;
 }
 
-inline void InstructionLdAndLdu::ExecuteRegisterPairTransferToMemory(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLdAndLdu::ExecuteRegisterPairTransferToMemory(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto value = registerBank->ReadPair(decodedInstruction.SourceRegister);
     decodedInstruction.MemoryResult1 = value & 0xFF;
     decodedInstruction.MemoryResult2 = (value >> 0x08) & 0xFF;
 }
 
-inline void InstructionLdAndLdu::ExecuteRegisterPairRegisterPairTransfer(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionLdAndLdu::ExecuteRegisterPairRegisterPairTransfer(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto source = registerBank->ReadPair(decodedInstruction.SourceRegister);
     registerBank->WritePair(decodedInstruction.DestinationRegister, source);

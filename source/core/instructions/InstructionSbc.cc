@@ -16,7 +16,7 @@ void InstructionSbc::Decode(uint8_t opcode, [[maybe_unused]] optional<uint8_t> p
         DecodeSbcRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionSbc::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionSbc::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto operand1  = registerBank->Read(decodedInstruction.DestinationRegister); // Always A
     auto operand2 = Acquire8bitSourceOperandValue(registerBank, decodedInstruction);

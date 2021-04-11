@@ -23,7 +23,7 @@ void InstructionLdhl::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] s
     };
 }
 
-void InstructionLdhl::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+void InstructionLdhl::Execute(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction)
 {   
     registerBank->Write(Register::F, 0x00);
 

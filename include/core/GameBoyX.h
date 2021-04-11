@@ -51,12 +51,9 @@ private:
 protected:
     bool IsPair(interfaces::Register);
 
-    std::shared_ptr<Z80X> _cpu;
-    std::shared_ptr<ControlUnit> _controlUnit;
-    std::shared_ptr<memory::MemoryController> _memoryController;      
-    std::shared_ptr<ArithmeticLogicUnit> _alu;
-    std::shared_ptr<Clock> _clock;
-    std::shared_ptr<RegisterBank> _registers;
+    Z80X _cpu;
+    memory::MemoryController* _memoryControllerPtr;
+    RegisterBank* _registersPtr;
 };
 
 }

@@ -22,7 +22,7 @@ void InstructionDaa::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] op
     };
 }
 
-void InstructionDaa::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionDaa::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto result = static_cast<uint8_t>(0x00);
 
@@ -39,7 +39,7 @@ void InstructionDaa::Execute(shared_ptr<RegisterBankInterface> registerBank, Dec
     registerBank->Write(decodedInstruction.SourceRegister, result);
 }
 
-uint8_t InstructionDaa::ExecuteAdditionDaa(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+uint8_t InstructionDaa::ExecuteAdditionDaa(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto cyFlag = registerBank->ReadFlag(Flag::CY);
     auto hFlag = registerBank->ReadFlag(Flag::H);
@@ -116,7 +116,7 @@ uint8_t InstructionDaa::ExecuteAdditionDaa(shared_ptr<RegisterBankInterface> reg
     return result;
 }
 
-uint8_t InstructionDaa::ExecuteSubtractionDaa(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+uint8_t InstructionDaa::ExecuteSubtractionDaa(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto cyFlag = registerBank->ReadFlag(Flag::CY);
     auto hFlag = registerBank->ReadFlag(Flag::H);

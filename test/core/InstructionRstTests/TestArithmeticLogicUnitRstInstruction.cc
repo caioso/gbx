@@ -37,10 +37,10 @@ uint8_t GetPageLowerAddress(uint8_t page)
 
 TEST(TestRst, DecodeRst)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     for (auto page = 0; page < 0x08; ++page)
@@ -58,10 +58,10 @@ TEST(TestRst, DecodeRst)
 
 TEST(TestRst, ExecuteRst)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -74,11 +74,11 @@ TEST(TestRst, ExecuteRst)
         auto opcode = 0xC0 | page << 0x03 | 0x07;
         alu.DecodeInstruction(opcode, nullopt);
 
-        registerBank->WritePair(Register::PC, initialPcValue);
+        registerBank.WritePair(Register::PC, initialPcValue);
 
         alu.Execute();
 
-        EXPECT_EQ(static_cast<uint16_t>(GetPageLowerAddress(page)), registerBank->ReadPair(Register::PC));
+        EXPECT_EQ(static_cast<uint16_t>(GetPageLowerAddress(page)), registerBank.ReadPair(Register::PC));
         EXPECT_EQ(alu.GetInstructionData().MemoryResult1, static_cast<uint8_t>((initialPcValue >> 0x08) & 0xFF));
         EXPECT_EQ(alu.GetInstructionData().MemoryResult2, static_cast<uint8_t>((initialPcValue & 0xFF)));
     }

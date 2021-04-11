@@ -23,7 +23,7 @@ void InstructionStop::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] o
     };
 }
 
-void InstructionStop::Execute([[maybe_unused]] shared_ptr<RegisterBankInterface> registerBank, [[maybe_unused]] DecodedInstruction& decodedInstruction)
+void InstructionStop::Execute([[maybe_unused]] RegisterBankInterface* registerBank, [[maybe_unused]] DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.MemoryOperand1 != 0x00)
         throw InstructionException("Invalid 'STOP' instruction operand");

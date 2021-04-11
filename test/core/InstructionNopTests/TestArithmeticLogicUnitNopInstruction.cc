@@ -22,10 +22,10 @@ using namespace gbxcore::instructions;
 
 TEST(TestNop, DecodeNop)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     auto opcode = 0x00;
@@ -40,10 +40,10 @@ TEST(TestNop, DecodeNop)
 
 TEST(TestNop, ExecuteNop)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -61,44 +61,44 @@ TEST(TestNop, ExecuteNop)
         auto negative = distribution(engine) % 2;
 
         auto registerA = distribution(engine);
-        registerBank->Write(Register::A, registerA);
+        registerBank.Write(Register::A, registerA);
         auto registerB = distribution(engine);
-        registerBank->Write(Register::B, registerB);
+        registerBank.Write(Register::B, registerB);
         auto registerC = distribution(engine);
-        registerBank->Write(Register::C, registerC);
+        registerBank.Write(Register::C, registerC);
         auto registerD = distribution(engine);
-        registerBank->Write(Register::D, registerD);
+        registerBank.Write(Register::D, registerD);
         auto registerE = distribution(engine);
-        registerBank->Write(Register::E, registerE);
+        registerBank.Write(Register::E, registerE);
         auto registerH = distribution(engine);
-        registerBank->Write(Register::H, registerH);
+        registerBank.Write(Register::H, registerH);
         auto registerL = distribution(engine);
-        registerBank->Write(Register::L, registerL);
+        registerBank.Write(Register::L, registerL);
         auto registerSP = static_cast<uint16_t>(distribution(engine) << 0x08 | distribution(engine));
-        registerBank->WritePair(Register::SP, registerSP);
+        registerBank.WritePair(Register::SP, registerSP);
         auto registerPC = static_cast<uint16_t>(distribution(engine) << 0x08 | distribution(engine));
-        registerBank->WritePair(Register::PC, registerPC);
+        registerBank.WritePair(Register::PC, registerPC);
 
-        registerBank->WriteFlag(Flag::Z, zero);
-        registerBank->WriteFlag(Flag::CY, carry);
-        registerBank->WriteFlag(Flag::N, negative);
-        registerBank->WriteFlag(Flag::H, halfCarry);
+        registerBank.WriteFlag(Flag::Z, zero);
+        registerBank.WriteFlag(Flag::CY, carry);
+        registerBank.WriteFlag(Flag::N, negative);
+        registerBank.WriteFlag(Flag::H, halfCarry);
 
         alu.Execute();
 
-        EXPECT_EQ(registerA, registerBank->Read(Register::A));
-        EXPECT_EQ(registerB, registerBank->Read(Register::B));
-        EXPECT_EQ(registerC, registerBank->Read(Register::C));
-        EXPECT_EQ(registerD, registerBank->Read(Register::D));
-        EXPECT_EQ(registerE, registerBank->Read(Register::E));
-        EXPECT_EQ(registerH, registerBank->Read(Register::H));
-        EXPECT_EQ(registerL, registerBank->Read(Register::L));
-        EXPECT_EQ(registerSP, registerBank->ReadPair(Register::SP));
-        EXPECT_EQ(registerPC, registerBank->ReadPair(Register::PC));
+        EXPECT_EQ(registerA, registerBank.Read(Register::A));
+        EXPECT_EQ(registerB, registerBank.Read(Register::B));
+        EXPECT_EQ(registerC, registerBank.Read(Register::C));
+        EXPECT_EQ(registerD, registerBank.Read(Register::D));
+        EXPECT_EQ(registerE, registerBank.Read(Register::E));
+        EXPECT_EQ(registerH, registerBank.Read(Register::H));
+        EXPECT_EQ(registerL, registerBank.Read(Register::L));
+        EXPECT_EQ(registerSP, registerBank.ReadPair(Register::SP));
+        EXPECT_EQ(registerPC, registerBank.ReadPair(Register::PC));
         
-        EXPECT_EQ(carry, registerBank->ReadFlag(Flag::CY));
-        EXPECT_EQ(zero, registerBank->ReadFlag(Flag::Z));
-        EXPECT_EQ(halfCarry, registerBank->ReadFlag(Flag::H));
-        EXPECT_EQ(negative, registerBank->ReadFlag(Flag::N));
+        EXPECT_EQ(carry, registerBank.ReadFlag(Flag::CY));
+        EXPECT_EQ(zero, registerBank.ReadFlag(Flag::Z));
+        EXPECT_EQ(halfCarry, registerBank.ReadFlag(Flag::H));
+        EXPECT_EQ(negative, registerBank.ReadFlag(Flag::N));
     }
 }

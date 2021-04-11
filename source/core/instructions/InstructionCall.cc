@@ -14,7 +14,7 @@ void InstructionCall::Decode(uint8_t opcode, [[maybe_unused]] std::optional<uint
         DecodeConditionalCall(opcode, decodedInstruction);
 }
 
-bool InstructionCall::ConditionallyExecute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+bool InstructionCall::ConditionallyExecute(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.InstructionExtraOperand == 0xFF)
         return ExecuteUnconditionalCall(registerBank, decodedInstruction);
@@ -22,7 +22,7 @@ bool InstructionCall::ConditionallyExecute(std::shared_ptr<interfaces::RegisterB
         return ExecuteConditionalCall(registerBank, decodedInstruction);
 }
 
-inline bool InstructionCall::ExecuteUnconditionalCall(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+inline bool InstructionCall::ExecuteUnconditionalCall(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction)
 {
     auto sourceValue = registerBank->ReadPair(decodedInstruction.DestinationRegister);
     auto newPCAddress = static_cast<uint16_t>(decodedInstruction.MemoryOperand1 | (decodedInstruction.MemoryOperand2 << 8));
@@ -34,7 +34,7 @@ inline bool InstructionCall::ExecuteUnconditionalCall(std::shared_ptr<interfaces
     return false;
 }
 
-inline bool InstructionCall::ExecuteConditionalCall(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+inline bool InstructionCall::ExecuteConditionalCall(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction)
 {
     auto condition = decodedInstruction.InstructionExtraOperand;
     auto zFlag = registerBank->ReadFlag(Flag::Z);

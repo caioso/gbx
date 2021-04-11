@@ -25,7 +25,7 @@ void InstructionRst::Decode(uint8_t opcode, [[maybe_unused]] optional<uint8_t> p
     };
 }
 
-void InstructionRst::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionRst::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto sourceValue = registerBank->ReadPair(decodedInstruction.SourceRegister);
     auto lowerByte = GetPageLowerAddress(decodedInstruction.InstructionExtraOperand);

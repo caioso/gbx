@@ -23,7 +23,7 @@ void InstructionRrca::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] o
     };    
 }
 
-void InstructionRrca::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionRrca::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto value = registerBank->Read(decodedInstruction.SourceRegister);
     auto lSBit = static_cast<uint8_t>(value & 0x01);
@@ -33,7 +33,7 @@ void InstructionRrca::Execute(shared_ptr<RegisterBankInterface> registerBank, De
     registerBank->Write(decodedInstruction.DestinationRegister, result);
 }
 
-inline void InstructionRrca::SetFlags(shared_ptr<RegisterBankInterface> registerBank, uint8_t flagValue)
+inline void InstructionRrca::SetFlags(RegisterBankInterface* registerBank, uint8_t flagValue)
 {
     registerBank->WriteFlag(Flag::CY, flagValue);
     registerBank->ClearFlag(Flag::Z);

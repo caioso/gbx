@@ -13,7 +13,7 @@ public:
     virtual ~InstructionLdAndLdu() = default;
     
     virtual void Decode(uint8_t, std::optional<uint8_t>, interfaces::DecodedInstruction&) override;
-    virtual void Execute(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&) override;
+    virtual void Execute(interfaces::RegisterBankInterface*, interfaces::DecodedInstruction&) override;
 
 private:
     inline void DecodeRegisterRegisterMove(uint8_t, interfaces::DecodedInstruction&, std::optional<uint8_t>);
@@ -37,14 +37,14 @@ private:
     inline void DecodeRegisterPairImmediateMove(uint8_t, interfaces::DecodedInstruction&, std::optional<uint8_t>);
     inline void DecodeStackPointerPointerMove(interfaces::DecodedInstruction&, std::optional<uint8_t>);
 
-    inline void ExecuteRegisterMemoryOperand1Transfer(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
-    inline void ExecuteRegisterMemoryOperand2Transfer(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
-    inline void ExecuteRegisterMemoryOperand3Transfer(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
-    inline void ExecuteRegisterMemoryOperand1And2Transfer(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
-    inline void ExecuteRegisterRegisterTransfer(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
-    inline void ExecuteRegisterPairRegisterPairTransfer(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
-    inline void ExecuteRegisterMemoryTransfer(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
-    inline void ExecuteRegisterPairTransferToMemory(std::shared_ptr<interfaces::RegisterBankInterface>, interfaces::DecodedInstruction&);
+    inline void ExecuteRegisterMemoryOperand1Transfer(interfaces::RegisterBankInterface*, interfaces::DecodedInstruction&);
+    inline void ExecuteRegisterMemoryOperand2Transfer(interfaces::RegisterBankInterface*, interfaces::DecodedInstruction&);
+    inline void ExecuteRegisterMemoryOperand3Transfer(interfaces::RegisterBankInterface*, interfaces::DecodedInstruction&);
+    inline void ExecuteRegisterMemoryOperand1And2Transfer(interfaces::RegisterBankInterface*, interfaces::DecodedInstruction&);
+    inline void ExecuteRegisterRegisterTransfer(interfaces::RegisterBankInterface*, interfaces::DecodedInstruction&);
+    inline void ExecuteRegisterPairRegisterPairTransfer(interfaces::RegisterBankInterface*, interfaces::DecodedInstruction&);
+    inline void ExecuteRegisterMemoryTransfer(interfaces::RegisterBankInterface*, interfaces::DecodedInstruction&);
+    inline void ExecuteRegisterPairTransferToMemory(interfaces::RegisterBankInterface*, interfaces::DecodedInstruction&);
     inline void ExecuteMemoryOperand1MemoryTransfer(interfaces::DecodedInstruction&);
     inline void DecodeRegisterIndexedMove(uint8_t, uint8_t, interfaces::DecodedInstruction&);
     inline void DecodeIndexedRegisterMove(uint8_t, uint8_t, interfaces::DecodedInstruction&);

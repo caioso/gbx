@@ -21,13 +21,13 @@ public:
     explicit ArithmeticLogicUnit();
     virtual ~ArithmeticLogicUnit() = default;
 
-    virtual void Initialize(std::shared_ptr<interfaces::RegisterBankInterface>) override;
+    virtual void Initialize(interfaces::RegisterBankInterface*) override;
     virtual void InitializeRegisters() override;
 
     virtual void Decode() override;
     virtual void Execute() override;
 
-    virtual void AcquireInstruction(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController) override;
+    virtual void AcquireInstruction(interfaces::MemoryControllerInterface* memoryController) override;
 
     [[nodiscard]] virtual bool ClearInterruptStatusSignal() override;
     [[nodiscard]] virtual bool HaltSignal() override;
@@ -38,24 +38,24 @@ public:
     [[nodiscard]] virtual bool UserModeSourceOperandRequested() override;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() override;
-    virtual void AcquireOperand1AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void AcquireOperand1Implicitly(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void AcquireOperand1AtRegister(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void AcquireOperand2AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void AcquireOperand2AtComposedAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void AcquireOperand2Implicitly(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void AcquireOperand2Directly(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void AcquireOperand3(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void WriteBackAtOperandAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void WriteBackAtRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void WriteBackAtComposedAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void WriteBackAtImplicitRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void WriteBackAtImplicitImmediateAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void WriteBackPairAtRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
-    virtual void WriteBackPairAtImmediareAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) override;
+    virtual void AcquireOperand1AtPC(interfaces::MemoryControllerInterface*) override;
+    virtual void AcquireOperand1Implicitly(interfaces::MemoryControllerInterface*) override;
+    virtual void AcquireOperand1AtRegister(interfaces::MemoryControllerInterface*) override;
+    virtual void AcquireOperand2AtPC(interfaces::MemoryControllerInterface*) override;
+    virtual void AcquireOperand2AtComposedAddress(interfaces::MemoryControllerInterface*) override;
+    virtual void AcquireOperand2Implicitly(interfaces::MemoryControllerInterface*) override;
+    virtual void AcquireOperand2Directly(interfaces::MemoryControllerInterface*) override;
+    virtual void AcquireOperand3(interfaces::MemoryControllerInterface*) override;
+    virtual void WriteBackAtOperandAddress(interfaces::MemoryControllerInterface*) override;
+    virtual void WriteBackAtRegisterAddress(interfaces::MemoryControllerInterface*) override;
+    virtual void WriteBackAtComposedAddress(interfaces::MemoryControllerInterface*) override;
+    virtual void WriteBackAtImplicitRegisterAddress(interfaces::MemoryControllerInterface*) override;
+    virtual void WriteBackAtImplicitImmediateAddress(interfaces::MemoryControllerInterface*) override;
+    virtual void WriteBackPairAtRegisterAddress(interfaces::MemoryControllerInterface*) override;
+    virtual void WriteBackPairAtImmediareAddress(interfaces::MemoryControllerInterface*) override;
 
 protected:
-    inline uint8_t ReadAtRegister(interfaces::Register, std::shared_ptr<interfaces::MemoryControllerInterface>);
+    inline uint8_t ReadAtRegister(interfaces::Register, interfaces::MemoryControllerInterface*);
     inline void IncrementRegisterPair(interfaces::Register);
     inline void DecrementRegisterPair(interfaces::Register);
     inline void IncrementPC();
@@ -67,8 +67,9 @@ protected:
     AddressingModeFormat* _currentAddressingMode;
     interfaces::DecodedInstruction _instructionData;
     instructions::OpcodeDecoder _decoder;
-    std::shared_ptr<interfaces::BaseInstructionInterface> _currentInstruction;
-    std::shared_ptr<interfaces::RegisterBankInterface> _registers;
+    interfaces::BaseInstructionInterface* _currentInstruction{};
+    interfaces::RegisterBankInterface* _registers;
+    
     bool _userModeRequested{};
     bool _userModeSourceOperandRequested{};
     bool _executionAborted{};

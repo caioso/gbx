@@ -16,7 +16,7 @@ void InstructionJp::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] std
         DecodeConditionalJp(opcode, decodedInstruction);
 }
 
-void InstructionJp::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction) 
+void InstructionJp::Execute(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction) 
 {
     // Flag to indicate which jump typ it is
     if (decodedInstruction.InstructionExtraOperand == 0xFF)
@@ -27,7 +27,7 @@ void InstructionJp::Execute(std::shared_ptr<interfaces::RegisterBankInterface> r
         ExecuteConditionalJp(registerBank, decodedInstruction);
 }
 
-void InstructionJp::ExecuteConditionalJp(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction) 
+void InstructionJp::ExecuteConditionalJp(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction) 
 {
     auto condition = decodedInstruction.InstructionExtraOperand;
     auto zFlag = registerBank->ReadFlag(Flag::Z);
@@ -38,14 +38,14 @@ void InstructionJp::ExecuteConditionalJp(std::shared_ptr<interfaces::RegisterBan
         ExecuteUnconditionalJp(registerBank, decodedInstruction);
 }
 
-void InstructionJp::ExecuteUnconditionalJp(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction) 
+void InstructionJp::ExecuteUnconditionalJp(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction) 
 {
     auto lsByte = decodedInstruction.MemoryOperand1;
     auto msByte = decodedInstruction.MemoryOperand2;
     registerBank->WritePair(Register::PC, lsByte | (msByte << 0x08));
 }
 
-void InstructionJp::ExecuteUnconditionalJpRegisterIndirect(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction) 
+void InstructionJp::ExecuteUnconditionalJpRegisterIndirect(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction) 
 {
     auto lsByte = decodedInstruction.MemoryResult1;
     auto msByte = decodedInstruction.MemoryResult2;

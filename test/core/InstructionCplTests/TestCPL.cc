@@ -23,10 +23,10 @@ using namespace gbxcore::instructions;
 
 TEST(CoreTests_CPL, DecodeCpl)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     auto opcode = 0x2F;
@@ -41,10 +41,10 @@ TEST(CoreTests_CPL, DecodeCpl)
 
 TEST(CoreTests_CPL, ExecuteCpl)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -59,16 +59,16 @@ TEST(CoreTests_CPL, ExecuteCpl)
         auto carry = distribution(engine) % 2;
         auto zero = distribution(engine) % 2;
 
-        registerBank->Write(Register::A, i);
-        registerBank->WriteFlag(Flag::Z, zero);
-        registerBank->WriteFlag(Flag::CY, carry);
+        registerBank.Write(Register::A, i);
+        registerBank.WriteFlag(Flag::Z, zero);
+        registerBank.WriteFlag(Flag::CY, carry);
 
         alu.Execute();
 
-        EXPECT_EQ(static_cast<uint8_t>(~i), registerBank->Read(Register::A));
-        EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::N));
-        EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::H));
-        EXPECT_EQ(carry, registerBank->ReadFlag(Flag::CY));
-        EXPECT_EQ(zero, registerBank->ReadFlag(Flag::Z));
+        EXPECT_EQ(static_cast<uint8_t>(~i), registerBank.Read(Register::A));
+        EXPECT_EQ(0x01, registerBank.ReadFlag(Flag::N));
+        EXPECT_EQ(0x01, registerBank.ReadFlag(Flag::H));
+        EXPECT_EQ(carry, registerBank.ReadFlag(Flag::CY));
+        EXPECT_EQ(zero, registerBank.ReadFlag(Flag::Z));
     }
 }

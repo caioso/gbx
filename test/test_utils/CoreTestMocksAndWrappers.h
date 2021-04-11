@@ -31,7 +31,7 @@ public:
 class ArithmeticLogicDecorator : public gbxcore::ArithmeticLogicUnit
 {
 public:
-    std::shared_ptr<gbxcore::interfaces::RegisterBankInterface> GetRegisterBank()
+    gbxcore::interfaces::RegisterBankInterface* GetRegisterBank()
     {
         return this->_registers;
     }    

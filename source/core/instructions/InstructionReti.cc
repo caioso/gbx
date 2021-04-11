@@ -23,7 +23,7 @@ void InstructionReti::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] o
     };
 }
 
-void InstructionReti::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionReti::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto newPCAddress = static_cast<uint16_t>(decodedInstruction.MemoryOperand1 | (decodedInstruction.MemoryOperand2 << 8));
     registerBank->WritePair(decodedInstruction.DestinationRegister, newPCAddress);

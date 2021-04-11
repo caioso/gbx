@@ -23,7 +23,7 @@ void InstructionHalt::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] o
     };
 }
 
-void InstructionHalt::Execute([[maybe_unused]] shared_ptr<RegisterBankInterface> registerBank, [[maybe_unused]] DecodedInstruction& decodedInstruction)
+void InstructionHalt::Execute([[maybe_unused]] RegisterBankInterface* registerBank, [[maybe_unused]] DecodedInstruction& decodedInstruction)
 {
     return;
 }

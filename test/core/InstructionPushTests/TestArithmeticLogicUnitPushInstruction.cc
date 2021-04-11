@@ -21,11 +21,11 @@ using namespace gbxcore::instructions;
 
 TEST(TestPush, DecodePushRegisterMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     auto operandList = {Register::BC, Register::DE, Register::HL, Register::AF };
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     for (auto operand : operandList)
@@ -43,10 +43,10 @@ TEST(TestPush, DecodePushRegisterMode)
 TEST(TestPush, ExecutePushRegisterMode)
 {
     auto operandList = {Register::BC, Register::DE, Register::HL, Register::AF };
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -60,7 +60,7 @@ TEST(TestPush, ExecutePushRegisterMode)
         auto operand = *(begin(operandList) + sourceRegisterDistribution(engine));
         auto rawBinary = (0x03 << 0x06) | (RegisterBank::ToInstructionRegisterPushPair(operand)) << 0x04 | 0x05;
 
-        registerBank->WritePair(operand, operandValue);
+        registerBank.WritePair(operand, operandValue);
         alu.DecodeInstruction(rawBinary, nullopt);
 
         alu.Execute();

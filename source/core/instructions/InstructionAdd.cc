@@ -20,7 +20,7 @@ void InstructionAdd::Decode(uint8_t opcode, [[maybe_unused]] optional<uint8_t> p
         DecodeAddRegisterPairMode(opcode, decodeInstruction);
 }
 
-void InstructionAdd::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionAdd::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.AddressingMode == AddressingMode::RegisterPair || 
         decodedInstruction.AddressingMode == AddressingMode::SingleImmediatePair)
@@ -29,7 +29,7 @@ void InstructionAdd::Execute(shared_ptr<RegisterBankInterface> registerBank, Dec
         Add8Bit(registerBank, decodedInstruction);
 }
 
-void InstructionAdd::Add8Bit(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionAdd::Add8Bit(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto operand1 = Acquire8BitSourceOperandValue(registerBank, decodedInstruction);
     auto operand2  = registerBank->Read(decodedInstruction.DestinationRegister); // Always A
@@ -39,7 +39,7 @@ void InstructionAdd::Add8Bit(shared_ptr<RegisterBankInterface> registerBank, Dec
     registerBank->Write(decodedInstruction.DestinationRegister, static_cast<uint8_t>(result));
 }
 
-void InstructionAdd::Add16Bit(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionAdd::Add16Bit(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto operand1 = Acquire16BitSourceOperandValue(registerBank, decodedInstruction);
     auto operand2  = registerBank->ReadPair(decodedInstruction.DestinationRegister); // Always HL

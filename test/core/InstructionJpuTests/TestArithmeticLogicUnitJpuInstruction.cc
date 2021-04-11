@@ -21,10 +21,10 @@ using namespace gbxcore::instructions;
 
 TEST(TestJpu, DecodeJpu)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     auto preOpcode = 0xFC;
@@ -40,10 +40,10 @@ TEST(TestJpu, DecodeJpu)
 
 TEST(TestJpu, ExecuteJpu)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -62,6 +62,6 @@ TEST(TestJpu, ExecuteJpu)
 
         alu.Execute();
 
-        EXPECT_EQ(targetPCAddress, registerBank->ReadPair(Register::PC));
+        EXPECT_EQ(targetPCAddress, registerBank.ReadPair(Register::PC));
     }
 }

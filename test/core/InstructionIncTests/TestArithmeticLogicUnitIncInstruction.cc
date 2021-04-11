@@ -22,11 +22,11 @@ using namespace gbxcore::instructions;
 
 TEST(TestInc, DecodeIncRegisterMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     for (auto operand : operandList)
@@ -44,10 +44,10 @@ TEST(TestInc, DecodeIncRegisterMode)
 TEST(TestInc, ExecuteIncRegisterMode)
 {
     auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -61,32 +61,32 @@ TEST(TestInc, ExecuteIncRegisterMode)
         auto operand = *(begin(sourceList) + sourceRegisterDistribution(engine));
         auto rawBinary = 0x04 | (RegisterBank::ToInstructionSource(operand)) << 0x03;
 
-        registerBank->Write(operand, operandValue);
+        registerBank.Write(operand, operandValue);
         alu.DecodeInstruction(rawBinary, nullopt);
 
         // randomly choose a carry value -> Inc sould not change the value of flag CY.
         auto carryValue = distribution(engine) % 2 == 0? 0 : 1;
 
         if (carryValue)
-            registerBank->SetFlag(Flag::CY);
+            registerBank.SetFlag(Flag::CY);
         else
-            registerBank->ClearFlag(Flag::CY);
+            registerBank.ClearFlag(Flag::CY);
 
         alu.Execute();
 
-        EXPECT_EQ(static_cast<uint8_t>(static_cast<uint8_t>(operandValue) + 1), registerBank->Read(operand));
-        EXPECT_EQ((operandValue == 0xFF? 1 : 0), registerBank->ReadFlag(Flag::Z));
-        EXPECT_EQ(0, registerBank->ReadFlag(Flag::N));
-        EXPECT_EQ(carryValue, registerBank->ReadFlag(Flag::CY));
+        EXPECT_EQ(static_cast<uint8_t>(static_cast<uint8_t>(operandValue) + 1), registerBank.Read(operand));
+        EXPECT_EQ((operandValue == 0xFF? 1 : 0), registerBank.ReadFlag(Flag::Z));
+        EXPECT_EQ(0, registerBank.ReadFlag(Flag::N));
+        EXPECT_EQ(carryValue, registerBank.ReadFlag(Flag::CY));
     }
 }
 
 TEST(TestInc, DecodeIncRegisterIndirect)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     auto rawBinary = 0x34;
@@ -101,10 +101,10 @@ TEST(TestInc, DecodeIncRegisterIndirect)
 
 TEST(TestInc, ExecuteIncRegisterIndirectMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -124,26 +124,26 @@ TEST(TestInc, ExecuteIncRegisterIndirectMode)
         auto carryValue = distribution(engine) % 2 == 0? 0 : 1;
 
         if (carryValue)
-            registerBank->SetFlag(Flag::CY);
+            registerBank.SetFlag(Flag::CY);
         else
-            registerBank->ClearFlag(Flag::CY);
+            registerBank.ClearFlag(Flag::CY);
 
         alu.Execute();
 
         EXPECT_EQ(static_cast<uint8_t>(static_cast<uint8_t>(operandValue) + 1), alu.GetInstructionData().MemoryResult1);
-        EXPECT_EQ((operandValue == 0xFF? 1 : 0), registerBank->ReadFlag(Flag::Z));
-        EXPECT_EQ(0, registerBank->ReadFlag(Flag::N));
-        EXPECT_EQ(carryValue, registerBank->ReadFlag(Flag::CY));
+        EXPECT_EQ((operandValue == 0xFF? 1 : 0), registerBank.ReadFlag(Flag::Z));
+        EXPECT_EQ(0, registerBank.ReadFlag(Flag::N));
+        EXPECT_EQ(carryValue, registerBank.ReadFlag(Flag::CY));
     }
 }
 
 TEST(TestInc, DecodeIncRegisterPairMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     auto operandList = { Register::BC, Register::DE, Register::HL, Register::SP };
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     for (auto operand : operandList)
@@ -161,10 +161,10 @@ TEST(TestInc, DecodeIncRegisterPairMode)
 TEST(TestInc, ExecuteIncRegisterPairMode)
 {
     auto sourceList = { Register::BC, Register::DE, Register::HL, Register::SP };
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -178,7 +178,7 @@ TEST(TestInc, ExecuteIncRegisterPairMode)
         auto operand = *(begin(sourceList) + sourceRegisterDistribution(engine));
         auto rawBinary = 0x03 | (RegisterBank::ToInstructionRegisterPair(operand)) << 0x04;
 
-        registerBank->WritePair(operand, operandValue);
+        registerBank.WritePair(operand, operandValue);
         alu.DecodeInstruction(rawBinary, nullopt);
 
         // randomly choose flag values. Increment of register pairs should not change the content of the flag register.
@@ -188,31 +188,31 @@ TEST(TestInc, ExecuteIncRegisterPairMode)
         auto negativeValue = distribution(engine) % 2 == 0? 0 : 1;
 
         if (carryValue)
-            registerBank->SetFlag(Flag::CY);
+            registerBank.SetFlag(Flag::CY);
         else
-            registerBank->ClearFlag(Flag::CY);
+            registerBank.ClearFlag(Flag::CY);
         
         if (zeroValue)
-            registerBank->SetFlag(Flag::Z);
+            registerBank.SetFlag(Flag::Z);
         else
-            registerBank->ClearFlag(Flag::Z);
+            registerBank.ClearFlag(Flag::Z);
         
         if (halfCarryValye)
-            registerBank->SetFlag(Flag::H);
+            registerBank.SetFlag(Flag::H);
         else
-            registerBank->ClearFlag(Flag::H);
+            registerBank.ClearFlag(Flag::H);
         
         if (negativeValue)
-            registerBank->SetFlag(Flag::N);
+            registerBank.SetFlag(Flag::N);
         else
-            registerBank->ClearFlag(Flag::N);
+            registerBank.ClearFlag(Flag::N);
 
         alu.Execute();
 
-        EXPECT_EQ(static_cast<uint16_t>(static_cast<uint16_t>(operandValue) + 1), registerBank->ReadPair(operand));
-        EXPECT_EQ(carryValue, registerBank->ReadFlag(Flag::CY));
-        EXPECT_EQ(zeroValue, registerBank->ReadFlag(Flag::Z));
-        EXPECT_EQ(halfCarryValye, registerBank->ReadFlag(Flag::H));
-        EXPECT_EQ(negativeValue, registerBank->ReadFlag(Flag::N));
+        EXPECT_EQ(static_cast<uint16_t>(static_cast<uint16_t>(operandValue) + 1), registerBank.ReadPair(operand));
+        EXPECT_EQ(carryValue, registerBank.ReadFlag(Flag::CY));
+        EXPECT_EQ(zeroValue, registerBank.ReadFlag(Flag::Z));
+        EXPECT_EQ(halfCarryValye, registerBank.ReadFlag(Flag::H));
+        EXPECT_EQ(negativeValue, registerBank.ReadFlag(Flag::N));
     }
 }

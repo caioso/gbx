@@ -14,7 +14,7 @@ void InstructionRes::Decode(uint8_t opcode, [[maybe_unused]] optional<uint8_t> p
         DecodeResRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionRes::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionRes::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto operandValue = AcquireOperand(registerBank, decodedInstruction);
     auto result = static_cast<uint8_t>(operandValue & (~(0x01 << decodedInstruction.InstructionExtraOperand)));
@@ -22,7 +22,7 @@ void InstructionRes::Execute(shared_ptr<RegisterBankInterface> registerBank, Dec
     WriteResult(result, registerBank, decodedInstruction);
 }
 
-inline void InstructionRes::WriteResult(uint8_t result, shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionRes::WriteResult(uint8_t result, RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.AddressingMode == AddressingMode::Register)
         registerBank->Write(decodedInstruction.DestinationRegister, result);
@@ -30,7 +30,7 @@ inline void InstructionRes::WriteResult(uint8_t result, shared_ptr<RegisterBankI
         decodedInstruction.MemoryResult1 = result;
 }
 
-inline uint8_t InstructionRes::AcquireOperand(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline uint8_t InstructionRes::AcquireOperand(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.AddressingMode == AddressingMode::Register)
         return registerBank->Read(decodedInstruction.SourceRegister);

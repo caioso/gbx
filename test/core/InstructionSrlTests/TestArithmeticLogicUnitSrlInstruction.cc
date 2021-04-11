@@ -22,10 +22,10 @@ using namespace gbxcore::instructions;
 TEST(TestSrl, DecodeSrlRegisterMode)
 {
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     for (auto operand : operandList)
@@ -44,10 +44,10 @@ TEST(TestSrl, DecodeSrlRegisterMode)
 TEST(TestSrl, ExecuteSrlRegisterMode)
 {
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -65,26 +65,26 @@ TEST(TestSrl, ExecuteSrlRegisterMode)
         auto preOpcode = 0xCB;
         auto opcode = 0x38 | RegisterBankInterface::ToInstructionSource(operand);
         alu.DecodeInstruction(opcode, preOpcode);
-        registerBank->Write(operand, operandValue);
+        registerBank.Write(operand, operandValue);
 
         alu.Execute();
 
-        EXPECT_EQ(result, registerBank->Read(operand));
+        EXPECT_EQ(result, registerBank.Read(operand));
 
         // Test Flags
-        EXPECT_EQ(lSBit, registerBank->ReadFlag(Flag::CY));
-        EXPECT_EQ((result == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
-        EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
-        EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+        EXPECT_EQ(lSBit, registerBank.ReadFlag(Flag::CY));
+        EXPECT_EQ((result == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
+        EXPECT_EQ(0x00, registerBank.ReadFlag(Flag::H));
+        EXPECT_EQ(0x00, registerBank.ReadFlag(Flag::N));
     }
 }
 
 TEST(TestSrl, DecodeSrlRegisterIndirectMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     auto preOpcode = 0xCB;
@@ -100,10 +100,10 @@ TEST(TestSrl, DecodeSrlRegisterIndirectMode)
 
 TEST(TestSrl, ExecuteSrlRegisterIndirectMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -128,9 +128,9 @@ TEST(TestSrl, ExecuteSrlRegisterIndirectMode)
         EXPECT_EQ(result, alu.GetInstructionData().MemoryResult1);
 
         // Test Flags
-        EXPECT_EQ(lSBit, registerBank->ReadFlag(Flag::CY));
-        EXPECT_EQ((result == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
-        EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::H));
-        EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::N));
+        EXPECT_EQ(lSBit, registerBank.ReadFlag(Flag::CY));
+        EXPECT_EQ((result == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
+        EXPECT_EQ(0x00, registerBank.ReadFlag(Flag::H));
+        EXPECT_EQ(0x00, registerBank.ReadFlag(Flag::N));
     }
 }

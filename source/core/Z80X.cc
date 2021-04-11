@@ -6,20 +6,20 @@ using namespace gbxcore::interfaces;
 namespace gbxcore
 {
 
-void Z80X::Initialize(shared_ptr<ControlUnitInterface> controlUnit, 
-                      shared_ptr<ClockInterface> clock, 
-                      shared_ptr<ArithmeticLogicUnitInterface> alu,
-                      shared_ptr<MemoryControllerInterface> memoryController,
-                      shared_ptr<RegisterBankInterface> registers)
+void Z80X::Initialize(unique_ptr<ControlUnitInterface> controlUnit, 
+                      unique_ptr<ClockInterface> clock, 
+                      unique_ptr<ArithmeticLogicUnitInterface> alu,
+                      unique_ptr<MemoryControllerInterface> memoryController,
+                      unique_ptr<RegisterBankInterface> registers)
 {
-    _controlUnit = controlUnit;
-    _clock = clock;
-    _alu = alu;
-    _memoryController = memoryController;
-    _registers = registers;
+    _controlUnit = std::move(controlUnit);
+    _clock = std::move(clock);
+    _alu = std::move(alu);
+    _memoryController = std::move(memoryController);
+    _registers = std::move(registers);
 
-    _alu->Initialize(_registers);
-    _controlUnit->Initialize(_memoryController, _alu);
+    _alu->Initialize(_registers.get());
+    _controlUnit->Initialize(_memoryController.get(), _alu.get());
 }
 
 void Z80X::Run()

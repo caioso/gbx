@@ -14,7 +14,7 @@ void InstructionJr::Decode(uint8_t opcode, [[maybe_unused]] std::optional<uint8_
         DecodeConditionalJr(opcode, decodedInstruction);
 }
 
-void InstructionJr::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction) 
+void InstructionJr::Execute(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction) 
 {
     if (decodedInstruction.InstructionExtraOperand == 0xFF)
         ExecuteUnconditionalJr(registerBank, decodedInstruction);
@@ -22,14 +22,14 @@ void InstructionJr::Execute(std::shared_ptr<interfaces::RegisterBankInterface> r
         ExecuteConditionalJr(registerBank, decodedInstruction);
 }
 
-inline void InstructionJr::ExecuteUnconditionalJr(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+inline void InstructionJr::ExecuteUnconditionalJr(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction)
 {
     auto offset = static_cast<int8_t>(decodedInstruction.MemoryOperand1);
     auto targetPCAddress = static_cast<uint16_t>(registerBank->ReadPair(Register::PC) + (offset));
     registerBank->WritePair(Register::PC, targetPCAddress);
 }
 
-inline void InstructionJr::ExecuteConditionalJr(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+inline void InstructionJr::ExecuteConditionalJr(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction)
 {
     auto condition = decodedInstruction.InstructionExtraOperand;
     auto zFlag = registerBank->ReadFlag(Flag::Z);

@@ -23,7 +23,7 @@ void InstructionCpl::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] op
     };
 }
 
-void InstructionCpl::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionCpl::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto sourceValue = registerBank->Read(decodedInstruction.SourceRegister);
     registerBank->Write(decodedInstruction.DestinationRegister, ~sourceValue);

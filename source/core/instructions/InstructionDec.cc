@@ -15,7 +15,7 @@ void InstructionDec::Decode(uint8_t opcode, [[maybe_unused]] std::optional<uint8
         DecodeDecRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionDec::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction) 
+void InstructionDec::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction) 
 {
     if (decodedInstruction.AddressingMode == AddressingMode::RegisterPair)
         Execute16bitDecrement(registerBank, decodedInstruction);
@@ -23,7 +23,7 @@ void InstructionDec::Execute(shared_ptr<RegisterBankInterface> registerBank, Dec
         Execute8bitDecrement(registerBank, decodedInstruction);
 }
 
-void InstructionDec::Execute8bitDecrement(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction) 
+void InstructionDec::Execute8bitDecrement(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction) 
 {
     auto operandValue = Acquire8bitSourceOperandValue(registerBank, decodedInstruction);
     auto carry = registerBank->ReadFlag(Flag::CY);
@@ -37,13 +37,13 @@ void InstructionDec::Execute8bitDecrement(shared_ptr<RegisterBankInterface> regi
         registerBank->ClearFlag(Flag::CY);    
 }
 
-void InstructionDec::Execute16bitDecrement(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction) 
+void InstructionDec::Execute16bitDecrement(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction) 
 {
     auto operandValue = Acquire16bitSourceOperandValue(registerBank, decodedInstruction);
     registerBank->WritePair(decodedInstruction.DestinationRegister, static_cast<uint16_t>(operandValue - 1));
 }
 
-inline void InstructionDec::SetDestinationOperandValue(uint8_t operandValue, shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionDec::SetDestinationOperandValue(uint8_t operandValue, RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     if (auto value = CalculateBinarySubtractionAndSetFlags(operandValue, 0x01, nullopt, registerBank);
         decodedInstruction.AddressingMode == AddressingMode::Register)

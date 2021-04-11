@@ -14,7 +14,7 @@ void InstructionRet::Decode(uint8_t opcode, optional<uint8_t> preOpcode, Decoded
         DecodeConditionalRet(opcode, preOpcode, decodedInstruction);
 }
 
-void InstructionRet::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionRet::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.InstructionExtraOperand == 0xFF)
         ExecuteUnconditionalRet(registerBank, decodedInstruction);
@@ -22,7 +22,7 @@ void InstructionRet::Execute(shared_ptr<RegisterBankInterface> registerBank, Dec
         ExecuteConditionalRet(registerBank, decodedInstruction);
 }
 
-inline void InstructionRet::ExecuteConditionalRet(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionRet::ExecuteConditionalRet(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto condition = decodedInstruction.InstructionExtraOperand;
     auto zFlag = registerBank->ReadFlag(Flag::Z);
@@ -39,7 +39,7 @@ inline void InstructionRet::ExecuteConditionalRet(shared_ptr<RegisterBankInterfa
     }
 }
 
-inline void InstructionRet::ExecuteUnconditionalRet(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionRet::ExecuteUnconditionalRet(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto newPCAddress = static_cast<uint16_t>(decodedInstruction.MemoryOperand1 | (decodedInstruction.MemoryOperand2 << 8));
     registerBank->WritePair(decodedInstruction.DestinationRegister, newPCAddress);

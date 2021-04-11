@@ -21,10 +21,10 @@ using namespace gbxcore::instructions;
 
 TEST(CoreTests_CALL, DecodeUnconditionalCall)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     auto opcode = 0xCD;
@@ -39,32 +39,32 @@ TEST(CoreTests_CALL, DecodeUnconditionalCall)
 
 TEST(CoreTests_CALL, ExecuteUnconditionalCall)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     auto opcode = 0xCD;
     alu.DecodeInstruction(opcode, nullopt);
 
-    registerBank->WritePair(Register::PC, 0x9800);
+    registerBank.WritePair(Register::PC, 0x9800);
     alu.GetInstructionData().MemoryOperand1 = 0xF1;
     alu.GetInstructionData().MemoryOperand2 = 0x44;
     
     alu.Execute();
 
-    EXPECT_EQ(registerBank->ReadPair(Register::PC), static_cast<uint16_t>(0x44F1));
+    EXPECT_EQ(registerBank.ReadPair(Register::PC), static_cast<uint16_t>(0x44F1));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult1, static_cast<uint8_t>(0x98));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult2, static_cast<uint8_t>(0x00));
 }
 
 TEST(CoreTests_CALL, DecodeConditionalCall)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     for (auto condition = 0; condition < 4; condition++)
@@ -82,37 +82,37 @@ TEST(CoreTests_CALL, DecodeConditionalCall)
 
 TEST(CoreTests_CALL, ExecuteConditionalCall)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     // NZ
     auto opcode = 0xC0 | 0x00 | 0x04;
     alu.DecodeInstruction(opcode, nullopt);
 
-    registerBank->WritePair(Register::PC, 0x9800);
+    registerBank.WritePair(Register::PC, 0x9800);
     alu.GetInstructionData().MemoryOperand1 = 0xF1;
     alu.GetInstructionData().MemoryOperand2 = 0x44;
-    registerBank->WriteFlag(Flag::Z, 0x00);
+    registerBank.WriteFlag(Flag::Z, 0x00);
     
     alu.Execute();
 
-    EXPECT_EQ(registerBank->ReadPair(Register::PC), static_cast<uint16_t>(0x44F1));
+    EXPECT_EQ(registerBank.ReadPair(Register::PC), static_cast<uint16_t>(0x44F1));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult1, static_cast<uint8_t>(0x98));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult2, static_cast<uint8_t>(0x00));
 
     alu.DecodeInstruction(opcode, nullopt);
 
-    registerBank->WritePair(Register::PC, 0x9800);
+    registerBank.WritePair(Register::PC, 0x9800);
     alu.GetInstructionData().MemoryOperand1 = 0xF1;
     alu.GetInstructionData().MemoryOperand2 = 0x44;
-    registerBank->WriteFlag(Flag::Z, 0x01);
+    registerBank.WriteFlag(Flag::Z, 0x01);
     
     alu.Execute();
 
-    EXPECT_EQ(registerBank->ReadPair(Register::PC), static_cast<uint16_t>(0x9800));
+    EXPECT_EQ(registerBank.ReadPair(Register::PC), static_cast<uint16_t>(0x9800));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult1, static_cast<uint8_t>(0x00));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult2, static_cast<uint8_t>(0x00));
     
@@ -120,27 +120,27 @@ TEST(CoreTests_CALL, ExecuteConditionalCall)
     opcode = 0xC0 | (0x01 << 0x03) | 0x04;
     alu.DecodeInstruction(opcode, nullopt);
 
-    registerBank->WritePair(Register::PC, 0x9800);
+    registerBank.WritePair(Register::PC, 0x9800);
     alu.GetInstructionData().MemoryOperand1 = 0xF1;
     alu.GetInstructionData().MemoryOperand2 = 0x44;
-    registerBank->WriteFlag(Flag::Z, 0x01);
+    registerBank.WriteFlag(Flag::Z, 0x01);
     
     alu.Execute();
 
-    EXPECT_EQ(registerBank->ReadPair(Register::PC), static_cast<uint16_t>(0x44F1));
+    EXPECT_EQ(registerBank.ReadPair(Register::PC), static_cast<uint16_t>(0x44F1));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult1, static_cast<uint8_t>(0x98));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult2, static_cast<uint8_t>(0x00));
 
     alu.DecodeInstruction(opcode, nullopt);
 
-    registerBank->WritePair(Register::PC, 0x9800);
+    registerBank.WritePair(Register::PC, 0x9800);
     alu.GetInstructionData().MemoryOperand1 = 0xF1;
     alu.GetInstructionData().MemoryOperand2 = 0x44;
-    registerBank->WriteFlag(Flag::Z, 0x00);
+    registerBank.WriteFlag(Flag::Z, 0x00);
     
     alu.Execute();
 
-    EXPECT_EQ(registerBank->ReadPair(Register::PC), static_cast<uint16_t>(0x9800));
+    EXPECT_EQ(registerBank.ReadPair(Register::PC), static_cast<uint16_t>(0x9800));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult1, static_cast<uint8_t>(0x00));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult2, static_cast<uint8_t>(0x00));
 
@@ -148,27 +148,27 @@ TEST(CoreTests_CALL, ExecuteConditionalCall)
     opcode = 0xC0 | (0x02 << 3)| 0x04;
     alu.DecodeInstruction(opcode, nullopt);
 
-    registerBank->WritePair(Register::PC, 0x9800);
+    registerBank.WritePair(Register::PC, 0x9800);
     alu.GetInstructionData().MemoryOperand1 = 0xF1;
     alu.GetInstructionData().MemoryOperand2 = 0x44;
-    registerBank->WriteFlag(Flag::CY, 0x00);
+    registerBank.WriteFlag(Flag::CY, 0x00);
     
     alu.Execute();
 
-    EXPECT_EQ(registerBank->ReadPair(Register::PC), static_cast<uint16_t>(0x44F1));
+    EXPECT_EQ(registerBank.ReadPair(Register::PC), static_cast<uint16_t>(0x44F1));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult1, static_cast<uint8_t>(0x98));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult2, static_cast<uint8_t>(0x00));
 
     alu.DecodeInstruction(opcode, nullopt);
 
-    registerBank->WritePair(Register::PC, 0x9800);
+    registerBank.WritePair(Register::PC, 0x9800);
     alu.GetInstructionData().MemoryOperand1 = 0xF1;
     alu.GetInstructionData().MemoryOperand2 = 0x44;
-    registerBank->WriteFlag(Flag::CY, 0x01);
+    registerBank.WriteFlag(Flag::CY, 0x01);
     
     alu.Execute();
 
-    EXPECT_EQ(registerBank->ReadPair(Register::PC), static_cast<uint16_t>(0x9800));
+    EXPECT_EQ(registerBank.ReadPair(Register::PC), static_cast<uint16_t>(0x9800));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult1, static_cast<uint8_t>(0x00));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult2, static_cast<uint8_t>(0x00));
     
@@ -176,27 +176,27 @@ TEST(CoreTests_CALL, ExecuteConditionalCall)
     opcode = 0xC0 | (0x03 << 0x03) | 0x04;
     alu.DecodeInstruction(opcode, nullopt);
 
-    registerBank->WritePair(Register::PC, 0x9800);
+    registerBank.WritePair(Register::PC, 0x9800);
     alu.GetInstructionData().MemoryOperand1 = 0xF1;
     alu.GetInstructionData().MemoryOperand2 = 0x44;
-    registerBank->WriteFlag(Flag::CY, 0x01);
+    registerBank.WriteFlag(Flag::CY, 0x01);
     
     alu.Execute();
 
-    EXPECT_EQ(registerBank->ReadPair(Register::PC), static_cast<uint16_t>(0x44F1));
+    EXPECT_EQ(registerBank.ReadPair(Register::PC), static_cast<uint16_t>(0x44F1));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult1, static_cast<uint8_t>(0x98));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult2, static_cast<uint8_t>(0x00));
 
     alu.DecodeInstruction(opcode, nullopt);
 
-    registerBank->WritePair(Register::PC, 0x9800);
+    registerBank.WritePair(Register::PC, 0x9800);
     alu.GetInstructionData().MemoryOperand1 = 0xF1;
     alu.GetInstructionData().MemoryOperand2 = 0x44;
-    registerBank->WriteFlag(Flag::CY, 0x00);
+    registerBank.WriteFlag(Flag::CY, 0x00);
     
     alu.Execute();
 
-    EXPECT_EQ(registerBank->ReadPair(Register::PC), static_cast<uint16_t>(0x9800));
+    EXPECT_EQ(registerBank.ReadPair(Register::PC), static_cast<uint16_t>(0x9800));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult1, static_cast<uint8_t>(0x00));
     EXPECT_EQ(alu.GetInstructionData().MemoryResult2, static_cast<uint8_t>(0x00));
 }

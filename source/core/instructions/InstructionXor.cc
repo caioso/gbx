@@ -15,7 +15,7 @@ void InstructionXor::Decode(uint8_t opcode, [[maybe_unused]] std::optional<uint8
         DecodeXorRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionXor::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction) 
+void InstructionXor::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction) 
 {
     auto operand1 = GetSourceOperandValue(registerBank, decodedInstruction);
     auto operand2 = registerBank->Read(decodedInstruction.DestinationRegister);
@@ -31,7 +31,7 @@ void InstructionXor::Execute(shared_ptr<RegisterBankInterface> registerBank, Dec
         registerBank->ClearFlag(Flag::Z);
 }
 
-inline uint8_t InstructionXor::GetSourceOperandValue(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline uint8_t InstructionXor::GetSourceOperandValue(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.AddressingMode == AddressingMode::Register)
         return registerBank->Read(decodedInstruction.SourceRegister);

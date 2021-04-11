@@ -24,7 +24,7 @@ void InstructionPop::Decode(uint8_t opcode, [[maybe_unused]] std::optional<uint8
     };
 }
 
-void InstructionPop::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+void InstructionPop::Execute(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction)
 {
     auto value = static_cast<uint16_t>(decodedInstruction.MemoryOperand1 | decodedInstruction.MemoryOperand2 << 0x08);
     registerBank->WritePair(decodedInstruction.DestinationRegister, value);

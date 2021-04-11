@@ -23,10 +23,10 @@ using namespace gbxcore::instructions;
 
 TEST(TestDaa, DecodeDaa)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     auto opcode = 0x27;
@@ -41,10 +41,10 @@ TEST(TestDaa, DecodeDaa)
 
 TEST(TestDaa, ExecuteDaa)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     // Test Flags
@@ -52,26 +52,26 @@ TEST(TestDaa, ExecuteDaa)
 
     alu.DecodeInstruction(rawBinary, nullopt);
 
-    registerBank->WriteFlag(Flag::N, 0x00);
+    registerBank.WriteFlag(Flag::N, 0x00);
 
     // CY = 0 && H = 0, HighNibble 0-9, LowNibble 0-9
     for (auto highNibble = 0x00; highNibble <= 0x09; ++highNibble)
     {
         for (auto lowNibble = 0x00; lowNibble <= 0x09; ++lowNibble)
         {
-            registerBank->WriteFlag(Flag::CY, 0x00);
-            registerBank->WriteFlag(Flag::H, 0x00);
+            registerBank.WriteFlag(Flag::CY, 0x00);
+            registerBank.WriteFlag(Flag::H, 0x00);
 
             auto aValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
             auto resultingAValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
 
-            registerBank->Write(Register::A, aValue);
+            registerBank.Write(Register::A, aValue);
 
             alu.Execute();
 
-            EXPECT_EQ(resultingAValue, registerBank->Read(Register::A));
-            EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
-            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
+            EXPECT_EQ(resultingAValue, registerBank.Read(Register::A));
+            EXPECT_EQ(0x00, registerBank.ReadFlag(Flag::CY));
+            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
         }
     }
     
@@ -80,19 +80,19 @@ TEST(TestDaa, ExecuteDaa)
     {
         for (auto lowNibble = 0x0A; lowNibble <= 0x0F; ++lowNibble)
         {
-            registerBank->WriteFlag(Flag::CY, 0x00);
-            registerBank->WriteFlag(Flag::H, 0x00);
+            registerBank.WriteFlag(Flag::CY, 0x00);
+            registerBank.WriteFlag(Flag::H, 0x00);
 
             auto aValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
             auto resultingAValue = static_cast<uint8_t>(((highNibble << 0x04) | lowNibble) + 0x06);
 
-            registerBank->Write(Register::A, aValue);
+            registerBank.Write(Register::A, aValue);
 
             alu.Execute();
 
-            EXPECT_EQ(resultingAValue, registerBank->Read(Register::A));
-            EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
-            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
+            EXPECT_EQ(resultingAValue, registerBank.Read(Register::A));
+            EXPECT_EQ(0x00, registerBank.ReadFlag(Flag::CY));
+            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
         }
     }
     
@@ -101,19 +101,19 @@ TEST(TestDaa, ExecuteDaa)
     {
         for (auto lowNibble = 0x00; lowNibble <= 0x03; ++lowNibble)
         {
-            registerBank->WriteFlag(Flag::CY, 0x00);
-            registerBank->WriteFlag(Flag::H, 0x01);
+            registerBank.WriteFlag(Flag::CY, 0x00);
+            registerBank.WriteFlag(Flag::H, 0x01);
 
             auto aValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
             auto resultingAValue = static_cast<uint8_t>(((highNibble << 0x04) | lowNibble) + 0x06);
 
-            registerBank->Write(Register::A, aValue);
+            registerBank.Write(Register::A, aValue);
 
             alu.Execute();
 
-            EXPECT_EQ(resultingAValue, registerBank->Read(Register::A));
-            EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
-            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
+            EXPECT_EQ(resultingAValue, registerBank.Read(Register::A));
+            EXPECT_EQ(0x00, registerBank.ReadFlag(Flag::CY));
+            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
         }
     }
     
@@ -122,19 +122,19 @@ TEST(TestDaa, ExecuteDaa)
     {
         for (auto lowNibble = 0x00; lowNibble <= 0x09; ++lowNibble)
         {
-            registerBank->WriteFlag(Flag::CY, 0x00);
-            registerBank->WriteFlag(Flag::H, 0x00);
+            registerBank.WriteFlag(Flag::CY, 0x00);
+            registerBank.WriteFlag(Flag::H, 0x00);
 
             auto aValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
             auto resultingAValue = static_cast<uint8_t>(((highNibble << 0x04) | lowNibble) + 0x60);
 
-            registerBank->Write(Register::A, aValue);
+            registerBank.Write(Register::A, aValue);
 
             alu.Execute();
 
-            EXPECT_EQ(resultingAValue, registerBank->Read(Register::A));
-            EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
-            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
+            EXPECT_EQ(resultingAValue, registerBank.Read(Register::A));
+            EXPECT_EQ(0x01, registerBank.ReadFlag(Flag::CY));
+            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
         }
     }
     
@@ -143,19 +143,19 @@ TEST(TestDaa, ExecuteDaa)
     {
         for (auto lowNibble = 0x0A; lowNibble <= 0x0F; ++lowNibble)
         {
-            registerBank->WriteFlag(Flag::CY, 0x00);
-            registerBank->WriteFlag(Flag::H, 0x00);
+            registerBank.WriteFlag(Flag::CY, 0x00);
+            registerBank.WriteFlag(Flag::H, 0x00);
 
             auto aValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
             auto resultingAValue = static_cast<uint8_t>(((highNibble << 0x04) | lowNibble) + 0x66);
 
-            registerBank->Write(Register::A, aValue);
+            registerBank.Write(Register::A, aValue);
 
             alu.Execute();
 
-            EXPECT_EQ(resultingAValue, registerBank->Read(Register::A));
-            EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
-            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
+            EXPECT_EQ(resultingAValue, registerBank.Read(Register::A));
+            EXPECT_EQ(0x01, registerBank.ReadFlag(Flag::CY));
+            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
         }
     }
     
@@ -164,19 +164,19 @@ TEST(TestDaa, ExecuteDaa)
     {
         for (auto lowNibble = 0x00; lowNibble <= 0x03; ++lowNibble)
         {
-            registerBank->WriteFlag(Flag::CY, 0x00);
-            registerBank->WriteFlag(Flag::H, 0x01);
+            registerBank.WriteFlag(Flag::CY, 0x00);
+            registerBank.WriteFlag(Flag::H, 0x01);
 
             auto aValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
             auto resultingAValue = static_cast<uint8_t>(((highNibble << 0x04) | lowNibble) + 0x66);
 
-            registerBank->Write(Register::A, aValue);
+            registerBank.Write(Register::A, aValue);
 
             alu.Execute();
 
-            EXPECT_EQ(resultingAValue, registerBank->Read(Register::A));
-            EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
-            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
+            EXPECT_EQ(resultingAValue, registerBank.Read(Register::A));
+            EXPECT_EQ(0x01, registerBank.ReadFlag(Flag::CY));
+            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
         }
     }
     
@@ -185,19 +185,19 @@ TEST(TestDaa, ExecuteDaa)
     {
         for (auto lowNibble = 0x00; lowNibble <= 0x09; ++lowNibble)
         {
-            registerBank->WriteFlag(Flag::CY, 0x01);
-            registerBank->WriteFlag(Flag::H, 0x00);
+            registerBank.WriteFlag(Flag::CY, 0x01);
+            registerBank.WriteFlag(Flag::H, 0x00);
 
             auto aValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
             auto resultingAValue = static_cast<uint8_t>(((highNibble << 0x04) | lowNibble) + 0x60);
 
-            registerBank->Write(Register::A, aValue);
+            registerBank.Write(Register::A, aValue);
 
             alu.Execute();
 
-            EXPECT_EQ(resultingAValue, registerBank->Read(Register::A));
-            EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
-            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
+            EXPECT_EQ(resultingAValue, registerBank.Read(Register::A));
+            EXPECT_EQ(0x01, registerBank.ReadFlag(Flag::CY));
+            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
         }
     }
     
@@ -206,19 +206,19 @@ TEST(TestDaa, ExecuteDaa)
     {
         for (auto lowNibble = 0x0A; lowNibble <= 0x0F; ++lowNibble)
         {
-            registerBank->WriteFlag(Flag::CY, 0x01);
-            registerBank->WriteFlag(Flag::H, 0x00);
+            registerBank.WriteFlag(Flag::CY, 0x01);
+            registerBank.WriteFlag(Flag::H, 0x00);
 
             auto aValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
             auto resultingAValue = static_cast<uint8_t>(((highNibble << 0x04) | lowNibble) + 0x66);
 
-            registerBank->Write(Register::A, aValue);
+            registerBank.Write(Register::A, aValue);
 
             alu.Execute();
 
-            EXPECT_EQ(resultingAValue, registerBank->Read(Register::A));
-            EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
-            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
+            EXPECT_EQ(resultingAValue, registerBank.Read(Register::A));
+            EXPECT_EQ(0x01, registerBank.ReadFlag(Flag::CY));
+            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
         }
     }
     
@@ -227,42 +227,42 @@ TEST(TestDaa, ExecuteDaa)
     {
         for (auto lowNibble = 0x00; lowNibble <= 0x03; ++lowNibble)
         {
-            registerBank->WriteFlag(Flag::CY, 0x01);
-            registerBank->WriteFlag(Flag::H, 0x01);
+            registerBank.WriteFlag(Flag::CY, 0x01);
+            registerBank.WriteFlag(Flag::H, 0x01);
 
             auto aValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
             auto resultingAValue = static_cast<uint8_t>(((highNibble << 0x04) | lowNibble) + 0x66);
 
-            registerBank->Write(Register::A, aValue);
+            registerBank.Write(Register::A, aValue);
 
             alu.Execute();
 
-            EXPECT_EQ(resultingAValue, registerBank->Read(Register::A));
-            EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
-            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
+            EXPECT_EQ(resultingAValue, registerBank.Read(Register::A));
+            EXPECT_EQ(0x01, registerBank.ReadFlag(Flag::CY));
+            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
         }
     }
 
-    registerBank->WriteFlag(Flag::N, 0x01);
+    registerBank.WriteFlag(Flag::N, 0x01);
 
     // CY = 0 && H = 0, HighNibble 0-9, LowNibble 0-9
     for (auto highNibble = 0x00; highNibble <= 0x09; ++highNibble)
     {
         for (auto lowNibble = 0x00; lowNibble <= 0x09; ++lowNibble)
         {
-            registerBank->WriteFlag(Flag::CY, 0x00);
-            registerBank->WriteFlag(Flag::H, 0x00);
+            registerBank.WriteFlag(Flag::CY, 0x00);
+            registerBank.WriteFlag(Flag::H, 0x00);
 
             auto aValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
             auto resultingAValue = static_cast<uint8_t>(((highNibble << 0x04) | lowNibble) + 0x00);
 
-            registerBank->Write(Register::A, aValue);
+            registerBank.Write(Register::A, aValue);
 
             alu.Execute();
 
-            EXPECT_EQ(resultingAValue, registerBank->Read(Register::A));
-            EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
-            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
+            EXPECT_EQ(resultingAValue, registerBank.Read(Register::A));
+            EXPECT_EQ(0x00, registerBank.ReadFlag(Flag::CY));
+            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
         }
     }
     
@@ -271,19 +271,19 @@ TEST(TestDaa, ExecuteDaa)
     {
         for (auto lowNibble = 0x06; lowNibble <= 0x0F; ++lowNibble)
         {
-            registerBank->WriteFlag(Flag::CY, 0x00);
-            registerBank->WriteFlag(Flag::H, 0x01);
+            registerBank.WriteFlag(Flag::CY, 0x00);
+            registerBank.WriteFlag(Flag::H, 0x01);
 
             auto aValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
             auto resultingAValue = static_cast<uint8_t>(((highNibble << 0x04) | lowNibble) + 0xFA);
 
-            registerBank->Write(Register::A, aValue);
+            registerBank.Write(Register::A, aValue);
 
             alu.Execute();
 
-            EXPECT_EQ(resultingAValue, registerBank->Read(Register::A));
-            EXPECT_EQ(0x00, registerBank->ReadFlag(Flag::CY));
-            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
+            EXPECT_EQ(resultingAValue, registerBank.Read(Register::A));
+            EXPECT_EQ(0x00, registerBank.ReadFlag(Flag::CY));
+            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
         }
     }
     
@@ -292,19 +292,19 @@ TEST(TestDaa, ExecuteDaa)
     {
         for (auto lowNibble = 0x00; lowNibble <= 0x09; ++lowNibble)
         {
-            registerBank->WriteFlag(Flag::CY, 0x01);
-            registerBank->WriteFlag(Flag::H, 0x00);
+            registerBank.WriteFlag(Flag::CY, 0x01);
+            registerBank.WriteFlag(Flag::H, 0x00);
 
             auto aValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
             auto resultingAValue = static_cast<uint8_t>(((highNibble << 0x04) | lowNibble) + 0xA0);
 
-            registerBank->Write(Register::A, aValue);
+            registerBank.Write(Register::A, aValue);
 
             alu.Execute();
 
-            EXPECT_EQ(resultingAValue, registerBank->Read(Register::A));
-            EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
-            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
+            EXPECT_EQ(resultingAValue, registerBank.Read(Register::A));
+            EXPECT_EQ(0x01, registerBank.ReadFlag(Flag::CY));
+            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
         }
     }
     
@@ -313,19 +313,19 @@ TEST(TestDaa, ExecuteDaa)
     {
         for (auto lowNibble = 0x06; lowNibble <= 0x0F; ++lowNibble)
         {
-            registerBank->WriteFlag(Flag::CY, 0x01);
-            registerBank->WriteFlag(Flag::H, 0x01);
+            registerBank.WriteFlag(Flag::CY, 0x01);
+            registerBank.WriteFlag(Flag::H, 0x01);
 
             auto aValue = static_cast<uint8_t>((highNibble << 0x04) | lowNibble);
             auto resultingAValue = static_cast<uint8_t>(((highNibble << 0x04) | lowNibble) + 0x9A);
 
-            registerBank->Write(Register::A, aValue);
+            registerBank.Write(Register::A, aValue);
 
             alu.Execute();
 
-            EXPECT_EQ(resultingAValue, registerBank->Read(Register::A));
-            EXPECT_EQ(0x01, registerBank->ReadFlag(Flag::CY));
-            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank->ReadFlag(Flag::Z));
+            EXPECT_EQ(resultingAValue, registerBank.Read(Register::A));
+            EXPECT_EQ(0x01, registerBank.ReadFlag(Flag::CY));
+            EXPECT_EQ((resultingAValue == 0? 0x01 : 0x00), registerBank.ReadFlag(Flag::Z));
         }
     }
 }

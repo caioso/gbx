@@ -23,7 +23,7 @@ void InstructionRlca::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] s
     };    
 }
 
-void InstructionRlca::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction)
+void InstructionRlca::Execute(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction)
 {
     auto value = registerBank->Read(decodedInstruction.SourceRegister);
     auto valueMSbit = static_cast<uint8_t>((value >> 7) & 0x01);
@@ -33,7 +33,7 @@ void InstructionRlca::Execute(std::shared_ptr<interfaces::RegisterBankInterface>
     registerBank->Write(decodedInstruction.DestinationRegister, result);
 }
 
-inline void InstructionRlca::SetFlags(shared_ptr<RegisterBankInterface> registerBank, uint8_t flagValue)
+inline void InstructionRlca::SetFlags(RegisterBankInterface* registerBank, uint8_t flagValue)
 {
     registerBank->WriteFlag(Flag::CY, flagValue);
     registerBank->ClearFlag(Flag::Z);

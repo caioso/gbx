@@ -21,10 +21,10 @@ using namespace gbxcore::instructions;
 
 TEST(TestJp, DecodeUnconditionalJpImmediateMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     auto opcode = 0xC3;
@@ -39,10 +39,10 @@ TEST(TestJp, DecodeUnconditionalJpImmediateMode)
 
 TEST(TestJp, ExecuteUnconditionalJpImmediateMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -60,16 +60,16 @@ TEST(TestJp, ExecuteUnconditionalJpImmediateMode)
 
         alu.Execute();
 
-        EXPECT_EQ(targetPCAddress, registerBank->ReadPair(Register::PC));
+        EXPECT_EQ(targetPCAddress, registerBank.ReadPair(Register::PC));
     }
 }
 
 TEST(TestJp, DecodeConditionalJpImmediateMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     for (auto condition = 0; condition < 4; condition++)
@@ -87,10 +87,10 @@ TEST(TestJp, DecodeConditionalJpImmediateMode)
 
 TEST(TestJp, ExecuteConditionalJpImmediateMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -99,10 +99,10 @@ TEST(TestJp, ExecuteConditionalJpImmediateMode)
 
     for (auto i = 0; i < 0xFFF; i++)
     {
-        registerBank->Write(Register::F, 0x00);
+        registerBank.Write(Register::F, 0x00);
 
         auto initialPCAddress = distribution(engine);
-        registerBank->WritePair(Register::PC, initialPCAddress);
+        registerBank.WritePair(Register::PC, initialPCAddress);
 
         auto targetCondition = distribution(engine)%4;
         auto opcode = 0xC0 | (targetCondition << 0x03) | 0x02;
@@ -115,38 +115,38 @@ TEST(TestJp, ExecuteConditionalJpImmediateMode)
         if (targetCondition == 0 || targetCondition == 1)
         {
             auto randomZeroValue = distribution(engine)%2;
-            registerBank->WriteFlag(Flag::Z, randomZeroValue);
+            registerBank.WriteFlag(Flag::Z, randomZeroValue);
 
             alu.Execute();
 
             if ((targetCondition == 0 && randomZeroValue == 0) ||
                 (targetCondition == 1 && randomZeroValue == 1))
-                EXPECT_EQ(targetPCAddress, registerBank->ReadPair(Register::PC));
+                EXPECT_EQ(targetPCAddress, registerBank.ReadPair(Register::PC));
             else
-                EXPECT_EQ(initialPCAddress, registerBank->ReadPair(Register::PC));
+                EXPECT_EQ(initialPCAddress, registerBank.ReadPair(Register::PC));
         }
         else
         {
             auto randomCarryValue = distribution(engine)%2;
-            registerBank->WriteFlag(Flag::CY, randomCarryValue);
+            registerBank.WriteFlag(Flag::CY, randomCarryValue);
 
             alu.Execute();
 
             if ((targetCondition == 2 && randomCarryValue == 0) ||
                 (targetCondition == 3 && randomCarryValue == 1))
-                EXPECT_EQ(targetPCAddress, registerBank->ReadPair(Register::PC));
+                EXPECT_EQ(targetPCAddress, registerBank.ReadPair(Register::PC));
             else
-                EXPECT_EQ(initialPCAddress, registerBank->ReadPair(Register::PC));
+                EXPECT_EQ(initialPCAddress, registerBank.ReadPair(Register::PC));
         }
     }
 }
 
 TEST(TestJp, DecodeUnconditionalJpRegisterIndirectMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
     
     auto opcode = 0xE9;
@@ -161,10 +161,10 @@ TEST(TestJp, DecodeUnconditionalJpRegisterIndirectMode)
 
 TEST(TestJp, ExecuteUnconditionalJpRegisterIndirectMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -182,6 +182,6 @@ TEST(TestJp, ExecuteUnconditionalJpRegisterIndirectMode)
 
         alu.Execute();
 
-        EXPECT_EQ(targetPCAddress, registerBank->ReadPair(Register::PC));
+        EXPECT_EQ(targetPCAddress, registerBank.ReadPair(Register::PC));
     }
 }

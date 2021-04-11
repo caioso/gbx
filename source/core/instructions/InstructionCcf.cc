@@ -23,7 +23,7 @@ void InstructionCcf::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] op
     };
 }
 
-void InstructionCcf::Execute([[maybe_unused]] shared_ptr<RegisterBankInterface> registerBank, [[maybe_unused]] DecodedInstruction& decodedInstruction)
+void InstructionCcf::Execute([[maybe_unused]] RegisterBankInterface* registerBank, [[maybe_unused]] DecodedInstruction& decodedInstruction)
 {
     auto cyValue = registerBank->ReadFlag(Flag::CY);
     cyValue = cyValue == static_cast<uint8_t>(0)? static_cast<uint8_t>(1) : static_cast<uint8_t>(0);

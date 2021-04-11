@@ -23,7 +23,7 @@ void InstructionRla::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] op
     };    
 }
 
-void InstructionRla::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionRla::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto value = registerBank->Read(decodedInstruction.SourceRegister);
     auto currentCarry = registerBank->ReadFlag(Flag::CY);
@@ -34,7 +34,7 @@ void InstructionRla::Execute(shared_ptr<RegisterBankInterface> registerBank, Dec
     registerBank->Write(decodedInstruction.DestinationRegister, result);
 }
 
-inline void InstructionRla::SetFlags(shared_ptr<RegisterBankInterface> registerBank, uint8_t flagValue)
+inline void InstructionRla::SetFlags(RegisterBankInterface* registerBank, uint8_t flagValue)
 {
     registerBank->WriteFlag(Flag::CY, flagValue);
     registerBank->ClearFlag(Flag::Z);

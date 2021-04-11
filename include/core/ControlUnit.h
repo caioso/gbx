@@ -24,8 +24,8 @@ public:
     virtual ~ControlUnit() = default;
     virtual void RunCycle() override;
 
-    virtual void Initialize(std::shared_ptr<interfaces::MemoryControllerInterface>,
-                            std::shared_ptr<interfaces::ArithmeticLogicUnitInterface>) override;
+    virtual void Initialize(interfaces::MemoryControllerInterface*,
+                            interfaces::ArithmeticLogicUnitInterface*) override;
 
 protected:
     inline void Fetch();
@@ -62,9 +62,9 @@ protected:
     inline bool IsUserModeRequested();
     inline bool IsUserSourceOperandModeRequested();
 
-    std::shared_ptr<interfaces::ArithmeticLogicUnitInterface> _alu;
+    interfaces::ArithmeticLogicUnitInterface*  _alu;
+    interfaces::MemoryControllerInterface* _memoryController;
     std::optional<uint8_t> _preOpcode;
-    std::shared_ptr<interfaces::MemoryControllerInterface> _memoryController;
     AddressingModeFormat* _currentAddressingMode;   
 
     std::once_flag _flag;

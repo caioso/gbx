@@ -23,7 +23,7 @@ void InstructionJpu::Decode([[maybe_unused]] uint8_t opcode, [[maybe_unused]] st
     };  
 }
 
-void InstructionJpu::Execute(std::shared_ptr<interfaces::RegisterBankInterface> registerBank, interfaces::DecodedInstruction& decodedInstruction) 
+void InstructionJpu::Execute(RegisterBankInterface* registerBank, interfaces::DecodedInstruction& decodedInstruction) 
 {
     auto lsByte = decodedInstruction.MemoryOperand1;
     auto msByte = decodedInstruction.MemoryOperand2;

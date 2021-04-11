@@ -14,7 +14,7 @@ void InstructionRl::Decode(uint8_t opcode, [[maybe_unused]] optional<uint8_t> co
         DecodeRlRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionRl::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionRl::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto value = AcquireOperand(registerBank, decodedInstruction);
     auto valueMSbit = static_cast<uint8_t>((value >> 7) & 0x01);
@@ -60,7 +60,7 @@ inline void InstructionRl::DecodeRlRegisterIndirectMode(interfaces::DecodedInstr
     };
 }
 
-inline void InstructionRl::WriteResult(uint8_t result, shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline void InstructionRl::WriteResult(uint8_t result, RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.AddressingMode == AddressingMode::Register)
         registerBank->Write(decodedInstruction.DestinationRegister, result);
@@ -68,7 +68,7 @@ inline void InstructionRl::WriteResult(uint8_t result, shared_ptr<RegisterBankIn
         decodedInstruction.MemoryResult1 = result;
 }
 
-inline uint8_t InstructionRl::AcquireOperand(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline uint8_t InstructionRl::AcquireOperand(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.AddressingMode == AddressingMode::Register)
         return registerBank->Read(decodedInstruction.SourceRegister);
@@ -76,7 +76,7 @@ inline uint8_t InstructionRl::AcquireOperand(shared_ptr<RegisterBankInterface> r
         return decodedInstruction.MemoryOperand1;
 }
 
-inline void InstructionRl::SetFlags(uint8_t result, shared_ptr<RegisterBankInterface> registerBank, uint8_t flagValue)
+inline void InstructionRl::SetFlags(uint8_t result, RegisterBankInterface* registerBank, uint8_t flagValue)
 {
     registerBank->WriteFlag(Flag::CY, flagValue);
     registerBank->WriteFlag(Flag::Z, (result == 0? 0x01 : 0x00));

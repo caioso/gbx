@@ -14,14 +14,14 @@ void InstructionBit::Decode(uint8_t opcode, [[maybe_unused]] optional<uint8_t> p
         DecodeBitRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionBit::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+void InstructionBit::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     auto operandValue = AcquireOperand(registerBank, decodedInstruction);
     auto result = static_cast<uint8_t>((operandValue >> decodedInstruction.InstructionExtraOperand) & 0x01);
     SetFlags(result, registerBank);
 }
 
-inline uint8_t InstructionBit::AcquireOperand(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline uint8_t InstructionBit::AcquireOperand(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.AddressingMode == AddressingMode::Register)
         return registerBank->Read(decodedInstruction.SourceRegister);
@@ -68,7 +68,7 @@ inline void InstructionBit::DecodeBitRegisterIndirectMode(uint8_t opcode, interf
     };
 }
 
-inline void InstructionBit::SetFlags(uint8_t result, shared_ptr<RegisterBankInterface> registerBank)
+inline void InstructionBit::SetFlags(uint8_t result, RegisterBankInterface* registerBank)
 {
     registerBank->WriteFlag(Flag::Z, (result == 0? 0x01 : 0x00));
     registerBank->ClearFlag(Flag::N);

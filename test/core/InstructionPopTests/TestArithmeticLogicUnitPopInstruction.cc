@@ -21,11 +21,11 @@ using namespace gbxcore::instructions;
 
 TEST(TestPop, DecodePopRegisterMode)
 {
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     auto operandList = {Register::BC, Register::DE, Register::HL, Register::AF };
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     for (auto operand : operandList)
@@ -43,10 +43,10 @@ TEST(TestPop, DecodePopRegisterMode)
 TEST(TestPop, ExecutePopRegisterMode)
 {
     auto operandList = {Register::BC, Register::DE, Register::HL, Register::AF };
-    auto registerBank = make_shared<RegisterBank>();
+    RegisterBank registerBank;
     
     ArithmeticLogicDecorator alu;
-    alu.Initialize(registerBank);
+    alu.Initialize(&registerBank);
     alu.InitializeRegisters();
 
     random_device randomDevice;
@@ -67,6 +67,6 @@ TEST(TestPop, ExecutePopRegisterMode)
 
         alu.Execute();
 
-        EXPECT_EQ(operandValue, registerBank->ReadPair(operand));
+        EXPECT_EQ(operandValue, registerBank.ReadPair(operand));
     }
 }

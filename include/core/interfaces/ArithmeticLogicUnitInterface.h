@@ -47,13 +47,13 @@ class ArithmeticLogicUnitInterface
 public:
     virtual ~ArithmeticLogicUnitInterface() = default;    
     
-    virtual void Initialize(std::shared_ptr<RegisterBankInterface>) = 0;
+    virtual void Initialize(interfaces::RegisterBankInterface*) = 0;
 
     virtual void InitializeRegisters() = 0;
     virtual void Decode() = 0;
     virtual void Execute() = 0;
     
-    virtual void AcquireInstruction(std::shared_ptr<interfaces::MemoryControllerInterface> memoryController) = 0;
+    virtual void AcquireInstruction(interfaces::MemoryControllerInterface* memoryController) = 0;
 
     [[nodiscard]] virtual bool ClearInterruptStatusSignal() = 0;
     [[nodiscard]] virtual bool HaltSignal() = 0;
@@ -64,21 +64,21 @@ public:
     [[nodiscard]] virtual bool UserModeSourceOperandRequested() = 0;
 
     virtual AddressingModeFormat* AcquireAddressingModeTraits() = 0;
-    virtual void AcquireOperand1AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void AcquireOperand1Implicitly(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void AcquireOperand1AtRegister(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void AcquireOperand2AtPC(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void AcquireOperand2AtComposedAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void AcquireOperand2Implicitly(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void AcquireOperand2Directly(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void AcquireOperand3(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void WriteBackAtOperandAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void WriteBackAtRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void WriteBackAtComposedAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void WriteBackAtImplicitRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void WriteBackAtImplicitImmediateAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void WriteBackPairAtRegisterAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
-    virtual void WriteBackPairAtImmediareAddress(std::shared_ptr<interfaces::MemoryControllerInterface>) = 0;
+    virtual void AcquireOperand1AtPC(interfaces::MemoryControllerInterface*) = 0;
+    virtual void AcquireOperand1Implicitly(interfaces::MemoryControllerInterface*) = 0;
+    virtual void AcquireOperand1AtRegister(interfaces::MemoryControllerInterface*) = 0;
+    virtual void AcquireOperand2AtPC(interfaces::MemoryControllerInterface*) = 0;
+    virtual void AcquireOperand2AtComposedAddress(interfaces::MemoryControllerInterface*) = 0;
+    virtual void AcquireOperand2Implicitly(interfaces::MemoryControllerInterface*) = 0;
+    virtual void AcquireOperand2Directly(interfaces::MemoryControllerInterface*) = 0;
+    virtual void AcquireOperand3(interfaces::MemoryControllerInterface*) = 0;
+    virtual void WriteBackAtOperandAddress(interfaces::MemoryControllerInterface*) = 0;
+    virtual void WriteBackAtRegisterAddress(interfaces::MemoryControllerInterface*) = 0;
+    virtual void WriteBackAtComposedAddress(interfaces::MemoryControllerInterface*) = 0;
+    virtual void WriteBackAtImplicitRegisterAddress(interfaces::MemoryControllerInterface*) = 0;
+    virtual void WriteBackAtImplicitImmediateAddress(interfaces::MemoryControllerInterface*) = 0;
+    virtual void WriteBackPairAtRegisterAddress(interfaces::MemoryControllerInterface*) = 0;
+    virtual void WriteBackPairAtImmediareAddress(interfaces::MemoryControllerInterface*) = 0;
 };
 
 

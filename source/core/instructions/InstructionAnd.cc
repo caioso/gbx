@@ -15,7 +15,7 @@ void InstructionAnd::Decode(uint8_t opcode, [[maybe_unused]] std::optional<uint8
         DecodeAddRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionAnd::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction) 
+void InstructionAnd::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction) 
 {
     auto operand1 = GetSourceOperandValue(registerBank, decodedInstruction);
     auto operand2 = registerBank->Read(decodedInstruction.DestinationRegister);
@@ -31,7 +31,7 @@ void InstructionAnd::Execute(shared_ptr<RegisterBankInterface> registerBank, Dec
         registerBank->ClearFlag(Flag::Z);
 }
 
-inline uint8_t InstructionAnd::GetSourceOperandValue(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline uint8_t InstructionAnd::GetSourceOperandValue(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.AddressingMode == AddressingMode::Register)
         return registerBank->Read(decodedInstruction.SourceRegister);

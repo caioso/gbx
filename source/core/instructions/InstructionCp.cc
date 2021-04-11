@@ -15,14 +15,14 @@ void InstructionCp::Decode(uint8_t opcode, [[maybe_unused]] std::optional<uint8_
         DecodeCpRegisterMode(opcode, decodedInstruction);
 }
 
-void InstructionCp::Execute(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction) 
+void InstructionCp::Execute(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction) 
 {
     auto operand1 = registerBank->Read(decodedInstruction.DestinationRegister);
     auto operand2 = GetSourceOperandValue(registerBank, decodedInstruction);
     CalculateDifferenceAndSetFlags(operand1, operand2, registerBank);
 }
 
-void InstructionCp::CalculateDifferenceAndSetFlags(uint8_t operand1, uint8_t operand2, shared_ptr<RegisterBankInterface> registerBank)
+void InstructionCp::CalculateDifferenceAndSetFlags(uint8_t operand1, uint8_t operand2, RegisterBankInterface* registerBank)
 {
     auto result = static_cast<uint8_t>(0x00);
     auto borrowIn = static_cast<uint8_t>(0x00);
@@ -51,7 +51,7 @@ void InstructionCp::CalculateDifferenceAndSetFlags(uint8_t operand1, uint8_t ope
     registerBank->SetFlag(Flag::N);
 }
 
-inline uint8_t InstructionCp::GetSourceOperandValue(shared_ptr<RegisterBankInterface> registerBank, DecodedInstruction& decodedInstruction)
+inline uint8_t InstructionCp::GetSourceOperandValue(RegisterBankInterface* registerBank, DecodedInstruction& decodedInstruction)
 {
     if (decodedInstruction.AddressingMode == AddressingMode::Register)
         return registerBank->Read(decodedInstruction.SourceRegister);
