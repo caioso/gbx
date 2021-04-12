@@ -760,6 +760,396 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryBitwiseOr2)
     EXPECT_TRUE(parser.IsAccepted());
 }
 
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryBitwiseXor)
+{
+    const string expression = "A ^ B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryBitwiseXor2)
+{
+    const string expression = "A ^ B ^ (C ^ D) ^ E";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryLeftShift)
+{
+    const string expression = "A << B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryLeftShift2)
+{
+    const string expression = "A << (B << (C << D))";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryRightShift)
+{
+    const string expression = "A >> B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryRightShift2)
+{
+    const string expression = "(A >> B) >> (C >> D)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryEquality)
+{
+    const string expression = "A == B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryEquality2)
+{
+    const string expression = "(A == (B == E)) == ((C == (D == F)) == N)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryDifference)
+{
+    const string expression = "A != B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryDifference2)
+{
+    const string expression = "A != B != C != D != (E != F != G != H)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryLogicAnd)
+{
+    const string expression = "A && B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryLogicAnd2)
+{
+    const string expression = "((((((A) && B) && C) && D) && E) && F)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryLogicOr)
+{
+    const string expression = "A || B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryLogicOr2)
+{
+    const string expression = "(A) || (B) || (C) || (D)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryGreaterThan)
+{
+    const string expression = "A > B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryGreaterThan2)
+{
+    const string expression = "(A > B) && (C > D)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryLessThan)
+{
+    const string expression = "A < B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryLessThan2)
+{
+    const string expression = "(A < F) || (A < D)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryGreaterThanOrEqualTo)
+{
+    const string expression = "A >= B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryGreaterThanOrEqualTo2)
+{
+    const string expression = "(A >= F) == (A >= D)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryLessThanOrEqualTo)
+{
+    const string expression = "A <= B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryLessThanOrEqualTo2)
+{
+    const string expression = "(A <= (B)) != (A <= (D + E))";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryThreeWay)
+{
+    const string expression = "A <=> B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryThreeWay2)
+{
+    const string expression = "((A <=> B)) && (A <=> D * E)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryAssignment)
+{
+    const string expression = "A = B";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryAssigment2)
+{
+    const string expression = "A = (B + C * D - E / F)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
 /*TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSimpleBinaryExpressionIntermediateRepresentationHLCheck)
 {
     const string expression = "A + B";

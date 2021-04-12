@@ -18,7 +18,6 @@ using namespace std;
 using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
-
 TEST(TestSla, DecodeSlaRegisterMode)
 {
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};

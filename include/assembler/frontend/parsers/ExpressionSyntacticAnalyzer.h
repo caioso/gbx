@@ -20,23 +20,49 @@ enum class ExpressionParserTreeSymbols
     TerminalDivision,
     TerminalBitwiseAnd,
     TerminalBitwiseOr,
+    TerminalBitwiseXor,
+    TerminalLeftShift,
+    TerminalRightShift,
+    TerminalEquality,
+    TerminalDifference,
+    TerminalLogicAnd,
+    TerminalLogicOr,
+    TerminalGreaterThan,
+    TerminalLessThan,
+    TerminalGreaterThanOrEqualTo,
+    TerminalLessThanOrEqualTo,
+    TerminalThreeWay,
+    TerminalAssignment,
 
     TerminalIdentifier,
     
     TerminalOpenParenthesis,
     TerminalCloseParenthesis,
     
-    NonTerminalExpression,            // E
-    NonTerminalSurroundedOperation,   // E5
-    NonTerminalOperand,               // E6
-    NonTerminalOperation,             // E7
-    NonTerminalBinaryAddition,        // F1
-    NonTerminalBinarySubtraction,     // F2
-    NonTerminalBinaryMultiplication,  // F3
-    NonTerminalBinaryDivision,        // F4
-    NonTerminalBinaryBitwiseAnd,      // F5
-    NonTerminalBinaryBitwiseOr,       // F6
-    NonTerminalIdentifier,            // T4
+    NonTerminalExpression,                 // E
+    NonTerminalSurroundedOperation,        // E5
+    NonTerminalOperand,                    // E6
+    NonTerminalOperation,                  // E7
+    NonTerminalBinaryAddition,             // F1
+    NonTerminalBinarySubtraction,          // F2
+    NonTerminalBinaryMultiplication,       // F3
+    NonTerminalBinaryDivision,             // F4
+    NonTerminalBinaryBitwiseAnd,           // F5
+    NonTerminalBinaryBitwiseOr,            // F6
+    NonTerminalBinaryBitwiseXor,           // F7
+    NonTerminalBinaryLeftShift,            // F8
+    NonTerminalBinaryRightShift,           // F9
+    NonTerminalBinaryEquality,             // F10
+    NonTerminalBinaryDiffertence,          // F11
+    NonTerminalBinaryLogicAnd,             // F12
+    NonTerminalBinaryLogicOr,              // F13
+    NonTerminalBinaryGreaterThan,          // F14
+    NonTerminalBinaryLessThan,             // F15
+    NonTerminalBinaryGreaterThanOrEqualTo, // F16
+    NonTerminalBinaryLessThanOrEqualTo,    // F17
+    NonTerminalBinaryThreeWay,             // F18
+    NonTerminalBinaryAssignment,           // F19
+    NonTerminalIdentifier,                 // T4
 };
 
 enum class NextOperation

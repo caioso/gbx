@@ -268,6 +268,7 @@ Exception throwing construction
 #### `>=` Operator
 #### `<=` Operator
 #### `<=>` Operator
+#### `=` Operator
 #### `!` Operator
 #### Special Operators
 #### `@` Operator
