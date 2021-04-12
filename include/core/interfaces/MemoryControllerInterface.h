@@ -4,7 +4,8 @@
 #include <variant>
 
 #include "AddressRange.h"
-#include "MemoryInterface.h"
+#include "MemoryMappedRegister.h"
+#include "MemoryResource.h"
 #include "SystemMode.h"
 
 namespace gbxcore::interfaces
@@ -30,8 +31,11 @@ public:
     virtual void SetMode(Mode) = 0;
     virtual Mode Mode() = 0;
 
-    virtual size_t RegisterMemoryResource(std::unique_ptr<interfaces::MemoryInterface>, AddressRange, Ownership) = 0;
+    virtual size_t RegisterMemoryResource(std::unique_ptr<interfaces::MemoryResource>, AddressRange, Ownership) = 0;
     virtual void UnregisterMemoryResource(size_t, Ownership) = 0;
+    
+    virtual size_t RegisterMemoryMappedRegister(std::unique_ptr<interfaces::MemoryMappedRegister>, size_t, Ownership) = 0;
+    virtual void UnregisterMemoryMappedRegister(size_t, Ownership) = 0;
 };
 
 }

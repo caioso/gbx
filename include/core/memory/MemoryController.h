@@ -10,21 +10,22 @@
 #include "BankedROM.h"
 #include "GBXCoreExceptions.h"
 #include "MemoryControllerInterface.h"
-#include "MemoryInterface.h"
+#include "MemoryResource.h"
 #include "SystemMode.h"
 
+#include <map>
 #include <memory>
 
 namespace gbxcore::memory
 {
 
-typedef struct MemoryResource_t
+typedef struct RegisteredMemoryResource_t
 {
-    std::unique_ptr<interfaces::MemoryInterface> Resource;
+    std::unique_ptr<interfaces::MemoryResource> Resource;
     AddressRange Range;
     size_t ID;
 }
-MemoryResource;
+RegisteredMemoryResource;
 
 typedef struct ResourceIndexAndAddress_t
 {
@@ -47,18 +48,21 @@ public:
     void SetMode(gbxcore::Mode) override;
     gbxcore::Mode Mode() override;
 
-    size_t RegisterMemoryResource(std::unique_ptr<interfaces::MemoryInterface>, AddressRange,  Ownership) override;
+    size_t RegisterMemoryResource(std::unique_ptr<interfaces::MemoryResource>, AddressRange,  Ownership) override;
     void UnregisterMemoryResource(size_t, Ownership) override;
+
+    size_t RegisterMemoryMappedRegister(std::unique_ptr<interfaces::MemoryMappedRegister>, size_t, Ownership) override;
+    void UnregisterMemoryMappedRegister(size_t, Ownership) override;
 
 private:
     inline void SortResources();
-    inline void DetectMisfit(interfaces::MemoryInterface*, AddressRange);
+    inline void DetectMisfit(interfaces::MemoryResource*, AddressRange);
     inline void DetectOverlap(AddressRange);
-    inline std::vector<MemoryResource>* SelectResource();
+    inline std::vector<RegisteredMemoryResource>* SelectResource();
 
     std::optional<ResourceIndexAndAddress> CalculateLocalAddress(size_t address);
-    std::vector<MemoryResource> _userResources; 
-    std::vector<MemoryResource> _systemResources; 
+    std::vector<RegisteredMemoryResource> _userResources; 
+    std::vector<RegisteredMemoryResource> _systemResources; 
 
     gbxcore::Mode _mode{};
     size_t _ID;

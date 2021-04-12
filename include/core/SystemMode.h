@@ -6,7 +6,7 @@ namespace gbxcore
 enum class Ownership
 {
     System,
-    User
+    User,
 };
 
 typedef Ownership Mode;

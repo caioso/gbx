@@ -8,7 +8,7 @@
 #include <sstream>
 #include <variant>
 
-#include "MemoryInterface.h"
+#include "MemoryResource.h"
 #include "GBXCoreExceptions.h"
 #include "ROM.h"
 

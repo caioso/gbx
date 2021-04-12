@@ -6,7 +6,7 @@
 
 #include "ROM.h"
 #include "GBXCoreExceptions.h"
-#include "MemoryInterface.h"
+#include "MemoryResource.h"
 
 namespace gbxcore::memory
 {

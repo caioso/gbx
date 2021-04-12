@@ -4,7 +4,7 @@
 #include <string>
 #include <variant>
 
-#include "MemoryInterface.h"
+#include "MemoryResource.h"
 #include "RegisterBankInterface.h"
 #include "SystemMode.h"
 

@@ -10,7 +10,7 @@ CPPFLAGS = $(CCCOVERAGE_FLAGS) $(GLOBAL_CPP_FLAGS)
 INCLUDE = -I$(INCLUDE_CORE_TOP) -I$(INCLUDE_CORE_CONSTANTS) -I$(INCLUDE_CORE_MEMORY) -I$(INCLUDE_CORE_INTERFACES) -I$(INCLUDE_CORE_INSTRUCTIONS) \
 		  -I$(INCLUDE_COMMONS_TOP)
 
-SRC_FILES = $(notdir $(wildcard ./*.cc)) $(notdir $(wildcard */*.cc))
+SRC_FILES = $(notdir $(wildcard ./*.cc)) $(notdir $(wildcard ./*/*.cc)) $(notdir $(wildcard ./*/*/*.cc))
 OBJ_FILES = $(patsubst %.cc,$(BUILD_TEMP)/%.o,$(SRC_FILES))
 DEP_FILES = $(patsubst %.o,%.d,$(OBJ_FILES))
 

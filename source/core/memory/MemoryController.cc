@@ -66,7 +66,7 @@ Ownership MemoryController::Mode()
     return _mode;
 }
 
-size_t MemoryController::RegisterMemoryResource(std::unique_ptr<MemoryInterface> resource, AddressRange range, Ownership owner)
+size_t MemoryController::RegisterMemoryResource(std::unique_ptr<MemoryResource> resource, AddressRange range, Ownership owner)
 {
     auto oldMode = Mode();
     SetMode(owner);
@@ -104,7 +104,15 @@ void MemoryController::UnregisterMemoryResource(size_t id, Ownership owner)
     throw MemoryControllerException("the resource to be unregisterd could not found");
 }
 
-inline void MemoryController::DetectMisfit(MemoryInterface* resource, AddressRange range)
+size_t MemoryController::RegisterMemoryMappedRegister(unique_ptr<MemoryMappedRegister>, size_t, Ownership)
+{
+
+}
+
+void MemoryController::UnregisterMemoryMappedRegister(size_t, Ownership)
+{}
+
+inline void MemoryController::DetectMisfit(MemoryResource* resource, AddressRange range)
 {
     if (range.End() - range.Begin() + 1 != resource->Size())
         throw MemoryControllerException("resouce and range misfit");
@@ -115,7 +123,7 @@ inline void MemoryController::SortResources()
     auto& targetResource = *SelectResource();
 
     sort(begin(targetResource), end(targetResource),
-        [] (const MemoryResource& resourceA, const MemoryResource& resourceB) -> bool 
+        [] (const RegisteredMemoryResource& resourceA, const RegisteredMemoryResource& resourceB) -> bool 
         {
             return resourceA.Range.Begin() > resourceB.Range.Begin();
         }
@@ -151,7 +159,7 @@ std::optional<ResourceIndexAndAddress> MemoryController::CalculateLocalAddress(s
     return nullopt;
 }
 
-inline std::vector<MemoryResource>* MemoryController::SelectResource()
+inline std::vector<RegisteredMemoryResource>* MemoryController::SelectResource()
 {
     if (_mode == Ownership::System)
         return &_systemResources;

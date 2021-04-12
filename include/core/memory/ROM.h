@@ -10,12 +10,12 @@
 #include <variant>
 
 #include "GBXCoreExceptions.h"
-#include "MemoryInterface.h"
+#include "MemoryResource.h"
 
 namespace gbxcore::memory
 {
     
-class ROM : public interfaces::MemoryInterface
+class ROM : public interfaces::MemoryResource
 {
 public:
     ROM(std::size_t);
