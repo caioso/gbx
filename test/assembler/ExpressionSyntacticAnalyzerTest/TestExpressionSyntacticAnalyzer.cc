@@ -122,7 +122,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryAddition3)
     EXPECT_TRUE(parser.IsAccepted());
 }
 
-TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseInvalidBinaryAddition)
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryAddition4)
 {
     const string expression = "A + + B";
 
@@ -134,7 +134,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseInvalidBinaryAddition)
     auto endIterator = end(lexer.Tokens());
     parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_FALSE(parser.IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseInvalidBinaryAddition2)
@@ -404,10 +404,9 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinarySubtraction3)
     EXPECT_TRUE(parser.IsAccepted());
 }
 
-TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseInvalidBinarySubtraction)
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinarySubtraction4)
 {
     const string expression = "A - - B";
-
     LexicalAnalyzer lexer;
     ExpressionSyntacticAnalyzer parser;
     
@@ -416,7 +415,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseInvalidBinarySubtraction)
     auto endIterator = end(lexer.Tokens());
     parser.TryToAccept(currentToken, endIterator);
 
-    EXPECT_FALSE(parser.IsAccepted());
+    EXPECT_TRUE(parser.IsAccepted());
 }
 
 TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseInvalidBinarySubtraction2)
@@ -1138,6 +1137,261 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryAssignment)
 TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseBinaryAssigment2)
 {
     const string expression = "A = (B + C * D - E / F)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryLogicNegation)
+{
+    const string expression = "!A";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryLogicNegation2)
+{
+    const string expression = "!(A)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryLogicNegation3)
+{
+    const string expression = "!(!A)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryLogicNegation4)
+{
+    const string expression = "! !A";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseInvalidUnaryOperation)
+{
+    const string expression = "A !";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_FALSE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryBitwiseNegation)
+{
+    const string expression = "~A";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryBitwiseNegation2)
+{
+    const string expression = "~(A + ~B & ~(C))";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryNegative)
+{
+    const string expression = "-A";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryNegative2)
+{
+    const string expression = "-(A)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryNegative3)
+{
+    const string expression = "(-A)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryNegative4)
+{
+    const string expression = "(A + -A)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryNegative5)
+{
+    const string expression = "(A +  - - - -A)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryPositive)
+{
+    const string expression = "+A";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryPositive2)
+{
+    const string expression = "+(A)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryPositive3)
+{
+    const string expression = "(+A)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryPositive4)
+{
+    const string expression = "(A + +A)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryPositive5)
+{
+    const string expression = "(A - + + + + + A)";
 
     LexicalAnalyzer lexer;
     ExpressionSyntacticAnalyzer parser;

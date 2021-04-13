@@ -33,6 +33,8 @@ enum class ExpressionParserTreeSymbols
     TerminalLessThanOrEqualTo,
     TerminalThreeWay,
     TerminalAssignment,
+    TerminalLogicNegation,
+    TerminalBitwiseNegation,
 
     TerminalIdentifier,
     
@@ -42,7 +44,12 @@ enum class ExpressionParserTreeSymbols
     NonTerminalExpression,                 // E
     NonTerminalSurroundedOperation,        // E5
     NonTerminalOperand,                    // E6
-    NonTerminalOperation,                  // E7
+    NonTerminalUnaryOperation,             // E0
+    NonTerminalBinaryOperation,            // E7
+    NonTerminalUnaryLogicNegation,         // E1
+    NonTerminalUnaryBitwiseNegation,       // E2
+    NonTerminalUnaryNegative,              // E3
+    NonTerminalUnaryPositive,              // E4
     NonTerminalBinaryAddition,             // F1
     NonTerminalBinarySubtraction,          // F2
     NonTerminalBinaryMultiplication,       // F3
