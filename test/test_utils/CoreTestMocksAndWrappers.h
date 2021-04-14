@@ -25,7 +25,7 @@ public:
     MOCK_METHOD(void, Load, ((std::unique_ptr<uint8_t*>), size_t, size_t, (std::optional<size_t>)));
     MOCK_METHOD(size_t, RegisterMemoryResource, ((std::unique_ptr<gbxcore::interfaces::MemoryResource>), gbxcore::AddressRange, gbxcore::Ownership));
     MOCK_METHOD(void, UnregisterMemoryResource, (size_t, gbxcore::Ownership));
-    MOCK_METHOD(size_t, RegisterMemoryMappedRegister, ((std::unique_ptr<gbxcore::interfaces::MemoryMappedRegister>), size_t, gbxcore::Ownership));
+    MOCK_METHOD(void, RegisterMemoryMappedRegister, ((std::unique_ptr<gbxcore::interfaces::MemoryMappedRegister>), size_t, gbxcore::Ownership));
     MOCK_METHOD(void, UnregisterMemoryMappedRegister, (size_t, gbxcore::Ownership));
 };
 class ArithmeticLogicDecorator : public gbxcore::ArithmeticLogicUnit

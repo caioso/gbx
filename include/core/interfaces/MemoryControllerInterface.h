@@ -34,7 +34,7 @@ public:
     virtual size_t RegisterMemoryResource(std::unique_ptr<interfaces::MemoryResource>, AddressRange, Ownership) = 0;
     virtual void UnregisterMemoryResource(size_t, Ownership) = 0;
     
-    virtual size_t RegisterMemoryMappedRegister(std::unique_ptr<interfaces::MemoryMappedRegister>, size_t, Ownership) = 0;
+    virtual void RegisterMemoryMappedRegister(std::unique_ptr<interfaces::MemoryMappedRegister>, size_t, Ownership) = 0;
     virtual void UnregisterMemoryMappedRegister(size_t, Ownership) = 0;
 };
 

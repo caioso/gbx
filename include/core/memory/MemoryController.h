@@ -27,6 +27,13 @@ typedef struct RegisteredMemoryResource_t
 }
 RegisteredMemoryResource;
 
+typedef struct RegisteredMemoryMappedRegister_t
+{
+    std::unique_ptr<interfaces::MemoryMappedRegister> Register;
+    size_t Address;
+}
+RegisteredMemoryMappedRegister;
+
 typedef struct ResourceIndexAndAddress_t
 {
     uint8_t ResourceIndex;
@@ -51,7 +58,7 @@ public:
     size_t RegisterMemoryResource(std::unique_ptr<interfaces::MemoryResource>, AddressRange,  Ownership) override;
     void UnregisterMemoryResource(size_t, Ownership) override;
 
-    size_t RegisterMemoryMappedRegister(std::unique_ptr<interfaces::MemoryMappedRegister>, size_t, Ownership) override;
+    void RegisterMemoryMappedRegister(std::unique_ptr<interfaces::MemoryMappedRegister>, size_t, Ownership) override;
     void UnregisterMemoryMappedRegister(size_t, Ownership) override;
 
 private:
@@ -59,13 +66,18 @@ private:
     inline void DetectMisfit(interfaces::MemoryResource*, AddressRange);
     inline void DetectOverlap(AddressRange);
     inline std::vector<RegisteredMemoryResource>* SelectResource();
+    inline std::map<uint16_t, RegisteredMemoryMappedRegister>* SelectRegisterSource();
+    inline std::map<uint16_t, RegisteredMemoryMappedRegister>* GetRegisterSource(Ownership);
+    inline std::map<uint16_t, RegisteredMemoryMappedRegister>::iterator IsRegisterAddress(size_t);
 
     std::optional<ResourceIndexAndAddress> CalculateLocalAddress(size_t address);
     std::vector<RegisteredMemoryResource> _userResources; 
     std::vector<RegisteredMemoryResource> _systemResources; 
+    std::map<uint16_t, RegisteredMemoryMappedRegister> _systemRegisters;
+    std::map<uint16_t, RegisteredMemoryMappedRegister> _userRegisters;
 
     gbxcore::Mode _mode{};
-    size_t _ID;
+    size_t _resourcesID;
 };
 
 }

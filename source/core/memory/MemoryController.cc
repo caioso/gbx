@@ -9,24 +9,39 @@ namespace gbxcore::memory
 
 std::variant<uint8_t, uint16_t> MemoryController::Read(size_t address, MemoryAccessType accessType)
 {
-    auto localAddress = CalculateLocalAddress(address);
-    auto& targetResource = *SelectResource();
+    if (auto reg = IsRegisterAddress(address);
+        reg != SelectRegisterSource()->end())
+    {
+        return reg->second.Register->Read();
+    }
+    else
+    {
+        auto localAddress = CalculateLocalAddress(address);
+        auto& targetResource = *SelectResource();
+        if (localAddress == nullopt)
+            throw MemoryControllerException("requested address to write to does not fall into any resource");
 
-    if (localAddress == nullopt)
-        throw MemoryControllerException("requested address to write to does not fall into any resource");
-
-    return targetResource[localAddress.value().ResourceIndex].Resource.get()->Read(localAddress.value().LocalAddress, accessType);
+        return targetResource[localAddress.value().ResourceIndex].Resource.get()->Read(localAddress.value().LocalAddress, accessType);
+    }
 }
 
 void MemoryController::Write(std::variant<uint8_t, uint16_t> value, size_t address)
 {
-    auto localAddress = CalculateLocalAddress(address);
-    auto& targetResource = *SelectResource();
+    if (auto reg = IsRegisterAddress(address);
+        reg != SelectRegisterSource()->end())
+    {
+        return reg->second.Register->Write(value);
+    }
+    else
+    {
+        auto localAddress = CalculateLocalAddress(address);
+        auto& targetResource = *SelectResource();
 
-    if (localAddress == nullopt)
-        throw MemoryControllerException("requested address to read from does not fall into any resource");
+        if (localAddress == nullopt)
+            throw MemoryControllerException("requested address to read from does not fall into any resource");
 
-    targetResource[localAddress.value().ResourceIndex].Resource.get()->Write(value, localAddress.value().LocalAddress);
+        targetResource[localAddress.value().ResourceIndex].Resource.get()->Write(value, localAddress.value().LocalAddress);
+    }
 }
 
 void MemoryController::Load(std::unique_ptr<uint8_t*> dataPointer, size_t size, size_t address, optional<size_t> offset)
@@ -74,7 +89,7 @@ size_t MemoryController::RegisterMemoryResource(std::unique_ptr<MemoryResource> 
         DetectOverlap(range);
         DetectMisfit(resource.get(), range);
 
-        auto targetID = _ID++;
+        auto targetID = _resourcesID++;
         SelectResource()->push_back({std::move(resource), range, targetID});
         SortResources();
     
@@ -104,13 +119,50 @@ void MemoryController::UnregisterMemoryResource(size_t id, Ownership owner)
     throw MemoryControllerException("the resource to be unregisterd could not found");
 }
 
-size_t MemoryController::RegisterMemoryMappedRegister(unique_ptr<MemoryMappedRegister>, size_t, Ownership)
+void MemoryController::RegisterMemoryMappedRegister(unique_ptr<MemoryMappedRegister> memoryMappedRegister, size_t address, Ownership owner)
 {
+    if (owner == Ownership::System && _systemRegisters.find(address) == _systemRegisters.end())
+    {
+        RegisteredMemoryMappedRegister reg = 
+        {
+            .Register = std::move(memoryMappedRegister),
+            .Address = address
+        };
 
+        _systemRegisters.insert({address, std::move(reg)});
+    }
+    else if (owner == Ownership::User && _userRegisters.find(address) == _userRegisters.end())
+    {
+        RegisteredMemoryMappedRegister reg = 
+        {
+            .Register = std::move(memoryMappedRegister),
+            .Address = address
+        };
+
+        _userRegisters.insert({address, std::move(reg)});
+    }
+    else
+    {
+        stringstream ss;
+        ss << "Register '" << address << "' has already been registered";
+        throw MemoryControllerException(ss.str());
+    }
 }
 
-void MemoryController::UnregisterMemoryMappedRegister(size_t, Ownership)
-{}
+void MemoryController::UnregisterMemoryMappedRegister(size_t address, Ownership owner)
+{
+    if (auto reg = GetRegisterSource(owner)->find(address);
+        reg != GetRegisterSource(owner)->end())
+    {
+        GetRegisterSource(owner)->erase(reg);
+    }
+    else
+    {
+        stringstream ss;
+        ss << "Register '" << address << "' has not been registered";
+        throw MemoryControllerException(ss.str());
+    }
+}
 
 inline void MemoryController::DetectMisfit(MemoryResource* resource, AddressRange range)
 {
@@ -165,6 +217,31 @@ inline std::vector<RegisteredMemoryResource>* MemoryController::SelectResource()
         return &_systemResources;
     else
         return &_userResources;
+}
+
+inline std::map<uint16_t, RegisteredMemoryMappedRegister>* MemoryController::SelectRegisterSource()
+{
+    if (_mode == Ownership::System)
+        return &_systemRegisters;
+    else
+        return &_userRegisters;
+}
+
+inline std::map<uint16_t, RegisteredMemoryMappedRegister>* MemoryController::GetRegisterSource(Ownership owner)
+{
+    if (owner == Ownership::System)
+        return &_systemRegisters;
+    else
+        return &_userRegisters;
+}
+
+
+inline std::map<uint16_t, RegisteredMemoryMappedRegister>::iterator MemoryController::IsRegisterAddress(size_t address)
+{
+    if (_mode == Mode::System)
+        return _systemRegisters.find(address);
+    else
+        return _userRegisters.find(address);
 }
 
 }
