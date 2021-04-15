@@ -35,8 +35,14 @@ enum class ExpressionParserTreeSymbols
     TerminalAssignment,
     TerminalLogicNegation,
     TerminalBitwiseNegation,
+    TerminalOperatorDot,
 
     TerminalIdentifier,
+    TerminalPackIdentifier,
+    TerminalNumericLiteral,
+    TerminalStringLiteral,
+    TerminalCharLiteral,
+    TerminalBooleanLiteral,
     
     TerminalOpenParenthesis,
     TerminalCloseParenthesis,
@@ -69,7 +75,12 @@ enum class ExpressionParserTreeSymbols
     NonTerminalBinaryLessThanOrEqualTo,    // F17
     NonTerminalBinaryThreeWay,             // F18
     NonTerminalBinaryAssignment,           // F19
+    NonTerminalNumericLiteral,             // T1
+    NonTerminalCharLiteral,                // T2
+    NonTerminalStringLiteral,              // T3
     NonTerminalIdentifier,                 // T4
+    NonTerminalPackIdentifier,             // T5
+    NonTerminalBooleanLiteral,             // T6
 };
 
 enum class NextOperation

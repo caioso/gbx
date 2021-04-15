@@ -1404,6 +1404,156 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryPositive5)
     EXPECT_TRUE(parser.IsAccepted());
 }
 
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseExpressionWithNumericLiteral)
+{
+    const string expression = "0xFF + 0x01";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseExpressionWithNumericLiteral2)
+{
+    const string expression = "MY_RESULT = (-0o31 + 150)/(FIRST_CONSTANT * (40*SECOND_CONSTANT))";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseExpressionWithNumericLiteral3)
+{
+    const string expression = "COMPARISON = (((0b11110000 | 0b00001111) == 0xFF))";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseExpressionWithStringLiteral)
+{
+    const string expression = "\"Hello\" + \" \" + \"World!\"";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseExpressionWithStringLiteral2)
+{
+    const string expression = "MY_STRING = \"GAMEBOY\" + \"\" + \"X\"";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseExpressionWithCharLiteral)
+{
+    const string expression = "'G' + 'B' + 'X'";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseExpressionWithCharLiteral2)
+{
+    const string expression = "MY_TEST = 'H' + 'E' + 'L' + 'L' + 'O'";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseExpressionWithBooleanLiteral)
+{
+    const string expression = "MY_TEST = TRUE | FALSE";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseExpressionWithBooleanLiteral2)
+{
+    const string expression = "(A == 0xFF) == TRUE || (B != 0xFE) == TRUE";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseExpressionWithPackIdentifier)
+{
+    const string expression = "A.B + C.D";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
 /*TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseSimpleBinaryExpressionIntermediateRepresentationHLCheck)
 {
     const string expression = "A + B";

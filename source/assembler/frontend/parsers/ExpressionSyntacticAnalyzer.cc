@@ -217,6 +217,42 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, s
         _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalIdentifier, .Lexeme = string("") });
         return NextOperation::Reduced;
     }
+    // Detect Numeric Literal
+    else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalNumericLiteral)
+    {
+        // Reduce Identifier to Non-Terminal Identifier (T4)
+        // Remove Identifier
+        _symbols.erase(begin(_symbols) + leftSubstring);
+        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalNumericLiteral, .Lexeme = string("") });
+        return NextOperation::Reduced;
+    }
+    // Detect Char Literal
+    else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalCharLiteral)
+    {
+        // Reduce Identifier to Non-Terminal Identifier (T4)
+        // Remove Identifier
+        _symbols.erase(begin(_symbols) + leftSubstring);
+        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalCharLiteral, .Lexeme = string("") });
+        return NextOperation::Reduced;
+    }
+    // Detect String Literal
+    else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalStringLiteral)
+    {
+        // Reduce Identifier to Non-Terminal Identifier (T4)
+        // Remove Identifier
+        _symbols.erase(begin(_symbols) + leftSubstring);
+        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalStringLiteral, .Lexeme = string("") });
+        return NextOperation::Reduced;
+    }
+    // Detect Boolean Literal
+    else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBooleanLiteral)
+    {
+        // Reduce Identifier to Non-Terminal Identifier (T4)
+        // Remove Identifier
+        _symbols.erase(begin(_symbols) + leftSubstring);
+        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBooleanLiteral, .Lexeme = string("") });
+        return NextOperation::Reduced;
+    }
     // Detect (
     else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalOpenParenthesis)
     {
@@ -237,7 +273,11 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, s
         return NextOperation::Shift;
     }
     // NON-TERMINALS
-    else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalIdentifier)
+    else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalIdentifier ||
+             _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalNumericLiteral ||
+             _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalCharLiteral || 
+             _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalStringLiteral ||
+             _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalBooleanLiteral)
     {
         // Reduce Identifier to Non-Terminal Operand (E6)
         // Remove Non-terminal Identifier
@@ -326,6 +366,18 @@ void ExpressionSyntacticAnalyzer::ExtractSymbols(std::vector<Token>::iterator& b
         {
             case TokenType::Identifier: 
                 return {.Symbol = ExpressionParserTreeSymbols::TerminalIdentifier, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::LiteralNumericBINARY: 
+            case TokenType::LiteralNumericOCTAL: 
+            case TokenType::LiteralNumericDECIMAL: 
+            case TokenType::LiteralNumericHEXADECIMAL: 
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalNumericLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::LiteralSTRING: 
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalStringLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::LiteralCHAR: 
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalCharLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::LiteralBooleanTRUE: 
+            case TokenType::LiteralBooleanFALSE: 
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBooleanLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
             case TokenType::SeparatorOPENPARENTHESIS:
                 return {.Symbol = ExpressionParserTreeSymbols::TerminalOpenParenthesis, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
             case TokenType::SeparatorCLOSEPARENTHESIS:
@@ -372,16 +424,15 @@ void ExpressionSyntacticAnalyzer::ExtractSymbols(std::vector<Token>::iterator& b
                 return {.Symbol = ExpressionParserTreeSymbols::TerminalLogicNegation, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
             case TokenType::OperatorBITWISENOT: 
                 return {.Symbol = ExpressionParserTreeSymbols::TerminalBitwiseNegation, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorDOT: 
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalOperatorDot, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
         }
     });
 
     _line = (*beginIt).Line;
     _column = (*beginIt).Column;
 
-    for_each(_symbols.begin(), _symbols.end(), [](ExpressionCompoundSymbol x) -> auto
-    {
-        cout << static_cast<size_t>(x.Symbol) << " -> " << x.Lexeme << '\n';
-    });
+    // TODO: Create the 'Pack Identifiers' by combining the left and right parts berfore/after the '.' found during the encoding.
 }
 
 }
