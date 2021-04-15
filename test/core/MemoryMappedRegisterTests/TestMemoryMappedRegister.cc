@@ -9,7 +9,9 @@
 #include <optional>
 #include <variant>
 
+#include "DMGAndGBCRegisterAddresses.h"
 #include "InterruptEnableRegister.h"
+#include "LCDControlRegister.h"
 #include "MemoryController.h"
 #include "MemoryMappedRegister.h"
 #include "RAM.h"
@@ -118,3 +120,63 @@ TEST(CoreTests_MemoryMappedRegister, UnregisterUnexistentMemoryMappedRegister)
                       "Register '65535' has not been registered");
 }
 
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterConstruction) 
+{
+    VideoControllerMock videoController;
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterEnableLCD) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, EnableVideo());
+    
+    controller.Write(static_cast<uint8_t>(0x80), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x80), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterDisableLCD) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    // By Default, the LCD is off. Switching it off will have no effect
+    EXPECT_CALL(videoController, DisableVideo()).Times(0);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterEnableAndDisableLCD) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, EnableVideo());
+    
+    controller.Write(static_cast<uint8_t>(0x80), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x80), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+
+    EXPECT_CALL(videoController, DisableVideo());
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}

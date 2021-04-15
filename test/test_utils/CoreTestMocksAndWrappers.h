@@ -9,6 +9,7 @@
 
 #include "ArithmeticLogicUnit.h"
 #include "MemoryController.h"
+#include "VideoControllerInterface.h"
 
 using ::testing::Return;
 using ::testing::_;
@@ -28,6 +29,15 @@ public:
     MOCK_METHOD(void, RegisterMemoryMappedRegister, ((std::unique_ptr<gbxcore::interfaces::MemoryMappedRegister>), size_t, gbxcore::Ownership));
     MOCK_METHOD(void, UnregisterMemoryMappedRegister, (size_t, gbxcore::Ownership));
 };
+
+class VideoControllerMock : public gbxcore::interfaces::VideoControllerInterface
+{
+public:
+    virtual ~VideoControllerMock() = default;
+    MOCK_METHOD(void, EnableVideo, ());
+    MOCK_METHOD(void, DisableVideo, ());
+};
+
 class ArithmeticLogicDecorator : public gbxcore::ArithmeticLogicUnit
 {
 public:
