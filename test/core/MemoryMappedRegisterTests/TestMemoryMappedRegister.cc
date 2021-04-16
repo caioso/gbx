@@ -180,3 +180,417 @@ TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterEnableAndDisableLCD)
     
     EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
 }
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterWindowTileMapSelectBase0x9800) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, SelectWindowTileMap(0x9C00llu));
+    
+    controller.Write(static_cast<uint8_t>(0x40), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x40), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterWindowTileMapSelectBase0x9C00) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+    
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, SelectWindowTileMap(0x9800llu)).Times(0);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterWindowTileMapBothModes) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, SelectWindowTileMap(0x9C00llu)).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x40), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x40), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+    
+    EXPECT_CALL(videoController, SelectWindowTileMap(0x9800llu)).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterWindowDisplaySetWindowOn) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, ShowWindow());
+    
+    controller.Write(static_cast<uint8_t>(0x20), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x20), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterWindowDisplaySetWindowOff) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, HideWindow()).Times(0);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterWindowDisplayToggleWindowOnAndOff) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, ShowWindow()).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x20), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x20), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+    
+    EXPECT_CALL(videoController, HideWindow()).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterWindowAndBackgrounrTileSetBase0x8000) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, SelectWindowAndBackgroundTileSet(0x8000llu)).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x10), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x10), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterWindowAndBackgrounrTileSetBase0x8800) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, SelectWindowAndBackgroundTileSet(0x8800llu)).Times(0);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterWindowAndBackgrounrToggleTileSetBase) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, SelectWindowAndBackgroundTileSet(0x8000llu)).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x10), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x10), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+
+    EXPECT_CALL(videoController, SelectWindowAndBackgroundTileSet(0x8800llu)).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterBackgroundTileMapBase0x9C00) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, SelectBackgroundTileMap(0x9C00llu)).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x08), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x08), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterBackgroundTileMapBase0x9800) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, SelectBackgroundTileMap(0x9800llu)).Times(0);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterToggleBackgroundTileMap) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+
+    EXPECT_CALL(videoController, SelectBackgroundTileMap(0x9C00llu)).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x08), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x08), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+    
+    EXPECT_CALL(videoController, SelectBackgroundTileMap(0x9800llu)).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterSetSpriteMode8x16) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, SetSpriteMode(0x01)).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x04), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x04), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterSetSpriteMode8x8) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, SetSpriteMode(0x01)).Times(0);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterToggleSpriteMode) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, SetSpriteMode(0x01)).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x04), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x04), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+
+    EXPECT_CALL(videoController, SetSpriteMode(0x00)).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterShowSprites) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, ShowSprites()).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x02), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x02), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterHideSprites) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    EXPECT_CALL(videoController, HideSprites()).Times(0);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterToggleSpritesVisibility) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+
+    EXPECT_CALL(videoController, ShowSprites()).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x02), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x02), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+
+    EXPECT_CALL(videoController, HideSprites()).Times(1);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterShowWindowAndBackground1) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    // Window Visibility is 0, do not show it
+    EXPECT_CALL(videoController, ShowBackground()).Times(1);
+    EXPECT_CALL(videoController, ShowWindow()).Times(0);
+    
+    controller.Write(static_cast<uint8_t>(0x01), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x01), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterShowWindowAndBackground2) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    // Window Visibility is 0, do not show it
+    // Enable Window 
+    EXPECT_CALL(videoController, ShowWindow()).Times(1);
+    controller.Write(static_cast<uint8_t>(0x20), gbxcore::constants::LCDCRegisterAddress);   
+
+    EXPECT_CALL(videoController, ShowBackground()).Times(1);
+    EXPECT_CALL(videoController, ShowWindow()).Times(1);
+    
+    // | 0x20 zorgt dat de window aan blijft
+    controller.Write(static_cast<uint8_t>(0x01 | 0x20), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x01 | 0x20), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterHideWindowAndBackground1) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    // Show Background
+    EXPECT_CALL(videoController, ShowBackground()).Times(1);
+    controller.Write(static_cast<uint8_t>(0x01), gbxcore::constants::LCDCRegisterAddress);   
+
+    EXPECT_CALL(videoController, HideBackground()).Times(1);
+    EXPECT_CALL(videoController, HideWindow()).Times(0);
+    
+    controller.Write(static_cast<uint8_t>(0x00), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDControlRegisterHideWindowAndBackground2) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDCRegisterAddress, Ownership::System);
+    
+    // Window Visibility is 0, do not show it
+    // Enable Window 
+    EXPECT_CALL(videoController, ShowWindow()).Times(1);
+    controller.Write(static_cast<uint8_t>(0x20), gbxcore::constants::LCDCRegisterAddress);   
+
+    // Show Background
+    EXPECT_CALL(videoController, ShowBackground()).Times(1);
+    EXPECT_CALL(videoController, ShowWindow()).Times(1);
+    controller.Write(static_cast<uint8_t>(0x01 | 0x20), gbxcore::constants::LCDCRegisterAddress);   
+
+    EXPECT_CALL(videoController, HideBackground()).Times(1);
+    EXPECT_CALL(videoController, HideWindow()).Times(1);
+    
+    // | 0x20 zorgt dat de window aan blijft
+    controller.Write(static_cast<uint8_t>(0x00 | 0x20), gbxcore::constants::LCDCRegisterAddress);   
+    
+    EXPECT_EQ(static_cast<uint8_t>(0x00 | 0x20), get<uint8_t>(controller.Read(gbxcore::constants::LCDCRegisterAddress, MemoryAccessType::Byte)));
+}

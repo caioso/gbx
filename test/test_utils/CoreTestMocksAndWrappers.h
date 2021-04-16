@@ -36,6 +36,16 @@ public:
     virtual ~VideoControllerMock() = default;
     MOCK_METHOD(void, EnableVideo, ());
     MOCK_METHOD(void, DisableVideo, ());
+    MOCK_METHOD(void, ShowWindow, ());
+    MOCK_METHOD(void, HideWindow, ());
+    MOCK_METHOD(void, ShowSprites, ());
+    MOCK_METHOD(void, HideSprites, ());
+    MOCK_METHOD(void, ShowBackground, ());
+    MOCK_METHOD(void, HideBackground, ());
+    MOCK_METHOD(void, SelectWindowTileMap, (size_t));
+    MOCK_METHOD(void, SelectBackgroundTileMap, (size_t));
+    MOCK_METHOD(void, SelectWindowAndBackgroundTileSet, (size_t));
+    MOCK_METHOD(void, SetSpriteMode, (uint8_t));
 };
 
 class ArithmeticLogicDecorator : public gbxcore::ArithmeticLogicUnit
