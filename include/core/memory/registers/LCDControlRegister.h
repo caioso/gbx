@@ -29,6 +29,8 @@ private:
     void HandleSpriteVisibilityBit(uint8_t);
     void HandleBackgroundAndWindowVisibilityBit(uint8_t, uint8_t);
 
+    inline uint8_t Extract8BitValue(std::variant<uint8_t, uint16_t>);
+
     uint8_t _value{};
     gbxcore::interfaces::VideoControllerInterface* _videoController;
 };

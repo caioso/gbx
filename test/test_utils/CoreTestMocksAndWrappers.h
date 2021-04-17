@@ -46,6 +46,9 @@ public:
     MOCK_METHOD(void, SelectBackgroundTileMap, (size_t));
     MOCK_METHOD(void, SelectWindowAndBackgroundTileSet, (size_t));
     MOCK_METHOD(void, SetSpriteMode, (uint8_t));
+    MOCK_METHOD(void, SetInterruptMode, (uint8_t));
+    MOCK_METHOD(void, ScrollBackgroundY, (size_t));
+    MOCK_METHOD(void, ScrollBackgroundX, (size_t));
 };
 
 class ArithmeticLogicDecorator : public gbxcore::ArithmeticLogicUnit

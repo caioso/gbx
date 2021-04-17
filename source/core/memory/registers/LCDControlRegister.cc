@@ -24,12 +24,17 @@ variant<uint8_t, uint16_t> LCDControlRegister::Read()
 void LCDControlRegister::Write(variant<uint8_t, uint16_t> value)
 { 
     auto oldValue = _value;
-    if (holds_alternative<uint16_t>(value))
-        _value = get<uint16_t>(value) & 0xFF;
-    else
-        _value = get<uint8_t>(value);
-
+    
+    _value = Extract8BitValue(value);
     ProcessValue(oldValue);
+}
+
+inline uint8_t LCDControlRegister::Extract8BitValue(std::variant<uint8_t, uint16_t> value)
+{
+    if (holds_alternative<uint16_t>(value))
+        return static_cast<uint8_t>(get<uint16_t>(value) & 0xFF);
+    else
+        return get<uint8_t>(value);
 }
 
 void LCDControlRegister::ProcessValue(uint8_t oldValue)

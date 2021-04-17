@@ -6,6 +6,14 @@
 namespace gbxcore::interfaces
 {
 
+enum class VideoInterruptSource : uint8_t
+{
+    HBlankInterrupt = 1,
+    VBlankInterrupt = 2,
+    OAMSearchInterrupt = 4,
+    LCDDataTransferInterrupt = 8
+};
+
 class VideoControllerInterface
 {
 public:
@@ -23,6 +31,9 @@ public:
     virtual void SelectBackgroundTileMap(size_t) = 0;
     virtual void SelectWindowAndBackgroundTileSet(size_t) = 0;
     virtual void SetSpriteMode(uint8_t) = 0;
+    virtual void SetInterruptMode(uint8_t) = 0;
+    virtual void ScrollBackgroundY(size_t) = 0;
+    virtual void ScrollBackgroundX(size_t) = 0;
 };
 
 }
