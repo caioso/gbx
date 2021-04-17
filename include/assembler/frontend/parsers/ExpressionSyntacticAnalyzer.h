@@ -8,12 +8,15 @@
 
 #include "ConstructionSyntacticAnalyzer.h"
 #include "ExpressionIntermediateRepresentation.h"
+#include "ExpressionMember.h"
+#include "GBXAsmExceptions.h"
 
 namespace gbxasm::frontend::parsers
 {
 
 enum class ExpressionParserTreeSymbols
 {
+    TerminalIgnore,
     TerminalPlus,
     TerminalMinus,
     TerminalMultiplication,
@@ -115,8 +118,13 @@ public:
 
 private:
     void ExtractSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
-
-    NextOperation EvaluateOperand(int&, size_t&);
+    intermediate_representation::OperandType SymbolToOperandType(ExpressionParserTreeSymbols);
+    
+    void RegisterOperand(size_t, ExpressionCompoundSymbol, intermediate_representation::ExpressionMember&);
+    void RegisterBinaryOperation(ExpressionParserTreeSymbols, intermediate_representation::ExpressionMember&);
+    void RegisterUnaryOperation(ExpressionParserTreeSymbols, intermediate_representation::ExpressionMember&);
+    
+    NextOperation EvaluateOperand(int&, size_t&, intermediate_representation::ExpressionMember&);
 
     std::vector<ExpressionCompoundSymbol> _symbols;
     std::stack<intermediate_representation::ExpressionMember> _expressionStack;
