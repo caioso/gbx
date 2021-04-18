@@ -121,26 +121,21 @@ void MemoryController::UnregisterMemoryResource(size_t id, Ownership owner)
 
 void MemoryController::RegisterMemoryMappedRegister(unique_ptr<MemoryMappedRegister> memoryMappedRegister, size_t address, Ownership owner)
 {
+    RegisteredMemoryMappedRegister reg = 
+    {
+        .Register = std::move(memoryMappedRegister),
+        .Address = address
+    };
+
     if (owner == Ownership::System && _systemRegisters.find(address) == _systemRegisters.end())
-    {
-        RegisteredMemoryMappedRegister reg = 
-        {
-            .Register = std::move(memoryMappedRegister),
-            .Address = address
-        };
-
         _systemRegisters.insert({address, std::move(reg)});
-    }
     else if (owner == Ownership::User && _userRegisters.find(address) == _userRegisters.end())
-    {
-        RegisteredMemoryMappedRegister reg = 
-        {
-            .Register = std::move(memoryMappedRegister),
-            .Address = address
-        };
-
         _userRegisters.insert({address, std::move(reg)});
-    }
+    else if (owner == Ownership::Both && 
+             _bothRegisters.find(address) == _bothRegisters.end() &&
+             _systemRegisters.find(address) == _systemRegisters.end() && 
+             _userRegisters.find(address) == _userRegisters.end())
+        _bothRegisters.insert({address, std::move(reg)});
     else
     {
         stringstream ss;
@@ -153,9 +148,7 @@ void MemoryController::UnregisterMemoryMappedRegister(size_t address, Ownership 
 {
     if (auto reg = GetRegisterSource(owner)->find(address);
         reg != GetRegisterSource(owner)->end())
-    {
         GetRegisterSource(owner)->erase(reg);
-    }
     else
     {
         stringstream ss;
@@ -223,25 +216,33 @@ inline std::map<uint16_t, RegisteredMemoryMappedRegister>* MemoryController::Sel
 {
     if (_mode == Ownership::System)
         return &_systemRegisters;
-    else
+    else if (_mode == Ownership::User)
         return &_userRegisters;
+    else
+        return &_bothRegisters;
 }
 
 inline std::map<uint16_t, RegisteredMemoryMappedRegister>* MemoryController::GetRegisterSource(Ownership owner)
 {
     if (owner == Ownership::System)
         return &_systemRegisters;
-    else
+    else if (owner == Ownership::User)
         return &_userRegisters;
+    else
+        return &_bothRegisters;
 }
 
 
 inline std::map<uint16_t, RegisteredMemoryMappedRegister>::iterator MemoryController::IsRegisterAddress(size_t address)
 {
+    if (auto position = _bothRegisters.find(address);
+        position != _bothRegisters.end())
+        return position;
+
     if (_mode == Mode::System)
         return _systemRegisters.find(address);
     else
-        return _userRegisters.find(address);
+        return _userRegisters.find(address);    
 }
 
 }

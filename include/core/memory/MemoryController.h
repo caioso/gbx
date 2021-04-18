@@ -75,6 +75,7 @@ private:
     std::vector<RegisteredMemoryResource> _systemResources; 
     std::map<uint16_t, RegisteredMemoryMappedRegister> _systemRegisters;
     std::map<uint16_t, RegisteredMemoryMappedRegister> _userRegisters;
+    std::map<uint16_t, RegisteredMemoryMappedRegister> _bothRegisters;
 
     gbxcore::Mode _mode{};
     size_t _resourcesID;

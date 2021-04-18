@@ -7,6 +7,7 @@ enum class Ownership
 {
     System,
     User,
+    Both,
 };
 
 typedef Ownership Mode;
