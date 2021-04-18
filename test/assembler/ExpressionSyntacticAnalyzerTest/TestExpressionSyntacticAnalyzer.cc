@@ -1652,6 +1652,14 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
 {
     const string expression = "A + B";
 
+    // Expected Result  
+    //              EXP2 Binary(EXP0 + EXP1)
+    //               |
+    //              / \
+    //             /   \
+    //          EXP0   EXP1
+    // Resolve_ID(A)   Resolve_ID(B)
+
     LexicalAnalyzer lexer;
     ExpressionSyntacticAnalyzer parser;
     
@@ -1663,16 +1671,40 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     auto expressionRepresentation = dynamic_pointer_cast<ExpressionIntermediateRepresentation>(intermediateRepresentation);
 
     EXPECT_NE(nullptr, expressionRepresentation);
-    EXPECT_NE(0x00llu, expressionRepresentation->ExpressionStack().size());
+    EXPECT_EQ(0x02llu, expressionRepresentation->ExpressionStack().size());
 
-    auto member = expressionRepresentation->ExpressionStack().top();
-    
+    auto stack = expressionRepresentation->ExpressionStack();
+    auto member = stack.top();
+    /*expressionRepresentation->ExpressionStack().pop();
     EXPECT_EQ(0llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
     EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp0", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::Expression, member.Operand2Type);
+    EXPECT_STREQ("exp1", member.Operand2.c_str());
+    
+    member = expressionRepresentation->ExpressionStack().top();*/
+    stack.pop();
+    EXPECT_EQ(1llu, member.ExpressionID);
+    EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
+    EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
+    EXPECT_STREQ("B", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+    
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(0llu, member.ExpressionID);
+    EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("A", member.Operand1.c_str());
-    EXPECT_EQ(OperandType::Identifier, member.Operand2Type);
-    EXPECT_STREQ("B", member.Operand2.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+      
 }

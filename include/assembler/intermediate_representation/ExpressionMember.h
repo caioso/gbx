@@ -36,7 +36,8 @@ enum class Operator
     BinaryGreaterThanOrEqualTo, 
     BinaryLessThanOrEqualTo,    
     BinaryThreeWay,             
-    BinaryAssignment,           
+    BinaryAssignment,
+    NoOperator
 };
 
 enum class OperandType
@@ -47,7 +48,8 @@ enum class OperandType
     CharLiteral,
     StringLiteral,
     BooleanLiteral,
-    Expression
+    Expression,
+    NoOperand
 };
 
 struct ExpressionMember
