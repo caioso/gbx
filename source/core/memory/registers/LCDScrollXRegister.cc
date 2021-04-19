@@ -9,29 +9,11 @@ namespace gbxcore::memory::registers
 LCDScrollXRegister::LCDScrollXRegister(VideoControllerInterface* controller)
     : _videoController(controller)
 {}
-    
-size_t LCDScrollXRegister::Size()
-{
-    return 1;
-}
-
-variant<uint8_t, uint16_t> LCDScrollXRegister::Read()
-{
-    return _value;
-}
 
 void LCDScrollXRegister::Write(variant<uint8_t, uint16_t> value)
 {
     _value = Extract8BitValue(value);
     _videoController->ScrollBackgroundX(_value);
-}
-
-inline uint8_t LCDScrollXRegister::Extract8BitValue(std::variant<uint8_t, uint16_t> value)
-{
-    if (holds_alternative<uint16_t>(value))
-        return static_cast<uint8_t>(get<uint16_t>(value) & 0xFF);
-    else
-        return get<uint8_t>(value);
 }
 
 }

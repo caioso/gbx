@@ -2,20 +2,19 @@
 
 #include <variant>
 
+#include "EightBitMemoryMappedRegisterBase.h"
 #include "MemoryMappedRegister.h"
 #include "VideoControllerInterface.h"
 
 namespace gbxcore::memory::registers
 {
 
-class LCDControlRegister : public gbxcore::interfaces::MemoryMappedRegister
+class LCDControlRegister : public EightBitMemoryMappedRegisterBase
 {
 public:
     LCDControlRegister(gbxcore::interfaces::VideoControllerInterface*);
     virtual ~LCDControlRegister() = default;
     
-    std::size_t Size() override;
-    std::variant<uint8_t, uint16_t> Read() override;
     void Write(std::variant<uint8_t, uint16_t>) override;
 
 private:
@@ -29,9 +28,6 @@ private:
     void HandleSpriteVisibilityBit(uint8_t);
     void HandleBackgroundAndWindowVisibilityBit(uint8_t, uint8_t);
 
-    inline uint8_t Extract8BitValue(std::variant<uint8_t, uint16_t>);
-
-    uint8_t _value{};
     gbxcore::interfaces::VideoControllerInterface* _videoController;
 };
 

@@ -11,30 +11,12 @@ LCDControlRegister::LCDControlRegister(VideoControllerInterface* controller)
     : _videoController(controller)
 {}
 
-size_t LCDControlRegister::Size()
-{
-    return 1llu;
-}
-
-variant<uint8_t, uint16_t> LCDControlRegister::Read()
-{
-    return _value;
-}
-
 void LCDControlRegister::Write(variant<uint8_t, uint16_t> value)
 { 
     auto oldValue = _value;
     
     _value = Extract8BitValue(value);
     ProcessValue(oldValue);
-}
-
-inline uint8_t LCDControlRegister::Extract8BitValue(std::variant<uint8_t, uint16_t> value)
-{
-    if (holds_alternative<uint16_t>(value))
-        return static_cast<uint8_t>(get<uint16_t>(value) & 0xFF);
-    else
-        return get<uint8_t>(value);
 }
 
 void LCDControlRegister::ProcessValue(uint8_t oldValue)

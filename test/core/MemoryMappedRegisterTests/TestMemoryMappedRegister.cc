@@ -15,6 +15,8 @@
 #include "LCDScrollXRegister.h"
 #include "LCDScrollYRegister.h"
 #include "LCDStatusRegister.h"
+#include "LCDScanLineYRegister.h"
+#include "LCDScanLineYCompareRegister.h"
 #include "MemoryController.h"
 #include "MemoryMappedRegister.h"
 #include "RAM.h"
@@ -779,5 +781,58 @@ TEST(CoreTests_MemoryMappedRegister, ScrollXRegisterScrollTest)
         EXPECT_CALL(videoController, ScrollBackgroundX(i));
         controller.Write(static_cast<uint8_t>(i), gbxcore::constants::LCDScrollXAddress);
         EXPECT_EQ(static_cast<uint8_t>(i), get<uint8_t>(controller.Read(gbxcore::constants::LCDScrollXAddress, MemoryAccessType::Byte)));   
+    }
+}
+
+TEST(CoreTests_MemoryMappedRegister, LCDScanLineYRegisterConstruction) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdScanLineY = make_unique<LCDScanLineYRegister>(&videoController);
+}
+
+TEST(CoreTests_MemoryMappedRegister, WriteToLCDScanLineYRegister) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdScanLineY = make_unique<LCDScanLineYRegister>(&videoController);
+    auto lcdScanLineYPointer = lcdScanLineY.get();
+
+    controller.RegisterMemoryMappedRegister(std::move(lcdScanLineY), gbxcore::constants::LCDScanLineYAddress, Ownership::System);
+
+    // 1 Update the scanline
+    for (auto i = 0llu; i < 153; ++i)
+    {
+        lcdScanLineYPointer->UpdateScanLineValue(i);
+        EXPECT_EQ(static_cast<uint8_t>(i), get<uint8_t>(controller.Read(gbxcore::constants::LCDScanLineYAddress, MemoryAccessType::Byte)));
+    }    
+    
+    lcdScanLineYPointer->ResetScanLineValue();
+    EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDScanLineYAddress, MemoryAccessType::Byte)));
+}
+
+
+TEST(CoreTests_MemoryMappedRegister, LCDScanLineYCompareRegisterConstruction) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdScanLineYCompare = make_unique<LCDScanLineYCompareRegister>(&videoController);
+}
+
+TEST(CoreTests_MemoryMappedRegister, WriteToLCDScanLineYCompareRegister) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdScanLineYCompare = make_unique<LCDScanLineYCompareRegister>(&videoController);
+    controller.RegisterMemoryMappedRegister(std::move(lcdScanLineYCompare), gbxcore::constants::LCDScanLineYCompareAddress, Ownership::System);
+
+    for (auto i = 0llu; i < 0xFFllu; ++i)
+    {
+        controller.Write(static_cast<uint8_t>(i), gbxcore::constants::LCDScanLineYCompareAddress);
+        EXPECT_EQ(static_cast<uint8_t>(i), get<uint8_t>(controller.Read(gbxcore::constants::LCDScanLineYCompareAddress, MemoryAccessType::Byte)));   
     }
 }
