@@ -120,10 +120,12 @@ private:
     void ExtractSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
     intermediate_representation::OperandType SymbolToOperandType(ExpressionParserTreeSymbols);
     
-    void PushResolveOperand(size_t, ExpressionCompoundSymbol, intermediate_representation::ExpressionMember&);
+    void PushResolveOperand(ExpressionCompoundSymbol, intermediate_representation::ExpressionMember&);
+    void PushBinaryExpressionOperand(size_t, intermediate_representation::ExpressionMember&);
     void RegisterBinaryOperation(ExpressionParserTreeSymbols, intermediate_representation::ExpressionMember&);
     void RegisterUnaryOperation(ExpressionParserTreeSymbols, intermediate_representation::ExpressionMember&);
-    
+    void ClearCurrentMember(intermediate_representation::ExpressionMember&);
+
     NextOperation EvaluateOperand(int&, size_t&, intermediate_representation::ExpressionMember&);
 
     std::vector<ExpressionCompoundSymbol> _symbols;
@@ -131,7 +133,8 @@ private:
 
     size_t _line;
     size_t _column;
-    size_t _expressionID;
+    int _expressionID;
+    int _depth;
 };
 
 }

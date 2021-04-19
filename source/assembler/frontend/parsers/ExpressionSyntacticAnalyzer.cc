@@ -11,13 +11,14 @@ shared_ptr<IntermediateRepresentation> ExpressionSyntacticAnalyzer::TryToAccept(
 {
     ExtractSymbols(beginIt, endIt);
     ExpressionMember currentMember;
-    _expressionID = 0;
+    _expressionID = -1;
 
     while (!IsAccepted() && !IsRejected() && !IsExited())
     {        
         auto leftSubstring = -1; 
         size_t state = 0;
         ExpressionParserTreeSymbols operationType;
+        _depth = 0;
 
         while(true)
         {
@@ -85,6 +86,10 @@ shared_ptr<IntermediateRepresentation> ExpressionSyntacticAnalyzer::TryToAccept(
                         // Remove (
                         _symbols.erase(begin(_symbols) + leftSubstring - 2);
                         _symbols.insert(begin(_symbols) +  leftSubstring - 2, { .Symbol = ExpressionParserTreeSymbols::NonTerminalSurroundedOperation, .Lexeme = string("") });
+                        
+                        // The expression has already been pushed, but only now it is known that it is part of a surrounded operation. Since the parethesis has been closed,
+                        // decrese the depth of the lastly pushed expression
+                        _expressionStack.top().Depth--;
                         break;
                     }
                     else
@@ -108,15 +113,16 @@ shared_ptr<IntermediateRepresentation> ExpressionSyntacticAnalyzer::TryToAccept(
             // Reduce expression of type E + E
             else if (state == 4)
             {
-                // Reduce Binary operation E + E -> F1
+                RegisterBinaryOperation(operationType, currentMember);
+                PushBinaryExpressionOperand(leftSubstring, currentMember);
+
+                // Reduce Binary operation E <OP> E -> F1
                 // Remove Identifier
                 _symbols.erase(begin(_symbols) + leftSubstring - 1);
                 // Remove +
                 _symbols.erase(begin(_symbols) + leftSubstring - 2);
                 // Remove Identifier
                 _symbols.erase(begin(_symbols) + leftSubstring - 3);
-
-                RegisterBinaryOperation(operationType, currentMember);
 
                 if (operationType == ExpressionParserTreeSymbols::TerminalPlus)
                     _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryAddition, .Lexeme = string("") });
@@ -158,6 +164,7 @@ shared_ptr<IntermediateRepresentation> ExpressionSyntacticAnalyzer::TryToAccept(
                     _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryAssignment, .Lexeme = string("") });
                 break;
             }
+            // Reduce expression of type <OP>E
             else if (state == 5)
             {
                 if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalExpression)
@@ -205,7 +212,7 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, s
     {
         // Reduce Identifier to Non-Terminal Identifier (T4)
         // Remove Identifier
-        PushResolveOperand(state, _symbols[leftSubstring], currentMember);
+        PushResolveOperand(_symbols[leftSubstring], currentMember);
 
         _symbols.erase(begin(_symbols) + leftSubstring);
         _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalIdentifier, .Lexeme = string("") });
@@ -216,7 +223,7 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, s
     {
         // Reduce Identifier to Non-Terminal Identifier (T5)
         // Remove Identifier
-        PushResolveOperand(state, _symbols[leftSubstring], currentMember);
+        PushResolveOperand(_symbols[leftSubstring], currentMember);
 
         _symbols.erase(begin(_symbols) + leftSubstring);
         _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalPackIdentifier, .Lexeme = string("") });
@@ -225,9 +232,9 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, s
     // Detect Numeric Literal
     else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalNumericLiteral)
     {
-        // Reduce Identifier to Non-Terminal Identifier (T1)
         // Remove Identifier
-        PushResolveOperand(state, _symbols[leftSubstring], currentMember);
+        // Reduce Identifier to Non-Terminal Identifier (T1)
+        PushResolveOperand(_symbols[leftSubstring], currentMember);
 
         _symbols.erase(begin(_symbols) + leftSubstring);
         _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalNumericLiteral, .Lexeme = string("") });
@@ -238,7 +245,7 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, s
     {
         // Reduce Identifier to Non-Terminal Identifier (T2)
         // Remove Identifier
-        PushResolveOperand(state, _symbols[leftSubstring], currentMember);
+        PushResolveOperand(_symbols[leftSubstring], currentMember);
 
         _symbols.erase(begin(_symbols) + leftSubstring);
         _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalCharLiteral, .Lexeme = string("") });
@@ -249,7 +256,7 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, s
     {
         // Reduce Identifier to Non-Terminal Identifier (T3)
         // Remove Identifier
-        PushResolveOperand(state, _symbols[leftSubstring], currentMember);
+        PushResolveOperand(_symbols[leftSubstring], currentMember);
 
         _symbols.erase(begin(_symbols) + leftSubstring);
         _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalStringLiteral, .Lexeme = string("") });
@@ -260,7 +267,7 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, s
     {
         // Reduce Identifier to Non-Terminal Identifier (T6)
         // Remove Identifier
-        PushResolveOperand(state, _symbols[leftSubstring], currentMember);
+        PushResolveOperand(_symbols[leftSubstring], currentMember);
 
         _symbols.erase(begin(_symbols) + leftSubstring);
         _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBooleanLiteral, .Lexeme = string("") });
@@ -270,6 +277,7 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, s
     else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalOpenParenthesis)
     {
         // Do nothing, simply shift
+        _depth++;
         leftSubstring++;
         state = 1;
         return NextOperation::Shift;
@@ -343,8 +351,10 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, s
     {
         // Reduce Identifier to Non-Terminal Expression (E)
         // Remove Non-terminal Operand
+        stringstream ss;
+        ss << "exp" << _expressionID;
         _symbols.erase(begin(_symbols) + leftSubstring);
-        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalExpression, .Lexeme = string("") });
+        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalExpression, .Lexeme = ss.str() });
         return NextOperation::Reduced;
     }
 
@@ -494,13 +504,16 @@ OperandType ExpressionSyntacticAnalyzer::SymbolToOperandType(ExpressionParserTre
         return OperandType::CharLiteral;
     else if (symbol == ExpressionParserTreeSymbols::TerminalStringLiteral)
         return OperandType::StringLiteral;
-    else
+    else if (symbol == ExpressionParserTreeSymbols::TerminalBooleanLiteral)
         return OperandType::BooleanLiteral;
+    else
+        return OperandType::Expression;
 }
 
-void ExpressionSyntacticAnalyzer::PushResolveOperand(size_t state, ExpressionCompoundSymbol symbol, ExpressionMember& currentMember)
+void ExpressionSyntacticAnalyzer::PushResolveOperand(ExpressionCompoundSymbol symbol, ExpressionMember& currentMember)
 {
-    currentMember.ExpressionID = _expressionID++;
+    currentMember.ExpressionID = ++_expressionID;
+    currentMember.Depth = _depth;
     currentMember.Type = ExpressionType::ResolveOperand;
     currentMember.OperatorType = Operator::NoOperator;
     currentMember.Operand1 = symbol.Lexeme;
@@ -508,6 +521,25 @@ void ExpressionSyntacticAnalyzer::PushResolveOperand(size_t state, ExpressionCom
     currentMember.Operand2 = "";
     currentMember.Operand2Type = OperandType::NoOperand;
     _expressionStack.push(currentMember);
+    ClearCurrentMember(currentMember);
+}
+
+void ExpressionSyntacticAnalyzer::PushBinaryExpressionOperand(size_t leftSubstring, ExpressionMember& currentMember)
+{
+    currentMember.ExpressionID = ++_expressionID;
+    currentMember.Depth = _depth;
+    currentMember.Type = ExpressionType::Binary;
+    currentMember.Operand1Type = SymbolToOperandType((*(begin(_symbols) + leftSubstring - 2)).Symbol);   
+    currentMember.Operand1 = (*(begin(_symbols) + leftSubstring - 3)).Lexeme;
+    currentMember.Operand2Type = SymbolToOperandType((*(begin(_symbols) + leftSubstring - 1)).Symbol);   
+    currentMember.Operand2 = (*(begin(_symbols) + leftSubstring - 1)).Lexeme;
+    _expressionStack.push(currentMember);
+    ClearCurrentMember(currentMember);
+}
+
+void ExpressionSyntacticAnalyzer::ClearCurrentMember(ExpressionMember& currentMember)
+{
+    currentMember = {};
 }
 
 void ExpressionSyntacticAnalyzer::RegisterBinaryOperation(ExpressionParserTreeSymbols operationType, ExpressionMember& currentMember)
