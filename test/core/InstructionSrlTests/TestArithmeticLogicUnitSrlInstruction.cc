@@ -19,7 +19,7 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
-TEST(TestSrl, DecodeSrlRegisterMode)
+TEST(CoreTests_TestSRL, DecodeSrlRegisterMode)
 {
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     RegisterBank registerBank;
@@ -41,7 +41,7 @@ TEST(TestSrl, DecodeSrlRegisterMode)
     }
 }
 
-TEST(TestSrl, ExecuteSrlRegisterMode)
+TEST(CoreTests_TestSRL, ExecuteSrlRegisterMode)
 {
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     RegisterBank registerBank;
@@ -79,7 +79,7 @@ TEST(TestSrl, ExecuteSrlRegisterMode)
     }
 }
 
-TEST(TestSrl, DecodeSrlRegisterIndirectMode)
+TEST(CoreTests_TestSRL, DecodeSrlRegisterIndirectMode)
 {
     RegisterBank registerBank;
     
@@ -98,7 +98,7 @@ TEST(TestSrl, DecodeSrlRegisterIndirectMode)
 }
 
 
-TEST(TestSrl, ExecuteSrlRegisterIndirectMode)
+TEST(CoreTests_TestSRL, ExecuteSrlRegisterIndirectMode)
 {
     RegisterBank registerBank;
     

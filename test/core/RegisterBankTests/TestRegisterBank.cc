@@ -7,14 +7,14 @@ using namespace std;
 using namespace gbxcore;
 using namespace gbxcore::interfaces;
 
-TEST(TestRegisterBank, ReadRegisterA) 
+TEST(CoreTests_TestRegisterBank, ReadRegisterA) 
 {
     RegisterBank bank;
     auto value = bank.Read(Register::A);
     EXPECT_EQ(0, value);
 }
 
-TEST(TestRegisterBank, WriteRegisterA) 
+TEST(CoreTests_TestRegisterBank, WriteRegisterA) 
 {
     RegisterBank bank;
     bank.Write(Register::A, 0x01);
@@ -22,7 +22,7 @@ TEST(TestRegisterBank, WriteRegisterA)
     EXPECT_EQ(1, value);
 }
 
-TEST(TestRegisterBank, WriteRegisterF) 
+TEST(CoreTests_TestRegisterBank, WriteRegisterF) 
 {
     RegisterBank bank;
     bank.Write(Register::F, 0x98);
@@ -30,7 +30,7 @@ TEST(TestRegisterBank, WriteRegisterF)
     EXPECT_EQ(0x98, value);
 }
 
-TEST(TestRegisterBank, WriteRegisterHL) 
+TEST(CoreTests_TestRegisterBank, WriteRegisterHL) 
 {
     RegisterBank bank;
     bank.WritePair(Register::HL, 0xAABB);
@@ -38,7 +38,7 @@ TEST(TestRegisterBank, WriteRegisterHL)
     EXPECT_EQ(0xAABB, value);
 }
 
-TEST(TestRegisterBank, WriteRegisterPC) 
+TEST(CoreTests_TestRegisterBank, WriteRegisterPC) 
 {
     RegisterBank bank;
     bank.WritePair(Register::PC, 0xDDCC);
@@ -46,7 +46,7 @@ TEST(TestRegisterBank, WriteRegisterPC)
     EXPECT_EQ(0xDDCC, value);
 }
 
-TEST(TestRegisterBank, WriteRegisterSP) 
+TEST(CoreTests_TestRegisterBank, WriteRegisterSP) 
 {
     RegisterBank bank;
     bank.WritePair(Register::SP, 0xABCD);
@@ -54,7 +54,7 @@ TEST(TestRegisterBank, WriteRegisterSP)
     EXPECT_EQ(0xABCD, value);
 }
 
-TEST(TestRegisterBank, WriteRegisterAll8BitRegisters) 
+TEST(CoreTests_TestRegisterBank, WriteRegisterAll8BitRegisters) 
 {
     RegisterBank bank;
     array<Register, 7> registers = { Register::B, Register::C, Register::D, Register::E,
@@ -69,7 +69,7 @@ TEST(TestRegisterBank, WriteRegisterAll8BitRegisters)
     }    
 }
 
-TEST(TestRegisterBank, WriteRegisterAll16BitRegisters) 
+TEST(CoreTests_TestRegisterBank, WriteRegisterAll16BitRegisters) 
 {
     RegisterBank bank;
     array<Register, 4> registers = { Register::HL, Register::BC, Register::DE, Register::AF };
@@ -83,7 +83,7 @@ TEST(TestRegisterBank, WriteRegisterAll16BitRegisters)
     }    
 }
 
-TEST(TestRegisterBank, InstructionSourceToRegister)
+TEST(CoreTests_TestRegisterBank, InstructionSourceToRegister)
 {
     RegisterBank bank;
     
@@ -115,7 +115,7 @@ TEST(TestRegisterBank, InstructionSourceToRegister)
     }
 }
 
-TEST(TestRegisterBank, InstructionDestinationToRegister)
+TEST(CoreTests_TestRegisterBank, InstructionDestinationToRegister)
 {
     RegisterBank bank;
     
@@ -147,7 +147,7 @@ TEST(TestRegisterBank, InstructionDestinationToRegister)
     }
 }
 
-TEST(TestRegisterBank, FromInstructionSourceToRegister)
+TEST(CoreTests_TestRegisterBank, FromInstructionSourceToRegister)
 {
     RegisterBank bank;
     
@@ -176,7 +176,7 @@ TEST(TestRegisterBank, FromInstructionSourceToRegister)
     }
 }
 
-TEST(TestRegisterBank, FromInstructionDestinationToRegister)
+TEST(CoreTests_TestRegisterBank, FromInstructionDestinationToRegister)
 {
     RegisterBank bank;
     
@@ -205,7 +205,7 @@ TEST(TestRegisterBank, FromInstructionDestinationToRegister)
     }
 }
 
-TEST(TestRegisterBank, TestFlags)
+TEST(CoreTests_TestRegisterBank, TestFlags)
 {
     RegisterBank bank;
 

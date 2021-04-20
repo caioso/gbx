@@ -18,7 +18,8 @@ using namespace std;
 using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
-TEST(TestSla, DecodeSlaRegisterMode)
+
+TEST(CoreTests_TestSLA, DecodeSlaRegisterMode)
 {
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     RegisterBank registerBank;
@@ -40,7 +41,7 @@ TEST(TestSla, DecodeSlaRegisterMode)
     }
 }
 
-TEST(TestSla, ExecuteSlaRegisterMode)
+TEST(CoreTests_TestSLA, ExecuteSlaRegisterMode)
 {
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     RegisterBank registerBank;
@@ -78,7 +79,7 @@ TEST(TestSla, ExecuteSlaRegisterMode)
     }
 }
 
-TEST(TestSla, DecodeSlaRegisterIndirectMode)
+TEST(CoreTests_TestSLA, DecodeSlaRegisterIndirectMode)
 {
     RegisterBank registerBank;
     
@@ -96,7 +97,7 @@ TEST(TestSla, DecodeSlaRegisterIndirectMode)
     EXPECT_EQ(Register::HL, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestSla, ExecuteSlaRegisterIndirectMode)
+TEST(CoreTests_TestSLA, ExecuteSlaRegisterIndirectMode)
 {
     RegisterBank registerBank;
     

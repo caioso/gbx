@@ -32,8 +32,10 @@ public:
     virtual void SelectWindowAndBackgroundTileSet(size_t) = 0;
     virtual void SetSpriteMode(uint8_t) = 0;
     virtual void SetInterruptMode(uint8_t) = 0;
-    virtual void ScrollBackgroundY(size_t) = 0;
     virtual void ScrollBackgroundX(size_t) = 0;
+    virtual void ScrollBackgroundY(size_t) = 0;
+    virtual void ScrollWindowX(size_t) = 0;
+    virtual void ScrollWindowY(size_t) = 0;
 };
 
 }

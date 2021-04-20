@@ -20,7 +20,7 @@ using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
 
-TEST(TestOr, DecodeXorRegisterMode)
+TEST(CoreTests_TestXOR, DecodeXorRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -41,7 +41,7 @@ TEST(TestOr, DecodeXorRegisterMode)
     }
 }
 
-TEST(TestOr, ExecuteXorRegisterMode)
+TEST(CoreTests_TestXOR, ExecuteXorRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -89,7 +89,7 @@ TEST(TestOr, ExecuteXorRegisterMode)
     }
 }
 
-TEST(TestOr, DecodeXorImmediateMode)
+TEST(CoreTests_TestXOR, DecodeXorImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -106,7 +106,7 @@ TEST(TestOr, DecodeXorImmediateMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestOr, ExecuteXorImmediateMode)
+TEST(CoreTests_TestXOR, ExecuteXorImmediateMode)
 {
     RegisterBank registerBank;
 
@@ -144,7 +144,7 @@ TEST(TestOr, ExecuteXorImmediateMode)
     }
 }
 
-TEST(TestOr, DecodeXorRegisterIndirectMode)
+TEST(CoreTests_TestXOR, DecodeXorRegisterIndirectMode)
 {
     RegisterBank registerBank;
     
@@ -162,7 +162,7 @@ TEST(TestOr, DecodeXorRegisterIndirectMode)
 }
 
 
-TEST(TestOr, ExecuteXorRegisterIndirectMode)
+TEST(CoreTests_TestXOR, ExecuteXorRegisterIndirectMode)
 {
     RegisterBank registerBank;
 

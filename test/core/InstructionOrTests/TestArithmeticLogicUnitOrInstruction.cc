@@ -19,7 +19,7 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
-TEST(TestOr, DecodeOrRegisterMode)
+TEST(CoreTests_TestOR, DecodeOrRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -40,7 +40,7 @@ TEST(TestOr, DecodeOrRegisterMode)
     }
 }
 
-TEST(TestOr, ExecuteOrRegisterMode)
+TEST(CoreTests_TestOR, ExecuteOrRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -88,7 +88,7 @@ TEST(TestOr, ExecuteOrRegisterMode)
     }
 }
 
-TEST(TestOr, DecodeOrImmediateMode)
+TEST(CoreTests_TestOR, DecodeOrImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -105,7 +105,7 @@ TEST(TestOr, DecodeOrImmediateMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestOr, ExecuteOrImmediateMode)
+TEST(CoreTests_TestOR, ExecuteOrImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -143,7 +143,7 @@ TEST(TestOr, ExecuteOrImmediateMode)
     }
 }
 
-TEST(TestOr, DecodeOrRegisterIndirectMode)
+TEST(CoreTests_TestOR, DecodeOrRegisterIndirectMode)
 {
     RegisterBank registerBank;
     
@@ -160,7 +160,7 @@ TEST(TestOr, DecodeOrRegisterIndirectMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestOr, ExecuteOrRegisterIndirectMode)
+TEST(CoreTests_TestOR, ExecuteOrRegisterIndirectMode)
 {
     RegisterBank registerBank;
     

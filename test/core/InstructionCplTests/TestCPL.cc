@@ -20,7 +20,6 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
-
 TEST(CoreTests_CPL, DecodeCpl)
 {
     RegisterBank registerBank;

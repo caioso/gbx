@@ -30,7 +30,7 @@ public:
     }
 };
 
-TEST(TestDec, DecodeDecRegisterMode)
+TEST(CoreTests_TestDEC, DecodeDecRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -146,7 +146,7 @@ TEST(TestInc, ExecuteDecRegisterIndirectMode)
     }
 }
 
-TEST(TestDec, DecodeDecRegisterPairMode)
+TEST(CoreTests_TestDEC, DecodeDecRegisterPairMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::BC, Register::DE, Register::HL, Register::SP};

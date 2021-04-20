@@ -19,7 +19,7 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
-TEST(TestPop, DecodePopRegisterMode)
+TEST(CoreTests_TestPOP, DecodePopRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::BC, Register::DE, Register::HL, Register::AF };
@@ -40,7 +40,7 @@ TEST(TestPop, DecodePopRegisterMode)
     }
 }
 
-TEST(TestPop, ExecutePopRegisterMode)
+TEST(CoreTests_TestPOP, ExecutePopRegisterMode)
 {
     auto operandList = {Register::BC, Register::DE, Register::HL, Register::AF };
     RegisterBank registerBank;

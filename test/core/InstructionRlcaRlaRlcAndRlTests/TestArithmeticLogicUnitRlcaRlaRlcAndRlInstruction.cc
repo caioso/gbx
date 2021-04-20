@@ -19,7 +19,7 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
-TEST(TestRlcaRlaRlcAndRl, DecodeRlcaRegisterMode)
+TEST(CoreTests_TestRLCARLAAndRL, DecodeRlcaRegisterMode)
 {
     RegisterBank registerBank;
     
@@ -36,7 +36,7 @@ TEST(TestRlcaRlaRlcAndRl, DecodeRlcaRegisterMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestRlcaRlaRlcAndRl, ExecuteRlcaRegisterMode)
+TEST(CoreTests_TestRLCARLAAndRL, ExecuteRlcaRegisterMode)
 {
     RegisterBank registerBank;
     
@@ -70,7 +70,7 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlcaRegisterMode)
     }
 }
 
-TEST(TestRlcaRlaRlcAndRl, DecodeRla)
+TEST(CoreTests_TestRLCARLAAndRL, DecodeRla)
 {
     RegisterBank registerBank;
     
@@ -87,7 +87,7 @@ TEST(TestRlcaRlaRlcAndRl, DecodeRla)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestRlcaRlaRlcAndRl, ExecuteRlaRegisterMode)
+TEST(CoreTests_TestRLCARLAAndRL, ExecuteRlaRegisterMode)
 {
     RegisterBank registerBank;
     
@@ -124,7 +124,7 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlaRegisterMode)
     }
 }
 
-TEST(TestRlcaRlaRlcAndRl, DecodeRlcRegisterMode)
+TEST(CoreTests_TestRLCARLAAndRL, DecodeRlcRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -147,7 +147,7 @@ TEST(TestRlcaRlaRlcAndRl, DecodeRlcRegisterMode)
     }
 }
 
-TEST(TestRlcaRlaRlcAndRl, ExecuteRlcRegisterMode)
+TEST(CoreTests_TestRLCARLAAndRL, ExecuteRlcRegisterMode)
 {
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     RegisterBank registerBank;
@@ -185,7 +185,7 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlcRegisterMode)
     }
 }
 
-TEST(TestRlcaRlaRlcAndRl, DecodeRlcRegisterIndirect)
+TEST(CoreTests_TestRLCARLAAndRL, DecodeRlcRegisterIndirect)
 {
     RegisterBank registerBank;
     
@@ -204,7 +204,7 @@ TEST(TestRlcaRlaRlcAndRl, DecodeRlcRegisterIndirect)
 }
 
 
-TEST(TestRlcaRlaRlcAndRl, ExecuteRlcRegisterIndirectMode)
+TEST(CoreTests_TestRLCARLAAndRL, ExecuteRlcRegisterIndirectMode)
 {
     RegisterBank registerBank;
     
@@ -241,7 +241,7 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlcRegisterIndirectMode)
     }
 }
 
-TEST(TestRlcaRlaRlcAndRl, DecodeRlRegisterMode)
+TEST(CoreTests_TestRLCARLAAndRL, DecodeRlRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -264,7 +264,7 @@ TEST(TestRlcaRlaRlcAndRl, DecodeRlRegisterMode)
     }
 }
 
-TEST(TestRlcaRlaRlcAndRl, ExecuteRlRegisterMode)
+TEST(CoreTests_TestRLCARLAAndRL, ExecuteRlRegisterMode)
 {
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     RegisterBank registerBank;
@@ -307,7 +307,7 @@ TEST(TestRlcaRlaRlcAndRl, ExecuteRlRegisterMode)
 }
 
 
-TEST(TestRlcaRlaRlcAndRl, DecodeRlRegisterIndirect)
+TEST(CoreTests_TestRLCARLAAndRL, DecodeRlRegisterIndirect)
 {
     RegisterBank registerBank;
     
@@ -325,7 +325,7 @@ TEST(TestRlcaRlaRlcAndRl, DecodeRlRegisterIndirect)
     EXPECT_EQ(Register::HL, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestRlcaRlaRlcAndRl, ExecuteRlRegisterIndirectMode)
+TEST(CoreTests_TestRLCARLAAndRL, ExecuteRlRegisterIndirectMode)
 {
     RegisterBank registerBank;
     

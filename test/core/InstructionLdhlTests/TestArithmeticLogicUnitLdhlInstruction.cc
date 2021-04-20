@@ -19,7 +19,7 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
-TEST(TestLdhl, DecodeLdhlRegisterMode)
+TEST(CoreTests_TestLDHL, DecodeLdhlRegisterMode)
 {
     RegisterBank registerBank;
     
@@ -36,7 +36,7 @@ TEST(TestLdhl, DecodeLdhlRegisterMode)
     EXPECT_EQ(Register::HL, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestLdhl, ExecuteLdhlRegisterMode)
+TEST(CoreTests_TestLDHL, ExecuteLdhlRegisterMode)
 {
     RegisterBank registerBank;
     

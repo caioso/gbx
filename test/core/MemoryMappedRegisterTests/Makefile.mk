@@ -15,8 +15,8 @@ DEP_FILES = $(patsubst %.o,%.d,$(OBJ_FILES))
 
 # Add test dependencies here (.cc files only)
 MODULES = MemoryController AddressRange InterruptEnableRegister LCDControlRegister LCDStatusRegister \
-		  LCDScrollYRegister LCDScrollXRegister EightBitMemoryMappedRegisterBase LCDScanLineYRegister \
-		  LCDScanLineYCompareRegister
+		  LCDBackgroundScrollYRegister LCDBackgroundScrollXRegister EightBitMemoryMappedRegisterBase LCDScanLineYRegister \
+		  LCDScanLineYCompareRegister LCDWindowScrollYRegister
 MODULES_DEPS = $(addsuffix .o, $(addprefix $(BUILD_TEMP)/,$(MODULES)))
 
 .PHONY: all

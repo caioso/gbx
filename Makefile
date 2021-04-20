@@ -5,6 +5,7 @@ ARGS = $(filter-out $(KNOWN_TARGETS),$(MAKECMDGOALS))
 ASM_TESTS_FLAG = asm
 CORE_TESTS_FLAG = core
 COMMONS_TESTS_FLAG = commons
+RUNTIME_TESTS_FLAG = runtime
 
 # Prepare build variables
 BUILD_TOP = $(CURDIR)/build
@@ -145,7 +146,11 @@ else
 ifeq ($(word 2,$(ARGS)), $(COMMONS_TESTS_FLAG))
 	./build/test/gbxtest $(TEST_DATA) --gtest_filter="CommonsTests_*" 
 else
+ifeq ($(word 2,$(ARGS)), $(RUNTIME_TESTS_FLAG))
+	./build/test/gbxtest $(TEST_DATA) --gtest_filter="RuntimeTests_*" 
+else
 	./build/test/gbxtest $(TEST_DATA)
+endif
 endif
 endif
 endif
@@ -157,6 +162,9 @@ core:
 	@true
 
 commons:
+	@true
+
+runtime:
 	@true
 
 define MakeTarget

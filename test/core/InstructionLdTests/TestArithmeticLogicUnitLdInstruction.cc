@@ -65,7 +65,7 @@ uint8_t BinaryImmediateRegisterPair(Register source)
     return (RegisterBankInterface::ToInstructionRegisterPair(source) << 4) | 0x01;
 }
 
-TEST(TestLd, ExecuteUndecodedInstruction)
+TEST(CoreTests_TestLD, ExecuteUndecodedInstruction)
 {
     RegisterBank registerBank;
     auto testPassed = false;
@@ -86,7 +86,7 @@ TEST(TestLd, ExecuteUndecodedInstruction)
 }
    
 
-TEST(TestLd, DecodeImmediateAddressingMode)
+TEST(CoreTests_TestLD, DecodeImmediateAddressingMode)
 {
     RegisterBank registerBank;
     auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -108,7 +108,7 @@ TEST(TestLd, DecodeImmediateAddressingMode)
     }
 }
 
-TEST(TestLd, DecodingRegisterAddressingMode)
+TEST(CoreTests_TestLD, DecodingRegisterAddressingMode)
 {
     RegisterBank registerBank;
     auto sourcesList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -142,7 +142,7 @@ TEST(TestLd, DecodingRegisterAddressingMode)
     }
 }
 
-TEST(TestLd, DecodeRegisterIndirectAddressingMode)
+TEST(CoreTests_TestLD, DecodeRegisterIndirectAddressingMode)
 {
     RegisterBank registerBank;
     auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -211,7 +211,7 @@ TEST(TestLd, DecodeRegisterIndirectAddressingMode)
     EXPECT_EQ(Register::DE, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestLd, DecodeRegisterIndexedAddressingMode)
+TEST(CoreTests_TestLD, DecodeRegisterIndexedAddressingMode)
 {
     RegisterBank registerBank;
     auto destinationsList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -272,7 +272,7 @@ TEST(TestLd, DecodeRegisterIndexedAddressingMode)
     }
 }
 
-TEST(TestLd, DecodeExtendedAddressingMode)
+TEST(CoreTests_TestLD, DecodeExtendedAddressingMode)
 {
     RegisterBank registerBank;
     
@@ -298,7 +298,7 @@ TEST(TestLd, DecodeExtendedAddressingMode)
 }
 
 
-TEST(TestLd, DecodeImmediateRegisterIndirect)
+TEST(CoreTests_TestLD, DecodeImmediateRegisterIndirect)
 {
     RegisterBank registerBank;
     
@@ -315,7 +315,7 @@ TEST(TestLd, DecodeImmediateRegisterIndirect)
     EXPECT_EQ(Register::HL, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestLd, DecodeRegisterIndirectSourceIncrementAndDecrement)
+TEST(CoreTests_TestLD, DecodeRegisterIndirectSourceIncrementAndDecrement)
 {
     RegisterBank registerBank;
     
@@ -340,7 +340,7 @@ TEST(TestLd, DecodeRegisterIndirectSourceIncrementAndDecrement)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestLd, DecodeRegisterIndirectDestinationIncrementAndDecrement)
+TEST(CoreTests_TestLD, DecodeRegisterIndirectDestinationIncrementAndDecrement)
 {
     RegisterBank registerBank;
     
@@ -365,7 +365,7 @@ TEST(TestLd, DecodeRegisterIndirectDestinationIncrementAndDecrement)
     EXPECT_EQ(Register::HL, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestLd, DecodeRegisterImplicitAddressingMode)
+TEST(CoreTests_TestLD, DecodeRegisterImplicitAddressingMode)
 {
     RegisterBank registerBank;
     
@@ -390,7 +390,7 @@ TEST(TestLd, DecodeRegisterImplicitAddressingMode)
     EXPECT_EQ(Register::C, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestLd, DecodeImmediateImplicitAddressingMode)
+TEST(CoreTests_TestLD, DecodeImmediateImplicitAddressingMode)
 {
     RegisterBank registerBank;
     
@@ -415,7 +415,7 @@ TEST(TestLd, DecodeImmediateImplicitAddressingMode)
     EXPECT_EQ(Register::NoRegister, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestLd, DecodeImmediateRegisterPairAddressingMode)
+TEST(CoreTests_TestLD, DecodeImmediateRegisterPairAddressingMode)
 {
     auto destinationList = {Register::BC, 
                             Register::DE, 
@@ -440,7 +440,7 @@ TEST(TestLd, DecodeImmediateRegisterPairAddressingMode)
     }
 }
 
-TEST(TestLd, DecodeTransferToSP)
+TEST(CoreTests_TestLD, DecodeTransferToSP)
 {
     RegisterBank registerBank;
     
@@ -457,7 +457,7 @@ TEST(TestLd, DecodeTransferToSP)
     EXPECT_EQ(Register::SP, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestLd, DecodeTransferSPToMemory)
+TEST(CoreTests_TestLD, DecodeTransferSPToMemory)
 {
     RegisterBank registerBank;
     
@@ -474,7 +474,7 @@ TEST(TestLd, DecodeTransferSPToMemory)
     EXPECT_EQ(Register::NoRegister, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestLd, ExecuteImmediateAddressingMode)
+TEST(CoreTests_TestLD, ExecuteImmediateAddressingMode)
 {
     RegisterBank registerBank;
     
@@ -500,7 +500,7 @@ TEST(TestLd, ExecuteImmediateAddressingMode)
     }
 }
 
-TEST(TestLd, ExecuteRegisterAddressingMode)
+TEST(CoreTests_TestLD, ExecuteRegisterAddressingMode)
 {
     RegisterBank registerBank;
 
@@ -536,7 +536,7 @@ TEST(TestLd, ExecuteRegisterAddressingMode)
     }
 }
 
-TEST(TestLd, ExecuteRegisterIndirectSourceAddressingMode)
+TEST(CoreTests_TestLD, ExecuteRegisterIndirectSourceAddressingMode)
 {
     RegisterBank registerBank;
 
@@ -561,7 +561,7 @@ TEST(TestLd, ExecuteRegisterIndirectSourceAddressingMode)
     }
 }
 
-TEST(TestLd, ExecuteRegisterIndirectDestinationAddressingMode)
+TEST(CoreTests_TestLD, ExecuteRegisterIndirectDestinationAddressingMode)
 {
     RegisterBank registerBank;
 
@@ -585,7 +585,7 @@ TEST(TestLd, ExecuteRegisterIndirectDestinationAddressingMode)
     }
 }
 
-TEST(TestLd, ExecuteRegisterIndexSourceAddressingMode)
+TEST(CoreTests_TestLD, ExecuteRegisterIndexSourceAddressingMode)
 {
     RegisterBank registerBank;
 
@@ -610,7 +610,7 @@ TEST(TestLd, ExecuteRegisterIndexSourceAddressingMode)
     }
 }
 
-TEST(TestLd, ExecuteRegisterIndexDestinationAddressingMode)
+TEST(CoreTests_TestLD, ExecuteRegisterIndexDestinationAddressingMode)
 {
     RegisterBank registerBank;
 
@@ -634,7 +634,7 @@ TEST(TestLd, ExecuteRegisterIndexDestinationAddressingMode)
     }
 }
 
-TEST(TestLd, ExecuteExtendedSourceAddressingMode)
+TEST(CoreTests_TestLD, ExecuteExtendedSourceAddressingMode)
 {
     RegisterBank registerBank;
 
@@ -659,7 +659,7 @@ TEST(TestLd, ExecuteExtendedSourceAddressingMode)
     EXPECT_EQ(0xEE, alu.GetInstructionData().MemoryResult1);
 }
 
-TEST(TestLd, ExecuteImmediateRegisterIndirectAddressingMode)
+TEST(CoreTests_TestLD, ExecuteImmediateRegisterIndirectAddressingMode)
 {
     RegisterBank registerBank;
 
@@ -676,7 +676,7 @@ TEST(TestLd, ExecuteImmediateRegisterIndirectAddressingMode)
     EXPECT_EQ(0xD0, alu.GetInstructionData().MemoryResult1);
 }
 
-TEST(TestLd, ExecuteRegisterIndirectSourceIncrementAndDecrement)
+TEST(CoreTests_TestLD, ExecuteRegisterIndirectSourceIncrementAndDecrement)
 {
     RegisterBank registerBank;
 
@@ -701,7 +701,7 @@ TEST(TestLd, ExecuteRegisterIndirectSourceIncrementAndDecrement)
     EXPECT_EQ(0x10, registerBank.Read(Register::A));
 }
 
-TEST(TestLd, ExecuteRegisterIndirectDestinationIncrementAndDecrement)
+TEST(CoreTests_TestLD, ExecuteRegisterIndirectDestinationIncrementAndDecrement)
 {
     RegisterBank registerBank;
 
@@ -726,7 +726,7 @@ TEST(TestLd, ExecuteRegisterIndirectDestinationIncrementAndDecrement)
     EXPECT_EQ(0xA6, alu.GetInstructionData().MemoryResult1);
 }
 
-TEST(TestLd, ExecuteImplicitRegisterAddresingMode)
+TEST(CoreTests_TestLD, ExecuteImplicitRegisterAddresingMode)
 {
     RegisterBank registerBank;
 
@@ -751,7 +751,7 @@ TEST(TestLd, ExecuteImplicitRegisterAddresingMode)
     EXPECT_EQ(0xA1, alu.GetInstructionData().MemoryResult1);
 }
 
-TEST(TestLd, ExecuteImplicitImmediateAddresingMode)
+TEST(CoreTests_TestLD, ExecuteImplicitImmediateAddresingMode)
 {
     RegisterBank registerBank;
 
@@ -776,7 +776,7 @@ TEST(TestLd, ExecuteImplicitImmediateAddresingMode)
     EXPECT_EQ(0x78, alu.GetInstructionData().MemoryResult1);
 }
 
-TEST(TestLd, ExecuteImmediateRegisrerPairAddresingMode)
+TEST(CoreTests_TestLD, ExecuteImmediateRegisrerPairAddresingMode)
 {
     auto destinationList = {Register::BC, 
                             Register::DE, 
@@ -808,7 +808,7 @@ TEST(TestLd, ExecuteImmediateRegisrerPairAddresingMode)
     }
 }
 
-TEST(TestLd, ExecuteSPTransferAddressingMode)
+TEST(CoreTests_TestLD, ExecuteSPTransferAddressingMode)
 {
     RegisterBank registerBank;
 
@@ -826,7 +826,7 @@ TEST(TestLd, ExecuteSPTransferAddressingMode)
     EXPECT_EQ(0x97A3, registerBank.ReadPair(Register::SP));
 }
 
-TEST(TestLd, ExecuteSPTransferToMemoryMode)
+TEST(CoreTests_TestLD, ExecuteSPTransferToMemoryMode)
 {
     RegisterBank registerBank;
 

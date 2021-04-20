@@ -35,7 +35,7 @@ uint8_t GetPageLowerAddress(uint8_t page)
     return 0x00;
 }
 
-TEST(TestRst, DecodeRst)
+TEST(CoreTests_TestRST, DecodeRst)
 {
     RegisterBank registerBank;
     
@@ -56,7 +56,7 @@ TEST(TestRst, DecodeRst)
     }
 }
 
-TEST(TestRst, ExecuteRst)
+TEST(CoreTests_TestRST, ExecuteRst)
 {
     RegisterBank registerBank;
     

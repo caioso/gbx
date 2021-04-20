@@ -19,7 +19,7 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
-TEST(TestRetAndReti, DecodeRet)
+TEST(CoreTests_TestRETAndRETI, DecodeRet)
 {
     RegisterBank registerBank;
     
@@ -37,7 +37,7 @@ TEST(TestRetAndReti, DecodeRet)
     EXPECT_EQ(0xFF, alu.GetInstructionData().InstructionExtraOperand);
 }
 
-TEST(TestRetAndReti, ExecuteRet)
+TEST(CoreTests_TestRETAndRETI, ExecuteRet)
 {
     RegisterBank registerBank;
     
@@ -57,7 +57,7 @@ TEST(TestRetAndReti, ExecuteRet)
     EXPECT_EQ(registerBank.ReadPair(Register::PC), static_cast<uint16_t>(0xABCD));
 }
 
-TEST(TestRetAndReti, DecodeConditionalRet)
+TEST(CoreTests_TestRETAndRETI, DecodeConditionalRet)
 {
     RegisterBank registerBank;
     
@@ -78,7 +78,7 @@ TEST(TestRetAndReti, DecodeConditionalRet)
     }
 }
 
-TEST(TestRetAndReti, ExecuteConditionalRet)
+TEST(CoreTests_TestRETAndRETI, ExecuteConditionalRet)
 {
     RegisterBank registerBank;
     
@@ -183,7 +183,7 @@ TEST(TestRetAndReti, ExecuteConditionalRet)
     EXPECT_EQ(registerBank.ReadPair(Register::PC), static_cast<uint16_t>(0x9800));
 }
 
-TEST(TestRetAndReti, DecodeReti)
+TEST(CoreTests_TestRETAndRETI, DecodeReti)
 {
     RegisterBank registerBank;
     
@@ -201,7 +201,7 @@ TEST(TestRetAndReti, DecodeReti)
     EXPECT_EQ(0xFF, alu.GetInstructionData().InstructionExtraOperand);
 }
 
-TEST(TestRetAndReti, ExecuteReti)
+TEST(CoreTests_TestRETAndRETI, ExecuteReti)
 {
     RegisterBank registerBank;
     

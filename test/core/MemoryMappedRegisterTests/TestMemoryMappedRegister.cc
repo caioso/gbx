@@ -12,11 +12,13 @@
 #include "DMGAndGBCRegisterAddresses.h"
 #include "InterruptEnableRegister.h"
 #include "LCDControlRegister.h"
-#include "LCDScrollXRegister.h"
-#include "LCDScrollYRegister.h"
+#include "LCDBackgroundScrollXRegister.h"
+#include "LCDBackgroundScrollYRegister.h"
 #include "LCDStatusRegister.h"
 #include "LCDScanLineYRegister.h"
 #include "LCDScanLineYCompareRegister.h"
+#include "LCDWindowScrollXRegister.h"
+#include "LCDWindowScrollYRegister.h"
 #include "MemoryController.h"
 #include "MemoryMappedRegister.h"
 #include "RAM.h"
@@ -736,51 +738,51 @@ TEST(CoreTests_MemoryMappedRegister, LCDStatusRegisterEnableLCDDataTransfer)
     EXPECT_EQ(static_cast<uint8_t>(0x40), get<uint8_t>(controller.Read(gbxcore::constants::LCDStatusAddress, MemoryAccessType::Byte)));   
 }
 
-TEST(CoreTests_MemoryMappedRegister, ScrollYRegisterConstruction) 
+TEST(CoreTests_MemoryMappedRegister, BackgroundScrollYRegisterConstruction) 
 {
     VideoControllerMock videoController;
     MemoryController controller;
 
-    auto lcdScrollYRegister = make_unique<LCDScrollYRegister>(&videoController);
+    auto lcdBackgroundScrollYRegister = make_unique<LCDBackgroundScrollYRegister>(&videoController);
 }
 
-TEST(CoreTests_MemoryMappedRegister, ScrollYRegisterScrollTest) 
+TEST(CoreTests_MemoryMappedRegister, BackgroundScrollYRegisterScrollTest) 
 {
     VideoControllerMock videoController;
     MemoryController controller;
 
-    auto lcdScrollYRegister = make_unique<LCDScrollYRegister>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(lcdScrollYRegister), gbxcore::constants::LCDScrollYAddress, Ownership::System);
+    auto lcdBackgroundScrollYRegister = make_unique<LCDBackgroundScrollYRegister>(&videoController);
+    controller.RegisterMemoryMappedRegister(std::move(lcdBackgroundScrollYRegister), gbxcore::constants::LCDBackgroundScrollYAddress, Ownership::System);
 
     for (auto i = 0llu; i < 0xFFllu; ++i)
     {
         EXPECT_CALL(videoController, ScrollBackgroundY(i));
-        controller.Write(static_cast<uint8_t>(i), gbxcore::constants::LCDScrollYAddress);
-        EXPECT_EQ(static_cast<uint8_t>(i), get<uint8_t>(controller.Read(gbxcore::constants::LCDScrollYAddress, MemoryAccessType::Byte)));   
+        controller.Write(static_cast<uint8_t>(i), gbxcore::constants::LCDBackgroundScrollYAddress);
+        EXPECT_EQ(static_cast<uint8_t>(i), get<uint8_t>(controller.Read(gbxcore::constants::LCDBackgroundScrollYAddress, MemoryAccessType::Byte)));   
     }
 }
 
-TEST(CoreTests_MemoryMappedRegister, ScrollXRegisterConstruction) 
+TEST(CoreTests_MemoryMappedRegister, BackgroundScrollXRegisterConstruction) 
 {
     VideoControllerMock videoController;
     MemoryController controller;
 
-    auto lcdScrollXRegister = make_unique<LCDScrollXRegister>(&videoController);
+    auto lcdBackgroundScrollXRegister = make_unique<LCDBackgroundScrollXRegister>(&videoController);
 }
 
-TEST(CoreTests_MemoryMappedRegister, ScrollXRegisterScrollTest) 
+TEST(CoreTests_MemoryMappedRegister, BackgroundScrollXRegisterScrollTest) 
 {
     VideoControllerMock videoController;
     MemoryController controller;
 
-    auto lcdScrollXRegister = make_unique<LCDScrollXRegister>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(lcdScrollXRegister), gbxcore::constants::LCDScrollXAddress, Ownership::System);
+    auto lcdBackgroundScrollXRegister = make_unique<LCDBackgroundScrollXRegister>(&videoController);
+    controller.RegisterMemoryMappedRegister(std::move(lcdBackgroundScrollXRegister), gbxcore::constants::LCDBackgroundScrollXAddress, Ownership::System);
 
     for (auto i = 0llu; i < 0xFFllu; ++i)
     {
         EXPECT_CALL(videoController, ScrollBackgroundX(i));
-        controller.Write(static_cast<uint8_t>(i), gbxcore::constants::LCDScrollXAddress);
-        EXPECT_EQ(static_cast<uint8_t>(i), get<uint8_t>(controller.Read(gbxcore::constants::LCDScrollXAddress, MemoryAccessType::Byte)));   
+        controller.Write(static_cast<uint8_t>(i), gbxcore::constants::LCDBackgroundScrollXAddress);
+        EXPECT_EQ(static_cast<uint8_t>(i), get<uint8_t>(controller.Read(gbxcore::constants::LCDBackgroundScrollXAddress, MemoryAccessType::Byte)));   
     }
 }
 
@@ -813,7 +815,6 @@ TEST(CoreTests_MemoryMappedRegister, WriteToLCDScanLineYRegister)
     EXPECT_EQ(static_cast<uint8_t>(0x00), get<uint8_t>(controller.Read(gbxcore::constants::LCDScanLineYAddress, MemoryAccessType::Byte)));
 }
 
-
 TEST(CoreTests_MemoryMappedRegister, LCDScanLineYCompareRegisterConstruction) 
 {
     VideoControllerMock videoController;
@@ -834,5 +835,53 @@ TEST(CoreTests_MemoryMappedRegister, WriteToLCDScanLineYCompareRegister)
     {
         controller.Write(static_cast<uint8_t>(i), gbxcore::constants::LCDScanLineYCompareAddress);
         EXPECT_EQ(static_cast<uint8_t>(i), get<uint8_t>(controller.Read(gbxcore::constants::LCDScanLineYCompareAddress, MemoryAccessType::Byte)));   
+    }
+}
+
+TEST(CoreTests_MemoryMappedRegister, WindowScrollYRegisterConstruction) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdWindowScrollYRegister = make_unique<LCDWindowScrollYRegister>(&videoController);
+}
+
+TEST(CoreTests_MemoryMappedRegister, WindowScrollYRegisterScrollTest) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdWindowScrollYRegister = make_unique<LCDWindowScrollYRegister>(&videoController);
+    controller.RegisterMemoryMappedRegister(std::move(lcdWindowScrollYRegister), gbxcore::constants::LCDWindowScrollYAddress, Ownership::System);
+
+    for (auto i = 0llu; i < 0xFFllu; ++i)
+    {
+        EXPECT_CALL(videoController, ScrollWindowY(i));
+        controller.Write(static_cast<uint8_t>(i), gbxcore::constants::LCDWindowScrollYAddress);
+        EXPECT_EQ(static_cast<uint8_t>(i), get<uint8_t>(controller.Read(gbxcore::constants::LCDWindowScrollYAddress, MemoryAccessType::Byte)));   
+    }
+}
+
+TEST(CoreTests_MemoryMappedRegister, WindowScrollXRegisterConstruction) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdWindowScrollXRegister = make_unique<LCDWindowScrollXRegister>(&videoController);
+}
+
+TEST(CoreTests_MemoryMappedRegister, WindowScrollXRegisterScrollTest) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto lcdWindowScrollXRegister = make_unique<LCDWindowScrollXRegister>(&videoController);
+    controller.RegisterMemoryMappedRegister(std::move(lcdWindowScrollXRegister), gbxcore::constants::LCDWindowScrollXAddress, Ownership::System);
+
+    for (auto i = 0llu; i < 0xFFllu; ++i)
+    {
+        EXPECT_CALL(videoController, ScrollWindowX(i));
+        controller.Write(static_cast<uint8_t>(i), gbxcore::constants::LCDWindowScrollXAddress);
+        EXPECT_EQ(static_cast<uint8_t>(i), get<uint8_t>(controller.Read(gbxcore::constants::LCDWindowScrollXAddress, MemoryAccessType::Byte)));   
     }
 }

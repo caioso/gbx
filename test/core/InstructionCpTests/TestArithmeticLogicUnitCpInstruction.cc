@@ -20,8 +20,7 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
-
-TEST(TestCp, DecodeCpRegisterMode)
+TEST(CoreTests_TestCP, DecodeCpRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -42,7 +41,7 @@ TEST(TestCp, DecodeCpRegisterMode)
     }
 }
 
-TEST(TestCp, ExecuteCpRegisterMode)
+TEST(CoreTests_TestCP, ExecuteCpRegisterMode)
 {
     RegisterBank registerBank;
     
@@ -109,7 +108,7 @@ TEST(TestCp, ExecuteCpRegisterMode)
     EXPECT_EQ(0x10, registerBank.Read(Register::A));
 }
 
-TEST(TestCp, DecodeCpImmediateMode)
+TEST(CoreTests_TestCP, DecodeCpImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -126,7 +125,7 @@ TEST(TestCp, DecodeCpImmediateMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestCp, ExecuteCpImmediateMode)
+TEST(CoreTests_TestCP, ExecuteCpImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -193,7 +192,7 @@ TEST(TestCp, ExecuteCpImmediateMode)
     EXPECT_EQ(0x00, registerBank.Read(Register::A));
 }
 
-TEST(TestCp, DecodeCpRegisterIndirectMode)
+TEST(CoreTests_TestCP, DecodeCpRegisterIndirectMode)
 {
     RegisterBank registerBank;
     
@@ -211,7 +210,7 @@ TEST(TestCp, DecodeCpRegisterIndirectMode)
 }
 
 
-TEST(TestCp, ExecuteCpRegisterIndirectMode)
+TEST(CoreTests_TestCP, ExecuteCpRegisterIndirectMode)
 {
     RegisterBank registerBank;
     

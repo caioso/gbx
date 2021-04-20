@@ -22,7 +22,7 @@ using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
 
-TEST(TestEiAndDI, DecodeEi)
+TEST(CoreTests_TestEIAndDI, DecodeEi)
 {
     RegisterBank registerBank;
     
@@ -40,7 +40,7 @@ TEST(TestEiAndDI, DecodeEi)
     EXPECT_EQ(0x00, alu.GetInstructionData().InstructionExtraOperand);
 }
 
-TEST(TestEiAndDI, ExecuteEi)
+TEST(CoreTests_TestEIAndDI, ExecuteEi)
 {
     RegisterBank registerBank;
     
@@ -105,7 +105,7 @@ TEST(TestEiAndDI, ExecuteEi)
     }
 }
 
-TEST(TestEiAndDI, DecodeDi)
+TEST(CoreTests_TestEIAndDI, DecodeDi)
 {
     RegisterBank registerBank;
     
@@ -123,7 +123,7 @@ TEST(TestEiAndDI, DecodeDi)
     EXPECT_EQ(0x00, alu.GetInstructionData().InstructionExtraOperand);
 }
 
-TEST(TestEiAndDI, Executei)
+TEST(CoreTests_TestEIAndDI, Executei)
 {
     RegisterBank registerBank;
     

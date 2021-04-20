@@ -19,7 +19,7 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
-TEST(TestSwap, DecodeSwapRegisterMode)
+TEST(CoreTests_TestSWAP, DecodeSwapRegisterMode)
 {
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     RegisterBank registerBank;
@@ -41,7 +41,7 @@ TEST(TestSwap, DecodeSwapRegisterMode)
     }
 }
 
-TEST(TestSwap, ExecuteSwapRegisterMode)
+TEST(CoreTests_TestSWAP, ExecuteSwapRegisterMode)
 {
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     RegisterBank registerBank;
@@ -79,7 +79,7 @@ TEST(TestSwap, ExecuteSwapRegisterMode)
     }
 }
 
-TEST(TestSwap, DecodeSwapRegisterIndirectMode)
+TEST(CoreTests_TestSWAP, DecodeSwapRegisterIndirectMode)
 {
     RegisterBank registerBank;
     
@@ -97,7 +97,7 @@ TEST(TestSwap, DecodeSwapRegisterIndirectMode)
     EXPECT_EQ(Register::HL, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestSwap, ExecuteSrlRegisterIndirectMode)
+TEST(CoreTests_TestSWAP, ExecuteSrlRegisterIndirectMode)
 {
     RegisterBank registerBank;
     

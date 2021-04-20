@@ -19,7 +19,7 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
-TEST(TestJr, DecodeUnconditionalJrImmediateMode)
+TEST(CoreTests_TestJR, DecodeUnconditionalJrImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -37,7 +37,7 @@ TEST(TestJr, DecodeUnconditionalJrImmediateMode)
     EXPECT_EQ(0xFF, alu.GetInstructionData().InstructionExtraOperand);
 }
 
-TEST(TestJr, ExecuteUnconditionalJrImmediateMode)
+TEST(CoreTests_TestJR, ExecuteUnconditionalJrImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -68,7 +68,7 @@ TEST(TestJr, ExecuteUnconditionalJrImmediateMode)
     }
 }
 
-TEST(TestJr, DecodeConditionalJrImmediateMode)
+TEST(CoreTests_TestJR, DecodeConditionalJrImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -89,7 +89,7 @@ TEST(TestJr, DecodeConditionalJrImmediateMode)
     }
 }
 
-TEST(TestJr, ExecuteConditionalJrImmediateMode)
+TEST(CoreTests_TestJR, ExecuteConditionalJrImmediateMode)
 {
     RegisterBank registerBank;
     

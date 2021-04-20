@@ -21,7 +21,7 @@ using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
 
-TEST(TestHalt, DecodeHalt)
+TEST(CoreTests_TestHALT, DecodeHalt)
 {
     RegisterBank registerBank;
     
@@ -39,7 +39,7 @@ TEST(TestHalt, DecodeHalt)
     EXPECT_EQ(0x00, alu.GetInstructionData().InstructionExtraOperand);
 }
 
-TEST(TestHalt, ExecuteHalt)
+TEST(CoreTests_TestHALT, ExecuteHalt)
 {
     RegisterBank registerBank;
     

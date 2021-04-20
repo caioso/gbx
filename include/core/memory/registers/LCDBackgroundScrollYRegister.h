@@ -9,11 +9,11 @@
 namespace gbxcore::memory::registers
 {
 
-class LCDScrollYRegister : public EightBitMemoryMappedRegisterBase
+class LCDBackgroundScrollYRegister : public EightBitMemoryMappedRegisterBase
 {
 public:
-    LCDScrollYRegister(gbxcore::interfaces::VideoControllerInterface*);
-    virtual ~LCDScrollYRegister() = default;
+    LCDBackgroundScrollYRegister(gbxcore::interfaces::VideoControllerInterface*);
+    virtual ~LCDBackgroundScrollYRegister() = default;
     
     void Write(std::variant<uint8_t, uint16_t>) override;
 

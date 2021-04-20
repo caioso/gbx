@@ -20,7 +20,7 @@ using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
 
-TEST(TestInc, DecodeIncRegisterMode)
+TEST(CoreTests_TestINC, DecodeIncRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -41,7 +41,7 @@ TEST(TestInc, DecodeIncRegisterMode)
     }
 }
 
-TEST(TestInc, ExecuteIncRegisterMode)
+TEST(CoreTests_TestINC, ExecuteIncRegisterMode)
 {
     auto sourceList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
     RegisterBank registerBank;
@@ -81,7 +81,7 @@ TEST(TestInc, ExecuteIncRegisterMode)
     }
 }
 
-TEST(TestInc, DecodeIncRegisterIndirect)
+TEST(CoreTests_TestINC, DecodeIncRegisterIndirect)
 {
     RegisterBank registerBank;
     
@@ -99,7 +99,7 @@ TEST(TestInc, DecodeIncRegisterIndirect)
 }
 
 
-TEST(TestInc, ExecuteIncRegisterIndirectMode)
+TEST(CoreTests_TestINC, ExecuteIncRegisterIndirectMode)
 {
     RegisterBank registerBank;
     
@@ -137,7 +137,7 @@ TEST(TestInc, ExecuteIncRegisterIndirectMode)
     }
 }
 
-TEST(TestInc, DecodeIncRegisterPairMode)
+TEST(CoreTests_TestINC, DecodeIncRegisterPairMode)
 {
     RegisterBank registerBank;
     auto operandList = { Register::BC, Register::DE, Register::HL, Register::SP };
@@ -158,7 +158,7 @@ TEST(TestInc, DecodeIncRegisterPairMode)
     }
 }
 
-TEST(TestInc, ExecuteIncRegisterPairMode)
+TEST(CoreTests_TestINC, ExecuteIncRegisterPairMode)
 {
     auto sourceList = { Register::BC, Register::DE, Register::HL, Register::SP };
     RegisterBank registerBank;

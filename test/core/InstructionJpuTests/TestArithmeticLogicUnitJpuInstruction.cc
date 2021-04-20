@@ -19,7 +19,7 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
-TEST(TestJpu, DecodeJpu)
+TEST(CoreTests_TestJPU, DecodeJpu)
 {
     RegisterBank registerBank;
     
@@ -38,7 +38,7 @@ TEST(TestJpu, DecodeJpu)
     EXPECT_EQ(0xFF, alu.GetInstructionData().InstructionExtraOperand);
 }
 
-TEST(TestJpu, ExecuteJpu)
+TEST(CoreTests_TestJPU, ExecuteJpu)
 {
     RegisterBank registerBank;
     

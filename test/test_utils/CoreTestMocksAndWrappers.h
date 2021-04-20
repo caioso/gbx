@@ -49,6 +49,8 @@ public:
     MOCK_METHOD(void, SetInterruptMode, (uint8_t));
     MOCK_METHOD(void, ScrollBackgroundY, (size_t));
     MOCK_METHOD(void, ScrollBackgroundX, (size_t));
+    MOCK_METHOD(void, ScrollWindowX, (size_t));
+    MOCK_METHOD(void, ScrollWindowY, (size_t));
 };
 
 class ArithmeticLogicDecorator : public gbxcore::ArithmeticLogicUnit

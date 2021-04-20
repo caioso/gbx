@@ -19,7 +19,7 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
-TEST(TestSubAndSbc, DecodeSubRegisterMode)
+TEST(CoreTests_TestSUBAndSBC, DecodeSubRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -40,7 +40,7 @@ TEST(TestSubAndSbc, DecodeSubRegisterMode)
     }
 }
 
-TEST(TestSubAndSbc, DecodeSubImmediateMode)
+TEST(CoreTests_TestSUBAndSBC, DecodeSubImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -57,7 +57,7 @@ TEST(TestSubAndSbc, DecodeSubImmediateMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestSubAndSbc, DecodeSubRegisterIndirectMode)
+TEST(CoreTests_TestSUBAndSBC, DecodeSubRegisterIndirectMode)
 {
     RegisterBank registerBank;
     
@@ -74,7 +74,7 @@ TEST(TestSubAndSbc, DecodeSubRegisterIndirectMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestSubAndSbc, DecodeSubcRegisterMode)
+TEST(CoreTests_TestSUBAndSBC, DecodeSubcRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -95,7 +95,7 @@ TEST(TestSubAndSbc, DecodeSubcRegisterMode)
     }
 }
 
-TEST(TestSubAndSbc, DecodeSbcImmediateMode)
+TEST(CoreTests_TestSUBAndSBC, DecodeSbcImmediateMode)
 {
     RegisterBank registerBank;
         
@@ -112,7 +112,7 @@ TEST(TestSubAndSbc, DecodeSbcImmediateMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestSubAndSbc, DecodeSbcRegisterIndirectMode)
+TEST(CoreTests_TestSUBAndSBC, DecodeSbcRegisterIndirectMode)
 {
     RegisterBank registerBank;
         
@@ -129,7 +129,7 @@ TEST(TestSubAndSbc, DecodeSbcRegisterIndirectMode)
     EXPECT_EQ(Register::A, alu.GetInstructionData().DestinationRegister);
 }
 
-TEST(TestSubAndSbc, ExecuteSubRegisterMode)
+TEST(CoreTests_TestSUBAndSBC, ExecuteSubRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -228,7 +228,7 @@ TEST(TestSubAndSbc, ExecuteSubRegisterMode)
     EXPECT_EQ(0xF0, registerBank.Read(Register::A));
 }
 
-TEST(TestSubAndSbc, ExecuteSubImmediateMode)
+TEST(CoreTests_TestSUBAndSBC, ExecuteSubImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -316,7 +316,7 @@ TEST(TestSubAndSbc, ExecuteSubImmediateMode)
     EXPECT_EQ(0xF0, registerBank.Read(Register::A));
 }
 
-TEST(TestSubAndSbc, ExecuteSubRegisterIndirectMode)
+TEST(CoreTests_TestSUBAndSBC, ExecuteSubRegisterIndirectMode)
 {
     RegisterBank registerBank;
     
@@ -405,7 +405,7 @@ TEST(TestSubAndSbc, ExecuteSubRegisterIndirectMode)
 }
 
 
-TEST(TestSubAndSbc, ExecuteSbcRegisterMode)
+TEST(CoreTests_TestSUBAndSBC, ExecuteSbcRegisterMode)
 {
     RegisterBank registerBank;
     auto operandList = {Register::A, Register::B, Register::C, Register::D, Register::E, Register::H, Register::L};
@@ -504,7 +504,7 @@ TEST(TestSubAndSbc, ExecuteSbcRegisterMode)
     EXPECT_EQ(0xCD, registerBank.Read(Register::A));
 }
 
-TEST(TestSubAndSbc, ExecuteSbcImmediateMode)
+TEST(CoreTests_TestSUBAndSBC, ExecuteSbcImmediateMode)
 {
     RegisterBank registerBank;
 
@@ -592,7 +592,7 @@ TEST(TestSubAndSbc, ExecuteSbcImmediateMode)
 }
 
 
-TEST(TestSubAndSbc, ExecuteSbcRegisterIndirectMode)
+TEST(CoreTests_TestSUBAndSBC, ExecuteSbcRegisterIndirectMode)
 {
     RegisterBank registerBank;
 

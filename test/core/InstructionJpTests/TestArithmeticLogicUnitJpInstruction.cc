@@ -19,7 +19,7 @@ using namespace gbxcore;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::instructions;
 
-TEST(TestJp, DecodeUnconditionalJpImmediateMode)
+TEST(CoreTests_TestJP, DecodeUnconditionalJpImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -37,7 +37,7 @@ TEST(TestJp, DecodeUnconditionalJpImmediateMode)
     EXPECT_EQ(0xFF, alu.GetInstructionData().InstructionExtraOperand);
 }
 
-TEST(TestJp, ExecuteUnconditionalJpImmediateMode)
+TEST(CoreTests_TestJP, ExecuteUnconditionalJpImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -64,7 +64,7 @@ TEST(TestJp, ExecuteUnconditionalJpImmediateMode)
     }
 }
 
-TEST(TestJp, DecodeConditionalJpImmediateMode)
+TEST(CoreTests_TestJP, DecodeConditionalJpImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -85,7 +85,7 @@ TEST(TestJp, DecodeConditionalJpImmediateMode)
     }
 }
 
-TEST(TestJp, ExecuteConditionalJpImmediateMode)
+TEST(CoreTests_TestJP, ExecuteConditionalJpImmediateMode)
 {
     RegisterBank registerBank;
     
@@ -141,7 +141,7 @@ TEST(TestJp, ExecuteConditionalJpImmediateMode)
     }
 }
 
-TEST(TestJp, DecodeUnconditionalJpRegisterIndirectMode)
+TEST(CoreTests_TestJP, DecodeUnconditionalJpRegisterIndirectMode)
 {
     RegisterBank registerBank;
     
@@ -159,7 +159,7 @@ TEST(TestJp, DecodeUnconditionalJpRegisterIndirectMode)
     EXPECT_EQ(0xFF, alu.GetInstructionData().InstructionExtraOperand);
 }
 
-TEST(TestJp, ExecuteUnconditionalJpRegisterIndirectMode)
+TEST(CoreTests_TestJP, ExecuteUnconditionalJpRegisterIndirectMode)
 {
     RegisterBank registerBank;
     
