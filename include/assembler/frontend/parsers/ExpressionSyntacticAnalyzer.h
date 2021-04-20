@@ -117,16 +117,36 @@ public:
     std::shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> TryToAccept(std::vector<Token>::iterator&, std::vector<Token>::iterator&) override;
 
 private:
+    enum class FSMState
+    {
+        InitialState,
+        EvaluateFirstOperandUnaryOperatorOrEnclosing,
+        EvaluateBinaryOperator,
+        EvaluateSecondOperandUnaryOperatorOrEnclosing,
+        ReduceBinaryOperation,
+        ReduceUnaryOperation,
+    };
+
     void ExtractSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
     intermediate_representation::OperandType SymbolToOperandType(ExpressionParserTreeSymbols);
     
     void PushResolveOperand(ExpressionCompoundSymbol, intermediate_representation::ExpressionMember&);
     void PushBinaryExpressionOperand(size_t, intermediate_representation::ExpressionMember&);
+    void PushUnaryExpressionOperand(size_t, intermediate_representation::ExpressionMember&);
     void RegisterBinaryOperation(ExpressionParserTreeSymbols, intermediate_representation::ExpressionMember&);
     void RegisterUnaryOperation(ExpressionParserTreeSymbols, intermediate_representation::ExpressionMember&);
     void ClearCurrentMember(intermediate_representation::ExpressionMember&);
+    void ReduceEnclosedExpression(int);
+    void ProcessBinaryOperator(int&, FSMState&, ExpressionParserTreeSymbols&);
+    void ReduceBinaryExpression(int, ExpressionParserTreeSymbols);
+    void ReduceUnaryExpression(int, ExpressionParserTreeSymbols);
+    
+    NextOperation EvaluateOperand(int&, FSMState&, intermediate_representation::ExpressionMember&);
 
-    NextOperation EvaluateOperand(int&, size_t&, intermediate_representation::ExpressionMember&);
+    bool AllExpressionsHaveBeenReduced(int);
+    bool IsBinaryOperator(int);
+    bool IsUnaryOperator(int);
+    bool IsEndOfEnclosedExpression(int);
 
     std::vector<ExpressionCompoundSymbol> _symbols;
     std::stack<intermediate_representation::ExpressionMember> _expressionStack;

@@ -2038,15 +2038,15 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     const string expression = "(A / (B - C)) * D";
 
     // Expected Result  
-    //                             EXP6 Binary(EXP4 + EXP5)
+    //                             EXP6 Binary(EXP4 * EXP5)
     //                              |
     //                             / \
     //                            /   \
-    //     Binary(EXP0 + EXP3) EXP4   EXP5
+    //     Binary(EXP0 / EXP3) EXP4   EXP5
     //                           |    Resolve_ID(D)
     //                          / \
     //                         /   \
-    //                      EXP0   EXP3 Binary(EXP1 + EXP2)
+    //                      EXP0   EXP3 Binary(EXP1 - EXP2)
     //             Resolve_ID(A)    |     
     //                              |
     //                             / \
@@ -2131,6 +2131,298 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("B", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(0llu, member.ExpressionID);
+    EXPECT_EQ(1llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
+    EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
+    EXPECT_STREQ("A", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRepresentation7)
+{
+    const string expression = "!A";
+
+    // Expected Result  
+    //              EXP1 Unary(EXP0)
+    //               |
+    //              EXP0
+    //              Resolve_ID(A)
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<ExpressionIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_NE(nullptr, expressionRepresentation);
+    EXPECT_EQ(0x02llu, expressionRepresentation->ExpressionStack().size());
+
+    auto stack = expressionRepresentation->ExpressionStack();
+    auto member = stack.top();
+    stack.pop();
+    EXPECT_EQ(1llu, member.ExpressionID);
+    EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Operator::UnaryLogicNegation, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp0", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+    
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(0llu, member.ExpressionID);
+    EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
+    EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
+    EXPECT_STREQ("A", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+      
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRepresentation8)
+{
+    const string expression = "~(B)";
+
+    // Expected Result  
+    //              EXP1 Unary(EXP0)
+    //               |
+    //              EXP0
+    //              Resolve_ID(B)
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<ExpressionIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_NE(nullptr, expressionRepresentation);
+    EXPECT_EQ(0x02llu, expressionRepresentation->ExpressionStack().size());
+
+    auto stack = expressionRepresentation->ExpressionStack();
+    auto member = stack.top();
+    stack.pop();
+    EXPECT_EQ(1llu, member.ExpressionID);
+    EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Operator::UnaryBitwiseNegation, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp0", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+    
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(0llu, member.ExpressionID);
+    EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
+    EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
+    EXPECT_STREQ("B", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRepresentation9)
+{
+    const string expression = "-(A & B)";
+
+    // Expected Result  
+    //                EXP3 Unary(-EXP2)
+    //                 |
+    //                EXP2 Binary(EXP0 & EXP1)
+    //                 |
+    //                / \
+    //               /   \
+    //           EXP0    EXP1
+    //  Resolve_ID(A)    Resolve_ID(B)
+    //
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<ExpressionIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_NE(nullptr, expressionRepresentation);
+    EXPECT_EQ(0x04llu, expressionRepresentation->ExpressionStack().size());
+
+    auto stack = expressionRepresentation->ExpressionStack();
+    auto member = stack.top();
+    stack.pop();
+    EXPECT_EQ(3llu, member.ExpressionID);
+    EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Operator::UnaryNegative, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp2", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+    
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(2llu, member.ExpressionID);
+    EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Operator::BinaryBitwiseAnd, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand2Type);
+    EXPECT_STREQ("exp0", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp1", member.Operand2.c_str());
+
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(1llu, member.ExpressionID);
+    EXPECT_EQ(1llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
+    EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
+    EXPECT_STREQ("B", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(0llu, member.ExpressionID);
+    EXPECT_EQ(1llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
+    EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
+    EXPECT_STREQ("A", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRepresentation10)
+{
+    const string expression = "(-A + !(B + ~C))";
+
+    // Expected Result  
+    //                         EXP7 Binary(EXP1 & EXP6)
+    //                          |
+    //                         / \
+    //                        /   \
+    //                       /     \
+    //       Unary(-EXP0) EXP1     EXP6 Unary(!EXP5)
+    //                     |        |
+    //                    EXP0    EXP5 Binary(EXP2 + EXP4)
+    //           Resolve_ID(A)      |
+    //                             / \
+    //                            /   \
+    //                          EXP2  EXP4 Unary(~EXP3)
+    //                Resolve_ID(B)    |
+    //                                EXP3
+    //                                Resolve_ID(C)
+    
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<ExpressionIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_NE(nullptr, expressionRepresentation);
+    EXPECT_EQ(0x08llu, expressionRepresentation->ExpressionStack().size());
+
+    auto stack = expressionRepresentation->ExpressionStack();
+    auto member = stack.top();
+    stack.pop();
+    EXPECT_EQ(7llu, member.ExpressionID);
+    EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand2Type);
+    EXPECT_STREQ("exp1", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp6", member.Operand2.c_str());
+    
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(6llu, member.ExpressionID);
+    EXPECT_EQ(1llu, member.Depth);
+    EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Operator::UnaryLogicNegation, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp5", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(5llu, member.ExpressionID);
+    EXPECT_EQ(1llu, member.Depth);
+    EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand2Type);
+    EXPECT_STREQ("exp2", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp4", member.Operand2.c_str());
+
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(4llu, member.ExpressionID);
+    EXPECT_EQ(2llu, member.Depth);
+    EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Operator::UnaryBitwiseNegation, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp3", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(3llu, member.ExpressionID);
+    EXPECT_EQ(2llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
+    EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
+    EXPECT_STREQ("C", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(2llu, member.ExpressionID);
+    EXPECT_EQ(2llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
+    EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
+    EXPECT_STREQ("B", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(1llu, member.ExpressionID);
+    EXPECT_EQ(1llu, member.Depth);
+    EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Operator::UnaryNegative, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp0", member.Operand1.c_str());
     EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
     EXPECT_STREQ("", member.Operand2.c_str());
 
