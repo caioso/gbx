@@ -377,7 +377,8 @@ TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllOperators)
                            "!\n"
                            "@\n"
                            ":\n"
-                           ".\n";
+                           ".\n"
+                           "#\n";
 
     auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
@@ -388,14 +389,14 @@ TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllOperators)
                            Lexemes::OperatorBITWISENOT, Lexemes::OperatorBITWISEXOR, Lexemes::OperatorLEFTSHIFT, Lexemes::OperatorRIGHTSHIFT,
                            Lexemes::OperatorDIFFERENT, Lexemes::OperatorLOGICAND, Lexemes::OperatorLOGICOR, Lexemes::OperatorLESSTHAN,
                            Lexemes::OperatorGREATERTHAN, Lexemes::OperatorLESSTHANOREQUALTO, Lexemes::OperatorGREATERTHANOREQUALTO,
-                           Lexemes::OperatorLOGICNOT, Lexemes::OperatorAT, Lexemes::OperatorSEMICOLON, Lexemes::OperatorDOT};
+                           Lexemes::OperatorLOGICNOT, Lexemes::OperatorAT, Lexemes::OperatorSEMICOLON, Lexemes::OperatorDOT, Lexemes::OperatorHASH};
     
     auto operatorTokens = {TokenType::OperatorASSIGNMENT, TokenType::OperatorEQUAL, TokenType::OperatorPLUS, TokenType::OperatorTHREEWAYCOMPARISON,
                            TokenType::OperatorMINUS, TokenType::OperatorMULTIPLICATION, TokenType::OperatorDIVISION, TokenType::OperatorBITWISEAND, TokenType::OperatorBITWISEOR,
                            TokenType::OperatorBITWISENOT, TokenType::OperatorBITWISEXOR, TokenType::OperatorLEFTSHIFT, TokenType::OperatorRIGHTSHIFT, 
                            TokenType::OperatorDIFFERENT, TokenType::OperatorLOGICAND, TokenType::OperatorLOGICOR, TokenType::OperatorLESSTHAN,
                            TokenType::OperatorGREATERTHAN, TokenType::OperatorLESSTHANOREQUALTO, TokenType::OperatorGREATERTHANOREQUALTO,
-                           TokenType::OperatorLOGICNOT, TokenType::OperatorAT, TokenType::OperatorSEMICOLON, TokenType::OperatorDOT};
+                           TokenType::OperatorLOGICNOT, TokenType::OperatorAT, TokenType::OperatorSEMICOLON, TokenType::OperatorDOT, TokenType::OperatorHASH};
 
     auto counter = 0;
     for (auto i = static_cast<size_t>(0); i < operatorString.size(); ++i)
@@ -1282,7 +1283,9 @@ TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllInstructionMnemonics)
                            "SRL\n"
                            "BIT\n"
                            "RES\n"
-                           "SET\n";
+                           "SET\n"
+                           "JPU\n"
+                           "LDU\n";
 
     auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
@@ -1301,7 +1304,8 @@ TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllInstructionMnemonics)
                            Lexemes::InstructionMnemonicDI, Lexemes::InstructionMnemonicRLC, Lexemes::InstructionMnemonicRRC,
                            Lexemes::InstructionMnemonicRL, Lexemes::InstructionMnemonicRR, Lexemes::InstructionMnemonicSLA,
                            Lexemes::InstructionMnemonicSRA, Lexemes::InstructionMnemonicSWAP, Lexemes::InstructionMnemonicSRL,
-                           Lexemes::InstructionMnemonicBIT, Lexemes::InstructionMnemonicRES, Lexemes::InstructionMnemonicSET};
+                           Lexemes::InstructionMnemonicBIT, Lexemes::InstructionMnemonicRES, Lexemes::InstructionMnemonicSET,
+                           Lexemes::InstructionMnemonicJPU, Lexemes::InstructionMnemonicLDU};
 
     auto mnemonicToken = {TokenType::InstructionMnemonicNOP, TokenType::InstructionMnemonicLD, TokenType::InstructionMnemonicINC, 
                           TokenType::InstructionMnemonicDEC, TokenType::InstructionMnemonicRLCA, TokenType::InstructionMnemonicADD,
@@ -1316,7 +1320,8 @@ TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllInstructionMnemonics)
                           TokenType::InstructionMnemonicDI, TokenType::InstructionMnemonicRLC, TokenType::InstructionMnemonicRRC,
                           TokenType::InstructionMnemonicRL, TokenType::InstructionMnemonicRR, TokenType::InstructionMnemonicSLA,
                           TokenType::InstructionMnemonicSRA, TokenType::InstructionMnemonicSWAP, TokenType::InstructionMnemonicSRL,
-                          TokenType::InstructionMnemonicBIT, TokenType::InstructionMnemonicRES, TokenType::InstructionMnemonicSET};
+                          TokenType::InstructionMnemonicBIT, TokenType::InstructionMnemonicRES, TokenType::InstructionMnemonicSET,
+                          TokenType::InstructionMnemonicJPU, TokenType::InstructionMnemonicLDU};
 
     auto counter = 0;
     for (auto i = static_cast<size_t>(0); i < mnemonicString.size(); ++i)

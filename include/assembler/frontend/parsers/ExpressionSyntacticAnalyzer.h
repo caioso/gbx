@@ -39,6 +39,7 @@ enum class ExpressionParserTreeSymbols
     TerminalLogicNegation,
     TerminalBitwiseNegation,
     TerminalOperatorDot,
+    TerminalOperatorHash,
 
     TerminalIdentifier,
     TerminalPackIdentifier,
@@ -59,6 +60,7 @@ enum class ExpressionParserTreeSymbols
     NonTerminalUnaryBitwiseNegation,       // E2
     NonTerminalUnaryNegative,              // E3
     NonTerminalUnaryPositive,              // E4
+    NonTerminalUnaryImmedite,              // E8
     NonTerminalBinaryAddition,             // F1
     NonTerminalBinarySubtraction,          // F2
     NonTerminalBinaryMultiplication,       // F3

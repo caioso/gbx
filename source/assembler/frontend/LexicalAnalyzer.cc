@@ -217,6 +217,8 @@ vector<Token> LexicalAnalyzer::EvaluateLexeme(string originalLexeme, size_t colu
             token.Type = TokenType::OperatorSEMICOLON;
         else if (lexeme.first.compare(Lexemes::OperatorDOT) == 0)
             token.Type = TokenType::OperatorDOT;
+        else if (lexeme.first.compare(Lexemes::OperatorHASH) == 0)
+            token.Type = TokenType::OperatorHASH;
 
         // Separators
         else if (lexeme.first.compare(Lexemes::SeparatorCOMMA) == 0)
@@ -319,6 +321,10 @@ vector<Token> LexicalAnalyzer::EvaluateLexeme(string originalLexeme, size_t colu
             token.Type = TokenType::InstructionMnemonicRES;
         else if (lexeme.first.compare(Lexemes::InstructionMnemonicSET) == 0)
             token.Type = TokenType::InstructionMnemonicSET;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicJPU) == 0)
+            token.Type = TokenType::InstructionMnemonicJPU;
+        else if (lexeme.first.compare(Lexemes::InstructionMnemonicLDU) == 0)
+            token.Type = TokenType::InstructionMnemonicLDU;
         else
         {
             EvaluateIdentifier(token.Lexeme);
@@ -667,7 +673,7 @@ inline bool LexicalAnalyzer::IsPossibleOperator(string_view candidate, size_t po
     if (candidate[position] == '+' || candidate[position] == '=' || candidate[position] == '<' || candidate[position] == '>' ||
         candidate[position] == '/' || candidate[position] == '*' || candidate[position] == '&' || candidate[position] == '|' ||
         candidate[position] == '!' || candidate[position] == '~' || candidate[position] == '^' || candidate[position] == '-' ||
-        candidate[position] == '@' || candidate[position] == ':' || candidate[position] == '.')
+        candidate[position] == '@' || candidate[position] == ':' || candidate[position] == '.' || candidate[position] == '#')
         return true;
 
     return false;

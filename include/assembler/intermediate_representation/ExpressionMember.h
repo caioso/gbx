@@ -18,6 +18,7 @@ enum class Operator
     UnaryBitwiseNegation,      
     UnaryNegative,             
     UnaryPositive,             
+    UnaryImmediate,             
     BinaryAddition,            
     BinarySubtraction,         
     BinaryMultiplication,      

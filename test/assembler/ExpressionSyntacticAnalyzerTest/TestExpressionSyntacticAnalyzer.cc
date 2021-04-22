@@ -2437,3 +2437,121 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
     EXPECT_STREQ("", member.Operand2.c_str());
 }
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryImmadiate)
+{
+    const string expression = "#0x1234";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseUnaryImmadiate2)
+{
+    const string expression = "#(ALIAS + VALUE)";
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRepresentation11)
+{
+    const string expression = "#(ALIAS + CONSTANT)";
+
+    // Expected Result  
+    //                    EXP3 Unary(#EXP2)
+    //                     |
+    //                    EXP2 Binary(EXP0 + EXP1)
+    //                     |
+    //                    / \
+    //                   /   \
+    //               EXP0    EXP1
+    //  Resolve_ID(ALIAS)    Resolve_ID(CONSTANT)
+    //
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<ExpressionIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_NE(nullptr, expressionRepresentation);
+    EXPECT_EQ(0x04llu, expressionRepresentation->ExpressionStack().size());
+
+    auto stack = expressionRepresentation->ExpressionStack();
+    auto member = stack.top();
+    stack.pop();
+    EXPECT_EQ(3llu, member.ExpressionID);
+    EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Operator::UnaryImmediate, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp2", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+    
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(2llu, member.ExpressionID);
+    EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand2Type);
+    EXPECT_STREQ("exp0", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp1", member.Operand2.c_str());
+
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(1llu, member.ExpressionID);
+    EXPECT_EQ(1llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
+    EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
+    EXPECT_STREQ("CONSTANT", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(0llu, member.ExpressionID);
+    EXPECT_EQ(1llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
+    EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
+    EXPECT_STREQ("ALIAS", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+}
+
+// Implement addressing mode surrounders
+/*
+Register -> register as operand
+R, PP
+Immediate -> Static 8/16 bit value as operand (expressions also supported)
+#
+Direct -> Content of address held by register/immediate address/expression is the operand
+[ ]
+Indirect -> Content of address held by register/immediate address/expression holds the address of the operand [gbx]
+{ }
+Indexed -> Pair + 8/16 bit signed displacement result in the address of the operand [gbx]
+< >
+*/

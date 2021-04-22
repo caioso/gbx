@@ -44,7 +44,7 @@ Most statements introduce their own ***keywords*** and syntactic and semantic ru
 `PACK` declares a data structure type composed of one or more *identifiable* fields. Fundamentally, a `PACK` has two properties: an initial **address** and a **length**. A `PACK` is designed to simplify memory management in a syntactic level.
 
 ##### Syntax
-``` language assembly
+``` assembly
 PACK <PACK_TYPE_IDENTIFIER>
 BGN
     [{FIELD TYPE} {FIELD_IDENTIFIER}]+
@@ -53,7 +53,7 @@ END
 Each `PACK` must include an unique identifier and a non-empty list of fields. Fields are name-addressable memory locations, defined as bytes sequences of pre-defined size. Fields can be individually accessed by using the `PACK`'s *base-address* and an offset. The assembler is responsible to statically calculate the location of each field upon usage in the user's code. 
 
 ##### Example
-``` language assembly
+``` assembly
 PACK SPRITE
 BGN
     BYTE TILE
@@ -67,43 +67,43 @@ END
 
 The previous example depicts the declares a `PACK` type called SPRITE, which consists of five fields: TILE, PALETTE, X, Y, and ATTRIBUTES. The first four fields have been declared as `BYTE` which means they will take one byte each, when the `PACK` is allocated. ATTRIBUTE is a `WORD` type which means it takes 2 bytes when the `PACK` is allocated. To access the 
 
-Once declared, a `PACK` type is an *instantiable-entity* that can be used with the `VAR`, `CNST`, `FREE` statements, `.` operand, `AS` type cast CNSTruction, initializer lists and instructions. Instantiated `PACK` are referred to as struct-variables.
+Once declared, a `PACK` type is an *instantiable-entity* that can be used with the `VAR`, `CNST`, `FREE` statements, `.` operand, `AS` type cast construction, initializer lists and instructions. Instantiated `PACK` are referred to as struct-variables.
 
 ##### Syntax
 ###### Field Access
-``` language assembly
+``` assembly
 <PACK_IDENTIFIER>.<FIELD_IDENTIFIER>
 ```
 ###### Field Access in `PACK` Array
-``` language assembly
+``` assembly
 <PACK_IDENTIFIER>[<INDEX>].<FIELD_IDENTIFIER>
 ```
 ###### `PACK` Instantiation with Initializer List
-``` language assembly
+``` assembly
 VAR <PACK_IDENTIFIER> AS <PACK_TYPE_IDENTIFIER> @<ADDRESS_TYPE> [[[.<FIELD_IDENTIFIER> = <VALUE>]+]]*
 ```
 ###### `PACK` Instance Deletion
-``` language assembly
+``` assembly
 FREE <PACK_IDENTIFIER>
 ```
-###### `PACK` CNSTant definition with Initializer List
-``` language assembly
+###### `PACK` constant definition with Initializer List
+``` assembly
 CNST <PACK_IDENTIFIER> AS <PACK_TYPE_IDENTIFIER> {[.<FIELD_IDENTIFIER> = <VALUE>]+}
 ```
 
 ###### `PACK` Usage with Instruction
-``` language assembly
+``` assembly
 OPCODE [<OPERAND>, ]* <PACK_IDENTIFIER>.<FIELD_IDENTIFIER> [, <OPERAND>]*
 ```
 ###### `PACK` in Type Cast
-``` language assembly
+``` assembly
 [OPCODE|STATEMENT|DIRECTIVE] ... {[REGISTER_PAIR] AS <PACK_IDENTIFIER>.<FIELD_IDENTIFIER>} ...
 ```
 
 Note that, the instantiation of a `PACK` with initializer lists **with an struct-variable**, incur in extra code generation. Field accesses however, are resolved in assembly time without the need of extra code generation. When using `PACK` fields as an instruction operand, data size must be taken into account. When using the `PACK` type in an Type Cast, extra code will be generated to correct the address of the register pairs.
 
 ##### Example
-``` language assembly
+``` assembly
     ...
     VAR     MY_SPRITE IS SPRITE @[GLOBAL_VARIABLES] {.X = H'00, .Y = H'00}
     LD      A, MY_SPRITE.X
@@ -116,15 +116,15 @@ Note that, the instantiation of a `PACK` with initializer lists **with an struct
     ...
 ```
 
-The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initializes two of its fields (X and Y). The instantiated struct-variable's X field is then loaded into the accumulator, which gets incremented by `H'04`. The accumulator is then written back to MY_SPRITE's field X. At the end, MY_SPRITE is freed, releasing its memory resources.  The second part of the example loads the accumulator with the CNSTant DEFAULT_PALETTE_INDEX and then *casts* HL to the  `PACK` type SPRITE (more specifically, the assembler will interpret HL as the base address of a SPRITE  `PACK` type and will perform field access arithmetic by using the offsets derivable from `PACK` SPRITE structure).
+The previous example instantiates `PACK` SPRITE, with name MY_SPRITE and initializes two of its fields (X and Y). The instantiated struct-variable's X field is then loaded into the accumulator, which gets incremented by `H'04`. The accumulator is then written back to MY_SPRITE's field X. At the end, MY_SPRITE is freed, releasing its memory resources.  The second part of the example loads the accumulator with the constant DEFAULT_PALETTE_INDEX and then *casts* HL to the  `PACK` type SPRITE (more specifically, the assembler will interpret HL as the base address of a SPRITE  `PACK` type and will perform field access arithmetic by using the offsets derivable from `PACK` SPRITE structure).
 
 #### `FUNC`
 
 
-Functions are an extension of the concept of 'function-labels' in standard assembly. They allow for expressive function calls with the `CALL` instruction and the `WITH` construction. Functions accept input and output argument lists that are automatically managed by the assembler in assembly time. They also allow for static type-check when used with the optinal `AS` keyword (allowed types are: `BOOL`, `CHAR`, `BYTE`, `WORD`, `DWORD` `STR`, their respective array types or any user-defined `PACK` type). The body of a function works exactly as their standard assembly counter-parts. 
+Functions are an extension of the concept of 'function-labels' in standard assembly. They allow for expressive function calls with the `CALL` instruction and the `WITH` construction. Functions accept input and output argument lists that are automatically managed by the assembler in assembly time. They also allow for static type-check when used with the optional `AS` keyword (allowed types are: `BOOL`, `CHAR`, `BYTE`, `WORD`, `DWORD` `STR`, their respective array types or any user-defined `PACK` type). The body of a function works exactly as their standard assembly counter-parts. 
 
 ##### Example
-``` language assembly
+``` assembly
 FUNC MY_FUNCTION
 	IN: ARGUMENT_1 AS BYTE
 	IN: ARGUMENT_2
@@ -137,7 +137,7 @@ BGN
 END
 ```
 
-In the previous example, function `MY_FUNCTION` is declared accepting two input arguments (`ARGUMENT_1` and `ARGUMENT_2`) and two output argments (`RETURN_1` and `RETURN_2`). Input argument `ARGUMENT_1` has been defined with type `BYTE` while output argument `RETURN_2` has  type `WORD`. The assembler will issue type-mismatch warnings whenever argument types do not match during a function call or when using output arguments. There is no theoritical limit on the number of input and output arguments. 
+In the previous example, function `MY_FUNCTION` is declared accepting two input arguments (`ARGUMENT_1` and `ARGUMENT_2`) and two output arguments (`RETURN_1` and `RETURN_2`). Input argument `ARGUMENT_1` has been defined with type `BYTE` while output argument `RETURN_2` has  type `WORD`. The assembler will issue type-mismatch warnings whenever argument types do not match during a function call or when using output arguments. There is no theoretical limit on the number of input and output arguments. 
 
 #### `BGN`
 #### `END`
@@ -164,7 +164,7 @@ In the previous example, function `MY_FUNCTION` is declared accepting two input 
 #### `WHEN`
 switch-case style selection block.
 
-``` language assembly
+``` assembly
     WHEN A
     BGN
         IS 0x01: ; Do SOMETRHING;
@@ -185,7 +185,7 @@ switch-case style selection block.
 Repeat **for** a fixed amount of iterations.
 
 ##### Example
-``` language assembly
+``` assembly
     REPT FOR 0x100
     BGN
         ... ; Loop body
@@ -195,7 +195,7 @@ Repeat **for** a fixed amount of iterations.
 #### `UNTL`
 Repeat **until** a condition is met.
 
-``` language assembly
+``` assembly
     REPT UNTL MEMORY_REGISTER != 0x01
     BGN
         ... ; Loop body
@@ -205,14 +205,14 @@ Repeat **until** a condition is met.
 #### `TAG`
 Give a _temporary_ identifier to a variable, constant register or memory location.
 
-``` language assembly
+``` assembly
     TAG HL, POINTER
 ```
 
 #### `TRY`
 _Throwable_ block initializer (happy flow block).
 
-``` language assembly
+``` assembly
     TRY
     BGN
         ... ; Throwable block
@@ -224,7 +224,7 @@ _Throwable_ block initializer (happy flow block).
 #### `EXPT`
 _Exception_ block initializer (unhappy flow block).
 
-``` language assembly
+``` assembly
     TRY
     BGN
         ... ; Throwable block
@@ -237,7 +237,7 @@ _Exception_ block initializer (unhappy flow block).
 #### `THRW`
 Exception throwing construction
 
-``` language assembly
+``` assembly
     ...
     ; Error happened, Abort
     TRHW 0x0A
@@ -246,8 +246,13 @@ Exception throwing construction
 #### `IN`
 #### `OUT`
 
+
+
 ### Operators
 #### Operator Precedence
+
+
+
 #### Arithmetic, Logic and Bit-wise Operators
 #### `+` Operator
 #### `-` Operator
@@ -274,8 +279,40 @@ Exception throwing construction
 #### `@` Operator
 #### `:` Operator
 #### `.` Operator
-### Instructions
+
+
+
+### Universal Instructions Set
+
+The following instructions are available in both `GBX` and `DMGBC` _CPU modes_. `DMGBC` applications can _only_ use the instructions presented in this section. All the following instructions are available in `User` and `System` _privilege modes_.
+
 #### `NOP`
+
+Stall CPU for one machine cycle. Equivalent to **`LD`** `A, A`.
+
+| **Availability** | **Accessibility** |
+| :--------------: | :---------------: |
+|  `GBX`, `DMGBC`  | `System`, `User`  |
+
+##### Opcode
+
+| Addressing Mode | Pre-Opcode | Opcode | Operand 1 | Operand 2 |
+| :-------------: | :--------: | :----: | :-------: | :-------: |
+|                 |            |        |           |           |
+
+##### Example
+
+```assembly
+   REPT UNTL V_BLANK != 0x01
+   BGN
+        NOP ; DOES NOTHING UNTIL CONDITION IS MET
+   END
+```
+
+
+
+
+
 #### `LD`
 #### `INC`
 #### `DEC`
@@ -317,12 +354,72 @@ Exception throwing construction
 #### `BIT`
 #### `RES`
 #### `SET`
-### Pseudo Instructions
-#### `MOVE`
+
+
+
+### GBX Instructions Set
+
+`GBX`  _CPU mode_ expands Z80's ISA by adding new instructions to the CPU core. Many of those instructions can only be executed in `System` _privilege mode_.
+
+#### `LDU`
+
+Loads 8-bit value from/to an address in the user space the `User` addressing space. This instruction can only be executed in `System` _privilege mode_. Either the source or the destination operands must be located in the `User` addressing space.
+
+| **Availability** | **Accessibility** |
+| :--------------: | :---------------: |
+|      `GBX`       |     `System`      |
+
+##### Opcode
+
+| Addressing Mode | Pre-Opcode | Opcode | Operand 1 | Operand 2 |
+| :-------------: | :--------: | :----: | :-------: | :-------: |
+|                 |   `0xFC`   |        |           |           |
+
+##### Example
+
+```assembly
+   LD HL, NTD_LOGO_START
+   LDU A, [HL+] ; HL IS FETCHED OUT OF THE USER ADDRESSING SPACE
+                ; WHILE THE CPU IS IN SYSTEM PRIVILEGE MODE
+```
+
+
+
+#### `JPU`
+
+Performs an 16-bit absolute unconditional jump to address, switching the _privilege mode_ to `User` (prior to the jump).
+
+| **Availability** | **Accessibility** |
+| :--------------: | :---------------: |
+|      `GBX`       |     `System`      |
+
+##### Opcode
+
+| Addressing Mode | Pre-Opcode | Opcode | Operand 1 | Operand 2 |
+| :-------------: | :--------: | :----: | :-------: | :-------: |
+|                 |   `0xFC`   |        |           |           |
+
+##### Example
+
+```assembly
+   LDU CARTRIDGE_START ; BRANCHES TO CARTRIGE_START, SWITHCING PRIVILEDGE MODE TO USER
+```
+
+
+
+#### `MUL`
+#### `DIV`
+
+
+
 ### Identifiers
 
 
+
 ### Literals
+
+
+
 ### Numeric Literals
 #### Decimal Numbers
 ##### `0d` Numric Prefix
@@ -338,14 +435,21 @@ Exception throwing construction
 ##### `LOW`
 ##### `[]`
 
+
+
 ### Boolean Literals
 #### `TRUE`
 #### `FALSE`
+
+
+
 ### String and Character literals
 #### `''` Character Marker
 #### `""` String Marker
 
-### Seperators
+
+
+### Separators
 #### `()`
 
 #### `{}`
@@ -357,7 +461,7 @@ Exception throwing construction
 Conditional assembly block. This directive instructs the pre-processor to include any code placed the `.IFDEF` ... [`ELSE`|`.END`], given that its condition evaluates true.
 
 ##### Example
-``` language assembly
+``` assembly
     .IFDEF PRE_PROCESSOR_SYMBOL
     .BGN
         ... ; The content of this block *will not* be removed if PRE_PROCESSOR_SYMBOL is 
@@ -368,7 +472,7 @@ Conditional assembly block. This directive instructs the pre-processor to includ
 Complementary symbol to `.IFDEF`. The code contained within this block will only be included if the condition in `.IFDEF` does not evaluate true.
 
 ##### Example
-``` language assembly
+``` assembly
     .IFDEF NON_EXISTING_PRE_PROCESSOR_SYMBOL
     .BGN
         ... ; Only included if NON_EXISTING_PRE_PROCESSOR_SYMBOL is defined.
@@ -385,7 +489,7 @@ Conditional assemly block. The opposite of `.IFDEF`.
 
 
 ##### Example
-``` language assembly
+``` assembly
     .IFNDEF PRE_PROCESSOR_SYMBOL
     .BGN
         ... ; The content of this block *will* be removed if PRE_PROCESSOR_SYMBOL is 
@@ -397,7 +501,7 @@ Conditional assemly block. The opposite of `.IFDEF`.
 Pre-processor symbol definition directive. `.DEF` only accepts an identifier to fully-define a pre-processing symbol. Identifiers are not required to be unique. Using `.DEF` with an already defined pre-compilation symbol has no effect.
 
 ##### Example
-``` language assembly
+``` assembly
     .DEF PLATFORM_GBX ; Defines a pre-processor symbol with identifier 'PLATFORM_GBX'
 ```
 
@@ -405,8 +509,8 @@ Pre-processor symbol definition directive. `.DEF` only accepts an identifier to 
 **Undefine** a previously defined pre-compilation symbol. Using `.UNDEF` with a non-defined pre-processor symbol has no effect.
 
 ##### Example
-``` language assembly
-    .UNDEF PLATFORM_GBX ; Undefine a pre-compulation symbol with identifier 'PLATFORM_GBX'
+``` assembly
+    .UNDEF PLATFORM_GBX ; Undefine a pre-comp. symbol with identifier 'PLATFORM_GBX'
 ```
 
 

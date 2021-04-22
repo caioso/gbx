@@ -87,6 +87,7 @@ enum class TokenType
     OperatorAT,
     OperatorSEMICOLON,
     OperatorDOT,
+    OperatorHASH,
 
     // Separators
     SeparatorCOMMA,
@@ -141,6 +142,8 @@ enum class TokenType
     InstructionMnemonicBIT,
     InstructionMnemonicRES,
     InstructionMnemonicSET,
+    InstructionMnemonicJPU,
+    InstructionMnemonicLDU,
 
     // Identifier
     Identifier

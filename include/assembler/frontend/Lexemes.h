@@ -72,6 +72,7 @@ public:
     inline const static std::string OperatorAT = "@";
     inline const static std::string OperatorSEMICOLON = ":";
     inline const static std::string OperatorDOT = ".";
+    inline const static std::string OperatorHASH = "#";
 
     // Separators
     inline const static std::string SeparatorCOMMA = ",";
@@ -133,6 +134,8 @@ public:
     inline const static std::string InstructionMnemonicBIT = "BIT";
     inline const static std::string InstructionMnemonicRES = "RES";
     inline const static std::string InstructionMnemonicSET = "SET";
+    inline const static std::string InstructionMnemonicJPU = "JPU";
+    inline const static std::string InstructionMnemonicLDU = "LDU";
 
     // PreProcessor
     inline const static std::string PreProcessorIFDEF = ".IFDEF";
