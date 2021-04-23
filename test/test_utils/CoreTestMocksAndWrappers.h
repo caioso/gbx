@@ -51,6 +51,9 @@ public:
     MOCK_METHOD(void, ScrollBackgroundX, (size_t));
     MOCK_METHOD(void, ScrollWindowX, (size_t));
     MOCK_METHOD(void, ScrollWindowY, (size_t));
+    MOCK_METHOD(void, RegisterDMGBackgroundPaletteColor, (uint8_t, gbxcore::interfaces::PaletteColor));
+    MOCK_METHOD(void, RegisterDMGObjectPaletteColor, (uint8_t, gbxcore::interfaces::DMGPalette, gbxcore::interfaces::PaletteColor));
+    MOCK_METHOD(void, RegisterCGBBackgroundPaletteColorByte, (uint8_t, uint8_t));
 };
 
 class ArithmeticLogicDecorator : public gbxcore::ArithmeticLogicUnit

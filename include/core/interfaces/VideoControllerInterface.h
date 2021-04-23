@@ -14,6 +14,20 @@ enum class VideoInterruptSource : uint8_t
     LCDDataTransferInterrupt = 8
 };
 
+enum class PaletteColor : uint8_t
+{
+    Color0,
+    Color1,
+    Color2,
+    Color3
+};
+
+enum class DMGPalette : uint8_t
+{
+    Palette0,
+    Palette1,
+};
+
 class VideoControllerInterface
 {
 public:
@@ -36,6 +50,9 @@ public:
     virtual void ScrollBackgroundY(size_t) = 0;
     virtual void ScrollWindowX(size_t) = 0;
     virtual void ScrollWindowY(size_t) = 0;
+    virtual void RegisterDMGBackgroundPaletteColor(uint8_t, PaletteColor) = 0;
+    virtual void RegisterDMGObjectPaletteColor(uint8_t, DMGPalette, PaletteColor) = 0;
+    virtual void RegisterCGBBackgroundPaletteColorByte(uint8_t, uint8_t) = 0;
 };
 
 }
