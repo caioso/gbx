@@ -1678,6 +1678,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     stack.pop();
     EXPECT_EQ(2llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
     EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
@@ -1689,6 +1690,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     stack.pop();
     EXPECT_EQ(1llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
@@ -1700,6 +1702,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     stack.pop();
     EXPECT_EQ(0llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
@@ -1744,6 +1747,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     stack.pop();
     EXPECT_EQ(4llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
     EXPECT_EQ(Operator::BinarySubtraction, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
@@ -1755,6 +1759,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     stack.pop();
     EXPECT_EQ(3llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
@@ -1766,6 +1771,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     stack.pop();
     EXPECT_EQ(2llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
     EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
@@ -1777,6 +1783,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     stack.pop();
     EXPECT_EQ(1llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
@@ -1788,6 +1795,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     stack.pop();
     EXPECT_EQ(0llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
@@ -1827,6 +1835,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     stack.pop();
     EXPECT_EQ(2llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(Surrounder::Expression, member.SurrounderType);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
     EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
@@ -1838,6 +1847,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     stack.pop();
     EXPECT_EQ(1llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
@@ -1849,6 +1859,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     stack.pop();
     EXPECT_EQ(0llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
@@ -1894,6 +1905,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(4llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::BinaryMultiplication, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
     EXPECT_STREQ("exp2", member.Operand1.c_str());
@@ -1905,6 +1917,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(3llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("C", member.Operand1.c_str());
@@ -1916,6 +1929,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(2llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Surrounder::Expression, member.SurrounderType);
     EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
     EXPECT_STREQ("exp0", member.Operand1.c_str());
@@ -1927,6 +1941,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(1llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("B", member.Operand1.c_str());
@@ -1938,6 +1953,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(0llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("A", member.Operand1.c_str());
@@ -1981,6 +1997,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(4llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Surrounder::Expression, member.SurrounderType);
     EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
     EXPECT_STREQ("exp0", member.Operand1.c_str());
@@ -1992,6 +2009,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(3llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Surrounder::Expression, member.SurrounderType);
     EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
     EXPECT_STREQ("exp1", member.Operand1.c_str());
@@ -2003,6 +2021,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(2llu, member.ExpressionID);
     EXPECT_EQ(2llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("C", member.Operand1.c_str());
@@ -2014,6 +2033,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(1llu, member.ExpressionID);
     EXPECT_EQ(2llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("B", member.Operand1.c_str());
@@ -2025,6 +2045,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(0llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("A", member.Operand1.c_str());
@@ -2073,6 +2094,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(6llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::BinaryMultiplication, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
     EXPECT_STREQ("exp4", member.Operand1.c_str());
@@ -2084,6 +2106,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(5llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("D", member.Operand1.c_str());
@@ -2096,6 +2119,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
     EXPECT_EQ(Operator::BinaryDivision, member.OperatorType);
+    EXPECT_EQ(Surrounder::Expression, member.SurrounderType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
     EXPECT_STREQ("exp0", member.Operand1.c_str());
     EXPECT_EQ(OperandType::Expression, member.Operand1Type);
@@ -2106,6 +2130,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(3llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Surrounder::Expression, member.SurrounderType);
     EXPECT_EQ(Operator::BinarySubtraction, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
     EXPECT_STREQ("exp1", member.Operand1.c_str());
@@ -2117,6 +2142,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(2llu, member.ExpressionID);
     EXPECT_EQ(2llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("C", member.Operand1.c_str());
@@ -2128,6 +2154,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(1llu, member.ExpressionID);
     EXPECT_EQ(2llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("B", member.Operand1.c_str());
@@ -2139,6 +2166,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(0llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("A", member.Operand1.c_str());
@@ -2175,6 +2203,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(1llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::UnaryLogicNegation, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand1Type);
     EXPECT_STREQ("exp0", member.Operand1.c_str());
@@ -2186,6 +2215,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(0llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("A", member.Operand1.c_str());
@@ -2223,6 +2253,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(1llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::UnaryBitwiseNegation, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand1Type);
     EXPECT_STREQ("exp0", member.Operand1.c_str());
@@ -2234,6 +2265,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(0llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::Expression, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("B", member.Operand1.c_str());
@@ -2275,6 +2307,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::Unary, member.Type);
     EXPECT_EQ(Operator::UnaryNegative, member.OperatorType);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(OperandType::Expression, member.Operand1Type);
     EXPECT_STREQ("exp2", member.Operand1.c_str());
     EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
@@ -2285,6 +2318,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(2llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Surrounder::Expression, member.SurrounderType);
     EXPECT_EQ(Operator::BinaryBitwiseAnd, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
     EXPECT_STREQ("exp0", member.Operand1.c_str());
@@ -2296,6 +2330,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(1llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("B", member.Operand1.c_str());
@@ -2307,6 +2342,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(0llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("A", member.Operand1.c_str());
@@ -2354,6 +2390,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(7llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Surrounder::Expression, member.SurrounderType);
     EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
     EXPECT_STREQ("exp1", member.Operand1.c_str());
@@ -2365,6 +2402,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(6llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::UnaryLogicNegation, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand1Type);
     EXPECT_STREQ("exp5", member.Operand1.c_str());
@@ -2377,6 +2415,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
     EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
+    EXPECT_EQ(Surrounder::Expression, member.SurrounderType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
     EXPECT_STREQ("exp2", member.Operand1.c_str());
     EXPECT_EQ(OperandType::Expression, member.Operand1Type);
@@ -2387,6 +2426,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(4llu, member.ExpressionID);
     EXPECT_EQ(2llu, member.Depth);
     EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::UnaryBitwiseNegation, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand1Type);
     EXPECT_STREQ("exp3", member.Operand1.c_str());
@@ -2398,6 +2438,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(3llu, member.ExpressionID);
     EXPECT_EQ(2llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("C", member.Operand1.c_str());
@@ -2409,6 +2450,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(2llu, member.ExpressionID);
     EXPECT_EQ(2llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("B", member.Operand1.c_str());
@@ -2420,6 +2462,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(1llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::UnaryNegative, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand1Type);
     EXPECT_STREQ("exp0", member.Operand1.c_str());
@@ -2431,6 +2474,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(0llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("A", member.Operand1.c_str());
@@ -2502,6 +2546,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(3llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::UnaryImmediate, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand1Type);
     EXPECT_STREQ("exp2", member.Operand1.c_str());
@@ -2513,6 +2558,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(2llu, member.ExpressionID);
     EXPECT_EQ(0llu, member.Depth);
     EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Surrounder::Expression, member.SurrounderType);
     EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
     EXPECT_EQ(OperandType::Expression, member.Operand2Type);
     EXPECT_STREQ("exp0", member.Operand1.c_str());
@@ -2524,6 +2570,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(1llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("CONSTANT", member.Operand1.c_str());
@@ -2535,11 +2582,127 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(0llu, member.ExpressionID);
     EXPECT_EQ(1llu, member.Depth);
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
     EXPECT_STREQ("ALIAS", member.Operand1.c_str());
     EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
     EXPECT_STREQ("", member.Operand2.c_str());
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRepresentation12)
+{
+    const string expression = "[A]";
+
+    // Expected Result  
+    //              EXP0 Resolve_ID(A)
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<ExpressionIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_NE(nullptr, expressionRepresentation);
+    EXPECT_EQ(0x01llu, expressionRepresentation->ExpressionStack().size());
+
+    auto stack = expressionRepresentation->ExpressionStack();
+    auto member = stack.top();
+    stack.pop();
+    
+    EXPECT_EQ(0llu, member.ExpressionID);
+    EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::Memory, member.SurrounderType);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
+    EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
+    EXPECT_STREQ("A", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+      
+}
+
+TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRepresentation13)
+{
+    const string expression = "(Z + ![A])";
+
+    // Expected Result  
+    //                    EXP2 Binary(EXP0 + EXP2)
+    //                     |
+    //                    / \
+    //                   /   \
+    //               EXP0    EXP2 Unary (![EXP1])
+    //      Resolve_ID(Z)     |
+    //                        |
+    //                       EXP1 Resolve_ID(A)
+
+    LexicalAnalyzer lexer;
+    ExpressionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<ExpressionIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_NE(nullptr, expressionRepresentation);
+    EXPECT_EQ(0x04llu, expressionRepresentation->ExpressionStack().size());
+
+    auto stack = expressionRepresentation->ExpressionStack();
+    auto member = stack.top();
+    stack.pop();
+
+    EXPECT_EQ(3llu, member.ExpressionID);
+    EXPECT_EQ(0llu, member.Depth);
+    EXPECT_EQ(ExpressionType::Binary, member.Type);
+    EXPECT_EQ(Surrounder::Expression, member.SurrounderType);
+    EXPECT_EQ(Operator::BinaryAddition, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand2Type);
+    EXPECT_STREQ("exp0", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp2", member.Operand2.c_str());
+
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(2llu, member.ExpressionID);
+    EXPECT_EQ(1llu, member.Depth);
+    EXPECT_EQ(ExpressionType::Unary, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
+    EXPECT_EQ(Operator::UnaryLogicNegation, member.OperatorType);
+    EXPECT_EQ(OperandType::Expression, member.Operand1Type);
+    EXPECT_STREQ("exp1", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(1llu, member.ExpressionID);
+    EXPECT_EQ(1llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::Memory, member.SurrounderType);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
+    EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
+    EXPECT_STREQ("A", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+
+    member = stack.top();
+    stack.pop();
+    EXPECT_EQ(0llu, member.ExpressionID);
+    EXPECT_EQ(1llu, member.Depth);
+    EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
+    EXPECT_EQ(Surrounder::None, member.SurrounderType);
+    EXPECT_EQ(Operator::NoOperator, member.OperatorType);
+    EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
+    EXPECT_STREQ("Z", member.Operand1.c_str());
+    EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
+    EXPECT_STREQ("", member.Operand2.c_str());
+      
 }
 
 // Implement addressing mode surrounders
@@ -2548,10 +2711,14 @@ Register -> register as operand
 R, PP
 Immediate -> Static 8/16 bit value as operand (expressions also supported)
 #
-Direct -> Content of address held by register/immediate address/expression is the operand
+indirect -> Content of address held by register/immediate address/expression is the operand
 [ ]
-Indirect -> Content of address held by register/immediate address/expression holds the address of the operand [gbx]
-{ }
-Indexed -> Pair + 8/16 bit signed displacement result in the address of the operand [gbx]
-< >
+-> Indexde is directly implemented with 
+[REG + 0x01/EXP]
+-> Implement Post Inc/Dec operators for indirect auto-increment/decrement modes
+[HL++]
+[HL--]
+// Check for implementation of pre-increment in GBX MODE only
+[++HL]
+[--HL]
 */

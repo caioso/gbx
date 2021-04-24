@@ -53,10 +53,15 @@ enum class OperandType
     NoOperand
 };
 
+enum class Surrounder : uint8_t
+{
+    None,
+    Expression,
+    Memory
+};
+
 struct ExpressionMember
 {
-    size_t ExpressionID{};
-
     ExpressionType Type;
     Operator OperatorType;
     
@@ -66,6 +71,9 @@ struct ExpressionMember
     OperandType Operand2Type;
     std::string Operand2;
 
+    Surrounder SurrounderType;
+
+    size_t ExpressionID{};
     size_t Depth{};
 };
 

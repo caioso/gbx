@@ -50,9 +50,12 @@ enum class ExpressionParserTreeSymbols
     
     TerminalOpenParenthesis,
     TerminalCloseParenthesis,
+    TerminalOpenBrackets,
+    TerminalCloseBrackets,
     
     NonTerminalExpression,                 // E
     NonTerminalSurroundedOperation,        // E5
+    NonTerminalSurroundedMemoryOperation,  // E9
     NonTerminalOperand,                    // E6
     NonTerminalUnaryOperation,             // E0
     NonTerminalBinaryOperation,            // E7
@@ -101,6 +104,7 @@ typedef struct ExpressionCompoundSymbol_t
     std::string Lexeme;
     size_t Line;
     size_t Column;
+    intermediate_representation::Surrounder Surrounder;
     ExpressionParserTreeSymbols Symbol;
 }
 ExpressionCompoundSymbol;
