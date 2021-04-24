@@ -18,4 +18,6 @@ namespace gbxcore::constants
     const size_t DMGObjectPalette1Address            = 0xFF49llu;
     const size_t CGBBackgroundPaletteIndexRegister   = 0xFF68llu;
     const size_t CGBBackgroundPaletteDataRegister    = 0xFF69llu;
+    const size_t CGBObjectPaletteIndexRegister       = 0xFF6Allu;
+    const size_t CGBObjectPaletteDataRegister        = 0xFF6Bllu;
 }

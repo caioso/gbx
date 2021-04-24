@@ -24,7 +24,7 @@ public:
     void ResetScanLineValue();
 
 private:
-    gbxcore::interfaces::VideoControllerInterface* _videoController;
+    [[maybe_unused]] gbxcore::interfaces::VideoControllerInterface* _videoController;
 };
 
 

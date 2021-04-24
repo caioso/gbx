@@ -10,6 +10,7 @@
 
 namespace gbxcore::interfaces
 {
+    
 struct Runtime
 {
     virtual ~Runtime() = default;

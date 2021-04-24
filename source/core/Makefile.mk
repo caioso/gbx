@@ -1,7 +1,7 @@
 $(info -------------------------------)
 $(info [BUILD::GBX] Entering directory '$(CURDIR)')
 $(info -------------------------------)
-SUBDIRS = instructions memory
+SUBDIRS = instructions memory video
 CC = clang++
 AR = ar
 

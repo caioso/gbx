@@ -53,6 +53,7 @@ public:
     virtual void RegisterDMGBackgroundPaletteColor(uint8_t, PaletteColor) = 0;
     virtual void RegisterDMGObjectPaletteColor(uint8_t, DMGPalette, PaletteColor) = 0;
     virtual void RegisterCGBBackgroundPaletteColorByte(uint8_t, uint8_t) = 0;
+    virtual void RegisterCGBObjectPaletteColorByte(uint8_t, uint8_t) = 0;
 };
 
 }

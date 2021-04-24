@@ -15,6 +15,8 @@
 #include "DMGObjectPallete1Register.h"
 #include "CGBBackgroundPaletteDataRegister.h"
 #include "CGBBackgroundPaletteIndexRegister.h"
+#include "CGBObjectPaletteDataRegister.h"
+#include "CGBObjectPaletteIndexRegister.h"
 #include "InterruptEnableRegister.h"
 #include "LCDControlRegister.h"
 #include "LCDBackgroundScrollXRegister.h"
@@ -991,5 +993,192 @@ TEST(CoreTests_VideoControllerRegisters, WriteToGCBBackgroundPaletteDataRegister
             EXPECT_EQ(static_cast<uint8_t>(i + 1), cgbBackgroundPaletteDataRegisterPointer->CurrentColorIndex());
 
         EXPECT_TRUE(cgbBackgroundPaletteIndexRegisterPointer->AutoIncrementEnabled());
+    }
+}
+
+TEST(CoreTests_VideoControllerRegisters, GCBObjectPaletteIndexRegisterConstruction) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto cgbObjectPaletteIndexRegister = make_unique<CGBObjectPaletteIndexRegister>(&videoController);
+}
+
+TEST(CoreTests_VideoControllerRegisters, GCBObjectPaletteDataRegisterConstruction) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto cgbObjectPaletteDataRegister = make_unique<CGBObjectPaletteDataRegister>(&videoController);
+}
+
+TEST(CoreTests_VideoControllerRegisters, GCBObjectPaletteRegistersRegistration) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto cgbObjectPaletteIndexRegister = make_unique<CGBObjectPaletteIndexRegister>(&videoController);
+    auto cgbObjectPaletteDataRegister = make_unique<CGBObjectPaletteDataRegister>(&videoController);
+
+    cgbObjectPaletteIndexRegister->RegisterDataRegister(cgbObjectPaletteDataRegister.get());
+    cgbObjectPaletteDataRegister->RegisterIndexRegister(cgbObjectPaletteIndexRegister.get());
+}
+
+TEST(CoreTests_VideoControllerRegisters, WriteToGCBObjectPaletteIndexRegisters) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto cgbObjectPaletteIndexRegister = make_unique<CGBObjectPaletteIndexRegister>(&videoController);
+    auto cgbObjectPaletteDataRegister = make_unique<CGBObjectPaletteDataRegister>(&videoController);
+    auto cgbObjectPaletteDataRegisterPointer = cgbObjectPaletteDataRegister.get();
+
+    cgbObjectPaletteIndexRegister->RegisterDataRegister(cgbObjectPaletteDataRegister.get());
+    cgbObjectPaletteDataRegister->RegisterIndexRegister(cgbObjectPaletteIndexRegister.get());
+
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, Ownership::System);
+
+    controller.Write(static_cast<uint8_t>(0x07), gbxcore::constants::CGBObjectPaletteIndexRegister);
+    EXPECT_EQ(static_cast<uint8_t>(0x07), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
+}
+
+TEST(CoreTests_VideoControllerRegisters, WriteToGCBObjectPaletteDataRegisters) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto cgbObjectPaletteIndexRegister = make_unique<CGBObjectPaletteIndexRegister>(&videoController);
+    auto cgbObjectPaletteDataRegister = make_unique<CGBObjectPaletteDataRegister>(&videoController);
+    auto cgbObjectPaletteDataRegisterPointer = cgbObjectPaletteDataRegister.get();
+
+    cgbObjectPaletteIndexRegister->RegisterDataRegister(cgbObjectPaletteDataRegister.get());
+    cgbObjectPaletteDataRegister->RegisterIndexRegister(cgbObjectPaletteIndexRegister.get());
+
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, Ownership::System);
+
+    controller.Write(static_cast<uint8_t>(0x3F), gbxcore::constants::CGBObjectPaletteIndexRegister);
+    EXPECT_EQ(static_cast<uint8_t>(0x3F), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
+
+    EXPECT_CALL(videoController, RegisterCGBObjectPaletteColorByte(static_cast<uint8_t>(0x3F), static_cast<uint8_t>(0x65))).Times(1);
+    controller.Write(static_cast<uint8_t>(0x65), gbxcore::constants::CGBObjectPaletteDataRegister);
+}
+
+TEST(CoreTests_VideoControllerRegisters, WriteToGCBObjectPaletteDataRegistersWithAutoIncrement) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto cgbObjectPaletteIndexRegister = make_unique<CGBObjectPaletteIndexRegister>(&videoController);
+    auto cgbObjectPaletteIndexRegisterPointer = cgbObjectPaletteIndexRegister.get();
+    auto cgbObjectPaletteDataRegister = make_unique<CGBObjectPaletteDataRegister>(&videoController);
+    auto cgbObjectPaletteDataRegisterPointer = cgbObjectPaletteDataRegister.get();
+
+    cgbObjectPaletteIndexRegister->RegisterDataRegister(cgbObjectPaletteDataRegister.get());
+    cgbObjectPaletteDataRegister->RegisterIndexRegister(cgbObjectPaletteIndexRegister.get());
+
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, Ownership::System);
+
+    controller.Write(static_cast<uint8_t>(0xBA), gbxcore::constants::CGBObjectPaletteIndexRegister);
+    EXPECT_EQ(static_cast<uint8_t>(0x3A), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
+    EXPECT_TRUE(cgbObjectPaletteIndexRegisterPointer->AutoIncrementEnabled());
+
+    EXPECT_CALL(videoController, RegisterCGBObjectPaletteColorByte(static_cast<uint8_t>(0x3A), static_cast<uint8_t>(0xF0))).Times(1);
+    controller.Write(static_cast<uint8_t>(0xF0), gbxcore::constants::CGBObjectPaletteDataRegister);
+
+    EXPECT_EQ(static_cast<uint8_t>(0x3B), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
+    EXPECT_TRUE(cgbObjectPaletteIndexRegisterPointer->AutoIncrementEnabled());
+}
+
+TEST(CoreTests_VideoControllerRegisters, WriteToGCBObjectPaletteDataOutOfRange) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto cgbObjectPaletteIndexRegister = make_unique<CGBObjectPaletteIndexRegister>(&videoController);
+    auto cgbObjectPaletteIndexRegisterPointer = cgbObjectPaletteIndexRegister.get();
+    auto cgbObjectPaletteDataRegister = make_unique<CGBObjectPaletteDataRegister>(&videoController);
+    auto cgbObjectPaletteDataRegisterPointer = cgbObjectPaletteDataRegister.get();
+
+    cgbObjectPaletteIndexRegister->RegisterDataRegister(cgbObjectPaletteDataRegister.get());
+    cgbObjectPaletteDataRegister->RegisterIndexRegister(cgbObjectPaletteIndexRegister.get());
+
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, Ownership::System);
+
+    controller.Write(static_cast<uint8_t>(0xE2), gbxcore::constants::CGBObjectPaletteIndexRegister);
+    EXPECT_EQ(static_cast<uint8_t>(0x00), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
+    EXPECT_TRUE(cgbObjectPaletteIndexRegisterPointer->AutoIncrementEnabled());
+
+    EXPECT_CALL(videoController, RegisterCGBObjectPaletteColorByte(static_cast<uint8_t>(0x00), static_cast<uint8_t>(0x87))).Times(1);
+    controller.Write(static_cast<uint8_t>(0x87), gbxcore::constants::CGBObjectPaletteDataRegister);
+
+    EXPECT_EQ(static_cast<uint8_t>(0x01), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
+    EXPECT_TRUE(cgbObjectPaletteIndexRegisterPointer->AutoIncrementEnabled());
+}
+
+TEST(CoreTests_VideoControllerRegisters, WriteToGCBObjectPaletteDataRegistersWriteAllPalettes) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto cgbObjectPaletteIndexRegister = make_unique<CGBObjectPaletteIndexRegister>(&videoController);
+    auto cgbObjectPaletteIndexRegisterPointer = cgbObjectPaletteIndexRegister.get();
+    auto cgbObjectPaletteDataRegister = make_unique<CGBObjectPaletteDataRegister>(&videoController);
+    auto cgbObjectPaletteDataRegisterPointer = cgbObjectPaletteDataRegister.get();
+
+    cgbObjectPaletteIndexRegister->RegisterDataRegister(cgbObjectPaletteDataRegister.get());
+    cgbObjectPaletteDataRegister->RegisterIndexRegister(cgbObjectPaletteIndexRegister.get());
+
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, Ownership::System);
+
+    for (auto i = 0; i < 0x3F; ++i)
+    {
+        controller.Write(static_cast<uint8_t>(i), gbxcore::constants::CGBObjectPaletteIndexRegister);
+        EXPECT_EQ(static_cast<uint8_t>(i), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
+        EXPECT_FALSE(cgbObjectPaletteIndexRegisterPointer->AutoIncrementEnabled());
+
+        EXPECT_CALL(videoController, RegisterCGBObjectPaletteColorByte(static_cast<uint8_t>(i), static_cast<uint8_t>(0xFF))).Times(1);
+        controller.Write(static_cast<uint8_t>(0xFF), gbxcore::constants::CGBObjectPaletteDataRegister);
+
+        EXPECT_EQ(static_cast<uint8_t>(i), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
+        EXPECT_FALSE(cgbObjectPaletteIndexRegisterPointer->AutoIncrementEnabled());
+    }
+}
+
+TEST(CoreTests_VideoControllerRegisters, WriteToGCBObjectPaletteDataRegistersWriteAllPalettes2) 
+{
+    VideoControllerMock videoController;
+    MemoryController controller;
+
+    auto cgbObjectPaletteIndexRegister = make_unique<CGBObjectPaletteIndexRegister>(&videoController);
+    auto cgbObjectPaletteIndexRegisterPointer = cgbObjectPaletteIndexRegister.get();
+    auto cgbObjectPaletteDataRegister = make_unique<CGBObjectPaletteDataRegister>(&videoController);
+    auto cgbObjectPaletteDataRegisterPointer = cgbObjectPaletteDataRegister.get();
+
+    cgbObjectPaletteIndexRegister->RegisterDataRegister(cgbObjectPaletteDataRegister.get());
+    cgbObjectPaletteDataRegister->RegisterIndexRegister(cgbObjectPaletteIndexRegister.get());
+
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, Ownership::System);
+
+    for (auto i = 0; i < 0x3F; ++i)
+    {
+        controller.Write(static_cast<uint8_t>(i | 0x80), gbxcore::constants::CGBObjectPaletteIndexRegister);
+        EXPECT_EQ(static_cast<uint8_t>(i), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
+        EXPECT_TRUE(cgbObjectPaletteIndexRegisterPointer->AutoIncrementEnabled());
+
+        EXPECT_CALL(videoController, RegisterCGBObjectPaletteColorByte(static_cast<uint8_t>(i), static_cast<uint8_t>(0xFF))).Times(1);
+        controller.Write(static_cast<uint8_t>(0xFF), gbxcore::constants::CGBObjectPaletteDataRegister);
+
+        if (i == 0x3F)
+            EXPECT_EQ(static_cast<uint8_t>(0x00), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
+        else
+            EXPECT_EQ(static_cast<uint8_t>(i + 1), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
+
+        EXPECT_TRUE(cgbObjectPaletteIndexRegisterPointer->AutoIncrementEnabled());
     }
 }

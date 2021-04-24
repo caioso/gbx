@@ -11,23 +11,22 @@
 namespace gbxcore::memory::registers
 {
 
-class CGBBackgroundPaletteDataRegister;
+class CGBObjectPaletteDataRegister;
 
-class CGBBackgroundPaletteIndexRegister : public EightBitMemoryMappedRegisterBase
+class CGBObjectPaletteIndexRegister : public EightBitMemoryMappedRegisterBase
 {
 public:
-    CGBBackgroundPaletteIndexRegister(gbxcore::interfaces::VideoControllerInterface*);
-    virtual ~CGBBackgroundPaletteIndexRegister() = default;
+    CGBObjectPaletteIndexRegister(gbxcore::interfaces::VideoControllerInterface*);
+    virtual ~CGBObjectPaletteIndexRegister() = default;
     
     void Write(std::variant<uint8_t, uint16_t>) override;
-    void RegisterDataRegister(CGBBackgroundPaletteDataRegister*);
+    void RegisterDataRegister(CGBObjectPaletteDataRegister*);
     void ReportDataWrite();
     bool AutoIncrementEnabled();
 
 private:
     [[maybe_unused]] gbxcore::interfaces::VideoControllerInterface* _videoController;
-    CGBBackgroundPaletteDataRegister* _dataRegisterReference;
-    
+    CGBObjectPaletteDataRegister* _dataRegisterReference;   
 };
 
 }
