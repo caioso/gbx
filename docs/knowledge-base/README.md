@@ -255,7 +255,11 @@ Exception throwing construction
 
 #### Arithmetic, Logic and Bit-wise Operators
 #### `+` Operator
+#### `++` Operator
+This operator can only be used in the context of Auto Pre-/Post-Increment addressing modes. Pre-Increment addressin mode is only available in `GBX` _CPU mode_.
 #### `-` Operator
+#### `--` Operator
+This operator can only be used in the context of Auto Pre-/Post-Decrement addressing modes. Pre-Decrement addressin mode is only available in `GBX` _CPU mode_.
 #### `/` Operator
 #### `*` Operator
 #### `&` Operator

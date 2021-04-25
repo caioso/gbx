@@ -38,6 +38,8 @@ enum class ExpressionParserTreeSymbols
     TerminalAssignment,
     TerminalLogicNegation,
     TerminalBitwiseNegation,
+    TerminalIncrement,
+    TerminalDecrement,
     TerminalOperatorDot,
     TerminalOperatorHash,
 
@@ -57,6 +59,10 @@ enum class ExpressionParserTreeSymbols
     NonTerminalSurroundedOperation,        // E5
     NonTerminalSurroundedMemoryOperation,  // E9
     NonTerminalOperand,                    // E6
+    NonTerminalUnaryPreDecrement,          // E13
+    NonTerminalUnaryPostDecrement,         // E12
+    NonTerminalUnaryPreIncrement,          // E11
+    NonTerminalUnaryPostIncrement,         // E10
     NonTerminalUnaryOperation,             // E0
     NonTerminalBinaryOperation,            // E7
     NonTerminalUnaryLogicNegation,         // E1
@@ -127,7 +133,7 @@ private:
     {
         InitialState,
         EvaluateFirstOperandUnaryOperatorOrEnclosing,
-        EvaluateBinaryOperator,
+        EvaluateBinaryOperatorOrRHSUnary,
         EvaluateSecondOperandUnaryOperatorOrEnclosing,
         ReduceBinaryOperation,
         ReduceUnaryOperation,
@@ -138,14 +144,14 @@ private:
     
     void PushResolveOperand(ExpressionCompoundSymbol, intermediate_representation::ExpressionMember&);
     void PushBinaryExpressionOperand(size_t, intermediate_representation::ExpressionMember&);
-    void PushUnaryExpressionOperand(size_t, intermediate_representation::ExpressionMember&);
+    void PushUnaryExpressionOperand(size_t, intermediate_representation::ExpressionMember&, bool);
     void RegisterBinaryOperation(ExpressionParserTreeSymbols, intermediate_representation::ExpressionMember&);
-    void RegisterUnaryOperation(ExpressionParserTreeSymbols, intermediate_representation::ExpressionMember&);
+    void RegisterUnaryOperation(ExpressionParserTreeSymbols, intermediate_representation::ExpressionMember&, bool);
     void ClearCurrentMember(intermediate_representation::ExpressionMember&);
     void ReduceEnclosedExpression(int);
     void ProcessBinaryOperator(int&, FSMState&, ExpressionParserTreeSymbols&);
     void ReduceBinaryExpression(int, ExpressionParserTreeSymbols);
-    void ReduceUnaryExpression(int, ExpressionParserTreeSymbols);
+    void ReduceUnaryExpression(int, ExpressionParserTreeSymbols, bool);
     
     NextOperation EvaluateOperand(int&, FSMState&, intermediate_representation::ExpressionMember&);
 

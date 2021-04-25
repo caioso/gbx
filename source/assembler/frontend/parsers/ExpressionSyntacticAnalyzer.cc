@@ -45,10 +45,21 @@ shared_ptr<IntermediateRepresentation> ExpressionSyntacticAnalyzer::TryToAccept(
                     break;
             }
             // Further evaluate operation
-            else if (state == FSMState::EvaluateBinaryOperator)
+            else if (state == FSMState::EvaluateBinaryOperatorOrRHSUnary)
             {
                 // Move further ( Should remember that + has been parsed)
-                if (IsBinaryOperator(leftSubstring))
+                if ((_expressionStack.top().Type == ExpressionType::ResolveOperand &&
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalIncrement) ||
+                    (_expressionStack.top().Type == ExpressionType::ResolveOperand &&
+                    _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalDecrement))
+                {
+                    ExpressionParserTreeSymbols unaryOperationType = _symbols[leftSubstring].Symbol; 
+                    RegisterUnaryOperation(unaryOperationType, currentMember, true);
+                    PushUnaryExpressionOperand(leftSubstring, currentMember, true);
+                    ReduceUnaryExpression(leftSubstring, unaryOperationType, true);
+                    break;
+                }
+                else if (IsBinaryOperator(leftSubstring))
                     ProcessBinaryOperator(leftSubstring, state, operationType);
                 else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalCloseParenthesis || 
                          _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalCloseBrackets)
@@ -91,9 +102,9 @@ shared_ptr<IntermediateRepresentation> ExpressionSyntacticAnalyzer::TryToAccept(
                 if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalExpression)
                 {
                     auto unaryOperationType = _symbols[leftSubstring - 1].Symbol;
-                    RegisterUnaryOperation(unaryOperationType, currentMember);
-                    PushUnaryExpressionOperand(leftSubstring, currentMember);
-                    ReduceUnaryExpression(leftSubstring, unaryOperationType);
+                    RegisterUnaryOperation(unaryOperationType, currentMember, false);
+                    PushUnaryExpressionOperand(leftSubstring, currentMember, false);
+                    ReduceUnaryExpression(leftSubstring, unaryOperationType, false);
                     break;
                 }
                 else
@@ -109,11 +120,11 @@ shared_ptr<IntermediateRepresentation> ExpressionSyntacticAnalyzer::TryToAccept(
     return representation;
 }
 
-void ExpressionSyntacticAnalyzer::ReduceUnaryExpression(int leftSubstring, ExpressionParserTreeSymbols unaryOperationType)
+void ExpressionSyntacticAnalyzer::ReduceUnaryExpression(int leftSubstring, ExpressionParserTreeSymbols unaryOperationType, bool rightHandSideUnary)
 {
-    // Remove Non-Terminal Expression (E)
+    // Remove Non-Terminal Expression (E) / RHS Unary Operand
     _symbols.erase(begin(_symbols) + leftSubstring);
-    // Remove Unary Operand
+    // Remove Unary Operand / Non-Treminal Expression
     _symbols.erase(begin(_symbols) + leftSubstring - 1);
 
     if (unaryOperationType == ExpressionParserTreeSymbols::TerminalLogicNegation)
@@ -126,6 +137,14 @@ void ExpressionSyntacticAnalyzer::ReduceUnaryExpression(int leftSubstring, Expre
         _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPositive, .Lexeme = string(""), .Surrounder = Surrounder::None });
     else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalOperatorHash)
         _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryImmedite, .Lexeme = string(""), .Surrounder = Surrounder::None });
+    else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalIncrement && !rightHandSideUnary)
+        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPreIncrement, .Lexeme = string(""), .Surrounder = Surrounder::None });
+    else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalIncrement && rightHandSideUnary)
+        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPostIncrement, .Lexeme = string(""), .Surrounder = Surrounder::None });
+    else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalDecrement && !rightHandSideUnary)
+        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPreDecrement, .Lexeme = string(""), .Surrounder = Surrounder::None });
+    else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalDecrement && rightHandSideUnary)
+        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPostDecrement, .Lexeme = string(""), .Surrounder = Surrounder::None });
 }
 
 void ExpressionSyntacticAnalyzer::ReduceBinaryExpression(int leftSubstring, ExpressionParserTreeSymbols operationType)
@@ -334,7 +353,9 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, F
              _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalBitwiseNegation || 
              _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalMinus ||
              _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalPlus ||
-             _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalOperatorHash)
+             _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalOperatorHash ||
+             _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalIncrement ||
+             _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::TerminalDecrement)
     {
         // Do nothing, simply shift
         leftSubstring++;
@@ -358,10 +379,14 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, F
     else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalUnaryLogicNegation ||
              _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalUnaryBitwiseNegation ||
              _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalUnaryImmedite ||
+             _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalUnaryPreIncrement ||
+             _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalUnaryPostIncrement ||
+             _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalUnaryPreDecrement ||
+             _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalUnaryPostDecrement ||
              ((state == FSMState::EvaluateFirstOperandUnaryOperatorOrEnclosing || state == FSMState::EvaluateSecondOperandUnaryOperatorOrEnclosing) && _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalUnaryNegative) ||
              ((state == FSMState::EvaluateFirstOperandUnaryOperatorOrEnclosing || state == FSMState::EvaluateSecondOperandUnaryOperatorOrEnclosing) && _symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalUnaryPositive))
     {
-        // Reduce Identifier to Non-Terminal Binary Operation (E1/E2/E3/E4) to Non Terminal Unary peration (E0)
+        // Reduce Identifier to Non-Terminal Binary Operation (E1/E2/E3/E4...) to Non Terminal Unary peration (E0)
         // Remove Non-terminal Operand
         _symbols.erase(begin(_symbols) + leftSubstring);
         _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryOperation, .Lexeme = string(""), .Surrounder = Surrounder::None });
@@ -414,7 +439,7 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, F
     {
         // 'First part of a binary operation'
         if (state == FSMState::EvaluateFirstOperandUnaryOperatorOrEnclosing)
-            state = FSMState::EvaluateBinaryOperator;
+            state = FSMState::EvaluateBinaryOperatorOrRHSUnary;
         // 'Second part of a binary operation'
         else if (state == FSMState::EvaluateSecondOperandUnaryOperatorOrEnclosing)
             state = FSMState::ReduceBinaryOperation;
@@ -506,6 +531,10 @@ void ExpressionSyntacticAnalyzer::ExtractSymbols(std::vector<Token>::iterator& b
                 return {.Symbol = ExpressionParserTreeSymbols::TerminalOperatorDot, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
             case TokenType::OperatorHASH: 
                 return {.Symbol = ExpressionParserTreeSymbols::TerminalOperatorHash, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorUNARYINCREMENT: 
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalIncrement, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::OperatorUNARYDECREMENT: 
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalDecrement, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
             default:
                 return {.Symbol = ExpressionParserTreeSymbols::TerminalIgnore, .Lexeme  = "", .Line = x.Line, .Column = x.Column};
         }
@@ -581,13 +610,18 @@ void ExpressionSyntacticAnalyzer::PushResolveOperand(ExpressionCompoundSymbol sy
     ClearCurrentMember(currentMember);
 }
 
-void ExpressionSyntacticAnalyzer::PushUnaryExpressionOperand(size_t leftSubstring, ExpressionMember& currentMember)
+void ExpressionSyntacticAnalyzer::PushUnaryExpressionOperand(size_t leftSubstring, ExpressionMember& currentMember, bool rightHandSideUnary)
 {
     currentMember.ExpressionID = ++_expressionID;
     currentMember.Depth = _depth;
     currentMember.Type = ExpressionType::Unary;
     currentMember.Operand1Type = SymbolToOperandType((*(begin(_symbols) + leftSubstring)).Symbol);   
-    currentMember.Operand1 = (*(begin(_symbols) + leftSubstring)).Lexeme;
+
+    if (!rightHandSideUnary)
+        currentMember.Operand1 = (*(begin(_symbols) + leftSubstring)).Lexeme;
+    else
+        currentMember.Operand1 = (*(begin(_symbols) + leftSubstring - 1)).Lexeme;
+
     currentMember.Operand2Type = OperandType::NoOperand;
     currentMember.Operand2 = string("");
     _expressionStack.push(currentMember);
@@ -656,7 +690,7 @@ void ExpressionSyntacticAnalyzer::RegisterBinaryOperation(ExpressionParserTreeSy
         currentMember.OperatorType = Operator::BinaryAssignment;
 }
 
-void ExpressionSyntacticAnalyzer::RegisterUnaryOperation(ExpressionParserTreeSymbols operationType, ExpressionMember& currentMember)
+void ExpressionSyntacticAnalyzer::RegisterUnaryOperation(ExpressionParserTreeSymbols operationType, ExpressionMember& currentMember, bool rightHandSideUnary)
 {
     currentMember.Type = ExpressionType::Unary;
 
@@ -670,6 +704,14 @@ void ExpressionSyntacticAnalyzer::RegisterUnaryOperation(ExpressionParserTreeSym
         currentMember.OperatorType = Operator::UnaryPositive;
     else if (operationType == ExpressionParserTreeSymbols::TerminalOperatorHash)
         currentMember.OperatorType = Operator::UnaryImmediate;
+    else if (operationType == ExpressionParserTreeSymbols::TerminalIncrement && !rightHandSideUnary)
+        currentMember.OperatorType = Operator::UnaryPreIncrement;
+    else if (operationType == ExpressionParserTreeSymbols::TerminalIncrement && rightHandSideUnary)
+        currentMember.OperatorType = Operator::UnaryPostIncrement;
+    else if (operationType == ExpressionParserTreeSymbols::TerminalDecrement && !rightHandSideUnary)
+        currentMember.OperatorType = Operator::UnaryPreDecrement;
+    else if (operationType == ExpressionParserTreeSymbols::TerminalDecrement && rightHandSideUnary)
+        currentMember.OperatorType = Operator::UnaryPostDecrement;
 }
 
 }

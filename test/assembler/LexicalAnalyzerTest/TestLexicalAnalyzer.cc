@@ -378,7 +378,9 @@ TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllOperators)
                            "@\n"
                            ":\n"
                            ".\n"
-                           "#\n";
+                           "#\n"
+                           "++\n"
+                           "--\n";
 
     auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
@@ -389,14 +391,16 @@ TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllOperators)
                            Lexemes::OperatorBITWISENOT, Lexemes::OperatorBITWISEXOR, Lexemes::OperatorLEFTSHIFT, Lexemes::OperatorRIGHTSHIFT,
                            Lexemes::OperatorDIFFERENT, Lexemes::OperatorLOGICAND, Lexemes::OperatorLOGICOR, Lexemes::OperatorLESSTHAN,
                            Lexemes::OperatorGREATERTHAN, Lexemes::OperatorLESSTHANOREQUALTO, Lexemes::OperatorGREATERTHANOREQUALTO,
-                           Lexemes::OperatorLOGICNOT, Lexemes::OperatorAT, Lexemes::OperatorSEMICOLON, Lexemes::OperatorDOT, Lexemes::OperatorHASH};
+                           Lexemes::OperatorLOGICNOT, Lexemes::OperatorAT, Lexemes::OperatorSEMICOLON, Lexemes::OperatorDOT, Lexemes::OperatorHASH,
+                           Lexemes::OperatorUNARYINCREMENT, Lexemes::OperatorUNARYDECREMENT};
     
     auto operatorTokens = {TokenType::OperatorASSIGNMENT, TokenType::OperatorEQUAL, TokenType::OperatorPLUS, TokenType::OperatorTHREEWAYCOMPARISON,
                            TokenType::OperatorMINUS, TokenType::OperatorMULTIPLICATION, TokenType::OperatorDIVISION, TokenType::OperatorBITWISEAND, TokenType::OperatorBITWISEOR,
                            TokenType::OperatorBITWISENOT, TokenType::OperatorBITWISEXOR, TokenType::OperatorLEFTSHIFT, TokenType::OperatorRIGHTSHIFT, 
                            TokenType::OperatorDIFFERENT, TokenType::OperatorLOGICAND, TokenType::OperatorLOGICOR, TokenType::OperatorLESSTHAN,
                            TokenType::OperatorGREATERTHAN, TokenType::OperatorLESSTHANOREQUALTO, TokenType::OperatorGREATERTHANOREQUALTO,
-                           TokenType::OperatorLOGICNOT, TokenType::OperatorAT, TokenType::OperatorSEMICOLON, TokenType::OperatorDOT, TokenType::OperatorHASH};
+                           TokenType::OperatorLOGICNOT, TokenType::OperatorAT, TokenType::OperatorSEMICOLON, TokenType::OperatorDOT, TokenType::OperatorHASH,
+                           TokenType::OperatorUNARYINCREMENT, TokenType::OperatorUNARYDECREMENT};
 
     auto counter = 0;
     for (auto i = static_cast<size_t>(0); i < operatorString.size(); ++i)

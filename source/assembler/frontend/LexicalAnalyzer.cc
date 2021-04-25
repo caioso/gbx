@@ -175,6 +175,10 @@ vector<Token> LexicalAnalyzer::EvaluateLexeme(string originalLexeme, size_t colu
             token.Type = TokenType::OperatorEQUAL;
         else if (lexeme.first.compare(Lexemes::OperatorPLUS) == 0)
             token.Type = TokenType::OperatorPLUS;
+        else if (lexeme.first.compare(Lexemes::OperatorUNARYINCREMENT) == 0)
+            token.Type = TokenType::OperatorUNARYINCREMENT;
+        else if (lexeme.first.compare(Lexemes::OperatorUNARYDECREMENT) == 0)
+            token.Type = TokenType::OperatorUNARYDECREMENT;
         else if (lexeme.first.compare(Lexemes::OperatorTRHEEWAYCOMPARISON) == 0)
             token.Type = TokenType::OperatorTHREEWAYCOMPARISON;
         else if (lexeme.first.compare(Lexemes::OperatorMINUS) == 0)

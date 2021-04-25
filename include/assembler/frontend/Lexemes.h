@@ -73,6 +73,8 @@ public:
     inline const static std::string OperatorSEMICOLON = ":";
     inline const static std::string OperatorDOT = ".";
     inline const static std::string OperatorHASH = "#";
+    inline const static std::string OperatorUNARYINCREMENT = "++";
+    inline const static std::string OperatorUNARYDECREMENT = "--";
 
     // Separators
     inline const static std::string SeparatorCOMMA = ",";

@@ -88,6 +88,8 @@ enum class TokenType
     OperatorSEMICOLON,
     OperatorDOT,
     OperatorHASH,
+    OperatorUNARYINCREMENT,
+    OperatorUNARYDECREMENT,
 
     // Separators
     SeparatorCOMMA,
