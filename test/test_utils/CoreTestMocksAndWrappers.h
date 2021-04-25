@@ -10,6 +10,7 @@
 #include "ArithmeticLogicUnit.h"
 #include "MemoryController.h"
 #include "VideoControllerInterface.h"
+#include "VideoOutputInterface.h"
 
 using ::testing::Return;
 using ::testing::_;
@@ -55,6 +56,32 @@ public:
     MOCK_METHOD(void, RegisterDMGObjectPaletteColor, (uint8_t, gbxcore::interfaces::DMGPalette, gbxcore::interfaces::PaletteColor));
     MOCK_METHOD(void, RegisterCGBBackgroundPaletteColorByte, (uint8_t, uint8_t));
     MOCK_METHOD(void, RegisterCGBObjectPaletteColorByte, (uint8_t, uint8_t));
+};
+
+class VideoOutputMock : public gbxcore::interfaces::VideoOutputInterface
+{
+public:
+    virtual ~VideoOutputMock() = default;
+
+    MOCK_METHOD(void, SetVideoEnable, (bool));
+    MOCK_METHOD(void, SetWindowEnable, (bool));
+    MOCK_METHOD(void, SetBackgroundEnable, (bool));
+    MOCK_METHOD(void, SetSpriteEnable, (bool));
+
+    MOCK_METHOD(void, SetWindowTileMapBaseAddress, (size_t));
+    MOCK_METHOD(void, SetBackgroundTileMapBaseAddress, (size_t));
+
+    MOCK_METHOD(void, SetBackgroundAndWindowTileSetBaseAddress, (size_t));
+    MOCK_METHOD(void, SetSpriteMode, (gbxcore::interfaces::SpriteMode));
+
+    MOCK_METHOD(void, SetWindowScrolXY, (size_t, size_t));
+    MOCK_METHOD(void, SetBackgroundScrolXY, (size_t, size_t));
+
+    MOCK_METHOD(void, SetDMGBackgroundPalette, (gbxcore::interfaces::OutputPalette));
+    MOCK_METHOD(void, SetDMGSpritePalette, (uint8_t, gbxcore::interfaces::OutputPalette));
+
+    MOCK_METHOD(void, SetCGBBackgroundPalette, (uint8_t, gbxcore::interfaces::OutputPalette));
+    MOCK_METHOD(void, SetCGBSpritePalette, (uint8_t, gbxcore::interfaces::OutputPalette));
 };
 
 class ArithmeticLogicDecorator : public gbxcore::ArithmeticLogicUnit

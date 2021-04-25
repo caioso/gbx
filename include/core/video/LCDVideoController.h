@@ -1,6 +1,7 @@
 #pragma once 
 
 #include "VideoControllerInterface.h"
+#include "VideoOutputInterface.h"
 
 namespace gbxcore::video
 {
@@ -8,7 +9,7 @@ namespace gbxcore::video
 class LCDVideoController : gbxcore::interfaces::VideoControllerInterface
 {
 public:
-    LCDVideoController();
+    LCDVideoController(gbxcore::interfaces::VideoOutputInterface*);
     virtual ~LCDVideoController() = default;
 
     bool IsVideoEnabled();
@@ -43,6 +44,12 @@ private:
     bool _isWindowVisible{};
     bool _isBackgroundVisible{};
     bool _areSpritesVisible{};
+
+    size_t _backgroundScrollX{};
+    size_t _backgroundScrollY{};
+    size_t _windowScrollX{};
+    size_t _windowScrollY{};
+    gbxcore::interfaces::VideoOutputInterface* _output;
 };
 
 }
