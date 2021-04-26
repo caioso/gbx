@@ -1,6 +1,7 @@
 #include "LCDVideoController.h"
 
 using namespace gbxcore::interfaces;
+using namespace gbxcore::video;
 using namespace std;
 
 namespace gbxcore::video
@@ -121,11 +122,38 @@ void LCDVideoController::ScrollWindowY(size_t y)
 void LCDVideoController::SetInterruptMode(uint8_t)
 {}
 
-void LCDVideoController::RegisterDMGBackgroundPaletteColor(uint8_t, PaletteColor)
-{}
+void LCDVideoController::RegisterDMGBackgroundPaletteColor(uint8_t colorValue, PaletteColor colorIndex)
+{
+    if (colorIndex == PaletteColor::Color0)
+        _dmgOutputBackgroundPalette.Color0 = ColorConverter::DMGColorToRGB(colorValue);
+    else if (colorIndex == PaletteColor::Color1)
+        _dmgOutputBackgroundPalette.Color1 = ColorConverter::DMGColorToRGB(colorValue);
+    else if (colorIndex == PaletteColor::Color2)
+        _dmgOutputBackgroundPalette.Color2 = ColorConverter::DMGColorToRGB(colorValue);
+    else if (colorIndex == PaletteColor::Color3)
+        _dmgOutputBackgroundPalette.Color3 = ColorConverter::DMGColorToRGB(colorValue);
 
-void LCDVideoController::RegisterDMGObjectPaletteColor(uint8_t, DMGPalette, PaletteColor)
-{}
+    _output->SetDMGBackgroundPalette(_dmgOutputBackgroundPalette);
+}
+
+void LCDVideoController::RegisterDMGObjectPaletteColor(uint8_t colorValue, DMGPalette palette, PaletteColor colorIndex)
+{
+    auto dmgPalette = palette == DMGPalette::Palette0? _dmgOutputSpritePalette0 : _dmgOutputSpritePalette1;
+
+    if (colorIndex == PaletteColor::Color0)
+        dmgPalette.Color0 = ColorConverter::DMGColorToRGB(colorValue);
+    else if (colorIndex == PaletteColor::Color1)
+        dmgPalette.Color1 = ColorConverter::DMGColorToRGB(colorValue);
+    else if (colorIndex == PaletteColor::Color2)
+        dmgPalette.Color2 = ColorConverter::DMGColorToRGB(colorValue);
+    else if (colorIndex == PaletteColor::Color3)
+        dmgPalette.Color3 = ColorConverter::DMGColorToRGB(colorValue);
+
+    if (palette == DMGPalette::Palette0)
+        _output->SetDMGSpritePalette(0, dmgPalette);
+    else
+        _output->SetDMGSpritePalette(1, dmgPalette);
+}
 
 void LCDVideoController::RegisterCGBBackgroundPaletteColorByte(uint8_t, uint8_t)
 {}

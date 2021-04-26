@@ -73,4 +73,11 @@ public:
     ~InstructionException() = default;
 };
 
+class VideoOutputException : public GBXCoreException
+{
+public:
+    explicit VideoOutputException(const std::string&);
+    ~VideoOutputException() = default;
+};
+
 }

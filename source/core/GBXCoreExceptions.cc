@@ -41,6 +41,10 @@ InstructionException::InstructionException(const std::string& message)
     : GBXCoreException(message)
 {}
 
+VideoOutputException::VideoOutputException(const std::string& message)
+    : GBXCoreException(message)
+{}
+
 const char* GBXCoreException::what() const noexcept
 {
     return _message.c_str();

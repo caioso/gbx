@@ -1,5 +1,6 @@
 #pragma once 
 
+#include "ColorConverter.h"
 #include "VideoControllerInterface.h"
 #include "VideoOutputInterface.h"
 
@@ -50,6 +51,10 @@ private:
     size_t _windowScrollX{};
     size_t _windowScrollY{};
     gbxcore::interfaces::VideoOutputInterface* _output;
+
+    gbxcore::interfaces::OutputPalette _dmgOutputBackgroundPalette{};
+    gbxcore::interfaces::OutputPalette _dmgOutputSpritePalette0{};
+    gbxcore::interfaces::OutputPalette _dmgOutputSpritePalette1{};
 };
 
 }

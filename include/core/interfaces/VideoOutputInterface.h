@@ -12,12 +12,19 @@ enum class SpriteMode
     Sprite8x16
 };
 
+typedef struct RGBColor_t
+{
+    uint32_t Red;
+    uint32_t Blue;
+    uint32_t Green;
+}
+RGBColor;
 typedef struct OutputPalette_t
 {
-    uint8_t Color0;
-    uint8_t Color1;
-    uint8_t Color2;
-    uint8_t Color3;
+    RGBColor Color0;
+    RGBColor Color1;
+    RGBColor Color2;
+    RGBColor Color3;
 }
 OutputPalette;
 
