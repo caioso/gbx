@@ -9,11 +9,16 @@
 #include <optional>
 #include <variant>
 
+#include "MemoryController.h"
 #include "OpenGLVideoOutput.h"
+#include "RAM.h"
+#include "SystemConstants.h"
 #include "VideoOutputInterface.h"
 
 using namespace std; 
+using namespace gbxcore::constants;
 using namespace gbxcore::interfaces;
+using namespace gbxcore::memory;
 using namespace gbxcore::video;
 
 // GLFW/OpenGL test doubles
@@ -25,18 +30,42 @@ int glfwInit(void)
     return 1;
 }
 
+void glfwWindowHint(int, int)
+{}
 
-TEST(CoreTests_OpenGLVideoOutput, OpenGLVideoOutputConstruction) 
+GLFWwindow* glfwCreateWindow(int, int, const char*, GLFWmonitor*, GLFWwindow*)
+{}
+
+void glfwTerminate(void)
+{}
+
+// Wrappers
+class OpenGLVideoOutputWrapper : public OpenGLVideoOutput
 {
-    OpenGLVideoOutput output;
-}
+public:
+    OpenGLVideoOutputWrapper(gbxcore::memory::RAM* vram)
+        : OpenGLVideoOutput(vram)
+    {}
 
-TEST(CoreTests_OpenGLVideoOutput, InitializeVideoOutput) 
+    virtual ~OpenGLVideoOutputWrapper() = default;
+};
+
+TEST(CoreTests_OpenGLVideoOutput, ConstructVideoOutput) 
 {
     // Initialize Test Checks
     glfwInitialized = false;
 
-    OpenGLVideoOutput output;
+    auto userVideoRAM = make_unique<RAM>(DMGBCVideoRAMPhysicalSize);
+    OpenGLVideoOutput output(userVideoRAM.get());
+}
+
+TEST(CoreTests_OpenGLVideoOutput, TestWindowCreation) 
+{
+    // Initialize Test Checks
+    glfwInitialized = false;
+
+    auto userVideoRAM = make_unique<RAM>(DMGBCVideoRAMPhysicalSize);
+    OpenGLVideoOutput output(userVideoRAM.get());
     output.Initialize();
 
     EXPECT_TRUE(glfwInitialized);

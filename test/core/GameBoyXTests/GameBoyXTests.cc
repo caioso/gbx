@@ -60,7 +60,7 @@ TEST(CoreTests_GameBoyXTests, LoadGame)
     auto [fileContent, size] = loader.FileData();
 
     // Change to user mode to be able to see the loaded game content;
-    gbx.SetMode(Mode::User);
+    gbx.SetSecurityLevel(SecurityLevel::User);
 
     // Check fixed bank 1
     for (auto i = DMGBCFixedROMInitialAddress; i < DMGBCFixedROMFinalAddress; ++i)
@@ -81,7 +81,7 @@ TEST(CoreTests_GameBoyXTests, LoadGameMultipleBankGame)
     auto [fileContent, size] = loader.FileData();
 
     // Change to user mode to be able to see the loaded game content;
-    gbx.SetMode(Mode::User);
+    gbx.SetSecurityLevel(SecurityLevel::User);
 
     // Check fixed bank 0
     for (auto i = DMGBCFixedROMInitialAddress; i < DMGBCFixedROMFinalAddress; ++i)
@@ -99,7 +99,7 @@ TEST(CoreTests_GameBoyXTests, LoadSystemBIOS)
     GameBoyX gbx;
 
     gbx.LoadBIOS(BIOSFileName());
-    gbx.SetMode(Mode::System);
+    gbx.SetSecurityLevel(SecurityLevel::System);
     
     systemBIOSLoader.Load();
     auto [fileContent, size] = systemBIOSLoader.FileData();
@@ -137,7 +137,7 @@ TEST(CoreTests_GameBoyXTests, ExecuteSystemBIOS)
     GameBoyX gbx;
     gbx.LoadBIOS(BIOSFileName());
     gbx.LoadGame(SampleGameFileName());
-    gbx.SetMode(Mode::System);
+    gbx.SetSecurityLevel(SecurityLevel::System);
 
     // Run NOP
     gbx.Run();
@@ -216,7 +216,7 @@ TEST(CoreTests_GameBoyXTests, ExecuteSystemBIOS)
     // JPU 0x0100
     gbx.Run();
     EXPECT_EQ(0x0100, get<uint16_t>(gbx.ReadRegister(Register::PC)));
-    EXPECT_EQ(Mode::User, gbx.Mode());
+    EXPECT_EQ(SecurityLevel::User, gbx.SecurityLevel());
 }
 
 TEST(CoreTests_GameBoyXTests, ExecuteSystemBIOSWithIncorrectROM)
@@ -231,7 +231,7 @@ TEST(CoreTests_GameBoyXTests, ExecuteSystemBIOSWithIncorrectROM)
     GameBoyX gbx;
     gbx.LoadBIOS(BIOSFileName());
     gbx.LoadGame(SampleInvalidLogoGameFileName());
-    gbx.SetMode(Mode::System);
+    gbx.SetSecurityLevel(SecurityLevel::System);
 
     // Run NOP
     gbx.Run();

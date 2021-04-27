@@ -7,16 +7,17 @@
 
 #include "Clock.h"
 #include "GBXCoreExceptions.h"
-#include "EngineParameters.h"
 #include "ClockInterface.h"
+#include "SystemConstants.h"
 
 using namespace std;
 using namespace gbxcore;
+using namespace gbxcore::constants;
 
 TEST(CoreTests_Clock, Construction) 
 {
     constexpr double GBCPeriod = 119;
-    Clock clock(EngineParameters::GBCClockPeriod);
+    Clock clock(GBCClockPeriod);
 
     EXPECT_DOUBLE_EQ(GBCPeriod, clock.Period());
 }
@@ -24,7 +25,7 @@ TEST(CoreTests_Clock, Construction)
 TEST(CoreTests_Clock, SingleTickNoDelay)
 {
     constexpr uint64_t GBCPeriodInNanoSeconds = 119;
-    Clock clock(EngineParameters::GBCClockPeriod);
+    Clock clock(GBCClockPeriod);
 
     auto startTime = chrono::high_resolution_clock::now();
     clock.Tick(1, 0);
@@ -39,7 +40,7 @@ TEST(CoreTests_Clock, SingleTickNoDelay)
 TEST(CoreTests_Clock, MultipleTickNoDelay)
 {
     constexpr uint64_t GBCPeriodInNanoSeconds = 119;
-    Clock clock(EngineParameters::GBCClockPeriod);
+    Clock clock(GBCClockPeriod);
 
     auto startTime = chrono::high_resolution_clock::now();
     clock.Tick(4, 0);
@@ -54,7 +55,7 @@ TEST(CoreTests_Clock, MultipleTickNoDelay)
 TEST(CoreTests_Clock, MultipkleTickWithDelay)
 {
     constexpr uint64_t GBCPeriodInNanoSeconds = 119;
-    Clock clock(EngineParameters::GBCClockPeriod);
+    Clock clock(GBCClockPeriod);
 
     auto startTime = chrono::high_resolution_clock::now();
     clock.Tick(4, GBCPeriodInNanoSeconds * 2);

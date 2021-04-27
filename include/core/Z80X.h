@@ -2,7 +2,6 @@
 
 #include <memory>
 
-#include "EngineParameters.h"
 #include "ArithmeticLogicUnitInterface.h"
 #include "ClockInterface.h"
 #include "ControlUnitInterface.h"

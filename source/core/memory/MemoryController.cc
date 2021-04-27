@@ -71,20 +71,20 @@ void MemoryController::SwitchBank(size_t address, size_t bank)
     }
 }
 
-void MemoryController::SetMode(gbxcore::Mode mode)
+void MemoryController::SetSecurityLevel(gbxcore::SecurityLevel level)
 {
-    _mode = mode;
+    _level = level;
 }
 
-Ownership MemoryController::Mode()
+PrivilegeMode MemoryController::SecurityLevel()
 {
-    return _mode;
+    return _level;
 }
 
-size_t MemoryController::RegisterMemoryResource(std::unique_ptr<MemoryResource> resource, AddressRange range, Ownership owner)
+size_t MemoryController::RegisterMemoryResource(std::unique_ptr<MemoryResource> resource, AddressRange range, PrivilegeMode owner)
 {
-    auto oldMode = Mode();
-    SetMode(owner);
+    auto oldMode = SecurityLevel();
+    SetSecurityLevel(owner);
 
         DetectOverlap(range);
         DetectMisfit(resource.get(), range);
@@ -93,16 +93,16 @@ size_t MemoryController::RegisterMemoryResource(std::unique_ptr<MemoryResource> 
         SelectResource()->push_back({std::move(resource), range, targetID});
         SortResources();
     
-    SetMode(oldMode);
+    SetSecurityLevel(oldMode);
     return targetID;
 }
 
-void MemoryController::UnregisterMemoryResource(size_t id, Ownership owner)
+void MemoryController::UnregisterMemoryResource(size_t id, PrivilegeMode owner)
 {
-    auto oldMode = Mode();
+    auto oldMode = SecurityLevel();
     auto& targetResource = *SelectResource();
 
-    SetMode(owner);
+    SetSecurityLevel(owner);
 
     for (size_t i = static_cast<size_t>(0); i < targetResource.size(); i++)
     {
@@ -110,16 +110,16 @@ void MemoryController::UnregisterMemoryResource(size_t id, Ownership owner)
         {
             targetResource[i].Resource.release();
             targetResource.erase(begin(targetResource) + i);
-            SetMode(oldMode);
+            SetSecurityLevel(oldMode);
             return;
         }
     }
 
-    SetMode(oldMode);
+    SetSecurityLevel(oldMode);
     throw MemoryControllerException("the resource to be unregisterd could not found");
 }
 
-void MemoryController::RegisterMemoryMappedRegister(unique_ptr<MemoryMappedRegister> memoryMappedRegister, size_t address, Ownership owner)
+void MemoryController::RegisterMemoryMappedRegister(unique_ptr<MemoryMappedRegister> memoryMappedRegister, size_t address, PrivilegeMode owner)
 {
     RegisteredMemoryMappedRegister reg = 
     {
@@ -127,11 +127,11 @@ void MemoryController::RegisterMemoryMappedRegister(unique_ptr<MemoryMappedRegis
         .Address = address
     };
 
-    if (owner == Ownership::System && _systemRegisters.find(address) == _systemRegisters.end())
+    if (owner == PrivilegeMode::System && _systemRegisters.find(address) == _systemRegisters.end())
         _systemRegisters.insert({address, std::move(reg)});
-    else if (owner == Ownership::User && _userRegisters.find(address) == _userRegisters.end())
+    else if (owner == PrivilegeMode::User && _userRegisters.find(address) == _userRegisters.end())
         _userRegisters.insert({address, std::move(reg)});
-    else if (owner == Ownership::Both && 
+    else if (owner == PrivilegeMode::Both && 
              _bothRegisters.find(address) == _bothRegisters.end() &&
              _systemRegisters.find(address) == _systemRegisters.end() && 
              _userRegisters.find(address) == _userRegisters.end())
@@ -144,7 +144,7 @@ void MemoryController::RegisterMemoryMappedRegister(unique_ptr<MemoryMappedRegis
     }
 }
 
-void MemoryController::UnregisterMemoryMappedRegister(size_t address, Ownership owner)
+void MemoryController::UnregisterMemoryMappedRegister(size_t address, PrivilegeMode owner)
 {
     if (auto reg = GetRegisterSource(owner)->find(address);
         reg != GetRegisterSource(owner)->end())
@@ -206,7 +206,7 @@ std::optional<ResourceIndexAndAddress> MemoryController::CalculateLocalAddress(s
 
 inline std::vector<RegisteredMemoryResource>* MemoryController::SelectResource()
 {
-    if (_mode == Ownership::System)
+    if (_level == PrivilegeMode::System)
         return &_systemResources;
     else
         return &_userResources;
@@ -214,19 +214,19 @@ inline std::vector<RegisteredMemoryResource>* MemoryController::SelectResource()
 
 inline std::map<uint16_t, RegisteredMemoryMappedRegister>* MemoryController::SelectRegisterSource()
 {
-    if (_mode == Ownership::System)
+    if (_level == PrivilegeMode::System)
         return &_systemRegisters;
-    else if (_mode == Ownership::User)
+    else if (_level == PrivilegeMode::User)
         return &_userRegisters;
     else
         return &_bothRegisters;
 }
 
-inline std::map<uint16_t, RegisteredMemoryMappedRegister>* MemoryController::GetRegisterSource(Ownership owner)
+inline std::map<uint16_t, RegisteredMemoryMappedRegister>* MemoryController::GetRegisterSource(PrivilegeMode owner)
 {
-    if (owner == Ownership::System)
+    if (owner == PrivilegeMode::System)
         return &_systemRegisters;
-    else if (owner == Ownership::User)
+    else if (owner == PrivilegeMode::User)
         return &_userRegisters;
     else
         return &_bothRegisters;
@@ -239,7 +239,7 @@ inline std::map<uint16_t, RegisteredMemoryMappedRegister>::iterator MemoryContro
         position != _bothRegisters.end())
         return position;
 
-    if (_mode == Mode::System)
+    if (_level == PrivilegeMode::System)
         return _systemRegisters.find(address);
     else
         return _userRegisters.find(address);    

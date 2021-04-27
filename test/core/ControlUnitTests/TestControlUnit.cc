@@ -3415,7 +3415,7 @@ TEST(CoreTests_ControlUnit, TestJpu)
     EXPECT_CALL(memoryController, Read(0x0002, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x00)));
     EXPECT_CALL(memoryController, Read(0x0003, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x01)));
     
-    EXPECT_CALL(memoryController, SetMode(Mode::User));
+    EXPECT_CALL(memoryController, SetSecurityLevel(PrivilegeMode::User));
     controlUnit->RunCycle();
 
     EXPECT_EQ(0x0100, registers.ReadPair(Register::PC));
@@ -3440,8 +3440,8 @@ TEST(CoreTests_ControlUnit, TestLDUWithRegisterIndirectSourceIncrement)
     EXPECT_CALL(memoryController, Read(0x0001, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0x1A)));
     EXPECT_CALL(memoryController, Read(0x0104, MemoryAccessType::Byte)).WillOnce(Return(static_cast<uint8_t>(0xCC)));
     
-    EXPECT_CALL(memoryController, Mode()).WillRepeatedly(Return(Mode::User));
-    EXPECT_CALL(memoryController, SetMode(Mode::User)).Times(2);
+    EXPECT_CALL(memoryController, SecurityLevel()).WillRepeatedly(Return(PrivilegeMode::User));
+    EXPECT_CALL(memoryController, SetSecurityLevel(PrivilegeMode::User)).Times(2);
     controlUnit->RunCycle();
 
     EXPECT_EQ(0xCC, registerBank.Read(Register::A));

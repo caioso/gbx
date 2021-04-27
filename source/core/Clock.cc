@@ -5,6 +5,7 @@ using namespace std::this_thread;
 using namespace std::chrono_literals;
 using std::chrono::system_clock;
 
+using namespace gbxcore::constants;
 namespace gbxcore
 {
 

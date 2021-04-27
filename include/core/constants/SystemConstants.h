@@ -1,10 +1,12 @@
 #pragma once
 
 #include <cstdlib>
+#include <string>
 
 namespace gbxcore::constants
 {
 
+// Memory Constants
 // GBX Default *System* RAM and ROM size is 32KB
 const size_t GBXSystemROMInitialAddress = 0x0000;
 const size_t GBXSystemROMPhysicalSize = 0x8000;
@@ -56,5 +58,18 @@ constexpr size_t DMGBCIORAMFinalAddress = DMGBCIORAMInitialAddress + DMGBCIORAMP
 const size_t DMGBCHRAMInitialAddress = 0xFF80;
 const size_t DMGBCHRAMPhysicalSize = 0x7F;
 constexpr size_t DMGBCHRAMFinalAddress = DMGBCHRAMInitialAddress + DMGBCHRAMPhysicalSize;
+
+// Clock Constants
+static const uint64_t GBCClockPeriod = 119;
+
+// Video Constants
+const float DefaultViewPortScaleX = 3.0f;
+const float DefaultViewPortScaleY = 3.0f;
+
+// Curerntly I'm experimenting with GB rendering, so the screen size will be set to 160x144
+const size_t ScreenWidth = 160;
+const size_t ScreenHeight = 144;
+
+const std::string EmulatorWindowName = "GBX";
 
 }

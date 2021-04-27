@@ -52,7 +52,7 @@ enum class OpcodeType
     scf,
 
     // GBX ONLY
-    // System Mode Operations
+    // System SecurityLevel Operations
     jpu,
     ldu,
 };

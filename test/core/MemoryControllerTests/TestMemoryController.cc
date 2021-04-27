@@ -25,7 +25,7 @@ TEST(CoreTests_MemoryController, ResourceRegistration)
     (
         std::move(ram),
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
     memController.Write(static_cast<uint8_t>(0xFF), 0x0120);
@@ -48,7 +48,7 @@ TEST(CoreTests_MemoryController, ResourceRegistrationAddressDoesNoMatchSize)
         (
             std::move(rom),
             AddressRange(0x0100, 0x0300, RangeType::AllInclusive),
-            Ownership::System
+            PrivilegeMode::System
         );
     }
     catch (const MemoryControllerException& e)
@@ -63,7 +63,7 @@ TEST(CoreTests_MemoryController, ResourceRegistrationAddressDoesNoMatchSize)
         (
             std::move(rom),
             AddressRange(0x0100, 0x0110, RangeType::AllInclusive),
-            Ownership::System
+            PrivilegeMode::System
         );
     }
     catch (const MemoryControllerException& e)
@@ -88,14 +88,14 @@ TEST(CoreTests_MemoryController, ResourceRegistrationWithOverlap)
         (
             std::move(rom),
             AddressRange(0x0100, 0x0200, RangeType::AllInclusive),
-            Ownership::System
+            PrivilegeMode::System
         );
 
         memController.RegisterMemoryResource
         (
             std::move(romOverlapping),
             AddressRange(0x0110, 0x1110, RangeType::AllInclusive),
-            Ownership::System
+            PrivilegeMode::System
         );
     }
     catch (const MemoryControllerException& e)
@@ -118,14 +118,14 @@ TEST(CoreTests_MemoryController, TwoResourcesOperation)
     (
         std::move(smallRAM),
         AddressRange(0x0000, 0x0100, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
     memController.RegisterMemoryResource
     (
         std::move(largeRAM),
         AddressRange(0x0100, 0x300, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
     memController.Write(static_cast<uint16_t>(0xEF87), 0x006A);
@@ -151,13 +151,13 @@ TEST(CoreTests_MemoryController, NonConsecultiveResources)
     (
         std::move(smallRAM),
         AddressRange(0x0200, 0x0300, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
     memController.RegisterMemoryResource
     (
         std::move(largeRAM),
         AddressRange(0xF100, 0xF300, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
     memController.Write(static_cast<uint16_t>(0xFFAA), 0x0254);
@@ -183,13 +183,13 @@ TEST(CoreTests_MemoryController, AccessEmptyAddressRange)
     (
         std::move(rom1),
         AddressRange(0x0200, 0x0300, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
     memController.RegisterMemoryResource
     (
         std::move(rom2),
         AddressRange(0x0400, 0x0500, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
     try
@@ -225,7 +225,7 @@ TEST(CoreTests_MemoryController, PerformOperationsInTheRangeBorders)
     (
         std::move(rom),
         AddressRange(0x0200, 0x0300, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
     try
@@ -259,10 +259,10 @@ TEST(CoreTests_MemoryController, UnregisterResource)
     (
         std::move(rom),
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
-    memController.UnregisterMemoryResource(id, Ownership::System);
+    memController.UnregisterMemoryResource(id, PrivilegeMode::System);
 }
 
 
@@ -282,31 +282,31 @@ TEST(CoreTests_MemoryController, UnregisterAFewResource)
     (
         std::move(rom),
         AddressRange(0x0000, 0x0100, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
     memController.RegisterMemoryResource
     (
         std::move(rom1),
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
     memController.RegisterMemoryResource
     (
         std::move(ram),
         AddressRange(0x0200, 0x0300, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
     auto ram1ID = memController.RegisterMemoryResource
     (
         std::move(ram1),
         AddressRange(0x0300, 0x0400, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
     memController.RegisterMemoryResource
     (
         std::move(rom2),
         AddressRange(0x0400, 0x0500, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
 
@@ -314,7 +314,7 @@ TEST(CoreTests_MemoryController, UnregisterAFewResource)
     auto value = memController.Read(0x0301, MemoryAccessType::Byte);
     EXPECT_EQ(0xFF, get<uint8_t>(value));
 
-    memController.UnregisterMemoryResource(ram1ID, Ownership::System);
+    memController.UnregisterMemoryResource(ram1ID, PrivilegeMode::System);
 
     try
     {
@@ -342,14 +342,14 @@ TEST(CoreTests_MemoryController, ReuseUnregisteredRange)
     (
         std::move(ram),
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
     memController.Write(static_cast<uint8_t>(0xFF), 0x0101);
     auto value = memController.Read(0x0101, MemoryAccessType::Byte);
     EXPECT_EQ(0xFF, get<uint8_t>(value));
 
-    memController.UnregisterMemoryResource(ram1ID, Ownership::System);
+    memController.UnregisterMemoryResource(ram1ID, PrivilegeMode::System);
 
     ram2Pointer->Write(static_cast<uint8_t>(0xDD), 0x0001);
 
@@ -357,7 +357,7 @@ TEST(CoreTests_MemoryController, ReuseUnregisteredRange)
     (
         std::move(ram2),
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
     value = memController.Read(0x0101, MemoryAccessType::Byte);
@@ -373,7 +373,7 @@ TEST(CoreTests_MemoryController, LoadMemoryResource)
     (
         std::move(rom),
         AddressRange(0x0100, 0x0110, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
     array<uint8_t, 0x10> romContent = {0xAA, 0xAA, 0xAA, 0xAA, 
@@ -401,7 +401,7 @@ TEST(CoreTests_MemoryController, LoadMemoryResourceAtWrongLocation)
     (
         std::move(rom),
         AddressRange(0x0100, 0x0110, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
     array<uint8_t, 0x10> romContent = {0xAA, 0xAA, 0xAA, 0xAA, 
@@ -431,7 +431,7 @@ TEST(CoreTests_MemoryController, LoadMemoryResourceWithOffset)
     (
         std::move(rom),
         AddressRange(0x0100, 0x0110, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
     array<uint8_t, 0x10> romContent = {0xAA, 0xAA, 0xAA, 0xAA, 
@@ -465,7 +465,7 @@ TEST(CoreTests_MemoryController, WriteToRadOnlyRange)
     (
         std::move(rom),
         AddressRange(0x0100, 0x0200, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
 
     ASSERT_EXCEPTION( { memController.Write(static_cast<uint8_t>(0xFF), 0x0120); }, 
@@ -496,18 +496,18 @@ TEST(CoreTests_MemoryController, ChangeMemoryMapMode)
     (
         std::move(systemROM),
         AddressRange(0x0000, 0x0100, RangeType::BeginInclusive),
-        Ownership::System
+        PrivilegeMode::System
     );
     
     memController.RegisterMemoryResource
     (
         std::move(userROM),
         AddressRange(0x0000, 0x0100, RangeType::BeginInclusive),
-        Ownership::User
+        PrivilegeMode::User
     );
 
-    memController.SetMode(Mode::System);
-    EXPECT_EQ(Mode::System, memController.Mode());
+    memController.SetSecurityLevel(SecurityLevel::System);
+    EXPECT_EQ(SecurityLevel::System, memController.SecurityLevel());
 
     for (auto i = 0llu; i < 0x10llu; ++i)
     {
@@ -515,8 +515,8 @@ TEST(CoreTests_MemoryController, ChangeMemoryMapMode)
         EXPECT_EQ(*(systemContent.begin() + i), get<uint8_t>(systemValue));
     }
     
-    memController.SetMode(Mode::User);
-    EXPECT_EQ(Mode::User, memController.Mode());
+    memController.SetSecurityLevel(SecurityLevel::User);
+    EXPECT_EQ(SecurityLevel::User, memController.SecurityLevel());
     
     for (auto i = 0llu; i < 0x10llu; ++i)
     {

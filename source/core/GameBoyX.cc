@@ -19,7 +19,7 @@ GameBoyX::GameBoyX()
          _registersPtr = registers.get();
 
     auto alu = make_unique<ArithmeticLogicUnit>();
-    auto clock = make_unique<Clock>(EngineParameters::GBCClockPeriod);
+    auto clock = make_unique<Clock>(GBCClockPeriod);
 
     // GBX System Mode memory map
     auto systemFixedROMBank = make_unique<ROM>(GBXSystemROMPhysicalSize);
@@ -36,21 +36,21 @@ GameBoyX::GameBoyX()
     auto userIORAM = make_unique<RAM>(DMGBCIORAMPhysicalSize);
     auto userHRAM = make_unique<RAM>(DMGBCHRAMPhysicalSize);
 
-    memoryController->RegisterMemoryResource(std::move(systemFixedROMBank), AddressRange(GBXSystemROMInitialAddress, GBXSystemROMFinalAddress, RangeType::BeginInclusive), Ownership::System);
-    memoryController->RegisterMemoryResource(std::move(systemFixedRAMBank), AddressRange(GBXSystemRAMInitialAddress, GBXSystemRAMFinalAddress, RangeType::BeginInclusive), Ownership::System);
+    memoryController->RegisterMemoryResource(std::move(systemFixedROMBank), AddressRange(GBXSystemROMInitialAddress, GBXSystemROMFinalAddress, RangeType::BeginInclusive), PrivilegeMode::System);
+    memoryController->RegisterMemoryResource(std::move(systemFixedRAMBank), AddressRange(GBXSystemRAMInitialAddress, GBXSystemRAMFinalAddress, RangeType::BeginInclusive), PrivilegeMode::System);
 
-    memoryController->RegisterMemoryResource(std::move(userFixedROMBank), AddressRange(DMGBCFixedROMInitialAddress, DMGBCFixedROMFinalAddress, RangeType::BeginInclusive), Ownership::User);
-    memoryController->RegisterMemoryResource(std::move(userDynamicBank), AddressRange(DMGBCBankedROMInitialAddress, DMGBCBankedROMFinalAddress, RangeType::BeginInclusive), Ownership::User);
-    memoryController->RegisterMemoryResource(std::move(userVideoRAM), AddressRange(DMGBCVideoRAMInitialAddress, DMGBCVideoRAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
-    memoryController->RegisterMemoryResource(std::move(userExternalRAM), AddressRange(DMGBCExternalRAMInitialAddress, DMGBCExternalRAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
-    memoryController->RegisterMemoryResource(std::move(userWorkRAMBank0), AddressRange(DMGBCSystemRAMBank0InitialAddress, DMGBCSystemRAMBank0FinalAddress, RangeType::BeginInclusive), Ownership::User);
-    memoryController->RegisterMemoryResource(std::move(userWorkRAMBank1), AddressRange(DMGBCSystemRAMBank1InitialAddress, DMGBCSystemRAMBank1FinalAddress, RangeType::BeginInclusive), Ownership::User);
-    memoryController->RegisterMemoryResource(std::move(userMirrorRAM), AddressRange(DMGBCMirrorRAMInitialAddress, DMGBCMirrorRAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
-    memoryController->RegisterMemoryResource(std::move(userIORAM), AddressRange(DMGBCIORAMInitialAddress, DMGBCIORAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
-    memoryController->RegisterMemoryResource(std::move(userHRAM), AddressRange(DMGBCHRAMInitialAddress, DMGBCHRAMFinalAddress, RangeType::BeginInclusive), Ownership::User);
+    memoryController->RegisterMemoryResource(std::move(userFixedROMBank), AddressRange(DMGBCFixedROMInitialAddress, DMGBCFixedROMFinalAddress, RangeType::BeginInclusive), PrivilegeMode::User);
+    memoryController->RegisterMemoryResource(std::move(userDynamicBank), AddressRange(DMGBCBankedROMInitialAddress, DMGBCBankedROMFinalAddress, RangeType::BeginInclusive), PrivilegeMode::User);
+    memoryController->RegisterMemoryResource(std::move(userVideoRAM), AddressRange(DMGBCVideoRAMInitialAddress, DMGBCVideoRAMFinalAddress, RangeType::BeginInclusive), PrivilegeMode::User);
+    memoryController->RegisterMemoryResource(std::move(userExternalRAM), AddressRange(DMGBCExternalRAMInitialAddress, DMGBCExternalRAMFinalAddress, RangeType::BeginInclusive), PrivilegeMode::User);
+    memoryController->RegisterMemoryResource(std::move(userWorkRAMBank0), AddressRange(DMGBCSystemRAMBank0InitialAddress, DMGBCSystemRAMBank0FinalAddress, RangeType::BeginInclusive), PrivilegeMode::User);
+    memoryController->RegisterMemoryResource(std::move(userWorkRAMBank1), AddressRange(DMGBCSystemRAMBank1InitialAddress, DMGBCSystemRAMBank1FinalAddress, RangeType::BeginInclusive), PrivilegeMode::User);
+    memoryController->RegisterMemoryResource(std::move(userMirrorRAM), AddressRange(DMGBCMirrorRAMInitialAddress, DMGBCMirrorRAMFinalAddress, RangeType::BeginInclusive), PrivilegeMode::User);
+    memoryController->RegisterMemoryResource(std::move(userIORAM), AddressRange(DMGBCIORAMInitialAddress, DMGBCIORAMFinalAddress, RangeType::BeginInclusive), PrivilegeMode::User);
+    memoryController->RegisterMemoryResource(std::move(userHRAM), AddressRange(DMGBCHRAMInitialAddress, DMGBCHRAMFinalAddress, RangeType::BeginInclusive), PrivilegeMode::User);
 
     // Set Memory Controller to run in System Mode
-    memoryController->SetMode(Mode::System);
+    memoryController->SetSecurityLevel(PrivilegeMode::System);
     
     // Initialize Z80X CPU
     _cpu.Initialize(std::move(controlUnit), std::move(clock), std::move(alu), std::move(memoryController), std::move(registers));
@@ -79,36 +79,36 @@ void GameBoyX::WriteRegister(interfaces::Register reg, variant<uint8_t, uint16_t
 
 void GameBoyX::LoadGame(string gameROMName)
 {
-    auto oldMode = Mode();
-    SetMode(Mode::User);
+    auto oldMode = SecurityLevel();
+    SetSecurityLevel(PrivilegeMode::User);
 
     try
     {
         // TODO: Make this RAII
         LoadROMBinary(gameROMName);
-        SetMode(oldMode);
+        SetSecurityLevel(oldMode);
     }
     catch (MemoryControllerException e)
     {
-        SetMode(oldMode);
+        SetSecurityLevel(oldMode);
         throw e;
     }
 }
 
 void GameBoyX::LoadBIOS(string BIOSROMName)
 {
-    auto oldMode = Mode();
-    SetMode(Mode::System);
+    auto oldMode = SecurityLevel();
+    SetSecurityLevel(PrivilegeMode::System);
 
     try
     {
         // TODO: Make this RAII
         LoadBIOSBinary(BIOSROMName);
-        SetMode(oldMode);
+        SetSecurityLevel(oldMode);
     }
     catch (MemoryControllerException e)
     {
-        SetMode(oldMode);    
+        SetSecurityLevel(oldMode);    
         throw e;
     }
 }
@@ -175,15 +175,15 @@ variant<uint8_t, uint16_t> GameBoyX::ReadROM(uint16_t address, std::optional<uin
     return _memoryControllerPtr->Read(address, type);
 }
 
-gbxcore::Mode GameBoyX::Mode()
+gbxcore::SecurityLevel GameBoyX::SecurityLevel()
 {
-    return _memoryControllerPtr->Mode();
+    return _memoryControllerPtr->SecurityLevel();
 }
 
-void GameBoyX::SetMode(gbxcore::Mode mode)
+void GameBoyX::SetSecurityLevel(gbxcore::SecurityLevel level)
 {
-    _mode = mode;
-    _memoryControllerPtr->SetMode(_mode);
+    _level = level;
+    _memoryControllerPtr->SetSecurityLevel(_level);
 }
 
 }

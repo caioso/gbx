@@ -28,14 +28,14 @@ public:
     virtual void Load(std::unique_ptr<uint8_t*>, size_t, size_t, std::optional<size_t>) = 0;
  
     virtual void SwitchBank(size_t, size_t) = 0;
-    virtual void SetMode(Mode) = 0;
-    virtual Mode Mode() = 0;
+    virtual void SetSecurityLevel(SecurityLevel) = 0;
+    virtual SecurityLevel SecurityLevel() = 0;
 
-    virtual size_t RegisterMemoryResource(std::unique_ptr<interfaces::MemoryResource>, AddressRange, Ownership) = 0;
-    virtual void UnregisterMemoryResource(size_t, Ownership) = 0;
+    virtual size_t RegisterMemoryResource(std::unique_ptr<interfaces::MemoryResource>, AddressRange, PrivilegeMode) = 0;
+    virtual void UnregisterMemoryResource(size_t, PrivilegeMode) = 0;
     
-    virtual void RegisterMemoryMappedRegister(std::unique_ptr<interfaces::MemoryMappedRegister>, size_t, Ownership) = 0;
-    virtual void UnregisterMemoryMappedRegister(size_t, Ownership) = 0;
+    virtual void RegisterMemoryMappedRegister(std::unique_ptr<interfaces::MemoryMappedRegister>, size_t, PrivilegeMode) = 0;
+    virtual void UnregisterMemoryMappedRegister(size_t, PrivilegeMode) = 0;
 };
 
 }

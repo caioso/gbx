@@ -8,7 +8,6 @@
 #include "BankedROM.h"
 #include "Clock.h"
 #include "ControlUnit.h"
-#include "EngineParameters.h"
 #include "FileLoader.h"
 #include "MemoryController.h"
 #include "RAM.h"
@@ -31,8 +30,8 @@ public:
     void LoadGame(std::string) override;
     void LoadBIOS(std::string) override;
 
-    gbxcore::Mode Mode() override;
-    void SetMode(gbxcore::Mode) override;
+    gbxcore::SecurityLevel SecurityLevel() override;
+    void SetSecurityLevel(gbxcore::SecurityLevel) override;
 
     std::variant<uint8_t, uint16_t> ReadROM(uint16_t, std::optional<uint16_t>, interfaces::MemoryAccessType) override;
 
@@ -46,7 +45,7 @@ private:
     void LoadStaticROMSection(uint8_t*, size_t);
     void LoadDynamicROMSection(uint8_t*, size_t);
 
-    gbxcore::Mode _mode{};    
+    gbxcore::SecurityLevel _level{};    
 
 protected:
     bool IsPair(interfaces::Register);

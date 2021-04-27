@@ -35,9 +35,9 @@ public:
     const static uint16_t PreOpcode_DD = 0xDD;
     const static uint16_t PreOpcode_CB = 0xCB;
 
-    // Instructions Pre-opcode reserved for GBX/System Mode
+    // Instructions Pre-opcode reserved for GBX/System SecurityLevel
     const static uint16_t PreOpcode_FD = 0xFD; // Indexed data loading 
-    const static uint16_t PreOpcode_FC = 0xFC; // System Mode operartions 
+    const static uint16_t PreOpcode_FC = 0xFC; // System SecurityLevel operartions 
 };
 
 typedef bool ArithmeticLogicUnitSignal;

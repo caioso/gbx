@@ -64,11 +64,11 @@ inline void ControlUnit::AcquireOperand1()
         ReadOperand1AtPC();
     else
     {
-        auto oldMode = Mode::System;
+        auto oldMode = SecurityLevel::System;
         if (IsUserSourceOperandModeRequested())
         {
-            oldMode = _memoryController->Mode();
-            _memoryController->SetMode(Mode::User);            
+            oldMode = _memoryController->SecurityLevel();
+            _memoryController->SetSecurityLevel(SecurityLevel::User);            
         }
 
         if (_currentAddressingMode->acquireOperand1Directly)
@@ -77,7 +77,7 @@ inline void ControlUnit::AcquireOperand1()
             ReadOperand1Implicitly();
 
         if (IsUserSourceOperandModeRequested())
-            _memoryController->SetMode(oldMode);            
+            _memoryController->SetSecurityLevel(oldMode);            
     }
 }
 
@@ -87,15 +87,15 @@ inline void ControlUnit::AcquireOperand2()
         ReadOperand2AtPC();
     else
     { 
-        auto oldMode = Mode::System;
+        auto oldMode = SecurityLevel::System;
         if (IsUserSourceOperandModeRequested())
         {
-            oldMode = _memoryController->Mode();
-            _memoryController->SetMode(Mode::User);            
+            oldMode = _memoryController->SecurityLevel();
+            _memoryController->SetSecurityLevel(SecurityLevel::User);            
         }
 
         if (IsUserSourceOperandModeRequested())
-            _memoryController->SetMode(Mode::User);            
+            _memoryController->SetSecurityLevel(SecurityLevel::User);            
 
         if (_currentAddressingMode->acquireOperand2AtComposedAddress)
             ReadOperand2AtComposedAddress();
@@ -105,23 +105,23 @@ inline void ControlUnit::AcquireOperand2()
             ReadOperand2Directly();
 
         if (IsUserSourceOperandModeRequested())
-            _memoryController->SetMode(oldMode);            
+            _memoryController->SetSecurityLevel(oldMode);            
     }
 }
 
 inline void ControlUnit::AcquireOperand3()
 {
-    auto oldMode = Mode::System;
+    auto oldMode = SecurityLevel::System;
     if (IsUserSourceOperandModeRequested())
     {
-        oldMode = _memoryController->Mode();
-        _memoryController->SetMode(Mode::User);            
+        oldMode = _memoryController->SecurityLevel();
+        _memoryController->SetSecurityLevel(SecurityLevel::User);            
     }
 
     _alu->AcquireOperand3(_memoryController);
 
     if (IsUserSourceOperandModeRequested())
-        _memoryController->SetMode(oldMode);            
+        _memoryController->SetSecurityLevel(oldMode);            
 }
 
 inline void ControlUnit::Execute()
@@ -189,7 +189,7 @@ inline void ControlUnit::ExecuteInstruction()
     _alu->Execute();
 
     if (IsUserModeRequested())
-        _memoryController->SetMode(Mode::User);
+        _memoryController->SetSecurityLevel(SecurityLevel::User);
 }
 
 inline void ControlUnit::WriteBackResults()

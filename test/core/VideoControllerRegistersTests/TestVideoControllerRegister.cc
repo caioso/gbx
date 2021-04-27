@@ -50,7 +50,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterEnableLCD)
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, EnableVideo());
     
@@ -66,7 +66,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterDisableLCD)
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     // By Default, the LCD is off. Switching it off will have no effect
     EXPECT_CALL(videoController, DisableVideo()).Times(0);
@@ -83,7 +83,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterEnableAndDisable
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, EnableVideo());
     
@@ -105,7 +105,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterWindowTileMapSel
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, SelectWindowTileMap(0x9C00llu));
     
@@ -121,7 +121,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterWindowTileMapSel
     
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, SelectWindowTileMap(0x9800llu)).Times(0);
     
@@ -137,7 +137,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterWindowTileMapBot
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, SelectWindowTileMap(0x9C00llu)).Times(1);
     
@@ -159,7 +159,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterWindowDisplaySet
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, ShowWindow());
     
@@ -175,7 +175,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterWindowDisplaySet
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, HideWindow()).Times(0);
     
@@ -191,7 +191,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterWindowDisplayTog
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, ShowWindow()).Times(1);
     
@@ -213,7 +213,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterWindowAndBackgro
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, SelectWindowAndBackgroundTileSet(0x8000llu)).Times(1);
     
@@ -229,7 +229,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterWindowAndBackgro
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, SelectWindowAndBackgroundTileSet(0x8800llu)).Times(0);
     
@@ -245,7 +245,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterWindowAndBackgro
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, SelectWindowAndBackgroundTileSet(0x8000llu)).Times(1);
     
@@ -267,7 +267,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterBackgroundTileMa
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, SelectBackgroundTileMap(0x9C00llu)).Times(1);
     
@@ -283,7 +283,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterBackgroundTileMa
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, SelectBackgroundTileMap(0x9800llu)).Times(0);
     
@@ -299,7 +299,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterToggleBackground
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
 
     EXPECT_CALL(videoController, SelectBackgroundTileMap(0x9C00llu)).Times(1);
     
@@ -321,7 +321,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterSetSpriteMode8x1
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, SetSpriteMode(0x01)).Times(1);
     
@@ -337,7 +337,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterSetSpriteMode8x8
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, SetSpriteMode(0x01)).Times(0);
     
@@ -353,7 +353,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterToggleSpriteMode
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, SetSpriteMode(0x01)).Times(1);
     
@@ -376,7 +376,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterShowSprites)
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, ShowSprites()).Times(1);
     
@@ -392,7 +392,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterHideSprites)
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     EXPECT_CALL(videoController, HideSprites()).Times(0);
     
@@ -407,7 +407,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterToggleSpritesVis
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
 
     EXPECT_CALL(videoController, ShowSprites()).Times(1);
     
@@ -429,7 +429,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterShowWindowAndBac
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     // Window Visibility is 0, do not show it
     EXPECT_CALL(videoController, ShowBackground()).Times(1);
@@ -447,7 +447,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterShowWindowAndBac
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     // Window Visibility is 0, do not show it
     // Enable Window 
@@ -470,7 +470,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterHideWindowAndBac
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     // Show Background
     EXPECT_CALL(videoController, ShowBackground()).Times(1);
@@ -491,7 +491,7 @@ TEST(CoreTests_VideoControllerRegisters, VideoControllerRegisterHideWindowAndBac
 
     auto lcdControlRegister = make_unique<LCDControlRegister>(&videoController);
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdControlRegister), gbxcore::constants::LCDControlRegisterAddress, PrivilegeMode::System);
     
     // Window Visibility is 0, do not show it
     // Enable Window 
@@ -526,7 +526,7 @@ TEST(CoreTests_VideoControllerRegisters, LCDStatusRegisterWriteToDisabledBit)
     MemoryController controller;
 
     auto lcdStatusRegister = make_unique<LCDStatusRegister>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(lcdStatusRegister), gbxcore::constants::LCDStatusAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdStatusRegister), gbxcore::constants::LCDStatusAddress, PrivilegeMode::System);
 
     EXPECT_CALL(videoController, SetInterruptMode(static_cast<uint8_t>(VideoInterruptSource::HBlankInterrupt)| 
                                                   static_cast<uint8_t>(VideoInterruptSource::VBlankInterrupt) |
@@ -546,7 +546,7 @@ TEST(CoreTests_VideoControllerRegisters, LCDStatusRegisterEnableHBlankInterrupt)
     MemoryController controller;
 
     auto lcdStatusRegister = make_unique<LCDStatusRegister>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(lcdStatusRegister), gbxcore::constants::LCDStatusAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdStatusRegister), gbxcore::constants::LCDStatusAddress, PrivilegeMode::System);
 
     EXPECT_CALL(videoController, SetInterruptMode(static_cast<uint8_t>(VideoInterruptSource::HBlankInterrupt))).Times(1);
     controller.Write(static_cast<uint8_t>(0x08), gbxcore::constants::LCDStatusAddress);
@@ -559,7 +559,7 @@ TEST(CoreTests_VideoControllerRegisters, LCDStatusRegisterEnableVBlankInterrupt)
     MemoryController controller;
 
     auto lcdStatusRegister = make_unique<LCDStatusRegister>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(lcdStatusRegister), gbxcore::constants::LCDStatusAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdStatusRegister), gbxcore::constants::LCDStatusAddress, PrivilegeMode::System);
 
     EXPECT_CALL(videoController, SetInterruptMode(static_cast<uint8_t>(VideoInterruptSource::VBlankInterrupt))).Times(1);
     controller.Write(static_cast<uint8_t>(0x10), gbxcore::constants::LCDStatusAddress);
@@ -572,7 +572,7 @@ TEST(CoreTests_VideoControllerRegisters, LCDStatusRegisterEnableOAMSearchInterru
     MemoryController controller;
 
     auto lcdStatusRegister = make_unique<LCDStatusRegister>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(lcdStatusRegister), gbxcore::constants::LCDStatusAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdStatusRegister), gbxcore::constants::LCDStatusAddress, PrivilegeMode::System);
 
     EXPECT_CALL(videoController, SetInterruptMode(static_cast<uint8_t>(VideoInterruptSource::OAMSearchInterrupt))).Times(1);
     controller.Write(static_cast<uint8_t>(0x20), gbxcore::constants::LCDStatusAddress);
@@ -585,7 +585,7 @@ TEST(CoreTests_VideoControllerRegisters, LCDStatusRegisterEnableLCDDataTransfer)
     MemoryController controller;
 
     auto lcdStatusRegister = make_unique<LCDStatusRegister>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(lcdStatusRegister), gbxcore::constants::LCDStatusAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdStatusRegister), gbxcore::constants::LCDStatusAddress, PrivilegeMode::System);
 
     EXPECT_CALL(videoController, SetInterruptMode(static_cast<uint8_t>(VideoInterruptSource::LCDDataTransferInterrupt))).Times(1);
     controller.Write(static_cast<uint8_t>(0x40), gbxcore::constants::LCDStatusAddress);
@@ -606,7 +606,7 @@ TEST(CoreTests_VideoControllerRegisters, BackgroundScrollYRegisterScrollTest)
     MemoryController controller;
 
     auto lcdBackgroundScrollYRegister = make_unique<LCDBackgroundScrollYRegister>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(lcdBackgroundScrollYRegister), gbxcore::constants::LCDBackgroundScrollYAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdBackgroundScrollYRegister), gbxcore::constants::LCDBackgroundScrollYAddress, PrivilegeMode::System);
 
     for (auto i = 0llu; i < 0xFFllu; ++i)
     {
@@ -630,7 +630,7 @@ TEST(CoreTests_VideoControllerRegisters, BackgroundScrollXRegisterScrollTest)
     MemoryController controller;
 
     auto lcdBackgroundScrollXRegister = make_unique<LCDBackgroundScrollXRegister>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(lcdBackgroundScrollXRegister), gbxcore::constants::LCDBackgroundScrollXAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdBackgroundScrollXRegister), gbxcore::constants::LCDBackgroundScrollXAddress, PrivilegeMode::System);
 
     for (auto i = 0llu; i < 0xFFllu; ++i)
     {
@@ -656,7 +656,7 @@ TEST(CoreTests_VideoControllerRegisters, WriteToLCDScanLineYRegister)
     auto lcdScanLineY = make_unique<LCDScanLineYRegister>(&videoController);
     auto lcdScanLineYPointer = lcdScanLineY.get();
 
-    controller.RegisterMemoryMappedRegister(std::move(lcdScanLineY), gbxcore::constants::LCDScanLineYAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdScanLineY), gbxcore::constants::LCDScanLineYAddress, PrivilegeMode::System);
 
     // 1 Update the scanline
     for (auto i = 0llu; i < 153; ++i)
@@ -683,7 +683,7 @@ TEST(CoreTests_VideoControllerRegisters, WriteToLCDScanLineYCompareRegister)
     MemoryController controller;
 
     auto lcdScanLineYCompare = make_unique<LCDScanLineYCompareRegister>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(lcdScanLineYCompare), gbxcore::constants::LCDScanLineYCompareAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdScanLineYCompare), gbxcore::constants::LCDScanLineYCompareAddress, PrivilegeMode::System);
 
     for (auto i = 0llu; i < 0xFFllu; ++i)
     {
@@ -706,7 +706,7 @@ TEST(CoreTests_VideoControllerRegisters, WindowScrollYRegisterScrollTest)
     MemoryController controller;
 
     auto lcdWindowScrollYRegister = make_unique<LCDWindowScrollYRegister>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(lcdWindowScrollYRegister), gbxcore::constants::LCDWindowScrollYAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdWindowScrollYRegister), gbxcore::constants::LCDWindowScrollYAddress, PrivilegeMode::System);
 
     for (auto i = 0llu; i < 0xFFllu; ++i)
     {
@@ -730,7 +730,7 @@ TEST(CoreTests_VideoControllerRegisters, WindowScrollXRegisterScrollTest)
     MemoryController controller;
 
     auto lcdWindowScrollXRegister = make_unique<LCDWindowScrollXRegister>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(lcdWindowScrollXRegister), gbxcore::constants::LCDWindowScrollXAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(lcdWindowScrollXRegister), gbxcore::constants::LCDWindowScrollXAddress, PrivilegeMode::System);
 
     for (auto i = 0llu; i < 0xFFllu; ++i)
     {
@@ -754,7 +754,7 @@ TEST(CoreTests_VideoControllerRegisters, DMGBackgroundRegisterSetPallete)
     MemoryController controller;
 
     auto dmgBackgroundPalleteRegister = make_unique<DMGBackgroundPalleteRegister>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(dmgBackgroundPalleteRegister), gbxcore::constants::DMGBackgroundPaletteAddress, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(dmgBackgroundPalleteRegister), gbxcore::constants::DMGBackgroundPaletteAddress, PrivilegeMode::System);
 
     EXPECT_CALL(videoController, RegisterDMGBackgroundPaletteColor(static_cast<uint8_t>(0x03), PaletteColor::Color3)).Times(1);
     EXPECT_CALL(videoController, RegisterDMGBackgroundPaletteColor(static_cast<uint8_t>(0x02), PaletteColor::Color2)).Times(1);
@@ -777,7 +777,7 @@ TEST(CoreTests_VideoControllerRegisters, DMGObjectPallete0RegisterSetPallete)
     MemoryController controller;
 
     auto dmgObject0PalleteRegister = make_unique<DMGObjectPallete0Register>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(dmgObject0PalleteRegister), gbxcore::constants::DMGObjectPalette0Address, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(dmgObject0PalleteRegister), gbxcore::constants::DMGObjectPalette0Address, PrivilegeMode::System);
 
     EXPECT_CALL(videoController, RegisterDMGObjectPaletteColor(static_cast<uint8_t>(0x01), DMGPalette::Palette0, PaletteColor::Color3)).Times(1);
     EXPECT_CALL(videoController, RegisterDMGObjectPaletteColor(static_cast<uint8_t>(0x00), DMGPalette::Palette0, PaletteColor::Color2)).Times(1);
@@ -800,7 +800,7 @@ TEST(CoreTests_VideoControllerRegisters, DMGObjectPallete1RegisterSetPallete)
     MemoryController controller;
 
     auto dmgObject1PalleteRegister = make_unique<DMGObjectPallete1Register>(&videoController);
-    controller.RegisterMemoryMappedRegister(std::move(dmgObject1PalleteRegister), gbxcore::constants::DMGObjectPalette1Address, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(dmgObject1PalleteRegister), gbxcore::constants::DMGObjectPalette1Address, PrivilegeMode::System);
 
     EXPECT_CALL(videoController, RegisterDMGObjectPaletteColor(static_cast<uint8_t>(0x03), DMGPalette::Palette0, PaletteColor::Color3)).Times(1);
     EXPECT_CALL(videoController, RegisterDMGObjectPaletteColor(static_cast<uint8_t>(0x02), DMGPalette::Palette0, PaletteColor::Color2)).Times(1);
@@ -849,8 +849,8 @@ TEST(CoreTests_VideoControllerRegisters, WriteToGCBBackgroundPaletteIndexRegiste
     cgbBackgroundPaletteIndexRegister->RegisterDataRegister(cgbBackgroundPaletteDataRegister.get());
     cgbBackgroundPaletteDataRegister->RegisterIndexRegister(cgbBackgroundPaletteIndexRegister.get());
 
-    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteIndexRegister), gbxcore::constants::CGBBackgroundPaletteIndexRegister, Ownership::System);
-    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteDataRegister), gbxcore::constants::CGBBackgroundPaletteDataRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteIndexRegister), gbxcore::constants::CGBBackgroundPaletteIndexRegister, PrivilegeMode::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteDataRegister), gbxcore::constants::CGBBackgroundPaletteDataRegister, PrivilegeMode::System);
 
     controller.Write(static_cast<uint8_t>(0x11), gbxcore::constants::CGBBackgroundPaletteIndexRegister);
     EXPECT_EQ(static_cast<uint8_t>(0x11), cgbBackgroundPaletteDataRegisterPointer->CurrentColorIndex());
@@ -868,8 +868,8 @@ TEST(CoreTests_VideoControllerRegisters, WriteToGCBBackgroundPaletteDataRegister
     cgbBackgroundPaletteIndexRegister->RegisterDataRegister(cgbBackgroundPaletteDataRegister.get());
     cgbBackgroundPaletteDataRegister->RegisterIndexRegister(cgbBackgroundPaletteIndexRegister.get());
 
-    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteIndexRegister), gbxcore::constants::CGBBackgroundPaletteIndexRegister, Ownership::System);
-    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteDataRegister), gbxcore::constants::CGBBackgroundPaletteDataRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteIndexRegister), gbxcore::constants::CGBBackgroundPaletteIndexRegister, PrivilegeMode::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteDataRegister), gbxcore::constants::CGBBackgroundPaletteDataRegister, PrivilegeMode::System);
 
     controller.Write(static_cast<uint8_t>(0x2A), gbxcore::constants::CGBBackgroundPaletteIndexRegister);
     EXPECT_EQ(static_cast<uint8_t>(0x2A), cgbBackgroundPaletteDataRegisterPointer->CurrentColorIndex());
@@ -891,8 +891,8 @@ TEST(CoreTests_VideoControllerRegisters, WriteToGCBBackgroundPaletteDataRegister
     cgbBackgroundPaletteIndexRegister->RegisterDataRegister(cgbBackgroundPaletteDataRegister.get());
     cgbBackgroundPaletteDataRegister->RegisterIndexRegister(cgbBackgroundPaletteIndexRegister.get());
 
-    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteIndexRegister), gbxcore::constants::CGBBackgroundPaletteIndexRegister, Ownership::System);
-    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteDataRegister), gbxcore::constants::CGBBackgroundPaletteDataRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteIndexRegister), gbxcore::constants::CGBBackgroundPaletteIndexRegister, PrivilegeMode::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteDataRegister), gbxcore::constants::CGBBackgroundPaletteDataRegister, PrivilegeMode::System);
 
     controller.Write(static_cast<uint8_t>(0xA1), gbxcore::constants::CGBBackgroundPaletteIndexRegister);
     EXPECT_EQ(static_cast<uint8_t>(0x21), cgbBackgroundPaletteDataRegisterPointer->CurrentColorIndex());
@@ -918,8 +918,8 @@ TEST(CoreTests_VideoControllerRegisters, WriteToGCBBackgroundPaletteDataOutOfRan
     cgbBackgroundPaletteIndexRegister->RegisterDataRegister(cgbBackgroundPaletteDataRegister.get());
     cgbBackgroundPaletteDataRegister->RegisterIndexRegister(cgbBackgroundPaletteIndexRegister.get());
 
-    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteIndexRegister), gbxcore::constants::CGBBackgroundPaletteIndexRegister, Ownership::System);
-    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteDataRegister), gbxcore::constants::CGBBackgroundPaletteDataRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteIndexRegister), gbxcore::constants::CGBBackgroundPaletteIndexRegister, PrivilegeMode::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteDataRegister), gbxcore::constants::CGBBackgroundPaletteDataRegister, PrivilegeMode::System);
 
     controller.Write(static_cast<uint8_t>(0xFF), gbxcore::constants::CGBBackgroundPaletteIndexRegister);
     EXPECT_EQ(static_cast<uint8_t>(0x00), cgbBackgroundPaletteDataRegisterPointer->CurrentColorIndex());
@@ -945,8 +945,8 @@ TEST(CoreTests_VideoControllerRegisters, WriteToGCBBackgroundPaletteDataRegister
     cgbBackgroundPaletteIndexRegister->RegisterDataRegister(cgbBackgroundPaletteDataRegister.get());
     cgbBackgroundPaletteDataRegister->RegisterIndexRegister(cgbBackgroundPaletteIndexRegister.get());
 
-    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteIndexRegister), gbxcore::constants::CGBBackgroundPaletteIndexRegister, Ownership::System);
-    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteDataRegister), gbxcore::constants::CGBBackgroundPaletteDataRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteIndexRegister), gbxcore::constants::CGBBackgroundPaletteIndexRegister, PrivilegeMode::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteDataRegister), gbxcore::constants::CGBBackgroundPaletteDataRegister, PrivilegeMode::System);
 
     for (auto i = 0; i < 0x3F; ++i)
     {
@@ -975,8 +975,8 @@ TEST(CoreTests_VideoControllerRegisters, WriteToGCBBackgroundPaletteDataRegister
     cgbBackgroundPaletteIndexRegister->RegisterDataRegister(cgbBackgroundPaletteDataRegister.get());
     cgbBackgroundPaletteDataRegister->RegisterIndexRegister(cgbBackgroundPaletteIndexRegister.get());
 
-    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteIndexRegister), gbxcore::constants::CGBBackgroundPaletteIndexRegister, Ownership::System);
-    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteDataRegister), gbxcore::constants::CGBBackgroundPaletteDataRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteIndexRegister), gbxcore::constants::CGBBackgroundPaletteIndexRegister, PrivilegeMode::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbBackgroundPaletteDataRegister), gbxcore::constants::CGBBackgroundPaletteDataRegister, PrivilegeMode::System);
 
     for (auto i = 0; i < 0x3F; ++i)
     {
@@ -1036,8 +1036,8 @@ TEST(CoreTests_VideoControllerRegisters, WriteToGCBObjectPaletteIndexRegisters)
     cgbObjectPaletteIndexRegister->RegisterDataRegister(cgbObjectPaletteDataRegister.get());
     cgbObjectPaletteDataRegister->RegisterIndexRegister(cgbObjectPaletteIndexRegister.get());
 
-    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, Ownership::System);
-    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, PrivilegeMode::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, PrivilegeMode::System);
 
     controller.Write(static_cast<uint8_t>(0x07), gbxcore::constants::CGBObjectPaletteIndexRegister);
     EXPECT_EQ(static_cast<uint8_t>(0x07), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
@@ -1055,8 +1055,8 @@ TEST(CoreTests_VideoControllerRegisters, WriteToGCBObjectPaletteDataRegisters)
     cgbObjectPaletteIndexRegister->RegisterDataRegister(cgbObjectPaletteDataRegister.get());
     cgbObjectPaletteDataRegister->RegisterIndexRegister(cgbObjectPaletteIndexRegister.get());
 
-    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, Ownership::System);
-    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, PrivilegeMode::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, PrivilegeMode::System);
 
     controller.Write(static_cast<uint8_t>(0x3F), gbxcore::constants::CGBObjectPaletteIndexRegister);
     EXPECT_EQ(static_cast<uint8_t>(0x3F), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
@@ -1078,8 +1078,8 @@ TEST(CoreTests_VideoControllerRegisters, WriteToGCBObjectPaletteDataRegistersWit
     cgbObjectPaletteIndexRegister->RegisterDataRegister(cgbObjectPaletteDataRegister.get());
     cgbObjectPaletteDataRegister->RegisterIndexRegister(cgbObjectPaletteIndexRegister.get());
 
-    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, Ownership::System);
-    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, PrivilegeMode::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, PrivilegeMode::System);
 
     controller.Write(static_cast<uint8_t>(0xBA), gbxcore::constants::CGBObjectPaletteIndexRegister);
     EXPECT_EQ(static_cast<uint8_t>(0x3A), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
@@ -1105,8 +1105,8 @@ TEST(CoreTests_VideoControllerRegisters, WriteToGCBObjectPaletteDataOutOfRange)
     cgbObjectPaletteIndexRegister->RegisterDataRegister(cgbObjectPaletteDataRegister.get());
     cgbObjectPaletteDataRegister->RegisterIndexRegister(cgbObjectPaletteIndexRegister.get());
 
-    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, Ownership::System);
-    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, PrivilegeMode::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, PrivilegeMode::System);
 
     controller.Write(static_cast<uint8_t>(0xE2), gbxcore::constants::CGBObjectPaletteIndexRegister);
     EXPECT_EQ(static_cast<uint8_t>(0x00), cgbObjectPaletteDataRegisterPointer->CurrentColorIndex());
@@ -1132,8 +1132,8 @@ TEST(CoreTests_VideoControllerRegisters, WriteToGCBObjectPaletteDataRegistersWri
     cgbObjectPaletteIndexRegister->RegisterDataRegister(cgbObjectPaletteDataRegister.get());
     cgbObjectPaletteDataRegister->RegisterIndexRegister(cgbObjectPaletteIndexRegister.get());
 
-    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, Ownership::System);
-    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, PrivilegeMode::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, PrivilegeMode::System);
 
     for (auto i = 0; i < 0x3F; ++i)
     {
@@ -1162,8 +1162,8 @@ TEST(CoreTests_VideoControllerRegisters, WriteToGCBObjectPaletteDataRegistersWri
     cgbObjectPaletteIndexRegister->RegisterDataRegister(cgbObjectPaletteDataRegister.get());
     cgbObjectPaletteDataRegister->RegisterIndexRegister(cgbObjectPaletteIndexRegister.get());
 
-    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, Ownership::System);
-    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, Ownership::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteIndexRegister), gbxcore::constants::CGBObjectPaletteIndexRegister, PrivilegeMode::System);
+    controller.RegisterMemoryMappedRegister(std::move(cgbObjectPaletteDataRegister), gbxcore::constants::CGBObjectPaletteDataRegister, PrivilegeMode::System);
 
     for (auto i = 0; i < 0x3F; ++i)
     {

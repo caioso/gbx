@@ -3,13 +3,20 @@
 namespace gbxcore
 {
 
-enum class Ownership
+enum class PrivilegeMode
 {
     System,
     User,
     Both,
 };
 
-typedef Ownership Mode;
+enum class SystemMode
+{
+    DMGBC,
+    GBX
+};
+
+typedef PrivilegeMode SecurityLevel;
+typedef SystemMode CPUMode;
 
 }

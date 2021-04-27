@@ -52,14 +52,14 @@ public:
     void Load(std::unique_ptr<uint8_t*>, size_t, size_t, std::optional<size_t>) override;
     
     void SwitchBank(size_t, size_t) override;
-    void SetMode(gbxcore::Mode) override;
-    gbxcore::Mode Mode() override;
+    void SetSecurityLevel(gbxcore::SecurityLevel) override;
+    gbxcore::SecurityLevel SecurityLevel() override;
 
-    size_t RegisterMemoryResource(std::unique_ptr<interfaces::MemoryResource>, AddressRange,  Ownership) override;
-    void UnregisterMemoryResource(size_t, Ownership) override;
+    size_t RegisterMemoryResource(std::unique_ptr<interfaces::MemoryResource>, AddressRange,  PrivilegeMode) override;
+    void UnregisterMemoryResource(size_t, PrivilegeMode) override;
 
-    void RegisterMemoryMappedRegister(std::unique_ptr<interfaces::MemoryMappedRegister>, size_t, Ownership) override;
-    void UnregisterMemoryMappedRegister(size_t, Ownership) override;
+    void RegisterMemoryMappedRegister(std::unique_ptr<interfaces::MemoryMappedRegister>, size_t, PrivilegeMode) override;
+    void UnregisterMemoryMappedRegister(size_t, PrivilegeMode) override;
 
 private:
     inline void SortResources();
@@ -67,7 +67,7 @@ private:
     inline void DetectOverlap(AddressRange);
     inline std::vector<RegisteredMemoryResource>* SelectResource();
     inline std::map<uint16_t, RegisteredMemoryMappedRegister>* SelectRegisterSource();
-    inline std::map<uint16_t, RegisteredMemoryMappedRegister>* GetRegisterSource(Ownership);
+    inline std::map<uint16_t, RegisteredMemoryMappedRegister>* GetRegisterSource(PrivilegeMode);
     inline std::map<uint16_t, RegisteredMemoryMappedRegister>::iterator IsRegisterAddress(size_t);
 
     std::optional<ResourceIndexAndAddress> CalculateLocalAddress(size_t address);
@@ -77,7 +77,7 @@ private:
     std::map<uint16_t, RegisteredMemoryMappedRegister> _userRegisters;
     std::map<uint16_t, RegisteredMemoryMappedRegister> _bothRegisters;
 
-    gbxcore::Mode _mode{};
+    gbxcore::SecurityLevel _level{};
     size_t _resourcesID;
 };
 

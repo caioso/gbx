@@ -65,7 +65,7 @@ BaseInstructionInterface* OpcodeDecoder::DecodeInstructionWithPreOpcode(uint8_t 
             OpcodePatternMatcher::Pattern('0'_b, '1'_b, '1'_b, '1'_b, '0'_b, 'X'_b, 'X'_b, 'X'_b)))
             return &_instructionLdAndLdu;
     }
-    // [GBX ONLY] System-Mode Instruction
+    // [GBX ONLY] System-SecurityLevel Instruction
     else if (preOpcode.value() == InstructionConstants::PreOpcode_FC)
     {
         if (OpcodePatternMatcher::Match(opcode, // 1100 0011

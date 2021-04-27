@@ -7,7 +7,7 @@
 #include <memory>
 #include <thread>
 
-#include "EngineParameters.h"
+#include "SystemConstants.h"
 #include "GBXCoreExceptions.h"
 #include "ClockInterface.h"
 

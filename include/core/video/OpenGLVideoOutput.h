@@ -6,6 +6,8 @@
 #include <GL/gl.h>
 
 #include "GBXCoreExceptions.h"
+#include "RAM.h"
+#include "SystemConstants.h"
 
 namespace gbxcore::video
 {
@@ -13,13 +15,19 @@ namespace gbxcore::video
 class OpenGLVideoOutput
 {
 public:
-    OpenGLVideoOutput();
+    OpenGLVideoOutput(gbxcore::memory::RAM*);
     ~OpenGLVideoOutput() = default;
 
     void Initialize();
 
 private:
+    inline void CreateWindow();
+
     GLFWwindow* _window;
+    gbxcore::memory::RAM* _dmgbcVideoRAM;
+
+    float _viewPortScalingFactorX;
+    float _viewPortScalingFactorY;
 };
 
 }
