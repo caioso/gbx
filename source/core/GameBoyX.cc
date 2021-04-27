@@ -3,6 +3,7 @@
 using namespace gbxcore::constants;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::memory;
+using namespace gbxcore::video;
 using namespace gbxcommons;
 using namespace std;
 
@@ -29,6 +30,7 @@ GameBoyX::GameBoyX()
     auto userFixedROMBank = make_unique<ROM>(DMGBCROMBankSize);
     auto userDynamicBank = make_unique<BankedROM>(DMGBCMaxDynamicROMSize, DMGBCROMBankSize); 
     auto userVideoRAM = make_unique<RAM>(DMGBCVideoRAMPhysicalSize);
+    auto userVideoRAMPointer = userVideoRAM.get();
     auto userExternalRAM = make_unique<RAM>(DMGBCExternalRAMPhysicalSize);
     auto userWorkRAMBank0 = make_unique<RAM>(DMGBCSystemRAMBank0PhysicalSize);
     auto userWorkRAMBank1 = make_unique<RAM>(DMGBCSystemRAMBank1PhysicalSize);
@@ -52,8 +54,12 @@ GameBoyX::GameBoyX()
     // Set Memory Controller to run in System Mode
     memoryController->SetSecurityLevel(PrivilegeMode::System);
     
-    // Initialize Z80X CPU
-    _cpu.Initialize(std::move(controlUnit), std::move(clock), std::move(alu), std::move(memoryController), std::move(registers));
+    auto videoOutput = make_unique<OpenGLVideoOutput>(userVideoRAMPointer);
+    videoOutput->Initialize();
+
+    // Initialize Z80X CPU 
+    // ADD VideoController Here
+    _cpu.Initialize(std::move(controlUnit), std::move(clock), std::move(alu), std::move(memoryController), std::move(registers), std::move(videoOutput));
 }
 
 void GameBoyX::Run()

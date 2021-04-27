@@ -10,6 +10,7 @@
 #include "ControlUnit.h"
 #include "FileLoader.h"
 #include "MemoryController.h"
+#include "OpenGLVideoOutput.h"
 #include "RAM.h"
 #include "RegisterBank.h"
 #include "ROM.h"

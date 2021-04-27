@@ -7,6 +7,7 @@
 #include "ControlUnitInterface.h"
 #include "MemoryControllerInterface.h"
 #include "RegisterBankInterface.h"
+#include "VideoOutputInterface.h"
 
 namespace gbxcore
 {
@@ -21,7 +22,8 @@ public:
                     std::unique_ptr<interfaces::ClockInterface>,
                     std::unique_ptr<interfaces::ArithmeticLogicUnitInterface>,
                     std::unique_ptr<interfaces::MemoryControllerInterface>,
-                    std::unique_ptr<interfaces::RegisterBankInterface>);
+                    std::unique_ptr<interfaces::RegisterBankInterface>,
+                    std::unique_ptr<interfaces::VideoOutputInterface>);
 
     void Run();
 
@@ -31,6 +33,7 @@ protected:
     std::unique_ptr<interfaces::ClockInterface> _clock;
     std::unique_ptr<interfaces::ArithmeticLogicUnitInterface> _alu;
     std::unique_ptr<interfaces::MemoryControllerInterface> _memoryController;
+    std::unique_ptr<interfaces::VideoOutputInterface> _videoOutput;
 };
 
 }

@@ -63,6 +63,8 @@ class VideoOutputMock : public gbxcore::interfaces::VideoOutputInterface
 public:
     virtual ~VideoOutputMock() = default;
 
+    MOCK_METHOD(void, Render, ());
+
     MOCK_METHOD(void, SetVideoEnable, (bool));
     MOCK_METHOD(void, SetWindowEnable, (bool));
     MOCK_METHOD(void, SetBackgroundEnable, (bool));

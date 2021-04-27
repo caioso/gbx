@@ -33,6 +33,8 @@ class VideoOutputInterface
 public:
     virtual ~VideoOutputInterface() = default;
 
+    virtual void Render() = 0;
+
     virtual void SetVideoEnable(bool) = 0;
     virtual void SetWindowEnable(bool) = 0;
     virtual void SetBackgroundEnable(bool) = 0;

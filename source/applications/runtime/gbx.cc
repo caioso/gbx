@@ -108,9 +108,9 @@ void RuntimeMode(ApplicationConfiguration configuration)
     LoadROM(configuration.ROMName);
 
     auto gbx = make_unique<GameBoyX>();
-    auto cycleCounter = 0;
+    auto cycleCounter = 0llu;
 
-    while (cycleCounter < 100)
+    while (cycleCounter < std::numeric_limits<size_t>::max())
     {
         gbx->Run();
         cycleCounter++;

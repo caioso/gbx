@@ -69,6 +69,7 @@ const float DefaultViewPortScaleY = 3.0f;
 // Curerntly I'm experimenting with GB rendering, so the screen size will be set to 160x144
 const size_t ScreenWidth = 160;
 const size_t ScreenHeight = 144;
+const size_t BufferSwapInterval = 1;
 
 const std::string EmulatorWindowName = "GBX";
 
