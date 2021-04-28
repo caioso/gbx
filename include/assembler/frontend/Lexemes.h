@@ -46,6 +46,8 @@ public:
     inline const static std::string KeywordBRK = "BRK";
     inline const static std::string KeywordBGN = "BGN";
     inline const static std::string KeywordOUT = "OUT";
+    inline const static std::string KeywordLOC = "LOC";
+    inline const static std::string KeywordGBL = "GBL";
 
     // Operators
     inline const static std::string OperatorASSIGNMENT = "=";

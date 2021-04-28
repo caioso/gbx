@@ -167,6 +167,10 @@ vector<Token> LexicalAnalyzer::EvaluateLexeme(string originalLexeme, size_t colu
             token.Type = TokenType::KeywordBGN;
         else if (lexeme.first.compare(Lexemes::KeywordOUT) == 0)
             token.Type = TokenType::KeywordOUT;
+        else if (lexeme.first.compare(Lexemes::KeywordLOC) == 0)
+            token.Type = TokenType::KeywordLOC;
+        else if (lexeme.first.compare(Lexemes::KeywordGBL) == 0)
+            token.Type = TokenType::KeywordGBL;
 
         // Operators
         else if (lexeme.first.compare(Lexemes::OperatorASSIGNMENT) == 0)
@@ -691,7 +695,8 @@ inline bool LexicalAnalyzer::IsSpecialCharacter(string_view candidate, size_t po
 inline bool LexicalAnalyzer::IsPossibleSeparator(string_view candidate, size_t position)
 {
     if (candidate[position] == '{' || candidate[position] == '}' || candidate[position] == '(' || candidate[position] == ')' ||
-        candidate[position] == '[' || candidate[position] == ']' || candidate[position] == ':' || candidate[position] == ',')
+        candidate[position] == '[' || candidate[position] == ']' || candidate[position] == ':' || candidate[position] == ',' || 
+        candidate[position] == '<' || candidate[position] == '>')
         return true;
 
     return false;

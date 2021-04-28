@@ -312,7 +312,9 @@ TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllKeywords)
                            "DFLT\n"
                            "BRK\n"
                            "BGN\n"
-                           "OUT\n";
+                           "OUT\n"
+                           "LOC\n"
+                           "GBL\n";
 
     auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
@@ -328,7 +330,8 @@ TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllKeywords)
                            Lexemes::KeywordTAG, Lexemes::KeywordTRY, Lexemes::KeywordEXPT, 
                            Lexemes::KeywordTHRW, Lexemes::KeywordTEST, Lexemes::KeywordMOVE, 
                            Lexemes::KeywordHIGH, Lexemes::KeywordLOW, Lexemes::KeywordIN, Lexemes::KeywordDFLT, 
-                           Lexemes::KeywordBRK, Lexemes::KeywordBGN, Lexemes::KeywordOUT};
+                           Lexemes::KeywordBRK, Lexemes::KeywordBGN, Lexemes::KeywordOUT, Lexemes::KeywordLOC, 
+                           Lexemes::KeywordGBL};
 
     auto keywordsTokens = {TokenType::KeywordPACK, TokenType::KeywordFUNC, TokenType::KeywordEND, 
                            TokenType::KeywordVAR, TokenType::KeywordBOOL, TokenType::KeywordCHAR, TokenType::KeywordBYTE, 
@@ -340,7 +343,8 @@ TEST(AssemblerTests_LexicalAnalyzer, EvaluateAllKeywords)
                            TokenType::KeywordTAG, TokenType::KeywordTRY, TokenType::KeywordEXPT, 
                            TokenType::KeywordTHRW, TokenType::KeywordTEST,TokenType::KeywordMOVE,
                            TokenType::KeywordHIGH, TokenType::KeywordLOW, TokenType::KeywordIN, 
-                           TokenType::KeywordDFLT, TokenType::KeywordBRK, TokenType::KeywordBGN, TokenType::KeywordOUT};
+                           TokenType::KeywordDFLT, TokenType::KeywordBRK, TokenType::KeywordBGN, TokenType::KeywordOUT, 
+                           TokenType::KeywordLOC, TokenType::KeywordGBL};
 
     auto counter = 0;
     for (auto i = static_cast<size_t>(0); i < keywordsString.size(); ++i)
@@ -1499,4 +1503,100 @@ TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing3)
     EXPECT_EQ(TokenType::Identifier, tokens[3].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
     EXPECT_EQ(static_cast<size_t>(13), tokens[3].Column);
+}
+
+TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing4)
+{
+    // ERROR: Invalid identifier '*~'
+    const string program = "TEST*~TEST2\n";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_EQ(4llu, tokens.size());
+
+    EXPECT_STREQ("TEST", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::Identifier, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorMULTIPLICATION.c_str(), tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorMULTIPLICATION, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[1].Column);
+        
+    EXPECT_STREQ(Lexemes::OperatorLOGICNOT.c_str(), tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorLOGICNOT, tokens[2].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[2].Column);
+
+    EXPECT_STREQ("TEST2", tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::Identifier, tokens[3].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[3].Column);
+}
+
+TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing5)
+{
+    // ERROR: Invalid identifier '*~'
+    const string program = "0x123+!0o111\n";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_EQ(4llu, tokens.size());
+
+    EXPECT_STREQ("TEST", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::Identifier, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorMULTIPLICATION.c_str(), tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorMULTIPLICATION, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[1].Column);
+        
+    EXPECT_STREQ(Lexemes::OperatorLOGICNOT.c_str(), tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorLOGICNOT, tokens[2].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[2].Column);
+
+    EXPECT_STREQ("TEST2", tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::Identifier, tokens[3].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[3].Column);
+}
+
+TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing6)
+{
+    // ERROR: Invalid identifier '*~'
+    const string program = "POP-*LD\n";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_EQ(4llu, tokens.size());
+
+    EXPECT_STREQ("TEST", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::Identifier, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorMULTIPLICATION.c_str(), tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorMULTIPLICATION, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[1].Column);
+        
+    EXPECT_STREQ(Lexemes::OperatorLOGICNOT.c_str(), tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorLOGICNOT, tokens[2].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[2].Column);
+
+    EXPECT_STREQ("TEST2", tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::Identifier, tokens[3].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[3].Column);
 }

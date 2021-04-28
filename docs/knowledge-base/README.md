@@ -141,6 +141,9 @@ In the previous example, function `MY_FUNCTION` is declared accepting two input 
 
 #### `BGN`
 #### `END`
+#### `LOC`
+#### `GBL`
+
 #### `VAR`
 #### `BOOL`
 #### `CHAR`
@@ -536,10 +539,31 @@ Pre-processor symbol definition directive. `.DEF` only accepts an identifier to 
 
 ### Macros
 
-### Other Language Structures
-#### Comments
-#### Labels
+### Comments
+### Labels
+#### Basic Syntax
 
+`Labels` can be declared at any line of code inside of a `Function`. `Label` names rules follow those applicable for general identifiers. Code lines containing `labels` can only include comments.
+
+``` assembly
+LABEL: ; THIS LINE IS RESERVED FOR THE LABEL
+	   ; NO LINE ALIGNMENT IS REQUIRED
+	...
+```
+#### Local Label 
+
+``` assembly
+LABEL<LOC>: ; THIS LINE IS RESERVED FOR THE LOCAL LABEL
+		    ; NO LINE ALIGNMENT IS REQUIRED
+	...
+```
+#### Global Label 
+
+``` assembly
+LABEL<GBL>: ; THIS LINE IS RESERVED FOR THE GLOBAL LABEL
+			; NO LINE ALIGNMENT IS REQUIRED
+	...
+```
 ### Basic ABI
 #### Function Call Conventions
 #### Stack Usage

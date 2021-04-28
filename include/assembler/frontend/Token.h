@@ -61,6 +61,8 @@ enum class TokenType
     KeywordBRK,
     KeywordBGN,
     KeywordOUT,
+    KeywordLOC,
+    KeywordGBL,
 
     // Operators
     OperatorASSIGNMENT,
