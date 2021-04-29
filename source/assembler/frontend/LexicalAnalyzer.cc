@@ -487,7 +487,7 @@ vector<pair<string, size_t> > LexicalAnalyzer::FindSubLexemes(string lexeme, siz
                 SaveSubLexeme(accumulator, column, subLexemes, columnCounter);
                 accumulator = "";
             }
-            SaveSubLexeme(ExtractOperatorSeparatorOrMarker(lexeme, i), column, subLexemes, columnCounter);
+            SaveSubLexeme(ExtractOperatorSeparatorOrMarker(lexeme, subLexemes, i, column, columnCounter), column, subLexemes, columnCounter);
             CorrectLoopIndex(subLexemes, i);
             EvaluateStringLimits(lexeme, i);
         }
@@ -524,6 +524,9 @@ inline void LexicalAnalyzer::EvaluateStringLimits(string lexeme, size_t column)
 
 inline void LexicalAnalyzer::SaveSubLexeme(string token, size_t column, std::vector<std::pair<std::string, size_t> >& subLexemes, size_t& columnCounter)
 {
+    if (token.size() == 0)
+        return;
+
     subLexemes.push_back(make_pair(token, column + columnCounter));
     columnCounter += token.size();
 }
@@ -533,39 +536,69 @@ inline bool LexicalAnalyzer::IsSeparatorOrOperator(string_view lexeme, size_t po
     return IsPossibleOperator(lexeme, position) || IsPossibleSeparator(lexeme, position);
 }
 
-inline void LexicalAnalyzer::CorrectLoopIndex( std::vector<std::pair<std::string, size_t> >& subLexemes, size_t& i)
+inline void LexicalAnalyzer::CorrectLoopIndex(std::vector<std::pair<std::string, size_t> >& subLexemes, size_t& i)
 {
     if (subLexemes[subLexemes.size() - 1].first.size() >= 2)
         i += (subLexemes[subLexemes.size() - 1].first.size() - 1);
 }
 
-inline string LexicalAnalyzer::ExtractOperatorSeparatorOrMarker(string candidate, size_t column)
+inline string LexicalAnalyzer::ExtractOperatorSeparatorOrMarker(string candidate, std::vector<std::pair<std::string, size_t> >& subLexemes, size_t& i, size_t& column, size_t& columnCounter)
 {
-    if (IsPossibleOperator(candidate, column))
-        return ExtractOperator(candidate, column);
-    else if (IsPossibleStringLiteralMarker(candidate, column))
-        return ExtractStringLiteralMarker(candidate, column);
-    else if (IsPossibleCharLiteralMarker(candidate, column))
-        return ExtractCharLiteralFromCandidate(candidate, column);
+    if (IsPossibleOperator(candidate, i))
+        return ExtractOperator(candidate, subLexemes, i, column, columnCounter);
+    else if (IsPossibleStringLiteralMarker(candidate, i))
+        return ExtractStringLiteralMarker(candidate, i);
+    else if (IsPossibleCharLiteralMarker(candidate, i))
+        return ExtractCharLiteralFromCandidate(candidate, i);
     else 
-        return ExtractSeparator(candidate, column);
+        return ExtractSeparator(candidate, i);
 }
 
-inline string LexicalAnalyzer::ExtractOperator(string candidate, size_t column)
+inline string LexicalAnalyzer::ExtractOperator(string candidate, std::vector<std::pair<std::string, size_t> >& subLexemes, size_t& i, size_t& column, size_t& columnCounter)
 {
     string accumulator = "";
     
-    for (auto i = column; i < candidate.size(); ++i)
+    for (auto k = i; k < candidate.size(); ++k)
     {
-        accumulator += candidate[i];
-        if(!IsPossibleOperator(candidate, i)) 
+        accumulator += candidate[k];
+        if(!IsPossibleOperator(candidate, k)) 
         {
             accumulator = accumulator.substr(0, accumulator.size() - 1);
             break;
         }
     }
 
+    // This solves the issue that would lead to invalid identifier if more than one operator are stacked together in a way they do not represent a two/three
+    // characters operator.
+    // This loop simply splits the accumulator (which holds multiple operators). This will split all operators into single char operators.
+    // The indexes of the global column counter and the internal loop counter (from FindSubLexemes) will be updated.
+    // The function returns an empty string to force SaveSubLexeme to not perform any operation.
+    if (accumulator.size() >= 2 && !isDoubleOperand(accumulator))
+    {
+        for (auto op : accumulator)
+        {
+            string value = ""; value += op;
+            auto pair = make_pair(value, column + columnCounter);
+            subLexemes.emplace_back(pair);
+            columnCounter++;
+            i++;
+        }
+
+        i -= 1;
+        accumulator = "";
+    }
+
     return accumulator;
+}
+
+inline bool LexicalAnalyzer::isDoubleOperand(std::string_view candidate)
+{
+    return candidate.compare(Lexemes::OperatorEQUAL.c_str()) == 0 || candidate.compare(Lexemes::OperatorTRHEEWAYCOMPARISON.c_str()) == 0 ||
+           candidate.compare(Lexemes::OperatorLEFTSHIFT.c_str()) == 0 || candidate.compare(Lexemes::OperatorRIGHTSHIFT.c_str()) == 0 ||
+           candidate.compare(Lexemes::OperatorDIFFERENT.c_str()) == 0 || candidate.compare(Lexemes::OperatorLOGICAND.c_str()) == 0 ||
+           candidate.compare(Lexemes::OperatorLOGICOR.c_str()) == 0 || candidate.compare(Lexemes::OperatorLESSTHANOREQUALTO.c_str()) == 0 ||
+           candidate.compare(Lexemes::OperatorGREATERTHANOREQUALTO.c_str()) == 0 || candidate.compare(Lexemes::OperatorUNARYINCREMENT.c_str()) == 0 ||
+           candidate.compare(Lexemes::OperatorUNARYDECREMENT.c_str()) == 0;
 }
 
 inline string LexicalAnalyzer::ExtractSeparator(string candidate, size_t column)

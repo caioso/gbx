@@ -56,9 +56,15 @@ inline void OpenGLVideoOutput::InitializeOpenGL()
 
 void OpenGLVideoOutput::Render()
 {
+    if (_terminated)
+        return;
+        
     // Terminate GLFW
-    if(glfwWindowShouldClose(_window) || _loopEnded)
-	    glfwTerminate();
+    if(_loopEnded || glfwWindowShouldClose(_window))
+    {
+        glfwTerminate();
+        _terminated = true;
+    }
     else
 	{
 		// Draw gears

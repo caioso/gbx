@@ -52,6 +52,7 @@ private:
     float _viewPortScalingFactorY;
 
     bool _loopEnded{};
+    bool _terminated{};
 };
 
 }

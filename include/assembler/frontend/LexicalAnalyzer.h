@@ -40,8 +40,8 @@ public:
 private:
     std::vector<Token> EvaluateLexeme(std::string, size_t, size_t);
     std::vector<std::pair<std::string, size_t> > FindSubLexemes(std::string, size_t);
-    inline std::string ExtractOperatorSeparatorOrMarker(std::string, size_t);
-    inline std::string ExtractOperator(std::string, size_t);
+    inline std::string ExtractOperatorSeparatorOrMarker(std::string, std::vector<std::pair<std::string, size_t> >&, size_t&, size_t&, size_t&);
+    inline std::string ExtractOperator(std::string, std::vector<std::pair<std::string, size_t> >&, size_t&, size_t&, size_t&);
     inline std::string ExtractSeparator(std::string, size_t);
     inline std::string ExtractStringLiteralMarker(std::string, size_t);
     inline std::string ExtractCharLiteralFromCandidate(std::string, size_t);
@@ -61,6 +61,7 @@ private:
     inline bool IsDigit(std::string_view, size_t);
     inline bool IsSpecialCharacter(std::string_view, size_t);
     inline bool HasUnmergedStrings();
+    inline bool isDoubleOperand(std::string_view);
 
     inline TokenType IdentifyNumericLiteral(std::string_view);
     inline TokenType ParseStringLiteral(std::string_view);

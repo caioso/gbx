@@ -78,19 +78,23 @@ TEST(AssemblerTests_LabelSyntacticAnalysis, SanityCheckLabelParsingGlobalLabel)
 
 TEST(AssemblerTests_LabelSyntacticAnalysis, SanityCheckLabelParsingLocalLabel)
 {
-    const string expression = "MY_LABEL<LOC>:";
+    const string expression = "MY_LOCAL_LABEL<LOC>:";
 
     LexicalAnalyzer lexer;
     lexer.Tokenize(expression);
     auto tokens = lexer.Tokens();
 
-    auto tokenTypes = { TokenType::Identifier, TokenType::OperatorSEMICOLON}; // MY_LABEL:
+    auto tokenTypes = { TokenType::Identifier, TokenType::OperatorLESSTHAN, 
+                        TokenType::KeywordLOC, TokenType::OperatorGREATERTHAN,
+                        TokenType::OperatorSEMICOLON, }; // MY_LOCAL_LABEL<LOC>:
 
-    auto lexemes = { "MY_LABEL", Lexemes::OperatorSEMICOLON.c_str() }; // MY_LABEL:
+    auto lexemes = { "MY_LOCAL_LABEL", Lexemes::OperatorLESSTHAN.c_str(), 
+                     Lexemes::KeywordLOC.c_str(), Lexemes::OperatorGREATERTHAN.c_str(),
+                     Lexemes::OperatorSEMICOLON.c_str() }; // MY_LOCAL_LABEL<LOC>:
 
-    auto columns = { 1llu, 9llu}; // MY_LABEL:
+    auto columns = { 1llu, 15llu, 16llu, 19llu, 20llu}; // MY_LOCAL_LABEL<LOC>:
     
-    auto lines = { 1llu, 1llu}; // MY_LABEL:
+    auto lines = { 1llu, 1llu, 1llu, 1llu, 1llu}; // MY_LOCAL_LABEL<LOC>:
 
     for (auto i = 0llu; i < lexemes.size(); ++i)
     {

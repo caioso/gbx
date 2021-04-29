@@ -1508,7 +1508,7 @@ TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing3)
 TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing4)
 {
     // ERROR: Invalid identifier '*~'
-    const string program = "TEST*~TEST2\n";
+    const string program = "TEST0*~TEST2\n";
 
     auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
@@ -1516,7 +1516,7 @@ TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing4)
 
     EXPECT_EQ(4llu, tokens.size());
 
-    EXPECT_STREQ("TEST", tokens[0].Lexeme.c_str());
+    EXPECT_STREQ("TEST0", tokens[0].Lexeme.c_str());
     EXPECT_EQ(TokenType::Identifier, tokens[0].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
@@ -1524,17 +1524,17 @@ TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing4)
     EXPECT_STREQ(Lexemes::OperatorMULTIPLICATION.c_str(), tokens[1].Lexeme.c_str());
     EXPECT_EQ(TokenType::OperatorMULTIPLICATION, tokens[1].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
-    EXPECT_EQ(static_cast<size_t>(5), tokens[1].Column);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[1].Column);
         
-    EXPECT_STREQ(Lexemes::OperatorLOGICNOT.c_str(), tokens[2].Lexeme.c_str());
-    EXPECT_EQ(TokenType::OperatorLOGICNOT, tokens[2].Type);
+    EXPECT_STREQ(Lexemes::OperatorBITWISENOT.c_str(), tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorBITWISENOT, tokens[2].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
-    EXPECT_EQ(static_cast<size_t>(6), tokens[2].Column);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[2].Column);
 
     EXPECT_STREQ("TEST2", tokens[3].Lexeme.c_str());
     EXPECT_EQ(TokenType::Identifier, tokens[3].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
-    EXPECT_EQ(static_cast<size_t>(7), tokens[3].Column);
+    EXPECT_EQ(static_cast<size_t>(8), tokens[3].Column);
 }
 
 TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing5)
@@ -1548,55 +1548,97 @@ TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing5)
 
     EXPECT_EQ(4llu, tokens.size());
 
-    EXPECT_STREQ("TEST", tokens[0].Lexeme.c_str());
-    EXPECT_EQ(TokenType::Identifier, tokens[0].Type);
+    EXPECT_STREQ("0x123", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericHEXADECIMAL, tokens[0].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
     
-    EXPECT_STREQ(Lexemes::OperatorMULTIPLICATION.c_str(), tokens[1].Lexeme.c_str());
-    EXPECT_EQ(TokenType::OperatorMULTIPLICATION, tokens[1].Type);
+    EXPECT_STREQ(Lexemes::OperatorPLUS.c_str(), tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorPLUS, tokens[1].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
-    EXPECT_EQ(static_cast<size_t>(5), tokens[1].Column);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[1].Column);
         
     EXPECT_STREQ(Lexemes::OperatorLOGICNOT.c_str(), tokens[2].Lexeme.c_str());
     EXPECT_EQ(TokenType::OperatorLOGICNOT, tokens[2].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
-    EXPECT_EQ(static_cast<size_t>(6), tokens[2].Column);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[2].Column);
 
-    EXPECT_STREQ("TEST2", tokens[3].Lexeme.c_str());
-    EXPECT_EQ(TokenType::Identifier, tokens[3].Type);
+    EXPECT_STREQ("0o111", tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::LiteralNumericOCTAL, tokens[3].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
-    EXPECT_EQ(static_cast<size_t>(7), tokens[3].Column);
+    EXPECT_EQ(static_cast<size_t>(8), tokens[3].Column);
 }
 
 TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing6)
 {
     // ERROR: Invalid identifier '*~'
-    const string program = "POP-*LD\n";
+    const string program = "POP-*/LD\n";
 
     auto lexer = make_shared<LexicalAnalyzer>();
     lexer->Tokenize(program);
     auto tokens = lexer->Tokens();
 
-    EXPECT_EQ(4llu, tokens.size());
+    EXPECT_EQ(5llu, tokens.size());
 
-    EXPECT_STREQ("TEST", tokens[0].Lexeme.c_str());
-    EXPECT_EQ(TokenType::Identifier, tokens[0].Type);
+    EXPECT_STREQ("POP", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::InstructionMnemonicPOP, tokens[0].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
     EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
     
-    EXPECT_STREQ(Lexemes::OperatorMULTIPLICATION.c_str(), tokens[1].Lexeme.c_str());
-    EXPECT_EQ(TokenType::OperatorMULTIPLICATION, tokens[1].Type);
+    EXPECT_STREQ(Lexemes::OperatorMINUS.c_str(), tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorMINUS, tokens[1].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
-    EXPECT_EQ(static_cast<size_t>(5), tokens[1].Column);
+    EXPECT_EQ(static_cast<size_t>(4), tokens[1].Column);
         
-    EXPECT_STREQ(Lexemes::OperatorLOGICNOT.c_str(), tokens[2].Lexeme.c_str());
-    EXPECT_EQ(TokenType::OperatorLOGICNOT, tokens[2].Type);
+    EXPECT_STREQ(Lexemes::OperatorMULTIPLICATION.c_str(), tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorMULTIPLICATION, tokens[2].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
-    EXPECT_EQ(static_cast<size_t>(6), tokens[2].Column);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[2].Column);
 
-    EXPECT_STREQ("TEST2", tokens[3].Lexeme.c_str());
-    EXPECT_EQ(TokenType::Identifier, tokens[3].Type);
+    EXPECT_STREQ(Lexemes::OperatorDIVISION.c_str(), tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorDIVISION, tokens[3].Type);
     EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
-    EXPECT_EQ(static_cast<size_t>(7), tokens[3].Column);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[3].Column);
+
+    EXPECT_STREQ("LD", tokens[4].Lexeme.c_str());
+    EXPECT_EQ(TokenType::InstructionMnemonicLD, tokens[4].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[4].Line);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[4].Column);
+}
+
+TEST(AssemblerTests_LexicalAnalyzer, TestIdentifierParsing7)
+{
+    // ERROR: Invalid identifier 'note: int his case, the operator >= will be split into > and ='
+    const string program = "POP->=LD\n";
+
+    auto lexer = make_shared<LexicalAnalyzer>();
+    lexer->Tokenize(program);
+    auto tokens = lexer->Tokens();
+
+    EXPECT_EQ(5llu, tokens.size());
+
+    EXPECT_STREQ("POP", tokens[0].Lexeme.c_str());
+    EXPECT_EQ(TokenType::InstructionMnemonicPOP, tokens[0].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Line);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[0].Column);
+    
+    EXPECT_STREQ(Lexemes::OperatorMINUS.c_str(), tokens[1].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorMINUS, tokens[1].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[1].Line);
+    EXPECT_EQ(static_cast<size_t>(4), tokens[1].Column);
+        
+    EXPECT_STREQ(Lexemes::OperatorGREATERTHAN.c_str(), tokens[2].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorGREATERTHAN, tokens[2].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[2].Line);
+    EXPECT_EQ(static_cast<size_t>(5), tokens[2].Column);
+
+    EXPECT_STREQ(Lexemes::OperatorASSIGNMENT.c_str(), tokens[3].Lexeme.c_str());
+    EXPECT_EQ(TokenType::OperatorASSIGNMENT, tokens[3].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[3].Line);
+    EXPECT_EQ(static_cast<size_t>(6), tokens[3].Column);
+
+    EXPECT_STREQ("LD", tokens[4].Lexeme.c_str());
+    EXPECT_EQ(TokenType::InstructionMnemonicLD, tokens[4].Type);
+    EXPECT_EQ(static_cast<size_t>(1), tokens[4].Line);
+    EXPECT_EQ(static_cast<size_t>(7), tokens[4].Column);
 }
