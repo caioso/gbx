@@ -43,7 +43,8 @@ void OpenGLVideoOutput::InitializeRendererThread()
     glfwSetWindowSize(_window, ScreenWidth * _viewPortScalingFactorX, ScreenHeight * _viewPortScalingFactorY);
 	glfwSwapInterval(static_cast<int>(BufferSwapInterval));
 
-    InitializeOpenGL();   
+    InitializeOpenGL(); 
+    InitializeTexture();  
 }
 
 inline void OpenGLVideoOutput::InitializeOpenGL()
@@ -67,7 +68,8 @@ void OpenGLVideoOutput::Render()
     }
     else
 	{
-		// Draw gears
+		// Render Frame
+        RenderFrame();
 
 		// Swap buffers
 		glfwSwapBuffers(_window);
@@ -76,6 +78,76 @@ void OpenGLVideoOutput::Render()
         // Move this to the CPU's main
         glfwPollEvents();
 	}
+}
+
+void OpenGLVideoOutput::InitializeTexture()
+{
+    glGenTextures(1, &_texture);
+    glBindTexture(GL_TEXTURE_2D, _texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // This only works in DMGBC mode for now
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, gbxcore::constants::DMGBCScreenWidth, gbxcore::constants::ScreenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE,  _openGLViewportBuffer);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void OpenGLVideoOutput::RenderFrame()
+{
+    ClearFrame();
+    FillOpenGLBuffer();
+    BindTexture();
+    RenderTexture();
+}
+
+void OpenGLVideoOutput::BindTexture()
+{
+    glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, _texture);
+    // This only works in DMGBC mode for now
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, gbxcore::constants::DMGBCScreenWidth, gbxcore::constants::ScreenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE,  _openGLViewportBuffer);
+}
+
+void OpenGLVideoOutput::RenderTexture()
+{
+    glBindTexture(GL_TEXTURE_2D, _texture);
+     // This only works in DMGBC mode for now
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); 
+            glVertex3f(((gbxcore::constants::ScreenWidth - gbxcore::constants::DMGBCScreenWidth)*_viewPortScalingFactorX)/2, 0, 0);
+        glTexCoord2f(0, -1); 
+            glVertex3f(((gbxcore::constants::ScreenWidth - gbxcore::constants::DMGBCScreenWidth)*_viewPortScalingFactorX)/2, 
+                         gbxcore::constants::ScreenHeight*_viewPortScalingFactorY, 0);
+        glTexCoord2f(1, -1); 
+            glVertex3f((gbxcore::constants::DMGBCScreenWidth*_viewPortScalingFactorX) + 
+                      ((gbxcore::constants::ScreenWidth - gbxcore::constants::DMGBCScreenWidth)*_viewPortScalingFactorX)/2, 
+                        gbxcore::constants::ScreenHeight*_viewPortScalingFactorY, 0);
+        glTexCoord2f(1, 0); 
+            glVertex3f((gbxcore::constants::DMGBCScreenWidth*_viewPortScalingFactorX) + 
+                      ((gbxcore::constants::ScreenWidth - gbxcore::constants::DMGBCScreenWidth)*_viewPortScalingFactorX)/2, 0, 0);
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+}
+
+void OpenGLVideoOutput::FillOpenGLBuffer()
+{
+    constexpr auto limit = gbxcore::constants::ScreenHeight * gbxcore::constants::ScreenWidth;
+    for (auto pointer = 0llu; pointer < limit; ++pointer)
+    {
+        auto destination = _openGLViewportBuffer + (pointer)*3;
+        auto sourceIndex = (pointer);
+        destination[0] = _gbxFramePixels[sourceIndex].Red;
+        destination[1] = _gbxFramePixels[sourceIndex].Green;
+        destination[2] = _gbxFramePixels[sourceIndex].Blue;
+    }
+}
+
+void OpenGLVideoOutput::ClearFrame()
+{
+    constexpr auto limit = gbxcore::constants::ScreenHeight * gbxcore::constants::DMGBCScreenWidth;
+    for (auto pointer = 0llu; pointer < limit; ++pointer)
+        _gbxFramePixels[pointer] = gbxcore::interfaces::VideoOutputInterface::ByteToColor(0);
 }
 
 void OpenGLVideoOutput::SetVideoEnable(bool)

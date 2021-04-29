@@ -39,11 +39,17 @@ public:
     void SetCGBBackgroundPalette(uint8_t, gbxcore::interfaces::OutputPalette) override;
     void SetCGBSpritePalette(uint8_t, gbxcore::interfaces::OutputPalette) override;
 
-private:
+protected:
     inline void InitializeGLFW();
     inline void InitializeOpenGL();
     inline void InitializeRendererThread();
 
+    void InitializeTexture();
+    void RenderFrame();
+    void ClearFrame();
+    void FillOpenGLBuffer();
+    void BindTexture();
+    void RenderTexture();
 
     GLFWwindow* _window;
     gbxcore::memory::RAM* _dmgbcVideoRAM;
@@ -53,6 +59,13 @@ private:
 
     bool _loopEnded{};
     bool _terminated{};
+
+    // Open GL-related member atributes
+    GLubyte _openGLViewportBuffer[gbxcore::constants::ScreenViewportBufferSizeInBytes];
+    GLuint _texture;
+
+    // The size of the frame pixels needs to be larger. Only part of it will be coppied to the OpenGL Viewport Buffer.
+    gbxcore::interfaces::RGBColor _gbxFramePixels[gbxcore::constants::GBXViewportBufferSizeInBytes];
 };
 
 }

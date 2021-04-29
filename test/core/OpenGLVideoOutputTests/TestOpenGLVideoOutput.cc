@@ -93,6 +93,36 @@ void glLoadIdentity (void)
 void glOrtho (GLdouble, GLdouble, GLdouble, GLdouble, GLdouble, GLdouble)
 {}
 
+void glBindTexture (GLenum, GLuint)
+{}
+
+void glGenTextures (GLsizei, GLuint*)
+{}
+
+void glTexImage2D (GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid *)
+{}
+
+void glTexParameteri (GLenum, GLenum, GLint)
+{}
+
+void glBegin (GLenum)
+{}
+
+void glDisable(GLenum)
+{}
+
+void glEnable (GLenum)
+{}
+
+void glEnd (void)
+{}
+
+void glTexCoord2f (GLfloat, GLfloat)
+{}
+
+void glVertex3f (GLfloat, GLfloat, GLfloat)
+{}
+
 // Wrappers
 class OpenGLVideoOutputWrapper : public OpenGLVideoOutput
 {

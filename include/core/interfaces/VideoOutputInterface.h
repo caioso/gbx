@@ -14,9 +14,9 @@ enum class SpriteMode
 
 typedef struct RGBColor_t
 {
-    uint32_t Red;
-    uint32_t Blue;
-    uint32_t Green;
+    uint8_t Red;
+    uint8_t Green;
+    uint8_t Blue;
 }
 RGBColor;
 typedef struct OutputPalette_t
@@ -27,7 +27,6 @@ typedef struct OutputPalette_t
     RGBColor Color3;
 }
 OutputPalette;
-
 class VideoOutputInterface
 {
 public:
@@ -55,6 +54,24 @@ public:
     
     virtual void SetCGBBackgroundPalette(uint8_t, OutputPalette) = 0;
     virtual void SetCGBSpritePalette(uint8_t, OutputPalette) = 0;
+
+    static RGBColor ByteToColor(uint8_t byte)
+    {
+        switch (byte)
+        {
+            case 0: return GBDLightest;
+            case 2: return GBDSecondLightest;
+            case 1: return GBDSecondDarkest;
+            default: return GBDarkest;
+        }
+    }
+
+private:
+    inline static RGBColor GBDarkest = {15, 56, 15};
+    inline static RGBColor GBDSecondDarkest = {48, 98, 48};
+    inline static RGBColor GBDSecondLightest = {139, 172, 15};
+    inline static RGBColor GBDLightest = {155, 188, 15};
+
 };
 
 }

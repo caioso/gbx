@@ -63,14 +63,17 @@ constexpr size_t DMGBCHRAMFinalAddress = DMGBCHRAMInitialAddress + DMGBCHRAMPhys
 static const uint64_t GBCClockPeriod = 119;
 
 // Video Constants
-const float DefaultViewPortScaleX = 3.0f;
-const float DefaultViewPortScaleY = 3.0f;
+const float DefaultViewPortScaleX = 1.0f;
+const float DefaultViewPortScaleY = 1.0f;
 
 // Curerntly I'm experimenting with GB rendering, so the screen size will be set to 160x144
 const size_t ScreenWidth = 256;
 const size_t ScreenHeight = 144;
 const size_t DMGBCScreenWidth = 160;
 const size_t BufferSwapInterval = 1;
+
+constexpr size_t ScreenViewportBufferSizeInBytes = ScreenWidth * ScreenHeight * 3;
+constexpr size_t GBXViewportBufferSizeInBytes = ScreenWidth * ScreenHeight;
 
 const std::string EmulatorWindowName = "GBX";
 
