@@ -94,6 +94,7 @@ void OpenGLVideoOutput::InitializeTexture()
 void OpenGLVideoOutput::RenderFrame()
 {
     ClearFrame();
+    ConvertTileToPixel();
     FillOpenGLBuffer();
     BindTexture();
     RenderTexture();
@@ -128,6 +129,11 @@ void OpenGLVideoOutput::RenderTexture()
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
+}
+
+void OpenGLVideoOutput::ConvertTileToPixel()
+{
+    
 }
 
 void OpenGLVideoOutput::FillOpenGLBuffer()
@@ -170,14 +176,21 @@ void OpenGLVideoOutput::SetWindowTileMapBaseAddress(size_t)
 {
 
 }
-void OpenGLVideoOutput::SetBackgroundTileMapBaseAddress(size_t)
+void OpenGLVideoOutput::SetBackgroundTileMapBaseAddress(size_t address)
 {
-
+    if (address == 0x9800)
+        _backgroundTileMapBase = 0x1800;
+    else 
+        _backgroundTileMapBase = 0x1C00;
 }
-void OpenGLVideoOutput::SetBackgroundAndWindowTileSetBaseAddress(size_t)
+void OpenGLVideoOutput::SetBackgroundAndWindowTileSetBaseAddress(size_t address)
 {
-
+    if (address == 0x8000)
+        _backgroundAndWindowTileSetBase = 0x0000;
+    else
+        _backgroundAndWindowTileSetBase = 0x0800;
 }
+
 void OpenGLVideoOutput::SetSpriteMode(SpriteMode)
 {
 

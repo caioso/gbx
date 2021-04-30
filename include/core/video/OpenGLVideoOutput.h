@@ -50,6 +50,7 @@ protected:
     void FillOpenGLBuffer();
     void BindTexture();
     void RenderTexture();
+    void ConvertTileToPixel();
 
     GLFWwindow* _window;
     gbxcore::memory::RAM* _dmgbcVideoRAM;
@@ -66,6 +67,9 @@ protected:
 
     // The size of the frame pixels needs to be larger. Only part of it will be coppied to the OpenGL Viewport Buffer.
     gbxcore::interfaces::RGBColor _gbxFramePixels[gbxcore::constants::GBXViewportBufferSizeInBytes];
+
+    size_t _backgroundAndWindowTileSetBase{};
+    size_t _backgroundTileMapBase{};
 };
 
 }
