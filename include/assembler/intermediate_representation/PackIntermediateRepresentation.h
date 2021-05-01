@@ -12,7 +12,7 @@ class PACKIntermediateRepresentation : public IntermediateRepresentation
 {
 public:
     PACKIntermediateRepresentation(std::string, std::vector<DeclaredMember>, size_t, size_t);
-    ~PACKIntermediateRepresentation() = default;
+    virtual ~PACKIntermediateRepresentation() = default;
 
     PACKIntermediateRepresentation(const PACKIntermediateRepresentation&) = default;
     PACKIntermediateRepresentation(PACKIntermediateRepresentation&&) = default;

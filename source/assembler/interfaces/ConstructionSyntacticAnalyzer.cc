@@ -37,7 +37,7 @@ bool ConstructionSyntacticAnalyzer::IsExited()
 
 bool ConstructionSyntacticAnalyzer::IsOutOfBonds(int position, size_t size)
 {
-    return position < 0 || position >= size;
+    return position < 0 || position >= static_cast<int>(size);
 }
 
 }

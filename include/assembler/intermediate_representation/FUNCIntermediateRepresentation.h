@@ -13,7 +13,7 @@ class FUNCIntermediateRepresentation : public IntermediateRepresentation
 {
 public:
     FUNCIntermediateRepresentation(std::string, std::vector<gbxasm::frontend::Token>, std::vector<DeclaredArgument>, std::vector<DeclaredArgument>, size_t, size_t);
-    ~FUNCIntermediateRepresentation() = default;
+    virtual ~FUNCIntermediateRepresentation() = default;
 
     FUNCIntermediateRepresentation(const FUNCIntermediateRepresentation&) = default;
     FUNCIntermediateRepresentation(FUNCIntermediateRepresentation&&) = default;

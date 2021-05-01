@@ -8,9 +8,9 @@
 #include <string>
 #include <utility>
 
-#include "ExpressionIntermediateRepresentation.h"
-#include "ExpressionSyntacticAnalyzer.h"
 #include "GBXAsmExceptions.h"
+#include "LabelIntermediateRepresentation.h"
+#include "LabelSyntacticAnalyzer.h"
 #include "LexicalAnalyzer.h"
 #include "Lexemes.h"
 
@@ -103,4 +103,214 @@ TEST(AssemblerTests_LabelSyntacticAnalysis, SanityCheckLabelParsingLocalLabel)
         EXPECT_EQ(*(begin(lines) + i), tokens[i].Line);
         EXPECT_EQ(*(begin(columns) + i), tokens[i].Column);
     }
+}
+
+TEST(AssemblerTests_LabelSyntacticAnalysis, ParseLabel)
+{
+    const string expression = "MY_LABEL:";
+
+    LexicalAnalyzer lexer;
+    LabelSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<LabelIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_TRUE(parser.IsAccepted());
+    EXPECT_NE(nullptr, expressionRepresentation);
+    EXPECT_EQ("MY_LABEL", expressionRepresentation->Identifier());
+    EXPECT_EQ(LabelScope::Local, expressionRepresentation->Scope());
+}
+
+TEST(AssemblerTests_LabelSyntacticAnalysis, ParseLabel2)
+{
+    const string expression = "MY_LABEL_WITH_EXTRAS:\n"
+                              "\tLD A, 0x00";
+    LexicalAnalyzer lexer;
+    LabelSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<LabelIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_TRUE(parser.IsAccepted());
+    EXPECT_NE(nullptr, expressionRepresentation);
+    EXPECT_EQ("MY_LABEL_WITH_EXTRAS", expressionRepresentation->Identifier());
+    EXPECT_EQ(LabelScope::Local, expressionRepresentation->Scope());
+}
+
+TEST(AssemblerTests_LabelSyntacticAnalysis, MalformedParseLabel)
+{
+    const string expression = "MY_LABEL HELLO:";
+
+    LexicalAnalyzer lexer;
+    LabelSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<LabelIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_TRUE(parser.IsRejected());
+}
+
+TEST(AssemblerTests_LabelSyntacticAnalysis, MalformedParseLabel2)
+{
+    const string expression = "MY_LABEL";
+
+    LexicalAnalyzer lexer;
+    LabelSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<LabelIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_TRUE(parser.IsRejected());
+}
+
+TEST(AssemblerTests_LabelSyntacticAnalysis, MalformedParseLabel3)
+{
+    const string expression = ":";
+
+    LexicalAnalyzer lexer;
+    LabelSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<LabelIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_TRUE(parser.IsRejected());
+}
+
+TEST(AssemblerTests_LabelSyntacticAnalysis, MalformedParseLabel4)
+{
+    const string expression = ".Label:";
+
+    LexicalAnalyzer lexer;
+    LabelSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<LabelIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_TRUE(parser.IsRejected());
+}
+
+TEST(AssemblerTests_LabelSyntacticAnalysis, MalformedParseLabel5)
+{
+    const string expression = "0x55:";
+
+    LexicalAnalyzer lexer;
+    LabelSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<LabelIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_TRUE(parser.IsRejected());
+}
+
+TEST(AssemblerTests_LabelSyntacticAnalysis, MalformedParseLabel6)
+{
+    const string expression = "\"LABEL\":";
+
+    LexicalAnalyzer lexer;
+    LabelSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<LabelIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_TRUE(parser.IsRejected());
+}
+
+TEST(AssemblerTests_LabelSyntacticAnalysis, ParseLabelWithScopeMarker)
+{
+    const string expression = "MY_LABEL<GBL>:";
+
+    LexicalAnalyzer lexer;
+    LabelSyntacticAnalyzer parser;
+    lexer.Tokenize(expression);
+    
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<LabelIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_TRUE(parser.IsAccepted());
+    EXPECT_NE(nullptr, expressionRepresentation);
+    EXPECT_EQ("MY_LABEL", expressionRepresentation->Identifier());
+    EXPECT_EQ(LabelScope::Global, expressionRepresentation->Scope());
+}
+
+TEST(AssemblerTests_LabelSyntacticAnalysis, ParseLabelWithScopeMarker2)
+{
+    const string expression = "MY_LABEL<LOC>:";
+
+    LexicalAnalyzer lexer;
+    LabelSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<LabelIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_TRUE(parser.IsAccepted());
+    EXPECT_NE(nullptr, expressionRepresentation);
+    EXPECT_EQ("MY_LABEL", expressionRepresentation->Identifier());
+    EXPECT_EQ(LabelScope::Local, expressionRepresentation->Scope());
+}
+
+TEST(AssemblerTests_LabelSyntacticAnalysis, ParseLabelWithScopeMarker3)
+{
+    const string expression = "LABEL < LOC >    :";
+
+    LexicalAnalyzer lexer;
+    LabelSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<LabelIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_TRUE(parser.IsAccepted());
+    EXPECT_NE(nullptr, expressionRepresentation);
+    EXPECT_EQ("LABEL", expressionRepresentation->Identifier());
+    EXPECT_EQ(LabelScope::Local, expressionRepresentation->Scope());
+}
+
+TEST(AssemblerTests_LabelSyntacticAnalysis, ParseLabelWithScopeMarker4)
+{
+    const string expression = "MY_LABEL_WITH_EXTRAS<GBL>:\n"
+                              "\tLD A, 0x00";
+    LexicalAnalyzer lexer;
+    LabelSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    auto intermediateRepresentation = parser.TryToAccept(currentToken, endIterator);
+    auto expressionRepresentation = dynamic_pointer_cast<LabelIntermediateRepresentation>(intermediateRepresentation);
+
+    EXPECT_TRUE(parser.IsAccepted());
+    EXPECT_NE(nullptr, expressionRepresentation);
+    EXPECT_EQ("MY_LABEL_WITH_EXTRAS", expressionRepresentation->Identifier());
+    EXPECT_EQ(LabelScope::Local, expressionRepresentation->Scope());
 }

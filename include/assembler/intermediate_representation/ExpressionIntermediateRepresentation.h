@@ -14,7 +14,7 @@ class ExpressionIntermediateRepresentation : public IntermediateRepresentation
 {
 public:
     ExpressionIntermediateRepresentation(std::stack<ExpressionMember>, size_t, size_t);
-    ~ExpressionIntermediateRepresentation() = default;
+    virtual ~ExpressionIntermediateRepresentation() = default;
 
     ExpressionIntermediateRepresentation(const ExpressionIntermediateRepresentation&) = default;
     ExpressionIntermediateRepresentation(ExpressionIntermediateRepresentation&&) = default;

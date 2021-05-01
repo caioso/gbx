@@ -152,7 +152,6 @@ function ToPaddedHexString(num, len) {
     return "0".repeat(len - str.length) + str;
 }
 
-
 function UpdateBytes()
 {
     var line = "";
@@ -176,6 +175,13 @@ function RefreshCanvas()
 {
     ClearCanvas();
     RenderSpriteBase(SpriteMode.Sprite8x8)
+    RenderPalettes();
+}
+
+function RenderPalettes()
+{
+    context.fillStyle = 'rgba(200, 200, 200, 1)';
+    context.roundRect(10, canvas.height - 60, canvas.width - 20, 50, 4).fill();
 }
 
 function ClearCanvas()
