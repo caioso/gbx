@@ -15,55 +15,46 @@ shared_ptr<IntermediateRepresentation> LabelSyntacticAnalyzer::TryToAccept(vecto
     while (!IsAccepted() && !IsRejected())
     {        
         auto leftSubstring = -1; 
-        auto state = 0;
+        auto state = FSMState::InitialState;
 
         while(true)
         {
-            if (state == 0)
+            if (state == FSMState::InitialState)
             {
-                leftSubstring++;
-                state = 1;
+                Shift(leftSubstring);
+                state = FSMState::IdentifyLabelOrAcceptLabel;
             }
-            else if (state == 1)
+            else if (state == FSMState::IdentifyLabelOrAcceptLabel)
             {
                 if (_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::TerminalIdentifier)
                 {
-                    leftSubstring++;
-                    state = 2;
+                    Shift(leftSubstring);
+                    state = FSMState::DetectSimpleLabelOrMarkedLabel;
                 }
                 else if(_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::NonTerminalLabelName)
                 {
-                    leftSubstring++;
-                    state = 3;
+                    Shift(leftSubstring);
+                    state = FSMState::ReduceSimpleLabel;
                 }
-                else if(_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::NonTerminalSimpleLabel ||
-                        _symbols[leftSubstring].Symbol == LabelParserTreeSymbol::NonTerminalGloballyDefinedLabel ||
-                        _symbols[leftSubstring].Symbol == LabelParserTreeSymbol::NonTerminalLocallyDefinedLabel)
+                else if(IsPartiallyReducedLabel(leftSubstring))
                 {
-                    leftSubstring++;
-                    state = 4;
+                    Shift(leftSubstring);
+                    state = FSMState::ReduceLabel;
                 }
                 else if (_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::NonTerminalLabel)
                 {
-                    Accept();
-                    break;
+                    Accept(); break;
                 }
                 else
                 {
                     Reject(); break;
                 }
             }
-            else if (state == 2)
+            else if (state == FSMState::DetectSimpleLabelOrMarkedLabel)
             {
-                if (_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::TerminalSemiColon || 
-                    _symbols[leftSubstring].Symbol == LabelParserTreeSymbol::TerminalLessThan)
+                if (IsSemiColonOrMarkerBegin(leftSubstring))
                 {
-                    identifier = (*(begin(_symbols) + leftSubstring - 1)).Lexeme;
-
-                    // Reduce
-                    // Remove SemiColon
-                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = LabelParserTreeSymbol::NonTerminalLabelName, .Lexeme = string("") });
+                    ReduceLabelName(leftSubstring, identifier);
                     break;
                 }
                 else
@@ -71,105 +62,81 @@ shared_ptr<IntermediateRepresentation> LabelSyntacticAnalyzer::TryToAccept(vecto
                     Reject(); break;
                 }
             }
-            else if (state == 3)
+            else if (state == FSMState::ReduceSimpleLabel)
             {
                 if (_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::TerminalSemiColon)
                 {
-                    // Reduce
-                    // Remove SemiColon
-                    _symbols.erase(begin(_symbols) + leftSubstring);
-                    // Remove Identifier Name
-                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = LabelParserTreeSymbol::NonTerminalSimpleLabel, .Lexeme = string("") });
+                    ReduceSimpleLabel(leftSubstring);
                     break;
                 }
                 else if (_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::NonTerminalGlobalScopeMarker)
                 {
-                    leftSubstring++;
-                    state = 8;
+                    Shift(leftSubstring);
+                    state = FSMState::ReduceFullGlobalLabel;
                 }
                 else if (_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::NonTerminalLocalScopeMarker)
                 {
-                    leftSubstring++;
-                    state = 10;
+                    Shift(leftSubstring);
+                    state = FSMState::ReduceFullLocalLabel;
                 }
                 else if (_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::TerminalLessThan)
                 {
-                    leftSubstring++;
-                    state = 5;
+                    Shift(leftSubstring);
+                    state = FSMState::DetectMakedLabelType;
                 }
                 else
                 {
                     Reject(); break;
                 }
             }
-            else if (state == 4)
+            else if (state == FSMState::ReduceLabel)
             {
-                // Reduce
-                // Remove SemiColon
-                _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = LabelParserTreeSymbol::NonTerminalLabel, .Lexeme = string("") });
+                ReduceLabel(leftSubstring);
                 break;
             }
-            else if (state == 5)
+            else if (state == FSMState::DetectMakedLabelType)
             {
                 if (_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::TerminalGBL)
                 {
                     scope = LabelScope::Global;
-                    leftSubstring++;
-                    state = 6;
+                    Shift(leftSubstring);
+                    state = FSMState::DetectMakedEnd;
                 }
                 else if (_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::TerminalLOC)
                 {
                     scope = LabelScope::Local;
-                    leftSubstring++;
-                    state = 6;
+                    Shift(leftSubstring);
+                    state = FSMState::DetectMakedEnd;
                 }
                 else
                 {
                     Reject(); break;
                 }
             }
-            else if (state == 6)
+            else if (state == FSMState::DetectMakedEnd)
             {
                 if (_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::TerminalGreaterThan)
                 {
-                    leftSubstring++;
-
                     if (scope == LabelScope::Global)
-                        state = 7;
+                        state = FSMState::ReduceGlobalMarker;
                     else
-                        state = 9;
+                        state = FSMState::ReduceLocalMarker;
                 }
                 else
                 {
                     Reject(); break;
                 }
             }
-            else if (state == 7)
+            else if (state == FSMState::ReduceGlobalMarker)
             {
-                // Reduce
-                // Remove >
-                _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                // Remove GBL
-                _symbols.erase(begin(_symbols) + leftSubstring - 2);
-                // Remove <
-                _symbols.erase(begin(_symbols) + leftSubstring - 3);
-                _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = LabelParserTreeSymbol::NonTerminalGlobalScopeMarker, .Lexeme = string("") });
+                ReduceGlobalMarker(leftSubstring);
                 break;
             }
-            else if (state == 8)
+            else if (state == FSMState::ReduceFullGlobalLabel)
             {
                 if (_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::TerminalSemiColon)
                 {
-                    // Reduce
-                    // Remove :
-                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                    // Remove <GBL>
-                    _symbols.erase(begin(_symbols) + leftSubstring - 2);
-                    // Remove LabelName
-                    _symbols.erase(begin(_symbols) + leftSubstring - 3);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = LabelParserTreeSymbol::NonTerminalGloballyDefinedLabel, .Lexeme = string("") });
+                    ReduceFullGlobalLabel(leftSubstring);
                     break;
                 }
                 else
@@ -177,31 +144,16 @@ shared_ptr<IntermediateRepresentation> LabelSyntacticAnalyzer::TryToAccept(vecto
                     Reject(); break;
                 }
             }
-            else if (state == 9)
-            {
-                
-                // Reduce
-                // Remove >
-                _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                // Remove LOC
-                _symbols.erase(begin(_symbols) + leftSubstring - 2);
-                // Remove <
-                _symbols.erase(begin(_symbols) + leftSubstring - 3);
-                _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = LabelParserTreeSymbol::NonTerminalLocalScopeMarker, .Lexeme = string("") });
+            else if (state == FSMState::ReduceLocalMarker)
+            {           
+                ReduceLocalMarker(leftSubstring);   
                 break;
             }
-            else if (state == 10)
+            else if (state == FSMState::ReduceFullLocalLabel)
             {
                 if (_symbols[leftSubstring].Symbol == LabelParserTreeSymbol::TerminalSemiColon)
                 {
-                    // Reduce
-                    // Remove :
-                    _symbols.erase(begin(_symbols) + leftSubstring - 1);
-                    // Remove <GBL>
-                    _symbols.erase(begin(_symbols) + leftSubstring - 2);
-                    // Remove LabelName
-                    _symbols.erase(begin(_symbols) + leftSubstring - 3);
-                    _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = LabelParserTreeSymbol::NonTerminalLocallyDefinedLabel, .Lexeme = string("") });
+                    ReduceFullLocalLabel(leftSubstring);
                     break;
                 }
                 else
@@ -209,17 +161,100 @@ shared_ptr<IntermediateRepresentation> LabelSyntacticAnalyzer::TryToAccept(vecto
                     Reject(); break;
                 }
             }
-        }
-
-        cout << "Iteration" << '\n';
-        for (auto i : _symbols)
-        {
-            cout << '\t' << static_cast<size_t>(i.Symbol) << '\n';
         }
     }
 
     auto intermediateRepresentation = make_shared<LabelIntermediateRepresentation>(identifier, scope, _line, _column);
     return intermediateRepresentation;
+}
+
+void LabelSyntacticAnalyzer::ReduceFullLocalLabel(int leftSubstring)
+{
+    // Reduce
+    // Remove :
+    _symbols.erase(begin(_symbols) + leftSubstring);
+    // Remove <GBL>
+    _symbols.erase(begin(_symbols) + leftSubstring - 1);
+    // Remove LabelName
+    _symbols.erase(begin(_symbols) + leftSubstring - 2);
+    _symbols.insert(begin(_symbols) +  leftSubstring - 2, { .Symbol = LabelParserTreeSymbol::NonTerminalLocallyDefinedLabel, .Lexeme = string("") });
+}
+
+void LabelSyntacticAnalyzer::ReduceFullGlobalLabel(int leftSubstring)
+{
+    // Reduce
+    // Remove :
+    _symbols.erase(begin(_symbols) + leftSubstring);
+    // Remove <GBL>
+    _symbols.erase(begin(_symbols) + leftSubstring - 1);
+    // Remove LabelName
+    _symbols.erase(begin(_symbols) + leftSubstring - 2);
+    _symbols.insert(begin(_symbols) +  leftSubstring - 2, { .Symbol = LabelParserTreeSymbol::NonTerminalGloballyDefinedLabel, .Lexeme = string("") });
+}
+
+void LabelSyntacticAnalyzer::ReduceGlobalMarker(int leftSubstring)
+{
+    // Reduce
+    // Remove >
+    _symbols.erase(begin(_symbols) + leftSubstring);
+    // Remove GBL
+    _symbols.erase(begin(_symbols) + leftSubstring - 1);
+    // Remove <
+    _symbols.erase(begin(_symbols) + leftSubstring - 2);
+    _symbols.insert(begin(_symbols) +  leftSubstring - 2, { .Symbol = LabelParserTreeSymbol::NonTerminalGlobalScopeMarker, .Lexeme = string("") });
+}
+
+void LabelSyntacticAnalyzer::ReduceLocalMarker(int leftSubstring)
+{
+    // Reduce
+    // Remove >
+    _symbols.erase(begin(_symbols) + leftSubstring);
+    // Remove LOC
+    _symbols.erase(begin(_symbols) + leftSubstring - 1);
+    // Remove <
+    _symbols.erase(begin(_symbols) + leftSubstring - 2);
+    _symbols.insert(begin(_symbols) +  leftSubstring - 2, { .Symbol = LabelParserTreeSymbol::NonTerminalLocalScopeMarker, .Lexeme = string("") });
+}
+
+void LabelSyntacticAnalyzer::ReduceLabel(int leftSubstring)
+{
+    // Reduce
+    // Remove SemiColon
+    _symbols.erase(begin(_symbols) + leftSubstring - 1);
+    _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = LabelParserTreeSymbol::NonTerminalLabel, .Lexeme = string("") });
+}
+
+void LabelSyntacticAnalyzer::ReduceLabelName(int leftSubstring, string& identifier)
+{
+    identifier = (*(begin(_symbols) + leftSubstring - 1)).Lexeme;
+
+    // Reduce
+    // Remove SemiColon
+    _symbols.erase(begin(_symbols) + leftSubstring - 1);
+    _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = LabelParserTreeSymbol::NonTerminalLabelName, .Lexeme = string("") });
+}
+
+bool LabelSyntacticAnalyzer::IsSemiColonOrMarkerBegin(int leftSubstring)
+{
+    return _symbols[leftSubstring].Symbol == LabelParserTreeSymbol::TerminalSemiColon || 
+           _symbols[leftSubstring].Symbol == LabelParserTreeSymbol::TerminalLessThan;
+}
+
+bool LabelSyntacticAnalyzer::IsPartiallyReducedLabel(int leftSubstring)
+{
+    return _symbols[leftSubstring].Symbol == LabelParserTreeSymbol::NonTerminalSimpleLabel ||
+    _symbols[leftSubstring].Symbol == LabelParserTreeSymbol::NonTerminalGloballyDefinedLabel ||
+    _symbols[leftSubstring].Symbol == LabelParserTreeSymbol::NonTerminalLocallyDefinedLabel;
+}
+
+void LabelSyntacticAnalyzer::ReduceSimpleLabel(int leftSubstring)
+{
+    // Reduce
+    // Remove SemiColon
+    _symbols.erase(begin(_symbols) + leftSubstring);
+    // Remove Identifier Name
+    _symbols.erase(begin(_symbols) + leftSubstring - 1);
+    _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = LabelParserTreeSymbol::NonTerminalSimpleLabel, .Lexeme = string("") });
 }
 
 void LabelSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& beginIt, vector<Token>::iterator& endIt)
@@ -262,6 +297,11 @@ void LabelSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& beginIt, ve
         _line = _symbols[0].Line;
         _column = _symbols[0].Column;
     }
+}
+
+inline void LabelSyntacticAnalyzer::Shift(int& top)
+{
+    top++;
 }
 
 }

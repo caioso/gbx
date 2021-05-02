@@ -312,5 +312,5 @@ TEST(AssemblerTests_LabelSyntacticAnalysis, ParseLabelWithScopeMarker4)
     EXPECT_TRUE(parser.IsAccepted());
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ("MY_LABEL_WITH_EXTRAS", expressionRepresentation->Identifier());
-    EXPECT_EQ(LabelScope::Local, expressionRepresentation->Scope());
+    EXPECT_EQ(LabelScope::Global, expressionRepresentation->Scope());
 }
