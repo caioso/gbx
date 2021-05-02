@@ -277,7 +277,7 @@ TEST(CoreTests_OpenGLVideoOutput, TestSetBackgroundSetBackgroundTiles)
     userVideoRAM->Load(make_shared<uint8_t*>(backgroundMap), 1024, 0x1800);
     OpenGLVideoOutputWrapper output(userVideoRAM.get());
     output.Initialize();
-
+    
     // Prepare Video Output
     output.SetBackgroundAndWindowTileSetBaseAddress(0x8000);
     output.SetBackgroundTileMapBaseAddress(0x9800);
@@ -286,11 +286,20 @@ TEST(CoreTests_OpenGLVideoOutput, TestSetBackgroundSetBackgroundTiles)
     EXPECT_EQ(0x0000llu, output.BackgroundAndWindowTileSetBase());
     EXPECT_EQ(0x1800llu, output.BackgroundTileMapBase());
 
+    // Render
+    output.Render();
+
     // Check buffer
     auto pixelCounter = 0llu;
-    for (auto i = 0llu; i < gbxcore::constants::ScreenHeight/8; ++i)
-        for (auto j = 0llu; j < gbxcore::constants::DMGBCScreenWidth/8; ++j)
+    for (auto i = 0llu; i < 1; ++i)//gbxcore::constants::ScreenHeight/8; ++i)
+        for (auto j = 0llu; j < 168; ++j)//gbxcore::constants::DMGBCScreenWidth/8; ++j)
         {
+            cout << "Pixel: " << j << '\n'; 
+            cout << "\tR: " << static_cast<size_t>(output.GBXFramePixels()[pixelCounter].Red) << '\n';
+            cout << "\tG: " << static_cast<size_t>(output.GBXFramePixels()[pixelCounter].Green) << '\n';
+            cout << "\tB: " << static_cast<size_t>(output.GBXFramePixels()[pixelCounter].Blue) << '\n';
+            pixelCounter++;
+            /*
             for (auto k = 0; k < 8; ++k)
                 for (auto l = 0; l < 8; ++l)
                 {
@@ -299,5 +308,6 @@ TEST(CoreTests_OpenGLVideoOutput, TestSetBackgroundSetBackgroundTiles)
                     EXPECT_EQ(verificationTile[l + k*8].Blue, output.GBXFramePixels()[pixelCounter].Blue);
                     pixelCounter++;
                 }
+            */
         }
 }

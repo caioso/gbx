@@ -72,6 +72,10 @@ const size_t ScreenHeight = 144;
 const size_t DMGBCScreenWidth = 160;
 const size_t BufferSwapInterval = 1;
 
+const size_t DMGBCBackgroundBufferSize = 0x0800;
+const size_t DMGBCMaxBackgroundHorizontalTileCount = 32;
+const size_t DMGBCMaxBackgroundVerticalTileCount = 32;
+
 constexpr size_t ScreenViewportBufferSizeInBytes = ScreenWidth * ScreenHeight * 3;
 constexpr size_t GBXViewportBufferSizeInBytes = ScreenWidth * ScreenHeight;
 

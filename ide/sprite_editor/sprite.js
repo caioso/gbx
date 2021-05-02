@@ -1,5 +1,8 @@
-var canvas = null;
-var context = null;
+var editorCanvas = null;
+var editorContext = null;
+
+var paletteCanvas = null;
+var paletteContext = null;
 
 var spriteZoomFactor = 3.0;
 var currentSpriteZoomFactor = 3.0;
@@ -26,18 +29,24 @@ const SpriteMode =
 
 function Initialize()
 {
-    canvas = document.getElementById('spriteEditor')
-    context = canvas.getContext('2d');
+    editorCanvas = document.getElementById('spriteEditor')
+    editorContext = editorCanvas.getContext('2d');
+    
+    paletteCanvas = document.getElementById('palettes')
+    paletteContext = paletteCanvas.getContext('2d');
 
     InitializeCanvas();
 }
 
 function InitializeCanvas() 
 {
-    canvas.height = window.innerHeight ;
-    canvas.width = window.innerWidth * 0.5;
+    editorCanvas.height = document.getElementById('editorWindow').clientHeight;
+    editorCanvas.width = document.getElementById('editorWindow').clientWidth;
 
-    SetCanvasEvents();
+    paletteCanvas.height = document.getElementById('paletteWindow').clientHeight;
+    paletteCanvas.width = document.getElementById('paletteWindow').clientWidth;
+
+    SetEditorCanvasEvents();
     ClearCanvas();
     InitializeLogicSprite();
 }
@@ -54,9 +63,9 @@ function InitializeLogicSprite()
     }
 }
 
-function SetCanvasEvents()
+function SetEditorCanvasEvents()
 {
-    canvas.addEventListener('wheel',function(event)
+    editorCanvas.addEventListener('wheel',function(event)
     {
         spriteZoomFactor = Math.max(1.0, Math.min(10.0, spriteZoomFactor + event.deltaY/600));
 
@@ -66,12 +75,12 @@ function SetCanvasEvents()
         return false; 
     }, false);
 
-    canvas.addEventListener('mousedown',function(event)
+    editorCanvas.addEventListener('mousedown',function(event)
     {
         var width = 100 * currentSpriteZoomFactor;
         var height = 100 * currentSpriteZoomFactor;
-        var baseX = canvas.width/2 - width/2 - currentSpriteOffsetX;
-        var baseY = canvas.height/2 - height/2 - currentSpriteOffsetY;
+        var baseX = editorCanvas.width/2 - width/2 - currentSpriteOffsetX;
+        var baseY = editorCanvas.height/2 - height/2 - currentSpriteOffsetY;
 
         if(event.button === 1 || event.button === 0)
         {
@@ -96,7 +105,7 @@ function SetCanvasEvents()
         return false; 
     }, false);
 
-    canvas.addEventListener('mouseup', function (event)
+    editorCanvas.addEventListener('mouseup', function (event)
     {
         if(event.button === 2)
             leftMouseDown = false;
@@ -107,7 +116,7 @@ function SetCanvasEvents()
         return false; 
     }, false);
 
-    canvas.addEventListener('mousemove', function (event)
+    editorCanvas.addEventListener('mousemove', function (event)
     {
         if (leftMouseDown)
         {
@@ -118,8 +127,8 @@ function SetCanvasEvents()
         {
             var width = 100 * currentSpriteZoomFactor;
             var height = 100 * currentSpriteZoomFactor;
-            var baseX = canvas.width/2 - width/2 - currentSpriteOffsetX;
-            var baseY = canvas.height/2 - height/2 - currentSpriteOffsetY;
+            var baseX = editorCanvas.width/2 - width/2 - currentSpriteOffsetX;
+            var baseY = editorCanvas.height/2 - height/2 - currentSpriteOffsetY;
 
             SetPixel(parseInt((event.pageX - baseX)/(width/8)), parseInt((event.pageY - baseY)/(width/8)));
         }
@@ -128,7 +137,7 @@ function SetCanvasEvents()
         return false; 
     }, false)
 
-    canvas.addEventListener('contextmenu', function (event)
+    editorCanvas.addEventListener('contextmenu', function (event)
     {
         event.preventDefault();
         return false; 
@@ -180,20 +189,23 @@ function RefreshCanvas()
 
 function RenderPalettes()
 {
-    context.fillStyle = 'rgba(200, 200, 200, 1)';
-    context.roundRect(10, canvas.height - 60, canvas.width - 20, 50, 4).fill();
+    editorContext.fillStyle = 'rgba(200, 200, 200, 1)';
 }
 
 function ClearCanvas()
 {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = 'rgba(45, 45, 45,1)';
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    editorContext.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
+    editorContext.fillStyle = 'rgba(45, 45, 45,1)';
+    editorContext.fillRect(0, 0, editorCanvas.width, editorCanvas.height);
+    
+    paletteContext.clearRect(0, 0, paletteCanvas.width, paletteCanvas.height);
+    paletteContext.fillStyle = 'rgba(90, 90, 90, 1)';
+    paletteContext.fillRect(0, 0, paletteCanvas.width, paletteCanvas.height);
 }
 
 function RenderSpriteBase(Mode)
 {
-    context.fillStyle = 'rgba(180,180,180,0.3)';
+    editorContext.fillStyle = 'rgba(180,180,180,0.3)';
     
     currentSpriteZoomFactor += (spriteZoomFactor - currentSpriteZoomFactor)/5;
     
@@ -202,10 +214,10 @@ function RenderSpriteBase(Mode)
 
     var width = 100 * currentSpriteZoomFactor;
     var height = 100 * currentSpriteZoomFactor;
-    var baseX = canvas.width/2 - width/2 - currentSpriteOffsetX;
-    var baseY = canvas.height/2 - height/2 - currentSpriteOffsetY;
+    var baseX = editorCanvas.width/2 - width/2 - currentSpriteOffsetX;
+    var baseY = editorCanvas.height/2 - height/2 - currentSpriteOffsetY;
 
-    context.fillRect(baseX, baseY, width, height )
+    editorContext.fillRect(baseX, baseY, width, height )
     
     // Render Pixels
     for (var i = 0; i < 8; i++)
@@ -213,35 +225,35 @@ function RenderSpriteBase(Mode)
         for (var j = 0; j < 8; j++)
         {
             if (pixels[j][i] == 0)
-                context.fillStyle = 'rgba(0, 0, 255, 1)';
+                editorContext.fillStyle = 'rgba(0, 0, 255, 1)';
             else
-                context.fillStyle = 'rgba(255, 0, 0, 1)';
+                editorContext.fillStyle = 'rgba(255, 0, 0, 1)';
 
-            context.fillRect(baseX + (width/8)*j, baseY + (height/8)*i, width/8, height/8 )
+            editorContext.fillRect(baseX + (width/8)*j, baseY + (height/8)*i, width/8, height/8 )
         }
     }
 
     // Sprite 8x8
     for (var i = 0; i < 9; i++)
     {
-        context.strokeStyle = 'rgba(255,255,255,1)';
+        editorContext.strokeStyle = 'rgba(255,255,255,1)';
 
-        context.beginPath();
-        context.moveTo(baseX + (width/8)*i, baseY);
-        context.lineTo(baseX + (width/8)*i, baseY + height);
-        context.stroke();
+        editorContext.beginPath();
+        editorContext.moveTo(baseX + (width/8)*i, baseY);
+        editorContext.lineTo(baseX + (width/8)*i, baseY + height);
+        editorContext.stroke();
 
-        context.beginPath();
-        context.moveTo(baseX, baseY + (height/8)*i);
-        context.lineTo(baseX + width, baseY + (height/8)*i);
-        context.stroke();
+        editorContext.beginPath();
+        editorContext.moveTo(baseX, baseY + (height/8)*i);
+        editorContext.lineTo(baseX + width, baseY + (height/8)*i);
+        editorContext.stroke();
     }
 }
 
 function ReportWindowSize() 
 {
-    canvas.height = window.innerHeight ;
-    canvas.width = window.innerWidth * 0.5;
+    editorCanvas.height = document.getElementById('editorWindow').clientHeight;
+    editorCanvas.width = document.getElementById('editorWindow').clientWidth;;
 }
 
 function HandleKeyInput(e) 
@@ -286,15 +298,15 @@ function RenderZoom()
 
 function ShowZoomValue() 
 {
-    context.font = "20px sans serif";
+    editorContext.font = "20px sans serif";
 
     if (showZoomCounter <= 20)
-        context.fillStyle = 'rgba(255,255,255,' + showZoomCounter/20 + ')';
+        editorContext.fillStyle = 'rgba(255,255,255,' + showZoomCounter/20 + ')';
     else
-        context.fillStyle = 'rgba(255,255,255,1)';
+        editorContext.fillStyle = 'rgba(255,255,255,1)';
 
-    context.textAlign = "right";
-    context.fillText(parseInt((parseInt((currentSpriteZoomFactor*10))/10)*100) + "%", canvas.width - 40, canvas.height - 30);
+    editorContext.textAlign = "right";
+    editorContext.fillText(parseInt((parseInt((currentSpriteZoomFactor*10))/10)*100) + "%", editorCanvas.width - 40, editorCanvas.height - 30);
 }
 
 function SpriteRenderer() 
