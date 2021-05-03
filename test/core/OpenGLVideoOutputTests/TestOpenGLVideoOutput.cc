@@ -195,19 +195,30 @@ TEST(CoreTests_OpenGLVideoOutput, TestSetBackgroundSetBackgroundTiles)
     gbxcore::interfaces::RGBColor c2 = {139, 172, 15};
     gbxcore::interfaces::RGBColor c3 = {155, 188, 15};
 
-    uint8_t tile[] = {0x7E, 0xFF, 0x83, 0x81, 0x85, 0x81, 0x89, 0x83, 0x93, 0x85, 0xA5, 0x8B, 0xC9, 0x97, 0x7E, 0xFF};
+    uint8_t tile[] = {0x7E, 0xFF, 0x83, 0x81, 0x85, 0x81, 0x89, 0x83, 0x93, 0x85, 0xA5, 0x8B, 0xC9, 0x97, 0x7E, 0xFF, // Tile 1
+                      0x00, 0x55, 0x00, 0xAA, 0x00, 0x55, 0x00, 0xAA, 0x00, 0x55, 0x00, 0xAA, 0x00, 0x55, 0x00, 0xAA}; // Tile 2
+
 
     gbxcore::interfaces::RGBColor verificationTile[] = {c1, c0, c0, c0, c0, c0, c0, c1,
                                                         c0, c3, c3, c3, c3, c3, c2, c0,
                                                         c0, c3, c3, c3, c3, c2, c3, c0,
                                                         c0, c3, c3, c3, c2, c3, c1, c0,
-                                                        c0, c3, c3, c2, c3, c1, c3, c0,
+                                                        c0, c3, c3, c2, c3, c1, c2, c0,
                                                         c0, c3, c2, c3, c1, c2, c1, c0,
                                                         c0, c2, c3, c1, c2, c1, c1, c0,
                                                         c1, c0, c0, c0, c0, c0, c0, c1};
 
+    gbxcore::interfaces::RGBColor verificationTile2[] ={c3, c1, c3, c1, c3, c1, c3, c1,
+                                                        c1, c3, c1, c3, c1, c3, c1, c3,
+                                                        c3, c1, c3, c1, c3, c1, c3, c1,
+                                                        c1, c3, c1, c3, c1, c3, c1, c3,
+                                                        c3, c1, c3, c1, c3, c1, c3, c1,
+                                                        c1, c3, c1, c3, c1, c3, c1, c3,
+                                                        c3, c1, c3, c1, c3, c1, c3, c1,
+                                                        c1, c3, c1, c3, c1, c3, c1, c3};
+
     // The background is made of 32x32 tiles, where only where only 20 x 18 are visible at screen at any time.
-    uint8_t backgroundMap[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+    uint8_t backgroundMap[] = {0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -273,7 +284,7 @@ TEST(CoreTests_OpenGLVideoOutput, TestSetBackgroundSetBackgroundTiles)
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     auto userVideoRAM = make_unique<RAM>(DMGBCVideoRAMPhysicalSize);
-    userVideoRAM->Load(make_shared<uint8_t*>(tile), 16, 0);
+    userVideoRAM->Load(make_shared<uint8_t*>(tile), 32, 0);
     userVideoRAM->Load(make_shared<uint8_t*>(backgroundMap), 1024, 0x1800);
     OpenGLVideoOutputWrapper output(userVideoRAM.get());
     output.Initialize();
@@ -290,24 +301,39 @@ TEST(CoreTests_OpenGLVideoOutput, TestSetBackgroundSetBackgroundTiles)
     output.Render();
 
     // Check buffer
-    auto pixelCounter = 0llu;
-    for (auto i = 0llu; i < 1; ++i)//gbxcore::constants::ScreenHeight/8; ++i)
-        for (auto j = 0llu; j < 168; ++j)//gbxcore::constants::DMGBCScreenWidth/8; ++j)
+    
+    for (auto i = 0llu; i < 2; ++i)//gbxcore::constants::ScreenHeight/8; ++i)
+        for (auto j = 0llu; j < 1; ++j)//gbxcore::constants::DMGBCScreenWidth/8; ++j)
         {
-            cout << "Pixel: " << j << '\n'; 
-            cout << "\tR: " << static_cast<size_t>(output.GBXFramePixels()[pixelCounter].Red) << '\n';
-            cout << "\tG: " << static_cast<size_t>(output.GBXFramePixels()[pixelCounter].Green) << '\n';
-            cout << "\tB: " << static_cast<size_t>(output.GBXFramePixels()[pixelCounter].Blue) << '\n';
-            pixelCounter++;
-            /*
+            // i: lines
+            // j: column
+            auto pixelCounter = i * 8 + 
+                                j * gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount * 8;
+            
             for (auto k = 0; k < 8; ++k)
+            {
                 for (auto l = 0; l < 8; ++l)
                 {
-                    EXPECT_EQ(verificationTile[l + k*8].Red, output.GBXFramePixels()[pixelCounter].Red);
-                    EXPECT_EQ(verificationTile[l + k*8].Green, output.GBXFramePixels()[pixelCounter].Green);
-                    EXPECT_EQ(verificationTile[l + k*8].Blue, output.GBXFramePixels()[pixelCounter].Blue);
+                    cout << "L : " << l << " K: " << k << " Pixel Counter: " << pixelCounter <<'\n';
+                    cout << " R: " << static_cast<size_t>(output.GBXFramePixels()[pixelCounter].Red) << 
+                            " G: " << static_cast<size_t>(output.GBXFramePixels()[pixelCounter].Green) << 
+                            " B: " << static_cast<size_t>(output.GBXFramePixels()[pixelCounter].Blue) << '\n';
+
+                    if (i == 0)
+                    {
+                        EXPECT_EQ(verificationTile[l + k*8].Red, output.GBXFramePixels()[pixelCounter].Red);
+                        EXPECT_EQ(verificationTile[l + k*8].Green, output.GBXFramePixels()[pixelCounter].Green);
+                        EXPECT_EQ(verificationTile[l + k*8].Blue, output.GBXFramePixels()[pixelCounter].Blue);
+                    }
+                    else
+                    {
+                        EXPECT_EQ(verificationTile2[l + k*8].Red, output.GBXFramePixels()[pixelCounter].Red);
+                        EXPECT_EQ(verificationTile2[l + k*8].Green, output.GBXFramePixels()[pixelCounter].Green);
+                        EXPECT_EQ(verificationTile2[l + k*8].Blue, output.GBXFramePixels()[pixelCounter].Blue);
+                    }
                     pixelCounter++;
                 }
-            */
+                pixelCounter += (gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount - 1)* 8;
+            }
         }
 }
