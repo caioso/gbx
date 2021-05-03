@@ -13,7 +13,8 @@ enum class ConstructionType
     PACK,
     FUNC,
     Expression,
-    Label
+    Label,
+    Instruction
 };
 
 class IntermediateRepresentation
