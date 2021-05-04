@@ -27,7 +27,12 @@ shared_ptr<IntermediateRepresentation> InstructionSyntacticAnalyzer::TryToAccept
             }
             else if (state == 1)
             {
-                if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::TerminalInstructionLD)
+                if (_symbols.size() == 1llu && _symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::NonTerminalInstruction)
+                {
+                    Accept();
+                    break;
+                }
+                else if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::TerminalInstructionLD)
                 {
                     opcodeType = TerminalToOpcode(_symbols[leftSubstring]);
                     instructionClass = InstructionClass::TwoOperands;
@@ -35,10 +40,80 @@ shared_ptr<IntermediateRepresentation> InstructionSyntacticAnalyzer::TryToAccept
                     Shift(leftSubstring);
                     state = 2;
                 }
-                else if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::NonTerminaOpcode)
+                else if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::NonTerminalOpcode)
                 {
                     Shift(leftSubstring);
                     state = 3;
+                }
+                else
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == 3) // Start detecting operands
+            {
+                if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::TerminalIdentifier)
+                {
+                    // Reduce Identifier
+                    Shift(leftSubstring);
+                    state = 4;
+                }
+                else if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::TerminalNumericLiteral)
+                {
+                    // Reduce Identifier
+                    Shift(leftSubstring);
+                    state = 7;
+                }
+                else if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::NonTerminalIdentifierOperand ||
+                         _symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::NonTerminalNumericLiteralOperand)
+                {
+                    // detect Comma
+                    Shift(leftSubstring);
+                    state = 5;   
+                }
+                else
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == 5) // Detect Second Operand
+            {
+                if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::TerminalComma)
+                {
+                    // detect Comma
+                    Shift(leftSubstring);
+                    state = 9;
+                }
+                else if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::NonTerminalSeparator)
+                {
+                    Shift(leftSubstring);
+                    state = 6;   
+                }
+                else
+                {
+                    Reject(); break;
+                }
+            }
+            else if (state == 6) // Start detecting second operands
+            {
+                if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::TerminalIdentifier)
+                {
+                    // Reduce Identifier
+                    Shift(leftSubstring);
+                    state = 4;
+                }
+                else if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::TerminalNumericLiteral)
+                {
+                    // Reduce Identifier
+                    Shift(leftSubstring);
+                    state = 7;
+                }
+                else if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::NonTerminalNumericLiteralOperand ||
+                         _symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::NonTerminalIdentifierOperand)
+                {
+                    // Reduce Identifier
+                    Shift(leftSubstring);
+                    state = 8;
                 }
                 else
                 {
@@ -50,11 +125,31 @@ shared_ptr<IntermediateRepresentation> InstructionSyntacticAnalyzer::TryToAccept
                 ReduceOpcode(leftSubstring);
                 break;
             }
-            else if (state == 3) // Start detecting operands
+            else if (state == 4) // Reduce Identifier as Operand
             {
-                cout << "Detecting operands" << '\n';
-                Reject(); break;
+                ReduceIdentifierOperand(leftSubstring);
+                break;
             }
+            else if (state == 7) // Reduce Numeric Literal Operand
+            {
+                ReduceNumericLiteralOperand(leftSubstring);
+                break;
+            }
+            else if (state == 9) // Reduce Separator
+            {
+                ReduceSeparator(leftSubstring);
+                break;
+            }
+            else if (state == 8) // Reduce Instruction
+            {
+                ReduceInstruction(leftSubstring);
+                break;
+            }
+        }
+
+        for (auto i : _symbols)
+        {
+            cout << '\t' << static_cast<size_t>(i.Symbol) << '\n';
         }
     }
 
@@ -62,10 +157,41 @@ shared_ptr<IntermediateRepresentation> InstructionSyntacticAnalyzer::TryToAccept
     return intermediateRepresentation;
 }
 
+void InstructionSyntacticAnalyzer::ReduceInstruction(int leftSubstring)
+{
+    // Remove Operand 2
+    _symbols.erase(_symbols.begin() + leftSubstring - 1);
+    // Remove Comma
+    _symbols.erase(_symbols.begin() + leftSubstring - 2);
+    // Remove Operand 1
+    _symbols.erase(_symbols.begin() + leftSubstring - 3);
+    // Remove Opcode
+    _symbols.erase(_symbols.begin() + leftSubstring - 4);
+    _symbols.insert(_symbols.begin() + leftSubstring - 4, { .Symbol = InstructionParserTreeSymbol::NonTerminalInstruction, .Lexeme = string("") });
+}
+
+void InstructionSyntacticAnalyzer::ReduceNumericLiteralOperand(int leftSubstring)
+{
+    _symbols.erase(_symbols.begin() + leftSubstring - 1);
+    _symbols.insert(_symbols.begin() + leftSubstring - 1, { .Symbol = InstructionParserTreeSymbol::NonTerminalNumericLiteralOperand, .Lexeme = string("") });
+}
+
+void InstructionSyntacticAnalyzer::ReduceSeparator(int leftSubstring)
+{
+    _symbols.erase(_symbols.begin() + leftSubstring - 1);
+    _symbols.insert(_symbols.begin() + leftSubstring - 1, { .Symbol = InstructionParserTreeSymbol::NonTerminalSeparator, .Lexeme = string("") });
+}
+
+void InstructionSyntacticAnalyzer::ReduceIdentifierOperand(int leftSubstring)
+{
+    _symbols.erase(_symbols.begin() + leftSubstring - 1);
+    _symbols.insert(_symbols.begin() + leftSubstring - 1, { .Symbol = InstructionParserTreeSymbol::NonTerminalIdentifierOperand, .Lexeme = string("") });
+}
+
 void InstructionSyntacticAnalyzer::ReduceOpcode(int leftSubstring)
 {
     _symbols.erase(_symbols.begin() + leftSubstring - 1);
-    _symbols.insert(_symbols.begin() + leftSubstring - 1, { .Symbol = InstructionParserTreeSymbol::NonTerminaOpcode, .Lexeme = string("") });
+    _symbols.insert(_symbols.begin() + leftSubstring - 1, { .Symbol = InstructionParserTreeSymbol::NonTerminalOpcode, .Lexeme = string("") });
 }
 
 OpcodeType InstructionSyntacticAnalyzer::TerminalToOpcode(InstructionCompoundSymbol compoundSymbol)

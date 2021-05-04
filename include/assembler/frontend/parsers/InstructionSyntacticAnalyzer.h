@@ -25,7 +25,11 @@ enum class InstructionParserTreeSymbol
     TerminalInstructionLD,
 
     // Non Terminal
-    NonTerminaOpcode,
+    NonTerminalOpcode,
+    NonTerminalIdentifierOperand,
+    NonTerminalNumericLiteralOperand,
+    NonTerminalSeparator,
+    NonTerminalInstruction,
 };
 
 enum class InstructionClass
@@ -59,6 +63,10 @@ public:
 private:
     void ExtractSymbols(std::vector<Token>::iterator&, std::vector<Token>::iterator&);
     void ReduceOpcode(int);
+    void ReduceIdentifierOperand(int);
+    void ReduceNumericLiteralOperand(int);
+    void ReduceSeparator(int);
+    void ReduceInstruction(int);
 
     gbxcore::instructions::OpcodeType TerminalToOpcode(InstructionCompoundSymbol);
  
