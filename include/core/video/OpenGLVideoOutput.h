@@ -66,7 +66,7 @@ protected:
     GLuint _texture;
 
     // The size of the frame pixels needs to be larger. Only part of it will be coppied to the OpenGL Viewport Buffer.
-    gbxcore::interfaces::RGBColor _gbxFramePixels[gbxcore::constants::GBXViewportBufferSizeInBytes];
+    gbxcore::interfaces::RGBColor _gbxFramePixels[gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount * gbxcore::constants::DMGBCMaxBackgroundVerticalTileCount * 64];
 
     size_t _backgroundAndWindowTileSetBase{};
     size_t _backgroundTileMapBase{};

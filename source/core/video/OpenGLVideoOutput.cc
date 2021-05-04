@@ -139,30 +139,30 @@ void OpenGLVideoOutput::ConvertTileToPixel()
     //    Observe that tiles are 8 x 8.
     //    There needs to be direct access to the video RAM raw memory bytes!!!!
     // 3: Consider windowing of the background and the viewport.
-    for (auto i = 0; i < 2; ++i) // This goes up to the number of TILES on screen
-    {
-        // tile
-        // Adjust tile position based on the screen 'windowing'
-        auto tile = get<uint8_t>(_dmgbcVideoRAM->Read(_backgroundTileMapBase + i, MemoryAccessType::Byte));
-
-        // Convert the tile's pixels
-        auto tilePixelsBasePosition = _backgroundAndWindowTileSetBase + 16*tile;
-        auto tileLineCounter = 0;
-
-        for (auto j = 0; j < 16; j += 2)
+    for (auto j = 0llu; j < gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount; ++j)
+        for (auto i = 0llu; i < gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount; ++i) // This goes up to the number of TILES on screen
         {
-            auto msByte = get<uint8_t>(_dmgbcVideoRAM->Read(tilePixelsBasePosition + j, MemoryAccessType::Byte));
-            auto lsByte = get<uint8_t>(_dmgbcVideoRAM->Read(tilePixelsBasePosition + j + 1, MemoryAccessType::Byte));
+            // tile
+            // Adjust tile position based on the screen 'windowing'
+            auto tile = get<uint8_t>(_dmgbcVideoRAM->Read(_backgroundTileMapBase + (i + j*gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount), MemoryAccessType::Byte));
 
-            auto initialPixelAddress = (i / gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount) * 8 + 
-                                       (i % gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount) * 8;
-            for (auto l = 0; l < 8; ++l)
-                _gbxFramePixels[initialPixelAddress + l + (tileLineCounter * gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount * 8)] = 
-                    ByteToColor((((msByte >> (7 - l)) & 0x01) << 0x01) | ((lsByte >> (7 - l)) & 0x01));
+            // Convert the tile's pixels
+            auto tilePixelsBasePosition = _backgroundAndWindowTileSetBase + 16*tile;
+            auto initialPixelAddressInVideoBuffer = i * 8 + j * gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount * 8 * 8;
+            auto tileLineCounter = 0;
 
-            tileLineCounter++;
+            for (auto k = 0; k < 16; k += 2)
+            {
+                auto msByte = get<uint8_t>(_dmgbcVideoRAM->Read(tilePixelsBasePosition + k, MemoryAccessType::Byte));
+                auto lsByte = get<uint8_t>(_dmgbcVideoRAM->Read(tilePixelsBasePosition + k + 1, MemoryAccessType::Byte));
+
+                for (auto l = 0; l < 8; ++l)
+                    _gbxFramePixels[initialPixelAddressInVideoBuffer + l + (tileLineCounter * gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount * 8)] = 
+                        ByteToColor((((msByte >> (7 - l)) & 0x01) << 0x01) | ((lsByte >> (7 - l)) & 0x01));
+
+                tileLineCounter++;
+            }
         }
-    }
 }
 
 void OpenGLVideoOutput::FillOpenGLBuffer()
