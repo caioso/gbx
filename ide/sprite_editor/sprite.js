@@ -1,18 +1,26 @@
 var editorCanvas = null;
 var editorContext = null;
 
-var paletteCanvas = null;
-var paletteContext = null;
-
 var spriteZoomFactor = 3.0;
 var currentSpriteZoomFactor = 3.0;
 var showZoomCounter = 0;
-var leftMouseDown = false;
-var leftMouseXBase = 0;
-var leftMouseYBase = 0;
-var rightMouseDown = false;
-var rightMouseXBase = 0;
-var rightMouseYBase = 0;
+var rightMouseButtonDown = false;
+var rightMouseButtonXBase = 0;
+var rightMouseButtonYBase = 0;
+var leftMouseButtonDown = false;
+var leftMouseButtonXBase = 0;
+var leftMouseButtonYBase = 0;
+var holdingPaletteBox = false;
+
+var paletteBoxX = 20;
+var paletteBoxY = 20;
+var paletteBoxWidth = 100;
+var paletteBoxTitleHeight = 20;
+var paletteBoxHeight = 200;
+var paletteHoldBaseX = 0;
+var paletteHoldBaseY = 0;
+
+var selectedPalette = 1;
 
 var spriteOffsetX = 0;
 var spriteOffsetY = 0;
@@ -32,9 +40,6 @@ function Initialize()
     editorCanvas = document.getElementById('spriteEditor')
     editorContext = editorCanvas.getContext('2d');
     
-    paletteCanvas = document.getElementById('palettes')
-    paletteContext = paletteCanvas.getContext('2d');
-
     InitializeCanvas();
 }
 
@@ -42,9 +47,6 @@ function InitializeCanvas()
 {
     editorCanvas.height = document.getElementById('editorWindow').clientHeight;
     editorCanvas.width = document.getElementById('editorWindow').clientWidth;
-
-    paletteCanvas.height = document.getElementById('paletteWindow').clientHeight;
-    paletteCanvas.width = document.getElementById('paletteWindow').clientWidth;
 
     SetEditorCanvasEvents();
     ClearCanvas();
@@ -75,6 +77,13 @@ function SetEditorCanvasEvents()
         return false; 
     }, false);
 
+    editorCanvas.addEventListener('mouseout',function(event)
+    {
+        rightMouseButtonDown = false;
+        leftMouseButtonDown = false;
+        holdingPaletteBox = false;
+    });
+
     editorCanvas.addEventListener('mousedown',function(event)
     {
         var width = 100 * currentSpriteZoomFactor;
@@ -87,18 +96,40 @@ function SetEditorCanvasEvents()
             if (event.pageX >= baseX && event.pageX <= baseX + width &&
                 event.pageY >= baseY && event.pageY <= baseY + height)
             {
-                rightMouseDown = true;
-                rightMouseXBase = event.pageX;
-                rightMouseYBase = event.pageY;
+                leftMouseButtonDown = true;
+                leftMouseButtonXBase = event.pageX;
+                leftMouseButtonYBase = event.pageY;
                 
                 SetPixel(parseInt((event.pageX - baseX)/(width/8)), parseInt((event.pageY - baseY)/(width/8)));
+            }
+            else if (event.pageX >= paletteBoxX && event.pageX <= paletteBoxX + paletteBoxWidth &&
+                     event.pageY >= paletteBoxY && event.pageY <= paletteBoxY + paletteBoxTitleHeight)
+            {
+                holdingPaletteBox = true;
+                leftMouseButtonDown = true;
+                leftMouseButtonXBase = event.pageX;
+                leftMouseButtonYBase = event.pageY;
+                paletteHoldBaseX = paletteBoxX - event.pageX;
+                paletteHoldBaseY = paletteBoxY - event.pageY;
+            }
+            else if (event.pageX >= paletteBoxX && event.pageX <= paletteBoxX + paletteBoxWidth &&
+                    event.pageY >= paletteBoxY + paletteBoxTitleHeight && event.pageY <= paletteBoxY + paletteBoxTitleHeight+ paletteBoxHeight)
+            {
+                if (event.pageY >= paletteBoxY + paletteBoxTitleHeight && event.pageY <= paletteBoxY + paletteBoxTitleHeight + paletteBoxHeight/4)
+                    selectedPalette = 0;
+                else if (event.pageY >= paletteBoxY + paletteBoxTitleHeight + (paletteBoxHeight/4) && event.pageY <= paletteBoxY + paletteBoxTitleHeight + 2*(paletteBoxHeight/4))
+                    selectedPalette = 1;
+                else if (event.pageY >= paletteBoxY + paletteBoxTitleHeight + 2*(paletteBoxHeight/4) && event.pageY <= paletteBoxY + paletteBoxTitleHeight + 3*(paletteBoxHeight/4))
+                    selectedPalette = 2;
+                else if (event.pageY >= paletteBoxY + paletteBoxTitleHeight + 3*(paletteBoxHeight/4) && event.pageY <= paletteBoxY + paletteBoxTitleHeight + 4*(paletteBoxHeight/4))
+                    selectedPalette = 3;
             }
         }
         else if(event.button === 2)
         {
-            leftMouseDown = true;
-            leftMouseXBase = event.pageX + spriteOffsetX;
-            leftMouseYBase = event.pageY + spriteOffsetY;
+            rightMouseButtonDown = true;
+            rightMouseButtonXBase = event.pageX + spriteOffsetX;
+            rightMouseButtonYBase = event.pageY + spriteOffsetY;
         }
 
         event.preventDefault();
@@ -108,9 +139,14 @@ function SetEditorCanvasEvents()
     editorCanvas.addEventListener('mouseup', function (event)
     {
         if(event.button === 2)
-            leftMouseDown = false;
+        {
+            rightMouseButtonDown = false;
+        }
         else (event.button === 1 || event.button === 0)
-            rightMouseDown = false;
+        {
+            leftMouseButtonDown = false;
+            holdingPaletteBox = false;
+        }
 
         event.preventDefault();
         return false; 
@@ -118,19 +154,27 @@ function SetEditorCanvasEvents()
 
     editorCanvas.addEventListener('mousemove', function (event)
     {
-        if (leftMouseDown)
+        if (rightMouseButtonDown)
         {
-            spriteOffsetX = leftMouseXBase - event.pageX;
-            spriteOffsetY = leftMouseYBase - event.pageY;
+            spriteOffsetX = rightMouseButtonXBase - event.pageX;
+            spriteOffsetY = rightMouseButtonYBase - event.pageY;
         }
-        else if (rightMouseDown)
+        else if (leftMouseButtonDown)
         {
-            var width = 100 * currentSpriteZoomFactor;
-            var height = 100 * currentSpriteZoomFactor;
-            var baseX = editorCanvas.width/2 - width/2 - currentSpriteOffsetX;
-            var baseY = editorCanvas.height/2 - height/2 - currentSpriteOffsetY;
+            if (!holdingPaletteBox)
+            {
+                var width = 100 * currentSpriteZoomFactor;
+                var height = 100 * currentSpriteZoomFactor;
+                var baseX = editorCanvas.width/2 - width/2 - currentSpriteOffsetX;
+                var baseY = editorCanvas.height/2 - height/2 - currentSpriteOffsetY;
+                SetPixel(parseInt((event.pageX - baseX)/(width/8)), parseInt((event.pageY - baseY)/(width/8)));
+            }
+            else
+            {
+                paletteBoxX = event.pageX + paletteHoldBaseX; //(leftMouseButtonXBase - event.pageX) + paletteHoldBaseX;
+                paletteBoxY = event.pageY + paletteHoldBaseY;//(leftMouseButtonYBase - event.pageY) + paletteHoldBaseY;
+            }
 
-            SetPixel(parseInt((event.pageX - baseX)/(width/8)), parseInt((event.pageY - baseY)/(width/8)));
         }
 
         event.preventDefault();
@@ -180,7 +224,7 @@ function UpdateBytes()
     console.log(line);
 }
 
-function RefreshCanvas()
+function RenderCanvas()
 {
     ClearCanvas();
     RenderSpriteBase(SpriteMode.Sprite8x8)
@@ -189,7 +233,44 @@ function RefreshCanvas()
 
 function RenderPalettes()
 {
-    editorContext.fillStyle = 'rgba(200, 200, 200, 1)';
+    editorContext.fillStyle = 'rgba(180, 180, 180,1)';
+    editorContext.fillRect(paletteBoxX, paletteBoxY, paletteBoxWidth, paletteBoxTitleHeight);
+
+    editorContext.font = "16px sans serif";
+    editorContext.fillStyle = 'rgba(20,20,20,1)';
+    editorContext.textAlign = "left";
+    
+    editorContext.fillText("Palettes", paletteBoxX, paletteBoxY + 16, paletteBoxWidth);
+
+    // Rener Palette Colors
+    editorContext.fillStyle = GetPaletteColor(0);
+    editorContext.fillRect(paletteBoxX, paletteBoxY + paletteBoxTitleHeight, paletteBoxWidth, paletteBoxHeight/4);
+
+    editorContext.fillStyle = GetPaletteColor(1);
+    editorContext.fillRect(paletteBoxX, paletteBoxY + paletteBoxTitleHeight + paletteBoxHeight/4, paletteBoxWidth, paletteBoxHeight/4);
+
+    editorContext.fillStyle = GetPaletteColor(2);
+    editorContext.fillRect(paletteBoxX, paletteBoxY + paletteBoxTitleHeight + 2*paletteBoxHeight/4, paletteBoxWidth, paletteBoxHeight/4);
+
+    editorContext.fillStyle = GetPaletteColor(3);
+    editorContext.fillRect(paletteBoxX, paletteBoxY + paletteBoxTitleHeight + 3*paletteBoxHeight/4, paletteBoxWidth, paletteBoxHeight/4);
+
+    editorContext.fillStyle = 'rgba(90, 90, 90, 0.8)';
+    editorContext.fillRect(paletteBoxX, paletteBoxY + paletteBoxTitleHeight + (paletteBoxHeight/4)*selectedPalette, paletteBoxWidth, paletteBoxHeight/4);
+    editorContext.fillStyle = GetPaletteColor(selectedPalette);
+    editorContext.fillRect(paletteBoxX + 10, paletteBoxY + (paletteBoxHeight/4)*selectedPalette + paletteBoxTitleHeight + 10, paletteBoxWidth - 20, paletteBoxHeight/4 - 20);
+}
+
+function GetPaletteColor(paletteIndex)
+{
+    if (paletteIndex == 0)
+        return 'rgba(255, 0, 0,1)';
+    else if (paletteIndex == 1)
+        return 'rgba(0, 255, 0,1)';
+    else if (paletteIndex == 2)
+        return 'rgba(0, 0, 255,1)';
+    else if (paletteIndex == 3)
+        return 'rgba(255, 0, 255,1)';;
 }
 
 function ClearCanvas()
@@ -197,10 +278,6 @@ function ClearCanvas()
     editorContext.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
     editorContext.fillStyle = 'rgba(45, 45, 45,1)';
     editorContext.fillRect(0, 0, editorCanvas.width, editorCanvas.height);
-    
-    paletteContext.clearRect(0, 0, paletteCanvas.width, paletteCanvas.height);
-    paletteContext.fillStyle = 'rgba(90, 90, 90, 1)';
-    paletteContext.fillRect(0, 0, paletteCanvas.width, paletteCanvas.height);
 }
 
 function RenderSpriteBase(Mode)
@@ -285,8 +362,8 @@ function ResetZoomAndPosition()
     else
         spriteZoomFactor = 3.1;
 
-    leftMouseXBase = 0;
-    leftMouseYBase = 0;
+    rightMouseButtonXBase = 0;
+    rightMouseButtonYBase = 0;
     spriteOffsetX = 0;
     spriteOffsetY = 0;
 }
@@ -311,7 +388,7 @@ function ShowZoomValue()
 
 function SpriteRenderer() 
 {
-    RefreshCanvas();
+    RenderCanvas();
 
     if (showZoomCounter != 0)
     {
