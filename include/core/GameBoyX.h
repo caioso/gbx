@@ -8,9 +8,12 @@
 #include "BankedROM.h"
 #include "Clock.h"
 #include "ControlUnit.h"
+#include "DMGAndGBCRegisterAddresses.h"
 #include "FileLoader.h"
 #include "MemoryController.h"
 #include "OpenGLVideoOutput.h"
+#include "LCDVideoController.h"
+#include "LCDControlRegister.h"
 #include "RAM.h"
 #include "RegisterBank.h"
 #include "ROM.h"
@@ -54,6 +57,7 @@ protected:
     Z80X _cpu;
     memory::MemoryController* _memoryControllerPtr;
     RegisterBank* _registersPtr;
+    std::unique_ptr<gbxcore::video::LCDVideoController> _videoController;
 };
 
 }

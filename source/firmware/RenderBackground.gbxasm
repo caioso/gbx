@@ -1,0 +1,102 @@
+; SAMPLE CODE: RENDER BACKGROUND EXAMPLE
+; This is a development sample only. It will *NOT* work in the final version of the emulator.
+
+.ORG 0x0000
+    NOP                                                             ; 0x00
+    JPU 0x0100                                                      ; 0xFC
+                                                                    ; 0xC3
+                                                                    ; 0x00 
+                                                                    ; 0x01
+
+.ORG 0x0100         
+
+; Configure Window and Backgrounr Tile Set Base to 0x8000
+; Configure background tile map to 0x9C000
+
+    LD A, 0x18                                                      ; 0x3E
+                                                                    ; 0x18
+    LD HL, 0xFF40                                                   ; 0x21
+                                                                    ; 0x40
+                                                                    ; 0xFF
+    LD [HL], A                                                      ; 0x77
+
+; Load Tiles Pixels
+; Initial address of tile pixels
+
+    LD A, 0x00                                                      ; 0x3E
+                                                                    ; 0x00
+    LD C, A                                                         ; 0x4F
+    LD HL, 0x0400                                                   ; 0x21
+                                                                    ; 0x00
+                                                                    ; 0x04
+    LD DE, 0x8000                                                   ; 0x11
+                                                                    ; 0x00
+                                                                    ; 0x80
+
+TILE_LOOP<LOC>:
+    LD A, [HL++]                                                    ; 0x2A
+    LD (DE), A                                                      ; 0x12
+    INC DE                                                          ; 0x13
+    INC C                                                           ; 0x0C
+    LD A, 0x20                                                      ; 0x3E
+                                                                    ; 0x20
+    CP C                                                            ; 0xB9
+    JP NZ, TILE_LOOP                                                ; 0xC2
+                                                                    ; 0x0F
+                                                                    ; 0x01 
+
+; Load Background Map
+; Inital addres of the Tile Map
+
+    LD A, 0x00                                                      ; 0x3E
+                                                                    ; 0x00
+    LD C, A                                                         ; 0x4F
+    LD HL, 0x0600                                                   ; 0x21
+                                                                    ; 0x00
+                                                                    ; 0x06
+    LD DE, 0x9C00                                                   ; 0x11
+                                                                    ; 0x00
+                                                                    ; 0x9C
+MAP_LOOP<LOC>:
+    LD A, [HL++]                                                    ; 0x2A
+    LD (DE), A                                                      ; 0x12
+    INC DE                                                          ; 0x13
+    INC C                                                           ; 0x0C
+    LD A, 0x06                                                      ; 0x3E
+                                                                    ; 0x06
+    CP C                                                            ; 0xB9
+    JP NZ, MAP_LOOP                                                 ; 0xC2
+                                                                    ; 0x22
+                                                                    ; 0x01
+
+; Done. Loop for ever
+
+DUMMY<LOC>:                                                        
+    NOP                                                             ; 0x00
+    NOP                                                             ; 0x00
+    JP DUMMY                                                        ; 0xC3
+                                                                    ; 0x2C
+                                                                    ; 0x01
+
+.ORG 0x0400
+.DATA<BIN>
+.BGN
+    ; Tile 1 '0'
+    0xC3, 0xC3, 0x9D, 0x9D, 0xAD, 0xAD, 
+    0xAD, 0xAD, 0xB5, 0xB5, 0xB5, 0xB5, 
+    0xB9, 0xB9, 0xC3, 0xC3,
+
+    ; Tile 2 '1'
+    0xF7, 0xF7, 0xE7, 0xE7, 0xD7, 0xD7,
+    0xF7, 0xF7, 0xF7, 0xF7, 0xF7, 0xF7,
+    0xF7, 0xF7, 0x81, 0x81
+.END
+
+.ORG 0x0600
+.DATA<BIN>
+.BGN
+    ; Tile Maps
+    0x00, 0x01, 0x00, 0x01, 0x00, 0x01
+.END
+
+

@@ -3,7 +3,9 @@
 using namespace gbxcore::constants;
 using namespace gbxcore::interfaces;
 using namespace gbxcore::memory;
+using namespace gbxcore::memory::registers;
 using namespace gbxcore::video;
+using namespace gbxcore;
 using namespace gbxcommons;
 using namespace std;
 
@@ -52,10 +54,19 @@ GameBoyX::GameBoyX()
     memoryController->RegisterMemoryResource(std::move(userHRAM), AddressRange(DMGBCHRAMInitialAddress, DMGBCHRAMFinalAddress, RangeType::BeginInclusive), PrivilegeMode::User);
 
     // Set Memory Controller to run in System Mode
+    //memoryController->SetSecurityLevel(PrivilegeMode::User);
     memoryController->SetSecurityLevel(PrivilegeMode::System);
     
     auto videoOutput = make_unique<OpenGLVideoOutput>(userVideoRAMPointer);
+    auto videoOutputPointer = videoOutput.get();
     videoOutput->Initialize();
+
+    _videoController = make_unique<LCDVideoController>(videoOutputPointer);
+    auto videoControllerPointer = _videoController.get();
+    auto lcdControlRegister = make_unique<LCDControlRegister>(dynamic_cast<VideoControllerInterface*>(videoControllerPointer));
+
+    // Register LCD Registers
+    memoryController->RegisterMemoryMappedRegister(std::move(lcdControlRegister), LCDControlRegisterAddress, PrivilegeMode::Both);
 
     // Initialize Z80X CPU 
     // ADD VideoController Here

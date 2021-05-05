@@ -7,7 +7,7 @@
 namespace gbxcore::video
 {
 
-class LCDVideoController : gbxcore::interfaces::VideoControllerInterface
+class LCDVideoController : public gbxcore::interfaces::VideoControllerInterface
 {
 public:
     LCDVideoController(gbxcore::interfaces::VideoOutputInterface*);

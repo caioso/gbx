@@ -32,6 +32,7 @@ void ArithmeticLogicUnit::Decode()
         auto complement = _registers->Read(Register::PIR);
         auto preOpcode = IsSuffixedInstruction(complement)? make_optional<uint8_t>(complement) : nullopt;
         _currentInstruction = _decoder.DecodeOpcode(opcode, preOpcode);
+        cout << hex << "PC: " << _registers->ReadPair(Register::PC) << " : " << static_cast<size_t>(preOpcode.value_or(0x00)) << " " << static_cast<size_t>(opcode) << '\n';
         _currentInstruction->Decode(opcode, preOpcode, _instructionData);
         ResolveMemoryAccessSignals();
     }

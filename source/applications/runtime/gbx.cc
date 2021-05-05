@@ -5,6 +5,7 @@
 #include <sstream>
 #include <thread>
 
+#include "FileLoader.h"
 #include "Runner.h"
 #include "ArgumentsParser.h"
 #include "ApplicationOptions.h"
@@ -96,19 +97,13 @@ void DebugMode()
     Log("Execution Complete");
 }
 
-void LoadROM(string ROMName)
-{
-    stringstream ss;
-    ss << "ROM: " << ROMName;
-    Log(ss.str());
-}
-
 void RuntimeMode(ApplicationConfiguration configuration)
 {
-    LoadROM(configuration.ROMName);
-
     auto gbx = make_unique<GameBoyX>();
     auto cycleCounter = 0llu;
+
+    cout << "User ROM: " << configuration.ROMName << '\n';
+    gbx->LoadGame(configuration.ROMName);
 
     while (cycleCounter < std::numeric_limits<size_t>::max())
     {
