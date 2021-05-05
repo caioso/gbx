@@ -11,16 +11,27 @@ var leftMouseButtonDown = false;
 var leftMouseButtonXBase = 0;
 var leftMouseButtonYBase = 0;
 var holdingPaletteBox = false;
+var holdingToolBox = false;
 
+var paletteName = "palette";
 var paletteBoxX = 20;
-var paletteBoxY = 20;
-var paletteBoxWidth = 100;
+var paletteBoxY = 450;
+var paletteBoxWidth = 60;
 var paletteBoxTitleHeight = 20;
 var paletteBoxHeight = 200;
 var paletteHoldBaseX = 0;
 var paletteHoldBaseY = 0;
 
-var selectedPalette = 1;
+var toolBoxName = "toolbox";
+var toolBoxX = 20;
+var toolBoxY = 20;
+var toolBoxWidth = 60;
+var toolBoxTitleHeight = 20;
+var toolBoxHeight = 400;
+var toolBoxHoldBaseX = 0;
+var toolBoxHoldBaseY = 0;
+
+var selectedPalette = 0;
 
 var spriteOffsetX = 0;
 var spriteOffsetY = 0;
@@ -28,6 +39,8 @@ var currentSpriteOffsetX = 0;
 var currentSpriteOffsetY = 0;
 var pixels;
 var spriteRendererTimer = setInterval(SpriteRenderer, 10);
+
+var panelsList = new Array();
 
 const SpriteMode = 
 {
@@ -41,6 +54,13 @@ function Initialize()
     editorContext = editorCanvas.getContext('2d');
     
     InitializeCanvas();
+    InitializeZIndexs();
+}
+
+function InitializeZIndexs()
+{
+    panelsList.push(toolBoxName);
+    panelsList.push(paletteName);
 }
 
 function InitializeCanvas() 
@@ -82,6 +102,7 @@ function SetEditorCanvasEvents()
         rightMouseButtonDown = false;
         leftMouseButtonDown = false;
         holdingPaletteBox = false;
+        holdingToolBox = false;
     });
 
     editorCanvas.addEventListener('mousedown',function(event)
@@ -105,12 +126,24 @@ function SetEditorCanvasEvents()
             else if (event.pageX >= paletteBoxX && event.pageX <= paletteBoxX + paletteBoxWidth &&
                      event.pageY >= paletteBoxY && event.pageY <= paletteBoxY + paletteBoxTitleHeight)
             {
+                SetPanelOnTop(paletteName);
                 holdingPaletteBox = true;
                 leftMouseButtonDown = true;
                 leftMouseButtonXBase = event.pageX;
                 leftMouseButtonYBase = event.pageY;
                 paletteHoldBaseX = paletteBoxX - event.pageX;
                 paletteHoldBaseY = paletteBoxY - event.pageY;
+            }
+            else if (event.pageX >= toolBoxX && event.pageX <= toolBoxX + toolBoxWidth &&
+                     event.pageY >= toolBoxY && event.pageY <= toolBoxY + toolBoxTitleHeight)
+            {
+                SetPanelOnTop(toolBoxName);
+                holdingToolBox = true;
+                leftMouseButtonDown = true;
+                leftMouseButtonXBase = event.pageX;
+                leftMouseButtonYBase = event.pageY;
+                toolBoxHoldBaseX = toolBoxX - event.pageX;
+                toolBoxHoldBaseY = toolBoxY - event.pageY;
             }
             else if (event.pageX >= paletteBoxX && event.pageX <= paletteBoxX + paletteBoxWidth &&
                     event.pageY >= paletteBoxY + paletteBoxTitleHeight && event.pageY <= paletteBoxY + paletteBoxTitleHeight+ paletteBoxHeight)
@@ -146,6 +179,7 @@ function SetEditorCanvasEvents()
         {
             leftMouseButtonDown = false;
             holdingPaletteBox = false;
+            holdingToolBox = false;
         }
 
         event.preventDefault();
@@ -161,18 +195,23 @@ function SetEditorCanvasEvents()
         }
         else if (leftMouseButtonDown)
         {
-            if (!holdingPaletteBox)
+            if (holdingPaletteBox)
+            {
+                paletteBoxX = event.pageX + paletteHoldBaseX;
+                paletteBoxY = event.pageY + paletteHoldBaseY;
+            }
+            else if (holdingToolBox)
+            {
+                toolBoxX = event.pageX + toolBoxHoldBaseX;
+                toolBoxY = event.pageY + toolBoxHoldBaseY;
+            }
+            else
             {
                 var width = 100 * currentSpriteZoomFactor;
                 var height = 100 * currentSpriteZoomFactor;
                 var baseX = editorCanvas.width/2 - width/2 - currentSpriteOffsetX;
                 var baseY = editorCanvas.height/2 - height/2 - currentSpriteOffsetY;
                 SetPixel(parseInt((event.pageX - baseX)/(width/8)), parseInt((event.pageY - baseY)/(width/8)));
-            }
-            else
-            {
-                paletteBoxX = event.pageX + paletteHoldBaseX; //(leftMouseButtonXBase - event.pageX) + paletteHoldBaseX;
-                paletteBoxY = event.pageY + paletteHoldBaseY;//(leftMouseButtonYBase - event.pageY) + paletteHoldBaseY;
             }
 
         }
@@ -188,6 +227,16 @@ function SetEditorCanvasEvents()
     }, false)
 }
 
+function SetPanelOnTop(name)
+{
+    const index = panelsList.indexOf(name);
+    if (index > -1)
+        panelsList.splice(index, 1);
+
+        panelsList.splice(0, 0, name);
+}
+
+
 function SetPixel(x, y)
 {
     if (x >= 8 || x < 0 || y >= 8 || y < 0)
@@ -196,7 +245,7 @@ function SetPixel(x, y)
     var indexX = x;
     var indexY =  y;
 
-    pixels[indexX][indexY] = 1;
+    pixels[indexX][indexY] = selectedPalette;
     UpdateBytes();
 }
 
@@ -211,14 +260,16 @@ function UpdateBytes()
 
     for (var i = 0; i < 8; i++)
     {
-        var row = 0
+        var rowMsb = 0
+        var rowLsb = 0
         for (var j = 0; j < 8; j++)
         {
             var color = pixels[j][i];
-            row |= ((color & 0x02) >> 1)<<(7 - j)*2;
-            row |= ((color & 0x01))<<(7 - j);
+            rowMsb |= ((color & 0x02) >> 1)<<(7 - j);
+            rowLsb |= ((color & 0x01))<<(7 - j);
         }
-        line += "0x" +  ToPaddedHexString(row, 4) + " ";
+        line += "" +  ToPaddedHexString((rowMsb), 2) + " ";
+        line += "" +  ToPaddedHexString((rowLsb), 2) + " ";
     }
 
     console.log(line);
@@ -228,7 +279,31 @@ function RenderCanvas()
 {
     ClearCanvas();
     RenderSpriteBase(SpriteMode.Sprite8x8)
-    RenderPalettes();
+
+    for (var i = panelsList.length - 1; i >= 0; --i)
+    {
+        if (panelsList[i] == paletteName)
+            RenderPalettes();
+        else if (panelsList[i] == toolBoxName)
+            RenderTools()
+    }
+}
+
+function RenderTools()
+{
+    
+    editorContext.fillStyle = 'rgba(180, 180, 180,1)';
+    editorContext.fillRect(toolBoxX, toolBoxY, toolBoxWidth, toolBoxTitleHeight);
+
+    editorContext.font = "16px sans serif";
+    editorContext.fillStyle = 'rgba(20,20,20,1)';
+    editorContext.textAlign = "left";
+    
+    editorContext.fillText("Tools", toolBoxX, toolBoxY + 16, toolBoxWidth);
+
+    // Render Background Colors
+    editorContext.fillStyle = 'rgba(90,90,90,1)';
+    editorContext.fillRect(toolBoxX, toolBoxY + toolBoxTitleHeight, toolBoxWidth, toolBoxHeight);
 }
 
 function RenderPalettes()
@@ -242,7 +317,7 @@ function RenderPalettes()
     
     editorContext.fillText("Palettes", paletteBoxX, paletteBoxY + 16, paletteBoxWidth);
 
-    // Rener Palette Colors
+    // Render Palette Colors
     editorContext.fillStyle = GetPaletteColor(0);
     editorContext.fillRect(paletteBoxX, paletteBoxY + paletteBoxTitleHeight, paletteBoxWidth, paletteBoxHeight/4);
 
@@ -263,14 +338,14 @@ function RenderPalettes()
 
 function GetPaletteColor(paletteIndex)
 {
-    if (paletteIndex == 0)
-        return 'rgba(255, 0, 0,1)';
-    else if (paletteIndex == 1)
-        return 'rgba(0, 255, 0,1)';
+    if (paletteIndex == 3)
+        return 'rgba(8, 24, 32, 1)';
     else if (paletteIndex == 2)
-        return 'rgba(0, 0, 255,1)';
-    else if (paletteIndex == 3)
-        return 'rgba(255, 0, 255,1)';;
+        return 'rgba(52, 104, 86, 1)';
+    else if (paletteIndex == 1)
+        return 'rgba(136, 192, 112, 1)';
+    else if (paletteIndex == 0)
+        return 'rgba(224, 248, 208, 1)';
 }
 
 function ClearCanvas()
@@ -301,11 +376,7 @@ function RenderSpriteBase(Mode)
     {
         for (var j = 0; j < 8; j++)
         {
-            if (pixels[j][i] == 0)
-                editorContext.fillStyle = 'rgba(0, 0, 255, 1)';
-            else
-                editorContext.fillStyle = 'rgba(255, 0, 0, 1)';
-
+            editorContext.fillStyle = GetPaletteColor(pixels[j][i])
             editorContext.fillRect(baseX + (width/8)*j, baseY + (height/8)*i, width/8, height/8 )
         }
     }
