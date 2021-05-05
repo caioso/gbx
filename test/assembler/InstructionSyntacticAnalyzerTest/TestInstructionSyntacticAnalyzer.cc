@@ -199,3 +199,73 @@ TEST(AssemblerTests_InstructionSyntacticAnalysis, ParseRegisterOP1AndRegisterOP2
 
     EXPECT_TRUE(parser.IsAccepted());
 }
+
+TEST(AssemblerTests_InstructionSyntacticAnalysis, ParseRegisterOneRegisterOP)
+{
+    const string expression = "INC A";
+    LexicalAnalyzer lexer;
+    InstructionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_InstructionSyntacticAnalysis, ParseJPWithRegisterOneLiteralOP)
+{
+    const string expression = "JP 0xFFFF";
+    LexicalAnalyzer lexer;
+    InstructionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_InstructionSyntacticAnalysis, ParseJPWithIdentifierAndLiteralOPs)
+{
+    const string expression = "JP NZ, 0xFFAA";
+    LexicalAnalyzer lexer;
+    InstructionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_InstructionSyntacticAnalysis, ParseCALLWithRegisterOneLiteralOP)
+{
+    const string expression = "CALL MY_LABEL";
+    LexicalAnalyzer lexer;
+    InstructionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}
+
+TEST(AssemblerTests_InstructionSyntacticAnalysis, ParseCALLWithIdentifierAndLiteralOPs)
+{
+    const string expression = "CALL Z, THAT_LABEL";
+    LexicalAnalyzer lexer;
+    InstructionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}

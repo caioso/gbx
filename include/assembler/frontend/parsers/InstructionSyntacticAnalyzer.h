@@ -23,6 +23,9 @@ enum class InstructionParserTreeSymbol
     
     // Instruction Mnemonics
     TerminalInstructionLD,
+    TerminalInstructionINC,
+    TerminalInstructionJP,
+    TerminalInstructionCALL,
 
     // Non Terminal
     NonTerminalOpcode,
@@ -66,7 +69,8 @@ private:
     void ReduceIdentifierOperand(int);
     void ReduceNumericLiteralOperand(int);
     void ReduceSeparator(int);
-    void ReduceInstruction(int);
+    void ReduceTwoOperandsInstruction(int);
+    void ReduceOneOperandInstruction(int);
 
     gbxcore::instructions::OpcodeType TerminalToOpcode(InstructionCompoundSymbol);
  
