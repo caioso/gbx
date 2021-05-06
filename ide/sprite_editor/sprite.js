@@ -175,7 +175,7 @@ function SetEditorCanvasEvents()
         {
             rightMouseButtonDown = false;
         }
-        else (event.button === 1 || event.button === 0)
+        else if (event.button === 1 || event.button === 0)
         {
             leftMouseButtonDown = false;
             holdingPaletteBox = false;
@@ -295,7 +295,7 @@ function RenderTools()
     editorContext.fillStyle = 'rgba(180, 180, 180,1)';
     editorContext.fillRect(toolBoxX, toolBoxY, toolBoxWidth, toolBoxTitleHeight);
 
-    editorContext.font = "16px sans serif";
+    editorContext.font = "16px Arial, sans serif";
     editorContext.fillStyle = 'rgba(20,20,20,1)';
     editorContext.textAlign = "left";
     
@@ -446,7 +446,7 @@ function RenderZoom()
 
 function ShowZoomValue() 
 {
-    editorContext.font = "20px sans serif";
+    editorContext.font = "20px Arial, sans serif";
 
     if (showZoomCounter <= 20)
         editorContext.fillStyle = 'rgba(255,255,255,' + showZoomCounter/20 + ')';
