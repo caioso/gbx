@@ -42,12 +42,6 @@ var spriteRendererTimer = setInterval(SpriteRenderer, 10);
 
 var panelsList = new Array();
 
-const SpriteMode = 
-{
-    Sprite8x8 : 0,
-    Sprite8x16 : 1,
-}
-
 function Initialize()
 {
     editorCanvas = document.getElementById('spriteEditor')
@@ -278,7 +272,8 @@ function UpdateBytes()
 function RenderCanvas()
 {
     ClearCanvas();
-    RenderSpriteBase(SpriteMode.Sprite8x8)
+    RenderSpriteBase()
+    RenderExtenders();
 
     for (var i = panelsList.length - 1; i >= 0; --i)
     {
@@ -287,6 +282,23 @@ function RenderCanvas()
         else if (panelsList[i] == toolBoxName)
             RenderTools()
     }
+}
+
+function RenderExtenders()
+{
+    //currentSpriteOffsetX += (spriteOffsetX - currentSpriteOffsetX)/5;
+    //currentSpriteOffsetY += (spriteOffsetY - currentSpriteOffsetY)/5;
+
+    var width = 100 * currentSpriteZoomFactor;
+    var height = 100 * currentSpriteZoomFactor;
+    var baseX = editorCanvas.width/2 - width/2 - currentSpriteOffsetX;
+    var baseY = editorCanvas.height/2 - height/2 - currentSpriteOffsetY;
+
+    editorContext.fillStyle = 'rgba(90, 90, 90, 0.5)';
+    editorContext.fillRect(baseX + width/2 - (width/8)/2, baseY - height*0.25, (width/8), (height/8));
+    editorContext.fillRect(baseX + width/2 - (width/8)/2, baseY + height + (height/2)*0.25, (width/8), (height/8));
+    editorContext.fillRect(baseX - (width/8) - (width/2)*0.25, baseY + height/2 - (height/8)/2, (width/8), (height/8));
+    editorContext.fillRect(width + baseX + (width/2)*0.25, baseY + height/2 - (height/8)/2, (width/8), (height/8));
 }
 
 function RenderTools()
@@ -311,7 +323,7 @@ function RenderPalettes()
     editorContext.fillStyle = 'rgba(180, 180, 180,1)';
     editorContext.fillRect(paletteBoxX, paletteBoxY, paletteBoxWidth, paletteBoxTitleHeight);
 
-    editorContext.font = "16px sans serif";
+    editorContext.font = "16px Arial, sans serif";
     editorContext.fillStyle = 'rgba(20,20,20,1)';
     editorContext.textAlign = "left";
     
@@ -355,7 +367,7 @@ function ClearCanvas()
     editorContext.fillRect(0, 0, editorCanvas.width, editorCanvas.height);
 }
 
-function RenderSpriteBase(Mode)
+function RenderSpriteBase()
 {
     editorContext.fillStyle = 'rgba(180,180,180,0.3)';
     
