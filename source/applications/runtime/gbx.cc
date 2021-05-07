@@ -22,9 +22,7 @@ using namespace gbxcommons;
 struct ApplicationConfiguration
 {
     bool Verbose;
-    bool IsDebug;
-    string IPAddress;
-    string Port;
+    string BIOSName;
     string ROMName;
 };
 
@@ -34,10 +32,7 @@ ApplicationConfiguration ParseCommandLine(int argc, char** argv)
 {
     auto parser = make_shared<ArgumentsParser>("gbx -r <ROM> [-d/--debug -i/--ip <ip> -p/--port <port> | -v/--verbose]");
     parser->RegisterOption("-r", "--rom", "Target ROM to load", OptionType::Pair, OptionRequirement::Required);
-    parser->RegisterOption("-d", "--debug", "Enable Debug Mode", OptionType::Flag, OptionRequirement::Optional);
-    parser->RegisterOption("-i", "--ip", "IP Address", OptionType::Pair, OptionRequirement::Optional);
-    parser->RegisterOption("-p", "--port", "Port Number", OptionType::Pair, OptionRequirement::Optional);
-    parser->RegisterOption("-v", "--verbose", "Verbose mode", OptionType::Flag, OptionRequirement::Optional);
+    parser->RegisterOption("-b", "--bios", "Target BIOS to load", OptionType::Pair, OptionRequirement::Required);
 
     try
     {
@@ -54,22 +49,9 @@ ApplicationConfiguration ParseCommandLine(int argc, char** argv)
         
         if (parser->HasBeenFound("-r"))
             configuration.ROMName = parser->RetrieveOption("-r").Value.value();
-
-        if (parser->HasBeenFound("-d"))
-        {
-            configuration.IsDebug = true;
-
-            if (parser->HasBeenFound("-i") && parser->HasBeenFound("-p"))
-            {
-                configuration.IPAddress = parser->RetrieveOption("-i").Value.value();
-                configuration.Port = parser->RetrieveOption("-p").Value.value();
-            }
-            else
-            {
-                cout << parser->Help() << '\n';
-                exit(1);
-            }
-        }
+        
+        if (parser->HasBeenFound("-b"))
+            configuration.BIOSName = parser->RetrieveOption("-b").Value.value();
 
         return configuration;
     }
@@ -102,8 +84,10 @@ void RuntimeMode(ApplicationConfiguration configuration)
     auto gbx = make_unique<GameBoyX>();
     auto cycleCounter = 0llu;
 
-    cout << "User ROM: " << configuration.ROMName << '\n';
+    gbx->LoadBIOS(configuration.BIOSName);
+    cout << "System BIOS: " << configuration.BIOSName << '\n';
     gbx->LoadGame(configuration.ROMName);
+    cout << "User ROM: " << configuration.ROMName << '\n';
 
     while (cycleCounter < std::numeric_limits<size_t>::max())
     {
@@ -114,10 +98,7 @@ void RuntimeMode(ApplicationConfiguration configuration)
 
 void LaunchEmulator(ApplicationConfiguration configuration)
 {
-    if (configuration.IsDebug)
-        DebugMode();
-    else
-        RuntimeMode(configuration);
+    RuntimeMode(configuration);
 }
 
 int main (int argc, char** argv)

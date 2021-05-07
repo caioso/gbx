@@ -165,13 +165,22 @@ void OpenGLVideoOutput::ConvertTileToPixel()
         }
 }
 
+static size_t frameCounter = 0;
 void OpenGLVideoOutput::FillOpenGLBuffer()
 {
+    cout << "Frame Counter: " << frameCounter++ << '\n';
+    // The renderiong 
     constexpr auto limit = gbxcore::constants::ScreenHeight * gbxcore::constants::ScreenWidth;
+    
+    auto offset = 0llu;
     for (auto pointer = 0llu; pointer < limit; ++pointer)
     {
         auto destination = _openGLViewportBuffer + (pointer)*3;
-        auto sourceIndex = (pointer);
+        auto sourceIndex = (pointer + offset);
+
+        if (pointer != 0 && (pointer + offset)%gbxcore::constants::ScreenWidth == 0)
+            offset += gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount*8 - gbxcore::constants::ScreenWidth;
+
         destination[0] = _gbxFramePixels[sourceIndex].Red;
         destination[1] = _gbxFramePixels[sourceIndex].Green;
         destination[2] = _gbxFramePixels[sourceIndex].Blue;
@@ -181,6 +190,7 @@ void OpenGLVideoOutput::FillOpenGLBuffer()
 void OpenGLVideoOutput::ClearFrame()
 {
     constexpr auto limit = gbxcore::constants::ScreenHeight * gbxcore::constants::DMGBCScreenWidth;
+    
     for (auto pointer = 0llu; pointer < limit; ++pointer)
         _gbxFramePixels[pointer] = gbxcore::interfaces::VideoOutputInterface::ByteToColor(0);
 }
