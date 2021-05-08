@@ -10,7 +10,7 @@
 #include "GBXAsmExceptions.h"
 #include "InstructionIntermediateRepresentation.h"
 #include "Opcodes.h"
-
+#include "ExpressionSyntacticAnalyzer.h"
 namespace gbxasm::frontend::parsers
 {
 
@@ -20,6 +20,7 @@ enum class InstructionParserTreeSymbol
     TerminalIdentifier,
     TerminalComma,
     TerminalNumericLiteral,
+    TerminalOpenBrackets,
     
     // Instruction Mnemonics
     TerminalInstructionLD,
@@ -33,6 +34,7 @@ enum class InstructionParserTreeSymbol
     NonTerminalNumericLiteralOperand,
     NonTerminalSeparator,
     NonTerminalInstruction,
+    NonTerminalExpression
 };
 
 enum class InstructionClass
@@ -71,6 +73,7 @@ private:
     void ReduceSeparator(int);
     void ReduceTwoOperandsInstruction(int);
     void ReduceOneOperandInstruction(int);
+    void ReduceExpression(int, std::vector<Token>::iterator&, std::vector<Token>::iterator&);
 
     gbxcore::instructions::OpcodeType TerminalToOpcode(InstructionCompoundSymbol);
  

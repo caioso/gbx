@@ -64,17 +64,23 @@ shared_ptr<IntermediateRepresentation> InstructionSyntacticAnalyzer::TryToAccept
             }
             else if (state == 3) // Start detecting operands
             {
-                if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::TerminalIdentifier)
+                if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::TerminalIdentifier) // Variable, register, constant
                 {
                     // Reduce Identifier
                     Shift(leftSubstring);
                     state = 4;
                 }
-                else if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::TerminalNumericLiteral)
+                else if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::TerminalNumericLiteral) // Number, string bool, etc.
                 {
                     // Reduce Identifier
                     Shift(leftSubstring);
                     state = 7;
+                }
+                else if (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::TerminalOpenBrackets) // Expression
+                {
+                    // Reduce Expression
+                    Shift(leftSubstring);
+                    state = 11;
                 }
                 else if (instructionClass == InstructionClass::TwoOperands && 
                         (_symbols[leftSubstring].Symbol == InstructionParserTreeSymbol::NonTerminalIdentifierOperand ||
@@ -187,6 +193,11 @@ shared_ptr<IntermediateRepresentation> InstructionSyntacticAnalyzer::TryToAccept
                 ReduceOneOperandInstruction(leftSubstring);
                 break;
             }
+            else if (state == 11) // Reduce Expression
+            {
+                ReduceExpression(leftSubstring, beginIt, endIt);
+                break;
+            }
         }
 
         for (auto i : _symbols)
@@ -195,8 +206,22 @@ shared_ptr<IntermediateRepresentation> InstructionSyntacticAnalyzer::TryToAccept
         }
     }
 
-    auto intermediateRepresentation = make_shared<InstructionIntermediateRepresentation>(_line, _column);
+    auto intermediateRepresentation = make_shared<InstructionIntermediateRepresentation>(_line, _column, 0llu, 0llu);
     return intermediateRepresentation;
+}
+
+void InstructionSyntacticAnalyzer::ReduceExpression(int leftSubstring, vector<Token>::iterator& beginIt, vector<Token>::iterator& endIt)
+{
+    ExpressionSyntacticAnalyzer expressionParser;
+
+    try
+    {
+        auto beginIterator = beginIt + leftSubstring - 1;
+        auto endIterator = endIt;
+        auto intermediateRepresentation = expressionParser.TryToAccept(beginIterator, endIterator);
+    }
+    catch (SyntacticAnalyzerException e)
+    {}
 }
 
 void InstructionSyntacticAnalyzer::ReduceTwoOperandsInstruction(int leftSubstring)
@@ -279,6 +304,8 @@ void InstructionSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& begin
                 return {.Symbol = InstructionParserTreeSymbol::TerminalIdentifier, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
             case TokenType::SeparatorCOMMA: 
                 return {.Symbol = InstructionParserTreeSymbol::TerminalComma, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+            case TokenType::SeparatorOPENBRACKETS: 
+                return {.Symbol = InstructionParserTreeSymbol::TerminalOpenBrackets, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
             case TokenType::LiteralNumericBINARY: 
             case TokenType::LiteralNumericOCTAL: 
             case TokenType::LiteralNumericDECIMAL: 

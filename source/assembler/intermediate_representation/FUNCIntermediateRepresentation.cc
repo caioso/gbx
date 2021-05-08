@@ -9,9 +9,11 @@ FUNCIntermediateRepresentation::FUNCIntermediateRepresentation(string identifier
                                                                vector<Token> tokens, 
                                                                vector<DeclaredArgument> inputArgs, 
                                                                vector<DeclaredArgument> outputArgs, 
-                                                               size_t line, 
-                                                               size_t column)
-    : IntermediateRepresentation(ConstructionType::FUNC, line, column)
+                                                               size_t startLine, 
+                                                               size_t startColumn, 
+                                                               size_t endLine, 
+                                                               size_t endColumn)
+    : IntermediateRepresentation(ConstructionType::FUNC, startLine, startColumn, endLine, endColumn)
     , _inputArguments(inputArgs)
     , _outputArguments(outputArgs)
     , _bodyTokens(tokens)

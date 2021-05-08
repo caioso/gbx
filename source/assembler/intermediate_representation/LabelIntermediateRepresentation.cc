@@ -5,8 +5,8 @@ using namespace std;
 namespace gbxasm::intermediate_representation
 {
 
-LabelIntermediateRepresentation::LabelIntermediateRepresentation(string identifier, LabelScope scope, size_t line, size_t column)
-    : IntermediateRepresentation(ConstructionType::Label, line, column)
+LabelIntermediateRepresentation::LabelIntermediateRepresentation(string identifier, LabelScope scope,  size_t startLine, size_t startColumn, size_t endLine, size_t endColumn)
+    : IntermediateRepresentation(ConstructionType::Label, startLine, startColumn, endLine, endColumn)
     , _scope(scope)
     , _identifier(identifier)
 {}

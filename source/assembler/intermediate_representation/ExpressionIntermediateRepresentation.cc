@@ -5,8 +5,8 @@ using namespace std;
 namespace gbxasm::intermediate_representation
 {
 
-ExpressionIntermediateRepresentation::ExpressionIntermediateRepresentation(stack<ExpressionMember> expressionStack, size_t line, size_t column)
-    : IntermediateRepresentation(ConstructionType::Expression, line, column)
+ExpressionIntermediateRepresentation::ExpressionIntermediateRepresentation(stack<ExpressionMember> expressionStack, size_t startLine, size_t startColumn, size_t endLine, size_t endColumn)
+    : IntermediateRepresentation(ConstructionType::Expression, startLine, startColumn, endLine, endColumn)
     , _expressionStack(expressionStack)
 {}
 

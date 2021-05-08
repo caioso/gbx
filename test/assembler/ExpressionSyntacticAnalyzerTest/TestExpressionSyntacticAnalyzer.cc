@@ -1650,7 +1650,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, ParseExpressionWithInvalidPackI
 
 TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRepresentation)
 {
-    const string expression = "A + B";
+    const string expression = "A + BOB";
 
     // Expected Result  
     //              EXP2 Binary(EXP0 + EXP1)
@@ -1673,6 +1673,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x03llu, expressionRepresentation->ExpressionStack().size());
 
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x08llu, expressionRepresentation->EndColumn());
+    
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
     stack.pop();
@@ -1694,7 +1699,7 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_EQ(ExpressionType::ResolveOperand, member.Type);
     EXPECT_EQ(Operator::NoOperator, member.OperatorType);
     EXPECT_EQ(OperandType::Identifier, member.Operand1Type);
-    EXPECT_STREQ("B", member.Operand1.c_str());
+    EXPECT_STREQ("BOB", member.Operand1.c_str());
     EXPECT_EQ(OperandType::NoOperand, member.Operand2Type);
     EXPECT_STREQ("", member.Operand2.c_str());
     
@@ -1741,6 +1746,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
 
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x05llu, expressionRepresentation->ExpressionStack().size());
+
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x0Allu, expressionRepresentation->EndColumn());
 
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
@@ -1830,6 +1840,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x03llu, expressionRepresentation->ExpressionStack().size());
 
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x08llu, expressionRepresentation->EndColumn());
+
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
     stack.pop();
@@ -1898,6 +1913,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
 
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x05llu, expressionRepresentation->ExpressionStack().size());
+
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x0Cllu, expressionRepresentation->EndColumn());
 
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
@@ -1990,6 +2010,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
 
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x05llu, expressionRepresentation->ExpressionStack().size());
+
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x0Ellu, expressionRepresentation->EndColumn());
 
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
@@ -2087,6 +2112,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
 
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x07lu, expressionRepresentation->ExpressionStack().size());
+
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x12llu, expressionRepresentation->EndColumn());
 
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
@@ -2197,6 +2227,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x02llu, expressionRepresentation->ExpressionStack().size());
 
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x03llu, expressionRepresentation->EndColumn());
+
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
     stack.pop();
@@ -2246,6 +2281,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
 
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x02llu, expressionRepresentation->ExpressionStack().size());
+
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x05llu, expressionRepresentation->EndColumn());
 
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
@@ -2299,6 +2339,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
 
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x04llu, expressionRepresentation->ExpressionStack().size());
+
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x09llu, expressionRepresentation->EndColumn());
 
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
@@ -2383,6 +2428,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
 
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x08llu, expressionRepresentation->ExpressionStack().size());
+
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x11llu, expressionRepresentation->EndColumn());
 
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
@@ -2540,6 +2590,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x04llu, expressionRepresentation->ExpressionStack().size());
 
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x14llu, expressionRepresentation->EndColumn());
+
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
     stack.pop();
@@ -2610,6 +2665,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x01llu, expressionRepresentation->ExpressionStack().size());
 
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x04llu, expressionRepresentation->EndColumn());
+
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
     stack.pop();
@@ -2652,6 +2712,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
 
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x04llu, expressionRepresentation->ExpressionStack().size());
+
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x0Bllu, expressionRepresentation->EndColumn());
 
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
@@ -2769,6 +2834,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
 
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x06llu, expressionRepresentation->ExpressionStack().size());
+
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x16llu, expressionRepresentation->EndColumn());
 
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
@@ -2910,6 +2980,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x06llu, expressionRepresentation->ExpressionStack().size());
 
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x16llu, expressionRepresentation->EndColumn());
+
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
     stack.pop();
@@ -3050,6 +3125,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x06llu, expressionRepresentation->ExpressionStack().size());
 
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x16llu, expressionRepresentation->EndColumn());
+
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();
     stack.pop();
@@ -3189,6 +3269,11 @@ TEST(AssemblerTests_ExpressionSyntacticAnalysis, AnalyseExpressionIntermediateRe
 
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ(0x06llu, expressionRepresentation->ExpressionStack().size());
+
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x16llu, expressionRepresentation->EndColumn());
 
     auto stack = expressionRepresentation->ExpressionStack();
     auto member = stack.top();

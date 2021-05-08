@@ -19,7 +19,7 @@ enum class LabelScope
 class LabelIntermediateRepresentation : public IntermediateRepresentation
 {
 public:
-    LabelIntermediateRepresentation(std::string, LabelScope, size_t, size_t);
+    LabelIntermediateRepresentation(std::string, LabelScope, size_t, size_t, size_t, size_t);
     virtual ~LabelIntermediateRepresentation() = default;
 
     LabelIntermediateRepresentation(const LabelIntermediateRepresentation&) = default;

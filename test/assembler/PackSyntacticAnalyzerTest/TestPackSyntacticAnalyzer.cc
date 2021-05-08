@@ -392,8 +392,8 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, PACKIntermediateRepresentationWithSin
     EXPECT_NE(nullptr, packRepresentation);
 
     EXPECT_STREQ("FLAG_REGISTER", string(packRepresentation->Identifier()).c_str());
-    EXPECT_EQ(1llu, packRepresentation->Line());
-    EXPECT_EQ(1llu, packRepresentation->Column());
+    EXPECT_EQ(1llu, packRepresentation->StartLine());
+    EXPECT_EQ(1llu, packRepresentation->StartColumn());
     EXPECT_EQ(1llu, packRepresentation->Members().size());
     
     EXPECT_STREQ("FLAGS", packRepresentation->Members()[0].Identifier.c_str());
@@ -413,7 +413,7 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, PACKIntermediateRepresentationWithMul
                         "    CHAR MY_CHAR_MEMBER\n"
                         "    DWRD MY_DWRD_MEMBER\n"
                         "    STR[20] MY_STRING_MEMBER\n"
-                        "END";
+                        "    END"; // the missalignment is just used to test the end line/column correctness.
 
 
     auto lexer = make_shared<LexicalAnalyzer>();
@@ -429,8 +429,10 @@ TEST(AssemblerTests_PACKSyntacticAnalyzer, PACKIntermediateRepresentationWithMul
     EXPECT_NE(nullptr, packRepresentation);
 
     EXPECT_STREQ("MY_PACK", string(packRepresentation->Identifier()).c_str());
-    EXPECT_EQ(1llu, packRepresentation->Line());
-    EXPECT_EQ(1llu, packRepresentation->Column());
+    EXPECT_EQ(1llu, packRepresentation->StartLine());
+    EXPECT_EQ(1llu, packRepresentation->StartColumn());
+    EXPECT_EQ(10llu, packRepresentation->EndLine());
+    EXPECT_EQ(8llu, packRepresentation->EndColumn());
     EXPECT_EQ(7llu, packRepresentation->Members().size());
     
     EXPECT_STREQ("MY_BYTE_MEMBER", packRepresentation->Members()[0].Identifier.c_str());

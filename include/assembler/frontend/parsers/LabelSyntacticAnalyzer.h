@@ -85,8 +85,10 @@ private:
     bool IsSemiColonOrMarkerBegin(int);
     
     std::vector<LabelCompoundSymbol> _symbols;
-    size_t _line;
-    size_t _column;
+    size_t _line{};
+    size_t _column{};
+    size_t _endLine{};
+    size_t _endColumn{};
 };
 
 }

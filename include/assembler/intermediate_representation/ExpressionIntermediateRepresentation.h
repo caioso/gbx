@@ -13,7 +13,7 @@ namespace gbxasm::intermediate_representation
 class ExpressionIntermediateRepresentation : public IntermediateRepresentation
 {
 public:
-    ExpressionIntermediateRepresentation(std::stack<ExpressionMember>, size_t, size_t);
+    ExpressionIntermediateRepresentation(std::stack<ExpressionMember>, size_t, size_t, size_t, size_t);
     virtual ~ExpressionIntermediateRepresentation() = default;
 
     ExpressionIntermediateRepresentation(const ExpressionIntermediateRepresentation&) = default;

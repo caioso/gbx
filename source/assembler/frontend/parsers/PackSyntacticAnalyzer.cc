@@ -207,7 +207,7 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> PACK
     }
 
     if (IsAccepted())
-        return make_shared<PACKIntermediateRepresentation>(identifier, members, currentToken->Line, currentToken->Column);
+        return make_shared<PACKIntermediateRepresentation>(identifier, members, currentToken->Line, currentToken->Column, _endLine, _endColumn);
     else
         return {};
 }
@@ -229,7 +229,7 @@ void PACKSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& currentToken
         return previousCondition;
     });
     
-    transform(currentToken, end, back_inserter(_symbols), [](Token x) -> PACKCompoundSymbol
+    transform(currentToken, end, back_inserter(_symbols), [&](Token x) -> PACKCompoundSymbol
     {
         switch (x.Type)
         {
@@ -256,6 +256,8 @@ void PACKSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& currentToken
             case TokenType::LiteralNumericBINARY:
                 return {.Symbol = PACKParseTreeSymbols::TerminalNumericLiteral, .Lexeme  = x.Lexeme };
             case TokenType::KeywordEND:
+                _endLine = x.Line;
+                _endColumn = x.Column + x.Lexeme.size();
                 return {.Symbol = PACKParseTreeSymbols::TerminalEnd, .Lexeme  = x.Lexeme };
             default:
             {

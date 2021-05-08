@@ -13,7 +13,7 @@ namespace gbxasm::intermediate_representation
 class InstructionIntermediateRepresentation : public IntermediateRepresentation
 {
 public:
-    InstructionIntermediateRepresentation(size_t, size_t);
+    InstructionIntermediateRepresentation(size_t, size_t, size_t, size_t);
     virtual ~InstructionIntermediateRepresentation() = default;
 
     InstructionIntermediateRepresentation(const InstructionIntermediateRepresentation&) = default;

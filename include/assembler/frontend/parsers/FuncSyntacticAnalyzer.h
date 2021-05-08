@@ -102,6 +102,8 @@ private:
     std::vector<FUNCCompoundSymbol> _symbols;
     size_t _line;
     size_t _column;
+    size_t _endLine;
+    size_t _endColumn;
     std::vector<Token> _bodyTokens;
 };
 

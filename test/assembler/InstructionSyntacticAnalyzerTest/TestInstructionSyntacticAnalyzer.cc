@@ -269,3 +269,17 @@ TEST(AssemblerTests_InstructionSyntacticAnalysis, ParseCALLWithIdentifierAndLite
 
     EXPECT_TRUE(parser.IsAccepted());
 }
+
+TEST(AssemblerTests_InstructionSyntacticAnalysis, ParseInstructionWithExpression)
+{
+    const string expression = "LD [HL], A";
+    LexicalAnalyzer lexer;
+    InstructionSyntacticAnalyzer parser;
+    
+    lexer.Tokenize(expression);
+    auto currentToken = begin(lexer.Tokens());
+    auto endIterator = end(lexer.Tokens());
+    parser.TryToAccept(currentToken, endIterator);
+
+    EXPECT_TRUE(parser.IsAccepted());
+}

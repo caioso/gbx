@@ -286,7 +286,7 @@ shared_ptr<gbxasm::intermediate_representation::IntermediateRepresentation> FUNC
         return {};
     }
 
-    auto intermediateRepresentation = make_shared<FUNCIntermediateRepresentation>(identifier, _bodyTokens, inputArgs, outputArgs, _line, _column);
+    auto intermediateRepresentation = make_shared<FUNCIntermediateRepresentation>(identifier, _bodyTokens, inputArgs, outputArgs, _line, _column, _endLine, _endColumn);
     return intermediateRepresentation;
 }
 
@@ -350,6 +350,10 @@ void FUNCSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& beginIt, vec
     if ((*(functionEnd - 1)).Type == TokenType::KeywordEND)
     {
         FUNCCompoundSymbol end = {.Symbol = FUNCParseTreeSymbols::TerminalEnd, .Lexeme  = (*(functionEnd - 1)).Lexeme };
+
+        _endLine = (*(functionEnd - 1)).Line;
+        _endColumn = (*(functionEnd - 1)).Column + (*(functionEnd - 1)).Lexeme.size();
+
         _symbols.emplace_back(end);
     }
     else

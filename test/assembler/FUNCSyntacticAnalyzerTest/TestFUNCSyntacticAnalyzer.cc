@@ -918,8 +918,8 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, FuncIntermediateRepresentation)
     EXPECT_NE(nullptr, funcRepresentation);
 
     EXPECT_STREQ("DOES_NOTHING", string(funcRepresentation->Identifier()).c_str());
-    EXPECT_EQ(2llu, funcRepresentation->Line());
-    EXPECT_EQ(1llu, funcRepresentation->Column());
+    EXPECT_EQ(2llu, funcRepresentation->StartLine());
+    EXPECT_EQ(1llu, funcRepresentation->StartColumn());
     EXPECT_EQ(8llu, funcRepresentation->BodyTokens().size());
     EXPECT_EQ(5llu, funcRepresentation->InputArguments().size());
     EXPECT_EQ(5llu, funcRepresentation->OutputArguments().size());
@@ -1069,8 +1069,10 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, FuncIntermediateRepresentation2)
     EXPECT_NE(nullptr, funcRepresentation);
 
     EXPECT_STREQ("SAMPLE_FUNCTION", string(funcRepresentation->Identifier()).c_str());
-    EXPECT_EQ(1llu, funcRepresentation->Line());
-    EXPECT_EQ(1llu, funcRepresentation->Column());
+    EXPECT_EQ(1llu, funcRepresentation->StartLine());
+    EXPECT_EQ(1llu, funcRepresentation->StartColumn());
+    EXPECT_EQ(8llu, funcRepresentation->EndLine());
+    EXPECT_EQ(4llu, funcRepresentation->EndColumn());
     EXPECT_EQ(0llu, funcRepresentation->BodyTokens().size());
     EXPECT_EQ(5llu, funcRepresentation->InputArguments().size());
     EXPECT_EQ(0llu, funcRepresentation->OutputArguments().size());
@@ -1144,8 +1146,10 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, FuncIntermediateRepresentation3)
     EXPECT_NE(nullptr, funcRepresentation);
 
     EXPECT_STREQ("DOES_NOTHING", string(funcRepresentation->Identifier()).c_str());
-    EXPECT_EQ(2llu, funcRepresentation->Line());
-    EXPECT_EQ(1llu, funcRepresentation->Column());
+    EXPECT_EQ(2llu, funcRepresentation->StartLine());
+    EXPECT_EQ(1llu, funcRepresentation->StartColumn());
+    EXPECT_EQ(9llu, funcRepresentation->EndLine());
+    EXPECT_EQ(4llu, funcRepresentation->EndColumn());
     EXPECT_EQ(0llu, funcRepresentation->BodyTokens().size());
     EXPECT_EQ(0llu, funcRepresentation->InputArguments().size());
     EXPECT_EQ(5llu, funcRepresentation->OutputArguments().size());
@@ -1217,8 +1221,10 @@ TEST(AssemblerTests_FUNCSyntacticAnalyzer, FuncIntermediateRepresentation4)
     EXPECT_NE(nullptr, funcRepresentation);
 
     EXPECT_STREQ("DOES_NOTHING", string(funcRepresentation->Identifier()).c_str());
-    EXPECT_EQ(2llu, funcRepresentation->Line());
-    EXPECT_EQ(1llu, funcRepresentation->Column());
+    EXPECT_EQ(2llu, funcRepresentation->StartLine());
+    EXPECT_EQ(1llu, funcRepresentation->StartColumn());
+    EXPECT_EQ(7llu, funcRepresentation->EndLine());
+    EXPECT_EQ(4llu, funcRepresentation->EndColumn());
     EXPECT_EQ(8llu, funcRepresentation->BodyTokens().size());
     EXPECT_EQ(0llu, funcRepresentation->InputArguments().size());
     EXPECT_EQ(0llu, funcRepresentation->OutputArguments().size());

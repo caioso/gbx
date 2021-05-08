@@ -164,7 +164,7 @@ shared_ptr<IntermediateRepresentation> LabelSyntacticAnalyzer::TryToAccept(vecto
         }
     }
 
-    auto intermediateRepresentation = make_shared<LabelIntermediateRepresentation>(identifier, scope, _line, _column);
+    auto intermediateRepresentation = make_shared<LabelIntermediateRepresentation>(identifier, scope, _line, _column, _endLine, _endColumn);
     return intermediateRepresentation;
 }
 
@@ -270,6 +270,8 @@ void LabelSyntacticAnalyzer::ExtractSymbols(vector<Token>::iterator& beginIt, ve
             case TokenType::Identifier: 
                 return {.Symbol = LabelParserTreeSymbol::TerminalIdentifier, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
             case TokenType::OperatorSEMICOLON: 
+                _endLine = x.Line;
+                _endColumn = x.Column + x.Lexeme.size();
                 return {.Symbol = LabelParserTreeSymbol::TerminalSemiColon, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
             case TokenType::OperatorLESSTHAN: 
                 return {.Symbol = LabelParserTreeSymbol::TerminalLessThan, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};

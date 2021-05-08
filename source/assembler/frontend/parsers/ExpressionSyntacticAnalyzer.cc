@@ -9,6 +9,13 @@ namespace gbxasm::frontend::parsers
 
 shared_ptr<IntermediateRepresentation> ExpressionSyntacticAnalyzer::TryToAccept(vector<Token>::iterator& beginIt, vector<Token>::iterator& endIt)
 {
+    if (beginIt == endIt)
+    {
+        Reject();
+        auto representation = make_shared<ExpressionIntermediateRepresentation>(_expressionStack, 0, 0, 0, 0);
+        return representation;
+    }
+
     ExtractSymbols(beginIt, endIt);
     ExpressionMember currentMember;
     ClearCurrentMember(currentMember);
@@ -116,39 +123,92 @@ shared_ptr<IntermediateRepresentation> ExpressionSyntacticAnalyzer::TryToAccept(
         }
     }
 
-    auto representation = make_shared<ExpressionIntermediateRepresentation>(_expressionStack, _line, _column);
+    auto representation = make_shared<ExpressionIntermediateRepresentation>(_expressionStack, _line, _column, _symbols[0].Line, _symbols[0].EndColumn);
     return representation;
 }
 
 void ExpressionSyntacticAnalyzer::ReduceUnaryExpression(int leftSubstring, ExpressionParserTreeSymbols unaryOperationType, bool rightHandSideUnary)
 {
+    auto line = (*(begin(_symbols) + leftSubstring)).Line;
+    auto column = (*(begin(_symbols) + leftSubstring)).Column;
+    auto endColumn = (*(begin(_symbols) + leftSubstring)).EndColumn;
+
     // Remove Non-Terminal Expression (E) / RHS Unary Operand
     _symbols.erase(begin(_symbols) + leftSubstring);
     // Remove Unary Operand / Non-Treminal Expression
     _symbols.erase(begin(_symbols) + leftSubstring - 1);
 
     if (unaryOperationType == ExpressionParserTreeSymbols::TerminalLogicNegation)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryLogicNegation, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryLogicNegation, 
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalBitwiseNegation)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryBitwiseNegation, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryBitwiseNegation,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalMinus)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryNegative, .Lexeme = string(""), .Surrounder = Surrounder::None });
-    else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalPlus)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPositive, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryNegative,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
+    else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalPlus)   
+        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPositive,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalOperatorHash)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryImmedite, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryImmedite,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalIncrement && !rightHandSideUnary)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPreIncrement, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPreIncrement,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalIncrement && rightHandSideUnary)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPostIncrement, .Lexeme = string(""), .Surrounder = Surrounder::None });
-    else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalDecrement && !rightHandSideUnary)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPreDecrement, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPostIncrement,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
+    else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalDecrement && !rightHandSideUnary)   
+        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPreDecrement,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (unaryOperationType == ExpressionParserTreeSymbols::TerminalDecrement && rightHandSideUnary)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPostDecrement, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 1, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryPostDecrement,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
 }
 
 void ExpressionSyntacticAnalyzer::ReduceBinaryExpression(int leftSubstring, ExpressionParserTreeSymbols operationType)
 {
+    auto line = (*(begin(_symbols) + leftSubstring - 1)).Line;
+    auto column = (*(begin(_symbols) + leftSubstring - 1)).Column;
+    auto endColumn = (*(begin(_symbols) + leftSubstring - 1)).EndColumn;
+
     // Reduce Binary operation E <OP> E -> F1
     // Remove Identifier
     _symbols.erase(begin(_symbols) + leftSubstring - 1);
@@ -158,43 +218,138 @@ void ExpressionSyntacticAnalyzer::ReduceBinaryExpression(int leftSubstring, Expr
     _symbols.erase(begin(_symbols) + leftSubstring - 3);
 
     if (operationType == ExpressionParserTreeSymbols::TerminalPlus)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryAddition, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryAddition,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalMinus)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinarySubtraction, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinarySubtraction,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalMultiplication)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryMultiplication, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryMultiplication,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalDivision)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryDivision, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryDivision,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalBitwiseAnd)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryBitwiseAnd, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryBitwiseAnd,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalBitwiseOr)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryBitwiseOr, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryBitwiseOr,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalBitwiseXor)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryBitwiseXor, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryBitwiseXor,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalLeftShift)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryLeftShift, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryLeftShift,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalRightShift)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryRightShift, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryRightShift,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalEquality)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryEquality, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryEquality,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalDifference)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryDiffertence, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryDiffertence,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalLogicAnd)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryLogicAnd, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryLogicAnd,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalLogicOr)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryLogicOr, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryLogicOr,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalGreaterThan)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryGreaterThan, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryGreaterThan,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalLessThan)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryLessThan, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryLessThan,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalGreaterThanOrEqualTo)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryGreaterThanOrEqualTo, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryGreaterThanOrEqualTo,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalLessThanOrEqualTo)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryLessThanOrEqualTo, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryLessThanOrEqualTo,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalThreeWay)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryThreeWay, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryThreeWay,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else if (operationType == ExpressionParserTreeSymbols::TerminalAssignment)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryAssignment, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 3, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryAssignment,
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
 }
 
 bool ExpressionSyntacticAnalyzer::AllExpressionsHaveBeenReduced(int leftSubstring)
@@ -227,6 +382,10 @@ bool ExpressionSyntacticAnalyzer::IsBinaryOperator(int leftSubstring)
 
 void ExpressionSyntacticAnalyzer::ReduceEnclosedExpression(int leftSubstring)
 {
+    auto line = (*(begin(_symbols) + leftSubstring)).Line;
+    auto column = (*(begin(_symbols) + leftSubstring)).Column;
+    auto endColumn = (*(begin(_symbols) + leftSubstring)).EndColumn;
+
     // Reduce Surrounded operation
     // Remove )
     auto encloserType = (*(begin(_symbols) + leftSubstring)).Symbol;
@@ -237,9 +396,19 @@ void ExpressionSyntacticAnalyzer::ReduceEnclosedExpression(int leftSubstring)
     _symbols.erase(begin(_symbols) + leftSubstring - 2);
     
     if (encloserType == ExpressionParserTreeSymbols::TerminalCloseParenthesis)
-        _symbols.insert(begin(_symbols) +  leftSubstring - 2, { .Symbol = ExpressionParserTreeSymbols::NonTerminalSurroundedOperation, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 2, { .Symbol = ExpressionParserTreeSymbols::NonTerminalSurroundedOperation, 
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     else
-        _symbols.insert(begin(_symbols) +  leftSubstring - 2, { .Symbol = ExpressionParserTreeSymbols::NonTerminalSurroundedMemoryOperation, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) +  leftSubstring - 2, { .Symbol = ExpressionParserTreeSymbols::NonTerminalSurroundedMemoryOperation, 
+                                                                .Lexeme = string(""), 
+                                                                .Line = line,
+                                                                .Column = column,
+                                                                .EndColumn = endColumn,
+                                                                .Surrounder = Surrounder::None });
     
     // The expression has already been pushed, but only now it is known that it is part of a surrounded operation. Since the parethesis has been closed,
     // decrese the depth of the lastly pushed expression
@@ -279,8 +448,17 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, F
         // Remove Identifier
         PushResolveOperand(_symbols[leftSubstring], currentMember);
 
+        auto line = (*(begin(_symbols) + leftSubstring)).Line;
+        auto column = (*(begin(_symbols) + leftSubstring)).Column;
+        auto endColumn = (*(begin(_symbols) + leftSubstring)).EndColumn;
+
         _symbols.erase(begin(_symbols) + leftSubstring);
-        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalIdentifier, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) + leftSubstring, {  .Symbol = ExpressionParserTreeSymbols::NonTerminalIdentifier, 
+                                                            .Lexeme = string(""), 
+                                                            .Line = line,
+                                                            .Column = column,
+                                                            .EndColumn = endColumn,
+                                                            .Surrounder = Surrounder::None });
         return NextOperation::Reduced;
     }
     // Detect Pack Identifier
@@ -290,8 +468,17 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, F
         // Remove Identifier
         PushResolveOperand(_symbols[leftSubstring], currentMember);
 
+        auto line = (*(begin(_symbols) + leftSubstring)).Line;
+        auto column = (*(begin(_symbols) + leftSubstring)).Column;
+        auto endColumn = (*(begin(_symbols) + leftSubstring)).EndColumn;
+
         _symbols.erase(begin(_symbols) + leftSubstring);
-        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalPackIdentifier, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) + leftSubstring, {  .Symbol = ExpressionParserTreeSymbols::NonTerminalPackIdentifier, 
+                                                            .Lexeme = string(""), 
+                                                            .Line = line,
+                                                            .Column = column,
+                                                            .EndColumn = endColumn,
+                                                            .Surrounder = Surrounder::None });
         return NextOperation::Reduced;
     }
     // Detect Numeric Literal
@@ -301,8 +488,17 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, F
         // Reduce Identifier to Non-Terminal Identifier (T1)
         PushResolveOperand(_symbols[leftSubstring], currentMember);
 
+        auto line = (*(begin(_symbols) + leftSubstring)).Line;
+        auto column = (*(begin(_symbols) + leftSubstring)).Column;
+        auto endColumn = (*(begin(_symbols) + leftSubstring)).EndColumn;
+
         _symbols.erase(begin(_symbols) + leftSubstring);
-        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalNumericLiteral, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) + leftSubstring, {  .Symbol = ExpressionParserTreeSymbols::NonTerminalNumericLiteral, 
+                                                            .Lexeme = string(""), 
+                                                            .Line = line,
+                                                            .Column = column,
+                                                            .EndColumn = endColumn,
+                                                            .Surrounder = Surrounder::None });
         return NextOperation::Reduced;
     }
     // Detect Char Literal
@@ -312,8 +508,17 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, F
         // Remove Identifier
         PushResolveOperand(_symbols[leftSubstring], currentMember);
 
+        auto line = (*(begin(_symbols) + leftSubstring)).Line;
+        auto column = (*(begin(_symbols) + leftSubstring)).Column;
+        auto endColumn = (*(begin(_symbols) + leftSubstring)).EndColumn;
+
         _symbols.erase(begin(_symbols) + leftSubstring);
-        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalCharLiteral, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) + leftSubstring, {  .Symbol = ExpressionParserTreeSymbols::NonTerminalCharLiteral, 
+                                                            .Lexeme = string(""), 
+                                                            .Line = line,
+                                                            .Column = column,
+                                                            .EndColumn = endColumn,
+                                                            .Surrounder = Surrounder::None });
         return NextOperation::Reduced;
     }
     // Detect String Literal
@@ -323,8 +528,17 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, F
         // Remove Identifier
         PushResolveOperand(_symbols[leftSubstring], currentMember);
 
+        auto line = (*(begin(_symbols) + leftSubstring)).Line;
+        auto column = (*(begin(_symbols) + leftSubstring)).Column;
+        auto endColumn = (*(begin(_symbols) + leftSubstring)).EndColumn;
+
         _symbols.erase(begin(_symbols) + leftSubstring);
-        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalStringLiteral, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) + leftSubstring, {  .Symbol = ExpressionParserTreeSymbols::NonTerminalStringLiteral,
+                                                            .Lexeme = string(""), 
+                                                            .Line = line,
+                                                            .Column = column,
+                                                            .EndColumn = endColumn,
+                                                            .Surrounder = Surrounder::None });
         return NextOperation::Reduced;
     }
     // Detect Boolean Literal
@@ -334,8 +548,17 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, F
         // Remove Identifier
         PushResolveOperand(_symbols[leftSubstring], currentMember);
 
-        _symbols.erase(begin(_symbols) + leftSubstring);
-        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBooleanLiteral, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        auto line = (*(begin(_symbols) + leftSubstring)).Line;
+        auto column = (*(begin(_symbols) + leftSubstring)).Column;
+        auto endColumn = (*(begin(_symbols) + leftSubstring)).EndColumn;
+
+        _symbols.erase(begin(_symbols) + leftSubstring);    
+        _symbols.insert(begin(_symbols) + leftSubstring, {  .Symbol = ExpressionParserTreeSymbols::NonTerminalBooleanLiteral,
+                                                            .Lexeme = string(""), 
+                                                            .Line = line,
+                                                            .Column = column,
+                                                            .EndColumn = endColumn,
+                                                            .Surrounder = Surrounder::None });
         return NextOperation::Reduced;
     }
     // Detect ( or [
@@ -372,8 +595,18 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, F
     {
         // Reduce Identifier to Non-Terminal Operand (E6)
         // Remove Non-terminal Identifier
+
+        auto line = (*(begin(_symbols) + leftSubstring)).Line;
+        auto column = (*(begin(_symbols) + leftSubstring)).Column;
+        auto endColumn = (*(begin(_symbols) + leftSubstring)).EndColumn;
+
         _symbols.erase(begin(_symbols) + leftSubstring);
-        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalOperand, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) + leftSubstring, {  .Symbol = ExpressionParserTreeSymbols::NonTerminalOperand,
+                                                            .Lexeme = string(""), 
+                                                            .Line = line,
+                                                            .Column = column,
+                                                            .EndColumn = endColumn,
+                                                            .Surrounder = Surrounder::None });
         return NextOperation::Reduced;
     }
     else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalUnaryLogicNegation ||
@@ -388,8 +621,18 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, F
     {
         // Reduce Identifier to Non-Terminal Binary Operation (E1/E2/E3/E4...) to Non Terminal Unary peration (E0)
         // Remove Non-terminal Operand
+
+        auto line = (*(begin(_symbols) + leftSubstring)).Line;
+        auto column = (*(begin(_symbols) + leftSubstring)).Column;
+        auto endColumn = (*(begin(_symbols) + leftSubstring)).EndColumn;
+
         _symbols.erase(begin(_symbols) + leftSubstring);
-        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryOperation, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) + leftSubstring, {  .Symbol = ExpressionParserTreeSymbols::NonTerminalUnaryOperation,
+                                                            .Lexeme = string(""), 
+                                                            .Line = line,
+                                                            .Column = column,
+                                                            .EndColumn = endColumn,
+                                                            .Surrounder = Surrounder::None });
         return NextOperation::Reduced;
     }
     else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalBinaryAddition ||
@@ -414,8 +657,18 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, F
     {
         // Reduce Identifier to Non-Terminal Binary Operation (F1/F2/F3/F4/F5/F6/F7/F8/F9/F10/F11/F12/F13/F14/F15/F16/F17/F18/F19) to Non Terminal Binary Operation (E7)
         // Remove Non-terminal Operand
+
+        auto line = (*(begin(_symbols) + leftSubstring)).Line;
+        auto column = (*(begin(_symbols) + leftSubstring)).Column;
+        auto endColumn = (*(begin(_symbols) + leftSubstring)).EndColumn;
+
         _symbols.erase(begin(_symbols) + leftSubstring);
-        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryOperation, .Lexeme = string(""), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) + leftSubstring, {  .Symbol = ExpressionParserTreeSymbols::NonTerminalBinaryOperation,
+                                                            .Lexeme = string(""), 
+                                                            .Line = line,
+                                                            .Column = column,
+                                                            .EndColumn = endColumn,
+                                                            .Surrounder = Surrounder::None });
         return NextOperation::Reduced;
     }
     else if (_symbols[leftSubstring].Symbol == ExpressionParserTreeSymbols::NonTerminalOperand ||
@@ -426,10 +679,20 @@ NextOperation ExpressionSyntacticAnalyzer::EvaluateOperand(int& leftSubstring, F
     {
         // Reduce Identifier to Non-Terminal Expression (E)
         // Remove Non-terminal Operand
+
+        auto line = (*(begin(_symbols) + leftSubstring)).Line;
+        auto column = (*(begin(_symbols) + leftSubstring)).Column;
+        auto endColumn = (*(begin(_symbols) + leftSubstring)).EndColumn;
+
         stringstream ss;
         ss << "exp" << _expressionID;
         _symbols.erase(begin(_symbols) + leftSubstring);
-        _symbols.insert(begin(_symbols) + leftSubstring, { .Symbol = ExpressionParserTreeSymbols::NonTerminalExpression, .Lexeme = ss.str(), .Surrounder = Surrounder::None });
+        _symbols.insert(begin(_symbols) + leftSubstring, {  .Symbol = ExpressionParserTreeSymbols::NonTerminalExpression, 
+                                                            .Lexeme = ss.str(),
+                                                            .Line = line,
+                                                            .Column = column,
+                                                            .EndColumn = endColumn,
+                                                            .Surrounder = Surrounder::None });
 
         return NextOperation::Reduced;
     }
@@ -464,79 +727,79 @@ void ExpressionSyntacticAnalyzer::ExtractSymbols(std::vector<Token>::iterator& b
         switch (x.Type)
         {
             case TokenType::Identifier: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalIdentifier, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalIdentifier, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::LiteralNumericBINARY: 
             case TokenType::LiteralNumericOCTAL: 
             case TokenType::LiteralNumericDECIMAL: 
             case TokenType::LiteralNumericHEXADECIMAL: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalNumericLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalNumericLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::LiteralSTRING: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalStringLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalStringLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::LiteralCHAR: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalCharLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalCharLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::LiteralBooleanTRUE: 
             case TokenType::LiteralBooleanFALSE: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBooleanLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBooleanLiteral, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::SeparatorOPENPARENTHESIS:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalOpenParenthesis, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalOpenParenthesis, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::SeparatorCLOSEPARENTHESIS:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalCloseParenthesis, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalCloseParenthesis, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::SeparatorOPENBRACKETS:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalOpenBrackets, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalOpenBrackets, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::SeparatorCLOSEBRACKETS:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalCloseBrackets, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalCloseBrackets, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorPLUS: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalPlus, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalPlus, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorMINUS: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalMinus, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalMinus, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorMULTIPLICATION: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalMultiplication, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalMultiplication, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorDIVISION: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalDivision, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalDivision, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorBITWISEAND: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBitwiseAnd, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBitwiseAnd, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorBITWISEOR: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBitwiseOr, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBitwiseOr, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorBITWISEXOR: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBitwiseXor, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBitwiseXor, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorLEFTSHIFT: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalLeftShift, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalLeftShift, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorRIGHTSHIFT: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalRightShift, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalRightShift, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorEQUAL: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalEquality, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalEquality, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorDIFFERENT: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalDifference, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalDifference, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorLOGICAND: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalLogicAnd, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalLogicAnd, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorLOGICOR: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalLogicOr, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalLogicOr, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorGREATERTHAN: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalGreaterThan, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalGreaterThan, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorLESSTHAN: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalLessThan, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalLessThan, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorGREATERTHANOREQUALTO: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalGreaterThanOrEqualTo, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalGreaterThanOrEqualTo, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorLESSTHANOREQUALTO: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalLessThanOrEqualTo, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalLessThanOrEqualTo, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorTHREEWAYCOMPARISON: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalThreeWay, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalThreeWay, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorASSIGNMENT: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalAssignment, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalAssignment, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorLOGICNOT: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalLogicNegation, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalLogicNegation, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorBITWISENOT: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalBitwiseNegation, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalBitwiseNegation, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorDOT: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalOperatorDot, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalOperatorDot, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorHASH: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalOperatorHash, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalOperatorHash, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorUNARYINCREMENT: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalIncrement, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalIncrement, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             case TokenType::OperatorUNARYDECREMENT: 
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalDecrement, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalDecrement, .Lexeme  = x.Lexeme, .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
             default:
-                return {.Symbol = ExpressionParserTreeSymbols::TerminalIgnore, .Lexeme  = "", .Line = x.Line, .Column = x.Column};
+                return {.Symbol = ExpressionParserTreeSymbols::TerminalIgnore, .Lexeme  = "", .Line = x.Line, .Column = x.Column, .EndColumn = x.Column + x.Lexeme.size()};
         }
     });
 
@@ -570,7 +833,11 @@ void ExpressionSyntacticAnalyzer::ExtractSymbols(std::vector<Token>::iterator& b
                     _symbols.erase(begin(_symbols) + i + 1);
                     _symbols.erase(begin(_symbols) + i);
                     _symbols.erase(begin(_symbols) + i - 1);
-                    _symbols.insert(begin(_symbols) + i - 1, {.Symbol = ExpressionParserTreeSymbols::TerminalPackIdentifier, .Lexeme = lexeme, .Line = line, .Column = column, .Surrounder = Surrounder::None });
+                    _symbols.insert(begin(_symbols) + i - 1, {.Symbol = ExpressionParserTreeSymbols::TerminalPackIdentifier, .Lexeme = lexeme, 
+                                                                                                                             .Line = line, 
+                                                                                                                             .Column = column, 
+                                                                                                                             .EndColumn = column + lexeme.size(),
+                                                                                                                             .Surrounder = Surrounder::None });
                     break;
                 }
             }

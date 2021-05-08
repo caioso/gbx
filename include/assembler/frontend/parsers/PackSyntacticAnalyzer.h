@@ -85,6 +85,9 @@ private:
     inline void ReducePack(int);
 
     std::vector<PACKCompoundSymbol> _symbols;
+
+    size_t _endLine{};
+    size_t _endColumn{};
 };
 
 }

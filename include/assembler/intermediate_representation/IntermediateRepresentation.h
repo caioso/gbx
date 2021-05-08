@@ -20,7 +20,7 @@ enum class ConstructionType
 class IntermediateRepresentation
 {
 public:
-    IntermediateRepresentation(ConstructionType, size_t, size_t);
+    IntermediateRepresentation(ConstructionType, size_t, size_t, size_t, size_t);
     virtual ~IntermediateRepresentation() = default;
 
     IntermediateRepresentation(const IntermediateRepresentation&) = default;
@@ -29,13 +29,17 @@ public:
     IntermediateRepresentation& operator=(IntermediateRepresentation&&) = default;
 
     ConstructionType Type();
-    size_t Column();
-    size_t Line();
+    size_t StartColumn();
+    size_t StartLine();
+    size_t EndColumn();
+    size_t EndLine();
 
 private:
     ConstructionType _type{};
-    size_t _line{};
-    size_t _column{};
+    size_t _startLine{};
+    size_t _startColumn{};
+    size_t _endLine{};
+    size_t _endColumn{};
 };
 
 }

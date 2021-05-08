@@ -11,7 +11,7 @@ namespace gbxasm::intermediate_representation
 class PACKIntermediateRepresentation : public IntermediateRepresentation
 {
 public:
-    PACKIntermediateRepresentation(std::string, std::vector<DeclaredMember>, size_t, size_t);
+    PACKIntermediateRepresentation(std::string, std::vector<DeclaredMember>, size_t, size_t, size_t, size_t);
     virtual ~PACKIntermediateRepresentation() = default;
 
     PACKIntermediateRepresentation(const PACKIntermediateRepresentation&) = default;

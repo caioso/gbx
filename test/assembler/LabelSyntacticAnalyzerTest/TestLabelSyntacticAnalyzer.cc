@@ -121,6 +121,10 @@ TEST(AssemblerTests_LabelSyntacticAnalysis, ParseLabel)
     EXPECT_TRUE(parser.IsAccepted());
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ("MY_LABEL", expressionRepresentation->Identifier());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x0Allu, expressionRepresentation->EndColumn());
     EXPECT_EQ(LabelScope::Local, expressionRepresentation->Scope());
 }
 
@@ -140,6 +144,10 @@ TEST(AssemblerTests_LabelSyntacticAnalysis, ParseLabel2)
     EXPECT_TRUE(parser.IsAccepted());
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ("MY_LABEL_WITH_EXTRAS", expressionRepresentation->Identifier());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x16llu, expressionRepresentation->EndColumn());
     EXPECT_EQ(LabelScope::Local, expressionRepresentation->Scope());
 }
 
@@ -255,6 +263,10 @@ TEST(AssemblerTests_LabelSyntacticAnalysis, ParseLabelWithScopeMarker)
     EXPECT_TRUE(parser.IsAccepted());
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ("MY_LABEL", expressionRepresentation->Identifier());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x0Fllu, expressionRepresentation->EndColumn());
     EXPECT_EQ(LabelScope::Global, expressionRepresentation->Scope());
 }
 
@@ -274,6 +286,10 @@ TEST(AssemblerTests_LabelSyntacticAnalysis, ParseLabelWithScopeMarker2)
     EXPECT_TRUE(parser.IsAccepted());
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ("MY_LABEL", expressionRepresentation->Identifier());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x0Fllu, expressionRepresentation->EndColumn());
     EXPECT_EQ(LabelScope::Local, expressionRepresentation->Scope());
 }
 
@@ -293,6 +309,10 @@ TEST(AssemblerTests_LabelSyntacticAnalysis, ParseLabelWithScopeMarker3)
     EXPECT_TRUE(parser.IsAccepted());
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ("LABEL", expressionRepresentation->Identifier());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x13llu, expressionRepresentation->EndColumn());
     EXPECT_EQ(LabelScope::Local, expressionRepresentation->Scope());
 }
 
@@ -313,4 +333,8 @@ TEST(AssemblerTests_LabelSyntacticAnalysis, ParseLabelWithScopeMarker4)
     EXPECT_NE(nullptr, expressionRepresentation);
     EXPECT_EQ("MY_LABEL_WITH_EXTRAS", expressionRepresentation->Identifier());
     EXPECT_EQ(LabelScope::Global, expressionRepresentation->Scope());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartLine());
+    EXPECT_EQ(0x01llu, expressionRepresentation->StartColumn());
+    EXPECT_EQ(0x01llu, expressionRepresentation->EndLine());
+    EXPECT_EQ(0x1Bllu, expressionRepresentation->EndColumn());
 }

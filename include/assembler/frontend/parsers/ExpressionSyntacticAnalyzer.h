@@ -110,6 +110,7 @@ typedef struct ExpressionCompoundSymbol_t
     std::string Lexeme;
     size_t Line;
     size_t Column;
+    size_t EndColumn;
     intermediate_representation::Surrounder Surrounder;
     ExpressionParserTreeSymbols Symbol;
 }
