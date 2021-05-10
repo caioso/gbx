@@ -55,13 +55,13 @@ public:
     virtual void SetCGBBackgroundPalette(uint8_t, OutputPalette) = 0;
     virtual void SetCGBSpritePalette(uint8_t, OutputPalette) = 0;
 
-    static RGBColor ByteToColor(uint8_t byte)
+    inline static RGBColor ByteToColor(uint8_t byte)
     {
         switch (byte)
         {
-            case 0: return GBDLightest;
-            case 2: return GBDSecondLightest;
-            case 1: return GBDSecondDarkest;
+            case 3: return GBDLightest;
+            case 1: return GBDSecondLightest;
+            case 2: return GBDSecondDarkest;
             default: return GBDarkest;
         }
     }

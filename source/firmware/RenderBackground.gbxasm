@@ -51,26 +51,16 @@ TILE_LOOP<LOC>:
 ; Load Background Map
 ; Inital addres of the Tile Map
 
-    LD A, 0x00                                                      ; 0x3E
-                                                                    ; 0x00
-    LD C, A                                                         ; 0x4F
-    LD HL, 0x0600                                                   ; 0x21
-                                                                    ; 0x00
-                                                                    ; 0x06
-    LD DE, 0x9C00                                                   ; 0x11
+    LD A, 0x01                                                      ; 0x3E
+                                                                    ; 0x01
+    LD HL, 0x9C00                                                   ; 0x21
                                                                     ; 0x00
                                                                     ; 0x9C
-MAP_LOOP<LOC>:
-    LD A, [HL++]                                                    ; 0x2A
-    LD (DE), A                                                      ; 0x12
-    INC DE                                                          ; 0x13
-    INC C                                                           ; 0x0C
-    LD A, 0xFF                                                      ; 0x3E
-                                                                    ; 0xFF ; Test. This shouls be 0x0400
-    CP C                                                            ; 0xB9
-    JP NZ, MAP_LOOP                                                 ; 0xC2
-                                                                    ; 0x72
-                                                                    ; 0x01
+    LD [HL++], A                                                    ; 0X22
+    INC HL                                                          ; 0X23
+    LD [HL++], A                                                    ; 0X22
+    INC HL                                                          ; 0X23
+    LD [HL++], A                                                    ; 0X22
 
 ; Done. Loop for ever
 

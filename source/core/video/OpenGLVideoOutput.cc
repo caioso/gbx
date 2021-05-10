@@ -93,7 +93,7 @@ void OpenGLVideoOutput::InitializeTexture()
 
 void OpenGLVideoOutput::RenderFrame()
 {
-    ClearFrame();
+    //ClearFrame();
     ConvertTileToPixel();
     FillOpenGLBuffer();
     BindTexture();
@@ -133,10 +133,11 @@ void OpenGLVideoOutput::RenderTexture()
 
 void OpenGLVideoOutput::ConvertTileToPixel()
 {
+    size_t numberOfPixels = 0;
     // What to do:
     // 1: Pick the tile index from the BG & Window Tile Set
     // 2: Convert the pixels from that tile to RGB
-    //    Observe that tiles are 8 x 8.
+    //    Note that tiles are 8 x 8.
     //    There needs to be direct access to the video RAM raw memory bytes!!!!
     // 3: Consider windowing of the background and the viewport.
     for (auto j = 0llu; j < gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount; ++j)
@@ -157,29 +158,33 @@ void OpenGLVideoOutput::ConvertTileToPixel()
                 auto lsByte = get<uint8_t>(_dmgbcVideoRAM->Read(tilePixelsBasePosition + k + 1, MemoryAccessType::Byte));
 
                 for (auto l = 0; l < 8; ++l)
+                {
                     _gbxFramePixels[initialPixelAddressInVideoBuffer + l + (tileLineCounter * gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount * 8)] = 
                         ByteToColor((((msByte >> (7 - l)) & 0x01) << 0x01) | ((lsByte >> (7 - l)) & 0x01));
 
+                    numberOfPixels++;
+                }
                 tileLineCounter++;
             }
         }
 }
 
-static size_t frameCounter = 0;
 void OpenGLVideoOutput::FillOpenGLBuffer()
 {
-    cout << "Frame Counter: " << frameCounter++ << '\n';
     // The renderiong 
-    constexpr auto limit = gbxcore::constants::ScreenHeight * gbxcore::constants::ScreenWidth;
+    constexpr auto limit = gbxcore::constants::ScreenHeight * gbxcore::constants::DMGBCScreenWidth;
     
     auto offset = 0llu;
-    for (auto pointer = 0llu; pointer < limit; ++pointer)
+    auto lineCounter = 0;
+    for (auto pointer = 0llu; pointer < limit; ++pointer, ++lineCounter)
     {
+        if (lineCounter == gbxcore::constants::DMGBCScreenWidth)
+        {
+            offset += (gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount - gbxcore::constants::DMGBCScreenWidth/8) *8;
+            lineCounter = 0;
+        }
         auto destination = _openGLViewportBuffer + (pointer)*3;
         auto sourceIndex = (pointer + offset);
-
-        if (pointer != 0 && (pointer + offset)%gbxcore::constants::ScreenWidth == 0)
-            offset += gbxcore::constants::DMGBCMaxBackgroundHorizontalTileCount*8 - gbxcore::constants::ScreenWidth;
 
         destination[0] = _gbxFramePixels[sourceIndex].Red;
         destination[1] = _gbxFramePixels[sourceIndex].Green;
